@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, ArrowRight, Clock, Users, Headset, Trophy, CheckCircle2, Star, BookOpen, CalendarCheck, Award, Compass, Quote, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TopNav } from '../components/layout/TopNav';
 
 const marqueeStyles = `
 @keyframes marquee {
@@ -35,46 +36,7 @@ const Homepage = () => {
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-[16px] leading-[24px] font-sans min-h-screen flex flex-col">
             <style>{marqueeStyles}</style>
-            {/* TopNavBar Component */}
-            <header className="bg-white/80 backdrop-blur-md text-[#002045] sticky top-0 shadow-sm border-b border-[#c4c6cf] flex justify-between items-center w-full px-4 lg:px-[32px] max-w-full mx-auto h-[80px] z-50 transition-all">
-                <div className="max-w-[1440px] mx-auto w-full flex justify-between items-center">
-                    <div className="flex items-center gap-[64px]">
-                        <div className="text-[28px] leading-[32px] font-extrabold text-[#002045] tracking-tight flex items-center gap-2">
-                            <BookOpen className="w-8 h-8 text-[#0061a5]" />
-                            ICMS
-                        </div>
-                        <nav className="hidden md:flex gap-[40px]">
-                            <a className="text-[16px] font-semibold text-[#43474e] hover:text-[#0061a5] transition-colors duration-200" href="#">Home</a>
-                            <Link className="text-[16px] font-semibold text-[#43474e] hover:text-[#0061a5] transition-colors duration-200" to="/courses">Courses</Link>
-                        </nav>
-                    </div>
-                    <div className="flex items-center gap-[24px]">
-                        <div className="relative hidden lg:block">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5" />
-                            <input className="pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#c4c6cf] rounded-full text-[14px] leading-[20px] focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 w-64 transition-all" placeholder="Search courses..." type="text" />
-                        </div>
-                        <div className="flex gap-[16px] ml-[8px] pl-[24px] border-l border-[#c4c6cf] items-center">
-                            {isLoggedIn ? (
-                                <div className="flex items-center gap-[12px] cursor-pointer hover:bg-[#f1f4f6] py-1.5 px-3 rounded-full transition-colors" onClick={() => setIsLoggedIn(false)} title="Click to logout">
-                                    <div className="w-[40px] h-[40px] bg-[#0061a5] rounded-full flex items-center justify-center text-white font-bold shadow-sm border-2 border-white">
-                                        HV
-                                    </div>
-                                    <div className="hidden md:flex flex-col text-left">
-                                        <span className="text-[14px] font-bold text-[#002045] leading-tight">Học viên</span>
-                                        <span className="text-[12px] text-[#43474e] leading-tight">My Dashboard</span>
-                                    </div>
-                                    <ChevronDown className="w-4 h-4 text-[#74777f] ml-1 hidden md:block" />
-                                </div>
-                            ) : (
-                                <>
-                                    <Link to="/login" className="px-6 py-2.5 bg-transparent text-[#002045] rounded-full text-[15px] font-bold hover:bg-[#f1f4f6] transition-colors">Log In</Link>
-                                    <Link to="/register" className="px-6 py-2.5 bg-[#0061a5] text-white rounded-full text-[15px] font-bold hover:bg-[#002045] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap">Sign Up</Link>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
 
             <main className="flex-grow">
                 {/* Hero Section */}
@@ -144,7 +106,7 @@ const Homepage = () => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-[20px] font-bold text-[#002045]">$899</span>
-                                        <Link to="/register" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
+                                        <Link to="/courses/1" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                     </div>
                                 </div>
                             </div>
@@ -166,7 +128,7 @@ const Homepage = () => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-[20px] font-bold text-[#002045]">$499</span>
-                                        <Link to="/register" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
+                                        <Link to="/courses/2" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                     </div>
                                 </div>
                             </div>
@@ -188,7 +150,7 @@ const Homepage = () => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-[20px] font-bold text-[#002045]">$350</span>
-                                        <Link to="/register" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
+                                        <Link to="/courses/3" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                     </div>
                                 </div>
                             </div>
@@ -210,7 +172,7 @@ const Homepage = () => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-[20px] font-bold text-[#002045]">$299</span>
-                                        <Link to="/register" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
+                                        <Link to="/courses/4" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                     </div>
                                 </div>
                             </div>

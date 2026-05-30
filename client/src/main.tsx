@@ -28,7 +28,9 @@ import RefundRequest from './views/learner/refund.tsx'
 import SupportTickets from './views/learner/support.tsx'
 import CreateSupportTicket from './views/learner/create-ticket.tsx'
 import TicketDetail from './views/learner/ticket-detail.tsx'
-
+import Courses from './views/courses.tsx'
+import CourseDetail from './views/course-detail.tsx'
+import Checkout from './views/checkout.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
@@ -40,6 +42,9 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/homepage" element={<Homepage />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/courses/:id" element={<CourseDetail />} />
+        <Route path="/checkout" element={<Checkout />} />
 
         {/* Learner Routes wrapped in Layout */}
         <Route element={<LearnerLayout />}>
