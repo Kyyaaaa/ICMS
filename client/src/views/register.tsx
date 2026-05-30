@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, Globe } from 'lucide-react';
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Register = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -50,6 +51,12 @@ const Register = () => {
             </div>
             {/* Right Column: Registration Form */}
             <div className="w-full lg:w-1/2 flex items-center justify-center p-[16px] md:p-[32px] bg-[#f7fafc] relative">
+                {/* Back to Home Button */}
+                <div className="absolute top-[16px] right-[16px] lg:top-[32px] lg:right-[32px] animate-fade-in-down z-50">
+                    <Link to="/homepage" className="flex items-center gap-2 text-[14px] font-semibold text-[#43474e] hover:text-[#0061a5] transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-[#e0e3e5] hover:shadow-md">
+                        <ArrowLeft className="w-4 h-4" /> Back to Home
+                    </Link>
+                </div>
                 {/* Mobile Brand Header (Visible only on mobile) */}
                 <div className="absolute top-[16px] left-[16px] flex items-center gap-[8px] lg:hidden animate-fade-in-down">
                     <Globe className="text-[#002045] w-7 h-7" />

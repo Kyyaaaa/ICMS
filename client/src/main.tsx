@@ -8,7 +8,7 @@ import Login from './views/login.tsx'
 import ForgotPassword from './views/forgot-password/forgot-password.tsx'
 import VerifyOTP from './views/forgot-password/verify-otp.tsx'
 import ResetPassword from './views/forgot-password/reset-password.tsx'
-
+import Homepage from './views/homepage.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
@@ -19,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/homepage" element={<Homepage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
