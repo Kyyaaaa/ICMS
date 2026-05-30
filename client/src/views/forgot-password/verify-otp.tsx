@@ -52,7 +52,7 @@ const VerifyOTP = () => {
         e.preventDefault();
         const code = otp.join('');
         if (code === '123456') {
-            navigate('/otp-verified');
+            navigate('/reset-password');
         } else {
             setError(true);
         }
