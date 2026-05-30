@@ -25,9 +25,7 @@ import ClassRegistration from './views/learner/registration.tsx'
 import PaymentHistory from './views/learner/payments.tsx'
 import PaymentCheckout from './views/learner/checkout.tsx'
 import RefundRequest from './views/learner/refund.tsx'
-import SupportTickets from './views/learner/support.tsx'
-import CreateSupportTicket from './views/learner/create-ticket.tsx'
-import TicketDetail from './views/learner/ticket-detail.tsx'
+import { SupportTickets } from './views/shared/support-tickets.tsx'
 import Courses from './views/courses.tsx'
 import CourseDetail from './views/course-detail.tsx'
 import Checkout from './views/checkout.tsx'
@@ -67,8 +65,6 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/learner/payments/:id/refund" element={<RefundRequest />} />
             
             <Route path="/learner/support" element={<SupportTickets />} />
-            <Route path="/learner/support/new" element={<CreateSupportTicket />} />
-            <Route path="/learner/support/:id" element={<TicketDetail />} />
         </Route>
       </Routes>
     </BrowserRouter>
