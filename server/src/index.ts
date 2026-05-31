@@ -5,6 +5,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
 import { connectDB } from './config/database';
 import authRoutes from './routes/auth.routes';
+import learnerRoutes from './routes/learner.routes';
 
 // Cấu hình dotenv để đọc được file .env
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(express.json()); // Cho phép Server đọc dữ liệu JSON gửi lên 
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/learners', learnerRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

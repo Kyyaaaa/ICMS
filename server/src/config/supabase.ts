@@ -11,3 +11,9 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
+
+const serviceRoleKey = process.env.SERVICE_ROLE_KEY || '';
+if (!serviceRoleKey) {
+  console.warn('CẢNH BÁO: Thiếu biến SERVICE_ROLE_KEY trong file .env. Các chức năng Admin API sẽ không hoạt động.');
+}
+export const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
