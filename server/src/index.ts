@@ -1,9 +1,13 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { connectDB } from './config/database';
 
 // Cấu hình dotenv để đọc được file .env
 dotenv.config();
+
+// Khởi tạo kết nối tới database
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
