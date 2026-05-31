@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, Clock, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PaymentHistory = () => {

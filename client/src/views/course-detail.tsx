@@ -34,7 +34,7 @@ const CourseDetail = () => {
             // If they MUST login first, we can navigate to login.
             navigate('/login');
         } else {
-            navigate('/checkout', { state: { course, class: clsInfo } });
+            navigate('/learner/payments/new/checkout', { state: { course, class: clsInfo } });
         }
     };
 

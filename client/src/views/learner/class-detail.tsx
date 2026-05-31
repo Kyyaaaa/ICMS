@@ -1,9 +1,12 @@
 import React from 'react';
-import { BookOpen, MapPin, Calendar, Clock, Download, ExternalLink } from 'lucide-react';
+import { BookOpen, MapPin, Calendar, Clock } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 const ClassDetail = () => {
     const { id } = useParams();
+    
+    // Mock data for completion status
+    const isCompleted = false;
 
     return (
         <div className="space-y-[24px] max-w-5xl animate-fade-in-up">
@@ -56,19 +59,42 @@ const ClassDetail = () => {
                         </div>
                     </div>
 
-                    {/* Resources */}
+                    {/* Curriculum Outline */}
                     <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px]">
-                        <h2 className="text-[18px] font-semibold text-[#181c1e] mb-[16px]">Materials & Resources</h2>
-                        <ul className="space-y-[12px]">
-                            <li className="flex items-center justify-between p-[12px] border border-[#e0e3e5] rounded-[8px] hover:bg-[#f7fafc] transition-colors">
-                                <span className="text-[14px] font-medium text-[#181c1e]">Syllabus_Reading_Advanced.pdf</span>
-                                <button className="text-[#0061a5] hover:text-[#002045]"><Download className="w-5 h-5"/></button>
-                            </li>
-                            <li className="flex items-center justify-between p-[12px] border border-[#e0e3e5] rounded-[8px] hover:bg-[#f7fafc] transition-colors">
-                                <span className="text-[14px] font-medium text-[#181c1e]">Mock_Test_1_Link.url</span>
-                                <button className="text-[#0061a5] hover:text-[#002045]"><ExternalLink className="w-5 h-5"/></button>
-                            </li>
-                        </ul>
+                        <h2 className="text-[18px] font-semibold text-[#181c1e] mb-[16px]">Curriculum Outline</h2>
+                        <div className="space-y-[16px]">
+                            <div className="flex gap-[16px]">
+                                <div className="flex flex-col items-center">
+                                    <div className="w-8 h-8 rounded-full bg-[#0061a5] text-white flex items-center justify-center font-bold text-[14px]">1</div>
+                                    <div className="w-[2px] h-full bg-[#e0e3e5] mt-[8px]"></div>
+                                </div>
+                                <div className="pb-[16px]">
+                                    <h3 className="font-bold text-[#181c1e] text-[16px]">Introduction to IELTS Reading</h3>
+                                    <p className="text-[14px] text-[#43474e] mt-1">Understanding test format, question types, and basic skimming techniques.</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-[16px]">
+                                <div className="flex flex-col items-center">
+                                    <div className="w-8 h-8 rounded-full bg-[#0061a5] text-white flex items-center justify-center font-bold text-[14px]">2</div>
+                                    <div className="w-[2px] h-full bg-[#e0e3e5] mt-[8px]"></div>
+                                </div>
+                                <div className="pb-[16px]">
+                                    <h3 className="font-bold text-[#181c1e] text-[16px]">Skimming and Scanning Mastery</h3>
+                                    <p className="text-[14px] text-[#43474e] mt-1">Advanced techniques for quickly locating information in complex passages.</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-[16px]">
+                                <div className="flex flex-col items-center">
+                                    <div className="w-8 h-8 rounded-full bg-[#e0e3e5] text-[#74777f] flex items-center justify-center font-bold text-[14px]">3</div>
+                                    <div className="w-[2px] h-full bg-transparent mt-[8px]"></div>
+                                </div>
+                                <div className="pb-[16px]">
+                                    <h3 className="font-bold text-[#74777f] text-[16px]">True/False/Not Given</h3>
+                                    <p className="text-[14px] text-[#74777f] mt-1">Strategies to identify the writer's claims and avoid common traps.</p>
+                                    <span className="inline-block mt-2 px-2 py-1 bg-[#f8f9fa] text-[#43474e] text-[12px] font-bold rounded">Upcoming</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -84,9 +110,15 @@ const ClassDetail = () => {
                         <div className="flex items-center justify-center gap-[4px] text-[#c9a82c] mb-[16px]">
                             ★ ★ ★ ★ ★ <span className="text-[12px] text-[#74777f] ml-1">(4.9)</span>
                         </div>
-                        <Link to={`/learner/classes/${id}/feedback`} className="block w-full py-[8px] bg-[#002045] text-white rounded-[8px] text-[14px] font-semibold hover:bg-[#0061a5] transition-colors">
-                            Leave Feedback
-                        </Link>
+                        {isCompleted ? (
+                            <Link to={`/learner/classes/${id}/feedback`} className="block w-full py-[8px] bg-[#002045] text-white rounded-[8px] text-[14px] font-semibold hover:bg-[#0061a5] transition-colors">
+                                Leave Feedback
+                            </Link>
+                        ) : (
+                            <div className="w-full py-[8px] bg-[#f8f9fa] text-[#74777f] rounded-[8px] text-[14px] font-semibold cursor-not-allowed border border-[#e0e3e5]" title="Feedback will be available after completing all sessions">
+                                Leave Feedback
+                            </div>
+                        )}
                     </div>
 
                     {/* Progress */}

@@ -10,19 +10,19 @@ interface TopNavProps {
 export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedIn }) => {
     const [showNotifications, setShowNotifications] = useState(false);
 
-    // Mock notifications
-    const systemNotifications = [
-        { id: 1, title: 'System Maintenance', desc: 'Scheduled maintenance on Sunday 2AM.', time: '2 hours ago', read: false },
-        { id: 2, title: 'New Course Added', desc: 'Check out our new IELTS Speaking Masterclass.', time: '1 day ago', read: true },
-    ];
+    const [allNotifs, setAllNotifs] = useState([
+        { id: 1, title: 'System Maintenance', desc: 'Scheduled maintenance on Sunday 2AM.', time: '2 hours ago', read: false, type: 'system' },
+        { id: 2, title: 'New Course Added', desc: 'Check out our new IELTS Speaking Masterclass.', time: '1 day ago', read: true, type: 'system' },
+        { id: 3, title: 'Class Reminder', desc: 'Your Intensive Reading class starts in 1 hour.', time: 'Just now', read: false, type: 'role' },
+        { id: 4, title: 'Assignment Graded', desc: 'Your Writing Task 2 has been graded. Score: 7.5', time: '5 hours ago', read: false, type: 'role' },
+    ]);
 
-    const roleNotifications = [
-        { id: 3, title: 'Class Reminder', desc: 'Your Intensive Reading class starts in 1 hour.', time: 'Just now', read: false },
-        { id: 4, title: 'Assignment Graded', desc: 'Your Writing Task 2 has been graded. Score: 7.5', time: '5 hours ago', read: false },
-    ];
-
-    const notifications = isLoggedIn ? [...roleNotifications, ...systemNotifications] : systemNotifications;
+    const notifications = isLoggedIn ? allNotifs : allNotifs.filter(n => n.type === 'system');
     const unreadCount = notifications.filter(n => !n.read).length;
+
+    const markAllAsRead = () => {
+        setAllNotifs(prev => prev.map(n => ({ ...n, read: true })));
+    };
 
     return (
         <header className="bg-white/80 backdrop-blur-md text-[#002045] sticky top-0 shadow-sm border-b border-[#c4c6cf] flex justify-between items-center w-full px-4 lg:px-[32px] max-w-full mx-auto h-[80px] z-50 transition-all">
@@ -60,7 +60,7 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
                             <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-[#e0e3e5] overflow-hidden flex flex-col z-[100] animate-fade-in">
                                 <div className="px-4 py-3 border-b border-[#e0e3e5] bg-[#f7fafc] flex justify-between items-center">
                                     <h4 className="font-bold text-[#002045]">Notifications</h4>
-                                    <span className="text-[12px] text-[#0061a5] font-semibold cursor-pointer hover:underline">Mark all as read</span>
+                                    <span className="text-[12px] text-[#0061a5] font-semibold cursor-pointer hover:underline" onClick={markAllAsRead}>Mark all as read</span>
                                 </div>
                                 <div className="max-h-[300px] overflow-y-auto">
                                     {notifications.length > 0 ? notifications.map(notif => (
@@ -77,7 +77,7 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
                                     )}
                                 </div>
                                 <div className="p-2 bg-[#f7fafc] border-t border-[#e0e3e5] text-center">
-                                    <span className="text-[13px] text-[#0061a5] font-bold cursor-pointer hover:underline">View all</span>
+                                    <Link to={isLoggedIn ? "/learner/notifications" : "/notifications"} onClick={() => setShowNotifications(false)} className="text-[13px] text-[#0061a5] font-bold cursor-pointer hover:underline block w-full">View all</Link>
                                 </div>
                             </div>
                         )}

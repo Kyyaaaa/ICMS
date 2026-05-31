@@ -66,15 +66,31 @@ const LearnerDashboard = () => {
                 <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px]">
                     <div className="flex justify-between items-center mb-[16px]">
                         <h2 className="text-[18px] font-semibold text-[#181c1e]">Recent Announcements</h2>
-                        <Link to="/learner/announcements" className="text-[#0061a5] text-[14px] font-medium hover:underline flex items-center gap-1">
+                        <Link to="/learner/notifications" className="text-[#0061a5] text-[14px] font-medium hover:underline flex items-center gap-1">
                             View all <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
                     <div className="space-y-[16px]">
-                        <div className="border-b border-[#e0e3e5] pb-[12px] last:border-0 last:pb-0">
-                            <h3 className="font-semibold text-[#181c1e] hover:text-[#0061a5] cursor-pointer transition-colors">Holiday Schedule Update</h3>
-                            <p className="text-[14px] text-[#43474e] mt-1 line-clamp-2">Please note that the center will be closed for the upcoming national holiday on October 15th...</p>
+                        <div className="border-b border-[#e0e3e5] pb-[12px]">
+                            <div className="flex justify-between items-start mb-1">
+                                <h3 className="font-bold text-[#002045] hover:text-[#0061a5] cursor-pointer transition-colors">Class Reminder</h3>
+                                <span className="w-2 h-2 bg-[#0061a5] rounded-full mt-1.5 shrink-0"></span>
+                            </div>
+                            <p className="text-[14px] text-[#43474e] mt-1 line-clamp-2">Your Intensive Reading class starts in 1 hour.</p>
+                            <span className="text-[12px] text-[#74777f] mt-2 block">10 mins ago</span>
+                        </div>
+                        <div className="border-b border-[#e0e3e5] pb-[12px]">
+                            <div className="flex justify-between items-start mb-1">
+                                <h3 className="font-bold text-[#002045] hover:text-[#0061a5] cursor-pointer transition-colors">Assignment Graded</h3>
+                                <span className="w-2 h-2 bg-[#0061a5] rounded-full mt-1.5 shrink-0"></span>
+                            </div>
+                            <p className="text-[14px] text-[#43474e] mt-1 line-clamp-2">Your Writing Task 2 has been graded. Score: 7.5</p>
                             <span className="text-[12px] text-[#74777f] mt-2 block">2 hours ago</span>
+                        </div>
+                        <div className="pb-[4px]">
+                            <h3 className="font-semibold text-[#43474e] hover:text-[#0061a5] cursor-pointer transition-colors">System Maintenance</h3>
+                            <p className="text-[14px] text-[#43474e] mt-1 line-clamp-2">ICMS platform will be down for maintenance this Sunday at 2 AM.</p>
+                            <span className="text-[12px] text-[#74777f] mt-2 block">1 day ago</span>
                         </div>
                     </div>
                 </div>

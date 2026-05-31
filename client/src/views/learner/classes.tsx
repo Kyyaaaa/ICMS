@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, MapPin, Calendar, Clock } from 'lucide-react';
+import { BookOpen, MapPin, Calendar, Clock, User, CalendarDays } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const LearnerClasses = () => {
@@ -21,13 +21,15 @@ const LearnerClasses = () => {
                             </div>
                             <span className="px-[8px] py-[4px] bg-[#d2e4ff] text-[#0061a5] text-[12px] font-bold rounded uppercase tracking-wide">Ongoing</span>
                         </div>
-                        <h2 className="text-[18px] font-bold text-[#181c1e] mb-[8px]">IELTS Academic - Reading</h2>
-                        <p className="text-[14px] text-[#43474e] mb-[16px]">Target Band: 7.5+</p>
+                        <p className="text-[12px] font-semibold text-[#0061a5] mb-1 uppercase tracking-wide">Course: IELTS Academic</p>
+                        <h2 className="text-[18px] font-bold text-[#181c1e] mb-[16px]">Class: Reading Mastery (IE-R01)</h2>
                         
                         <div className="space-y-[8px] text-[14px] text-[#43474e]">
-                            <div className="flex items-center gap-[8px]"><MapPin className="w-4 h-4 text-[#74777f]"/> Room 302</div>
-                            <div className="flex items-center gap-[8px]"><Calendar className="w-4 h-4 text-[#74777f]"/> Tue, Thu</div>
-                            <div className="flex items-center gap-[8px]"><Clock className="w-4 h-4 text-[#74777f]"/> 18:00 - 20:00</div>
+                            <div className="flex items-center gap-[8px]"><User className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Tutor:</span> Ms. Sarah Jenkins</div>
+                            <div className="flex items-center gap-[8px]"><MapPin className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Room:</span> Room 302</div>
+                            <div className="flex items-center gap-[8px]"><Calendar className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Schedule:</span> Tue, Thu</div>
+                            <div className="flex items-center gap-[8px]"><Clock className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Time:</span> 18:00 - 20:00</div>
+                            <div className="flex items-center gap-[8px]"><CalendarDays className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Duration:</span> Oct 01 - Dec 31, 2026</div>
                         </div>
                     </div>
                     <div className="p-[16px] border-t border-[#e0e3e5] bg-[#f7fafc] grid grid-cols-2 gap-[16px]">
@@ -45,13 +47,15 @@ const LearnerClasses = () => {
                             </div>
                             <span className="px-[8px] py-[4px] bg-[#d2e4ff] text-[#0061a5] text-[12px] font-bold rounded uppercase tracking-wide">Ongoing</span>
                         </div>
-                        <h2 className="text-[18px] font-bold text-[#181c1e] mb-[8px]">IELTS Academic - Writing</h2>
-                        <p className="text-[14px] text-[#43474e] mb-[16px]">Target Band: 7.0+</p>
+                        <p className="text-[12px] font-semibold text-[#0061a5] mb-1 uppercase tracking-wide">Course: IELTS Academic</p>
+                        <h2 className="text-[18px] font-bold text-[#181c1e] mb-[16px]">Class: Writing Intensive (IE-W02)</h2>
                         
                         <div className="space-y-[8px] text-[14px] text-[#43474e]">
-                            <div className="flex items-center gap-[8px]"><MapPin className="w-4 h-4 text-[#74777f]"/> Room 305</div>
-                            <div className="flex items-center gap-[8px]"><Calendar className="w-4 h-4 text-[#74777f]"/> Mon, Wed</div>
-                            <div className="flex items-center gap-[8px]"><Clock className="w-4 h-4 text-[#74777f]"/> 19:00 - 21:00</div>
+                            <div className="flex items-center gap-[8px]"><User className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Tutor:</span> Mr. James Bond</div>
+                            <div className="flex items-center gap-[8px]"><MapPin className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Room:</span> Room 305</div>
+                            <div className="flex items-center gap-[8px]"><Calendar className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Schedule:</span> Mon, Wed</div>
+                            <div className="flex items-center gap-[8px]"><Clock className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Time:</span> 19:00 - 21:00</div>
+                            <div className="flex items-center gap-[8px]"><CalendarDays className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Duration:</span> Oct 01 - Dec 31, 2026</div>
                         </div>
                     </div>
                     <div className="p-[16px] border-t border-[#e0e3e5] bg-[#f7fafc] grid grid-cols-2 gap-[16px]">

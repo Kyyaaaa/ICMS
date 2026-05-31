@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar as CalendarIcon, Clock, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const LearnerSchedules = () => {
     // Mock data for weekly schedule

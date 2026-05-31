@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, BookOpen, Headset, Compass, ArrowRight, Filter, Star, Clock, MonitorPlay, Users, ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { TopNav } from '../components/layout/TopNav';
 const Courses = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
