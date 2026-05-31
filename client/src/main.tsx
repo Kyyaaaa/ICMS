@@ -45,6 +45,23 @@ import { StaffSupportTickets } from './views/staff/support-tickets.tsx'
 
 import Courses from './views/courses.tsx'
 import CourseDetail from './views/course-detail.tsx'
+
+// Admin Views
+import { AdminLayout } from './components/layout/admin-layout.tsx'
+import AdminDashboard from './views/admin/dashboard.tsx'
+import AdminCourses from './views/admin/courses.tsx'
+import AdminCourseDetail from './views/admin/course-detail.tsx'
+import AdminDiscountCodes from './views/admin/discount-codes.tsx'
+import AdminClassrooms from './views/admin/classrooms.tsx'
+import AdminAccounts from './views/admin/accounts.tsx'
+import AdminAccountDetail from './views/admin/account-detail.tsx'
+import AdminRefunds from './views/admin/refunds.tsx'
+import AdminRefundDetail from './views/admin/refund-detail.tsx'
+import AdminPayroll from './views/admin/payroll.tsx'
+import AdminPayrollDetail from './views/admin/payroll-detail.tsx'
+import AdminAnnouncements from './views/admin/announcements.tsx'
+import AdminAuditLogs from './views/admin/audit-logs.tsx'
+
 // Shared Views
 import { NotificationsPage } from './views/shared/notifications.tsx'
 import PublicNotifications from './views/public-notifications.tsx'
@@ -111,6 +128,21 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/staff/salary" element={<SalaryHistory />} />
             
             <Route path="/staff/support" element={<StaffSupportTickets />} />
+        </Route>
+        <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/courses" element={<AdminCourses />} />
+            <Route path="/admin/courses/:id" element={<AdminCourseDetail />} />
+            <Route path="/admin/discount-codes" element={<AdminDiscountCodes />} />
+            <Route path="/admin/classrooms" element={<AdminClassrooms />} />
+            <Route path="/admin/accounts" element={<AdminAccounts />} />
+            <Route path="/admin/accounts/:id" element={<AdminAccountDetail />} />
+            <Route path="/admin/refunds" element={<AdminRefunds />} />
+            <Route path="/admin/refunds/:id" element={<AdminRefundDetail />} />
+            <Route path="/admin/payroll" element={<AdminPayroll />} />
+            <Route path="/admin/payroll/:id" element={<AdminPayrollDetail />} />
+            <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+            <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
         </Route>
       </Routes>
     </BrowserRouter>

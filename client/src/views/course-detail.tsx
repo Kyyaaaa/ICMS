@@ -24,24 +24,30 @@ const CourseDetail = () => {
         { id: 103, name: 'Class 3', schedule: 'Sat, Sun 09:00 - 11:00', room: 'Room 204', currentStudents: 8, maxStudents: 15 },
     ];
 
-    const handleConfirmEnrollment = () => {
-        if (!selectedClass) return;
-        const clsInfo = availableClasses.find(c => c.id === selectedClass);
-        if (!isLoggedIn) {
-            // For now, if not logged in, pretend they log in and go to checkout 
-            // OR just redirect to login. Let's redirect to checkout for demo purposes 
-            // since the user wants to see the checkout form. 
-            // If they MUST login first, we can navigate to login.
-            navigate('/login');
-        } else {
-            navigate('/learner/payments/new/checkout', { state: { course, class: clsInfo } });
-        }
-    };
-
     // Mock data for the specific courses
     const mockCourses: Record<string, any> = {
         '1': {
-            id: 1, title: 'IELTS Intensive Mastery', band: '7.5 - 8.0', duration: '12 Weeks', sessions: 48, format: 'Offline', type: 'Masterclass', price: '$899', originalPrice: '$1,200', description: 'A comprehensive, high-intensity preparation course designed to elevate your IELTS band score across all four modules. Ideal for students aiming for Band 7.5+.', nextCohort: 'Oct 15, 2024'
+            id: 1, title: 'IELTS Intensive Mastery', band: '7.5 - 8.0', duration: '12 Weeks', sessions: 48, format: 'Offline', type: 'Masterclass', price: '$899', originalPrice: '$1,200', description: 'A comprehensive, high-intensity preparation course designed to elevate your IELTS band score across all four modules. Ideal for students aiming for Band 7.5+.', nextCohort: 'Oct 15, 2024',
+            modules: [
+                { 
+                    title: 'Listening Mastery', 
+                    sessions: '12 Sessions', 
+                    description: 'Focus on complex audio inputs, diverse accents, and advanced note-taking strategies under exam conditions.',
+                    topics: [
+                        'Identifying distractors and signpost words.',
+                        'Complex flowchart and map completions.'
+                    ]
+                },
+                {
+                    title: 'Reading Comprehension & Speed',
+                    sessions: '12 Sessions',
+                    description: 'Focus on speed-reading techniques, scanning, and detailed comprehension of academic texts.',
+                    topics: [
+                        'Skimming for main ideas and scanning for details.',
+                        'True/False/Not Given statement analysis.'
+                    ]
+                }
+            ]
         },
         '2': {
             id: 2, title: 'Academic 6.5+', band: '6.5+', duration: '16 Weeks', sessions: 64, format: 'Offline', type: 'Standard', price: '$499', originalPrice: '$699', description: 'Perfect for beginners aiming for a solid 6.5 band score. Master grammar and core vocab before diving into formal test strategies.', nextCohort: 'Oct 20, 2024'
@@ -55,6 +61,16 @@ const CourseDetail = () => {
     };
 
     const course = id ? (mockCourses[id] || mockCourses['1']) : mockCourses['1'];
+
+    const handleConfirmEnrollment = () => {
+        if (!selectedClass) return;
+        const clsInfo = availableClasses.find(c => c.id === selectedClass);
+        if (!isLoggedIn) {
+            navigate('/login');
+        } else {
+            navigate('/learner/payments/new/checkout', { state: { course, class: clsInfo } });
+        }
+    };
 
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-[16px] leading-[24px] font-sans min-h-screen flex flex-col">
@@ -117,7 +133,7 @@ const CourseDetail = () => {
                         <div className="flex items-center gap-3 bg-[#f7fafc] rounded-xl p-[16px] mb-[24px] border border-[#e0e3e5]">
                             <Clock className="text-[#0061a5] w-6 h-6" />
                             <div className="text-[14px] text-[#43474e]">
-                                Next cohort starts:<br/>
+                                Course starts:<br/>
                                 <span className="font-bold text-[#002045] text-[16px]">{course.nextCohort}</span>
                             </div>
                         </div>
@@ -157,41 +173,34 @@ const CourseDetail = () => {
                             <div className="flex flex-col gap-[24px] animate-fade-in">
                                 <h2 className="text-[24px] font-bold text-[#002045]">Course Modules</h2>
                                 
-                                {/* Module 1 */}
-                                <div className="bg-white border border-[#c4c6cf] rounded-2xl overflow-hidden shadow-sm">
-                                    <div className="bg-[#f7fafc] px-[24px] py-[16px] flex justify-between items-center border-b border-[#e0e3e5]">
-                                        <div className="flex items-center gap-[16px]">
-                                            <div className="w-[32px] h-[32px] rounded-full bg-[#0061a5] text-white flex items-center justify-center font-bold text-[14px]">1</div>
-                                            <h3 className="text-[18px] font-bold text-[#002045]">Listening Mastery</h3>
+                                {/* Dynamic Syllabus Content */}
+                                <div className="space-y-[16px]">
+                                    {course.modules?.map((module: any, index: number) => (
+                                        <div key={index} className="bg-white border border-[#e0e3e5] rounded-2xl p-[24px] shadow-sm hover:shadow-md transition-shadow">
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between mb-[16px] gap-[12px]">
+                                                <h3 className="text-[20px] font-bold text-[#002045] flex items-center gap-3">
+                                                    <div className="w-[32px] h-[32px] rounded-full bg-[#e6f0fa] text-[#0061a5] flex items-center justify-center text-[14px]">
+                                                        {index + 1}
+                                                    </div>
+                                                    {module.title}
+                                                </h3>
+                                                <span className="bg-[#f7fafc] text-[#43474e] text-[13px] font-bold px-3 py-1 rounded-full border border-[#e0e3e5] whitespace-nowrap w-fit">
+                                                    {module.sessions}
+                                                </span>
+                                            </div>
+                                            <p className="text-[#43474e] mb-[16px] leading-relaxed">
+                                                {module.description}
+                                            </p>
+                                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-[12px]">
+                                                {module.topics?.map((topic: string, tIndex: number) => (
+                                                    <li key={tIndex} className="flex items-start gap-2">
+                                                        <CheckCircle2 className="w-5 h-5 text-[#0061a5] shrink-0 mt-0.5" />
+                                                        <span className="text-[#43474e]">{topic}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         </div>
-                                        <div className="flex items-center gap-[16px]">
-                                            <span className="text-[13px] font-bold text-[#0061a5] bg-[#e6f0fa] px-3 py-1 rounded-full">12 Sessions</span>
-                                        </div>
-                                    </div>
-                                    <div className="p-[24px] flex flex-col gap-[16px]">
-                                        <p className="text-[#43474e]">Focus on complex audio inputs, diverse accents, and advanced note-taking strategies under exam conditions.</p>
-                                        <ul className="flex flex-col gap-[12px] mt-[8px]">
-                                            <li className="flex items-start gap-3 text-[#181c1e] font-medium">
-                                                <CheckCircle2 className="text-[#0061a5] w-5 h-5 shrink-0" /> Identifying distractors and signpost words.
-                                            </li>
-                                            <li className="flex items-start gap-3 text-[#181c1e] font-medium">
-                                                <CheckCircle2 className="text-[#0061a5] w-5 h-5 shrink-0" /> Complex flowchart and map completions.
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                {/* Module 2 */}
-                                <div className="bg-white border border-[#c4c6cf] rounded-2xl overflow-hidden shadow-sm opacity-70">
-                                    <div className="bg-[#f7fafc] px-[24px] py-[16px] flex justify-between items-center">
-                                        <div className="flex items-center gap-[16px]">
-                                            <div className="w-[32px] h-[32px] rounded-full bg-[#e0e3e5] text-[#43474e] flex items-center justify-center font-bold text-[14px]">2</div>
-                                            <h3 className="text-[18px] font-bold text-[#43474e]">Reading Comprehension & Speed</h3>
-                                        </div>
-                                        <div className="flex items-center gap-[16px]">
-                                            <span className="text-[13px] font-bold text-[#74777f] bg-white border border-[#c4c6cf] px-3 py-1 rounded-full">12 Sessions</span>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
                             </div>
                         )}

@@ -2,18 +2,19 @@ import React, { useState } from 'react';
 import { Search, BookOpen, Headset, Compass, ArrowRight, Filter, Star, Clock, MonitorPlay, Users, ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TopNav } from '../components/layout/TopNav';
+
 const Courses = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
 
     // Mock data for courses
     const allCourses = [
-        { id: 1, title: 'IELTS Intensive Mastery', band: '7.5+', duration: '12 Weeks', format: 'Offline', type: 'Masterclass', price: '$899', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: 2, title: 'Academic Fundamentals', band: '5.5-6.5', duration: '8 Weeks', format: 'Offline', type: 'Fundamentals', price: '$599', image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: 3, title: 'Speaking Boot Camp', band: '7.0+', duration: '4 Weeks', format: 'Offline', type: 'Specialized', price: '$299', image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: 4, title: 'Writing Task 2 Accelerator', band: '7.0+', duration: '4 Weeks', format: 'Offline', type: 'Specialized', price: '$299', image: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: 5, title: 'General Training Crash Course', band: '6.0-7.0', duration: '6 Weeks', format: 'Offline', type: 'General', price: '$499', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: 6, title: '1-on-1 Elite Coaching', band: '8.0+', duration: 'Flexible', format: 'Offline', type: 'Private', price: '$120/hr', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '1', title: 'IELTS Intensive Mastery', band: '7.5+', duration: '12 Weeks', format: 'Offline', category: 'Masterclass', price: '$899', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '2', title: 'Academic Fundamentals', band: '5.5-6.5', duration: '8 Weeks', format: 'Offline', category: 'Fundamentals', price: '$599', image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '3', title: 'Speaking Boot Camp', band: '7.0+', duration: '4 Weeks', format: 'Offline', category: 'Specialized', price: '$299', image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '4', title: 'Writing Task 2 Accelerator', band: '7.0+', duration: '4 Weeks', format: 'Offline', category: 'Specialized', price: '$299', image: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '5', title: 'General Training Crash Course', band: '6.0-7.0', duration: '6 Weeks', format: 'Offline', category: 'General', price: '$499', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '6', title: '1-on-1 Elite Coaching', band: '8.0+', duration: 'Flexible', format: 'Offline', category: 'Private', price: '$120/hr', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=600&h=400' },
     ];
 
     // Filter states
@@ -88,37 +89,29 @@ const Courses = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[24px]">
                             {filteredCourses.map(course => (
-                                <div 
-                                    key={course.id} 
-                                    onClick={() => navigate(`/courses/${course.id}`)}
-                                    className="bg-white border border-[#e0e3e5] rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer flex flex-col"
-                                >
-                                    <div className="w-full h-[200px] relative overflow-hidden bg-[#f1f4f6]">
-                                        <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-[#002045] text-[13px] font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5">
-                                            <Star className="w-3.5 h-3.5 fill-[#ffd200] text-[#ffd200]" />
-                                            Target: {course.band}
-                                        </div>
+                                <div key={course.id} className="bg-white rounded-2xl overflow-hidden border border-[#e0e3e5] shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col cursor-pointer" onClick={() => navigate(`/courses/${course.id}`)}>
+                                    <div className="h-[200px] overflow-hidden relative">
+                                        <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                                     </div>
-                                    <div className="p-[24px] flex flex-col flex-grow">
-                                        <div className="flex items-center gap-2 mb-[12px]">
-                                            <span className="bg-[#e6f0fa] text-[#0061a5] text-[12px] font-bold px-2 py-1 rounded uppercase tracking-wider">{course.type}</span>
-                                        </div>
-                                        <h3 className="text-[20px] font-bold text-[#002045] mb-[12px] leading-tight">{course.title}</h3>
-                                        
-                                        <div className="flex flex-col gap-2 mt-auto">
-                                            <div className="flex items-center text-[#43474e] text-[14px]">
-                                                <Clock className="w-4 h-4 mr-2 text-[#74777f]" />
-                                                <span>Duration: <strong>{course.duration}</strong></span>
+                                    <div className="p-[24px] flex flex-col flex-grow relative">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="flex gap-2">
+                                                <span className="px-2 py-1 bg-white border border-[#c4c6cf] text-[#43474e] text-[11px] font-bold rounded uppercase tracking-wider">{course.category}</span>
+                                                <span className="px-2 py-1 bg-[#0061a5] text-white text-[11px] font-bold rounded uppercase tracking-wider">{course.format}</span>
                                             </div>
-                                            <div className="flex items-center text-[#43474e] text-[14px]">
-                                                <MonitorPlay className="w-4 h-4 mr-2 text-[#74777f]" />
-                                                <span>Format: <strong>{course.format}</strong></span>
+                                            <span className="flex items-center gap-1 text-[13px] font-bold text-[#ffd200] bg-[#181c1e] px-2 py-1 rounded">
+                                                <Star className="w-3 h-3 fill-[#ffd200]" /> {course.band}
+                                            </span>
+                                        </div>
+                                        <h3 className="text-[20px] font-bold text-[#002045] mb-2 leading-tight group-hover:text-[#0061a5] transition-colors">{course.title}</h3>
+                                        
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="flex items-center gap-1.5 text-[13px] text-[#43474e] font-medium">
+                                                <Clock className="w-4 h-4 text-[#0061a5]" /> {course.duration}
                                             </div>
                                         </div>
-                                        
-                                        <div className="w-full h-[1px] bg-[#e0e3e5] my-[16px]"></div>
-                                        
+
                                         <div className="flex justify-between items-center mt-auto">
                                             <span className="text-[20px] font-extrabold text-[#0061a5]">{course.price}</span>
                                             <span className="text-[14px] font-bold text-[#002045] flex items-center gap-1 group-hover:text-[#0061a5] transition-colors">
