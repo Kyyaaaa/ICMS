@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { LearnerService } from '../services/learner.service';
+import { validateEmail, validatePassword } from '../utils/validators';
 
 export class LearnerController {
   /**
@@ -52,6 +53,20 @@ export class LearnerController {
         return res.status(400).json({ 
           success: false, 
           message: 'Please provide email, password and full_name' 
+        });
+      }
+
+      if (!validateEmail(email)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid email format' 
+        });
+      }
+
+      if (!validatePassword(password)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character' 
         });
       }
       
