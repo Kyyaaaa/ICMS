@@ -1,10 +1,150 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
+import Register from './views/register.tsx'
+import Login from './views/login.tsx'
+import ForgotPassword from './views/forgot-password/forgot-password.tsx'
+import VerifyOTP from './views/forgot-password/verify-otp.tsx'
+import ResetPassword from './views/forgot-password/reset-password.tsx'
+import Homepage from './views/homepage.tsx'
+
+// Learner Views
+import LearnerLayout from './components/layout/learner-layout.tsx'
+import LearnerDashboard from './views/learner/dashboard.tsx'
+import LearnerProfile from './views/learner/profile.tsx'
+import LearnerClasses from './views/learner/classes.tsx'
+import ClassDetail from './views/learner/class-detail.tsx'
+import ClassFeedback from './views/learner/class-feedback.tsx'
+import AttendanceProgress from './views/learner/attendance.tsx'
+import LearnerSchedules from './views/learner/schedules.tsx'
+import ClassRegistration from './views/learner/registration.tsx'
+import PaymentHistory from './views/learner/payments.tsx'
+import PaymentCheckout from './views/learner/checkout.tsx'
+import RefundRequest from './views/learner/refund.tsx'
+import { SupportTickets } from './views/shared/support-tickets.tsx'
+
+// Staff Views
+import StaffLayout from './components/layout/staff-layout.tsx'
+import StaffDashboard from './views/staff/dashboard.tsx'
+import ConsultationList from './views/staff/consultations.tsx'
+import ProfileList from './views/staff/profiles.tsx'
+import ProfileDetail from './views/staff/profile-detail.tsx'
+import ManageClasses from './views/staff/classes.tsx'
+import CreateClass from './views/staff/create-class.tsx'
+import StaffClassDetail from './views/staff/class-detail.tsx'
+import MasterSchedule from './views/staff/master-schedule.tsx'
+import ChangeRequests from './views/staff/change-requests.tsx'
+import InvoiceList from './views/staff/invoices.tsx'
+import InvoiceDetail from './views/staff/invoice-detail.tsx'
+import StaffProfile from './views/staff/my-profile.tsx'
+import ManageAccounts from './views/staff/accounts.tsx'
+import SalaryHistory from './views/staff/salary.tsx'
+import { StaffSupportTickets } from './views/staff/support-tickets.tsx'
+
+import Courses from './views/courses.tsx'
+import CourseDetail from './views/course-detail.tsx'
+
+// Admin Views
+import { AdminLayout } from './components/layout/admin-layout.tsx'
+import AdminDashboard from './views/admin/dashboard.tsx'
+import AdminCourses from './views/admin/courses.tsx'
+import AdminCourseDetail from './views/admin/course-detail.tsx'
+import AdminDiscountCodes from './views/admin/discount-codes.tsx'
+import AdminClassrooms from './views/admin/classrooms.tsx'
+import AdminAccounts from './views/admin/accounts.tsx'
+import AdminAccountDetail from './views/admin/account-detail.tsx'
+import AdminRefunds from './views/admin/refunds.tsx'
+import AdminRefundDetail from './views/admin/refund-detail.tsx'
+import AdminPayroll from './views/admin/payroll.tsx'
+import AdminPayrollDetail from './views/admin/payroll-detail.tsx'
+import AdminAnnouncements from './views/admin/announcements.tsx'
+import AdminAuditLogs from './views/admin/audit-logs.tsx'
+
+// Shared Views
+import { NotificationsPage } from './views/shared/notifications.tsx'
+import PublicNotifications from './views/public-notifications.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/homepage" element={<Homepage />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/courses/:id" element={<CourseDetail />} />
+        <Route path="/notifications" element={<PublicNotifications />} />
+
+
+        {/* Learner Routes wrapped in Layout */}
+        <Route element={<LearnerLayout />}>
+            <Route path="/learner/dashboard" element={<LearnerDashboard />} />
+            <Route path="/learner/profile" element={<LearnerProfile />} />
+            <Route path="/learner/notifications" element={<NotificationsPage />} />
+            
+            <Route path="/learner/classes" element={<LearnerClasses />} />
+            <Route path="/learner/classes/:id" element={<ClassDetail />} />
+            <Route path="/learner/classes/:id/feedback" element={<ClassFeedback />} />
+            <Route path="/learner/classes/:id/attendance" element={<AttendanceProgress />} />
+            
+            <Route path="/learner/schedules" element={<LearnerSchedules />} />
+            
+            <Route path="/courses/:courseId/register" element={<ClassRegistration />} />
+            
+            <Route path="/learner/payments" element={<PaymentHistory />} />
+            <Route path="/learner/payments/:id/checkout" element={<PaymentCheckout />} />
+            <Route path="/learner/payments/:id/refund" element={<RefundRequest />} />
+            
+            <Route path="/learner/support" element={<SupportTickets />} />
+        </Route>
+
+        <Route element={<StaffLayout />}>
+            <Route path="/staff/dashboard" element={<StaffDashboard />} />
+            <Route path="/staff/profile" element={<StaffProfile />} />
+            <Route path="/staff/notifications" element={<NotificationsPage />} />
+            
+            <Route path="/staff/consultations" element={<ConsultationList />} />
+            
+            <Route path="/staff/profiles" element={<ProfileList />} />
+            <Route path="/staff/profiles/:id" element={<ProfileDetail />} />
+            
+            <Route path="/staff/classes" element={<ManageClasses />} />
+            <Route path="/staff/classes/create" element={<CreateClass />} />
+            <Route path="/staff/classes/:id" element={<StaffClassDetail />} />
+            <Route path="/staff/master-schedule" element={<MasterSchedule />} />
+            
+            <Route path="/staff/change-requests" element={<ChangeRequests />} />
+            
+            <Route path="/staff/invoices" element={<InvoiceList />} />
+            <Route path="/staff/invoices/:id" element={<InvoiceDetail />} />
+            
+            <Route path="/staff/accounts" element={<ManageAccounts />} />
+            <Route path="/staff/salary" element={<SalaryHistory />} />
+            
+            <Route path="/staff/support" element={<StaffSupportTickets />} />
+        </Route>
+        <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/courses" element={<AdminCourses />} />
+            <Route path="/admin/courses/:id" element={<AdminCourseDetail />} />
+            <Route path="/admin/discount-codes" element={<AdminDiscountCodes />} />
+            <Route path="/admin/classrooms" element={<AdminClassrooms />} />
+            <Route path="/admin/accounts" element={<AdminAccounts />} />
+            <Route path="/admin/accounts/:id" element={<AdminAccountDetail />} />
+            <Route path="/admin/refunds" element={<AdminRefunds />} />
+            <Route path="/admin/refunds/:id" element={<AdminRefundDetail />} />
+            <Route path="/admin/payroll" element={<AdminPayroll />} />
+            <Route path="/admin/payroll/:id" element={<AdminPayrollDetail />} />
+            <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+            <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   </StrictMode>,
 )
