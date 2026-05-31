@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { LearnerService } from '../services/learner.service';
-import { validateEmail, validatePassword } from '../utils/validators';
+import { validateEmail, validatePassword, validateFullName, validatePhoneNumber } from '../utils/validators';
+import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 
 export class LearnerController {
   /**
@@ -25,8 +26,16 @@ export class LearnerController {
   /**
    * GET /api/learners/:id
    */
-  static async getById(req: Request, res: Response) {
+  static async getById(req: AuthenticatedRequest, res: Response) {
     try {
+      const userRole = req.user?.user_metadata?.role;
+      if (userRole === 'LEARNER' && req.user?.id !== req.params.id) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Forbidden: You can only access your own profile' 
+        });
+      }
+
       const learner = await LearnerService.getById(req.params.id as string);
       return res.status(200).json({ 
         success: true, 
@@ -69,6 +78,20 @@ export class LearnerController {
           message: 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character' 
         });
       }
+
+      if (!validateFullName(full_name)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid full_name. Must be 2-50 characters and contain only letters and spaces' 
+        });
+      }
+
+      if (phone_number && !validatePhoneNumber(phone_number)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid phone_number. Must be a valid Vietnamese 10-digit phone number starting with 0' 
+        });
+      }
       
       const newLearner = await LearnerService.create({ email, password, full_name, phone_number });
       return res.status(201).json({ 
@@ -88,9 +111,33 @@ export class LearnerController {
   /**
    * PUT /api/learners/:id
    */
-  static async update(req: Request, res: Response) {
+  static async update(req: AuthenticatedRequest, res: Response) {
     try {
+      const userRole = req.user?.user_metadata?.role;
+      if (userRole === 'LEARNER' && req.user?.id !== req.params.id) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Forbidden: You can only update your own profile' 
+        });
+      }
+
       const body = req.body || {};
+      const { full_name, phone_number } = body;
+
+      if (full_name !== undefined && !validateFullName(full_name)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid full_name. Must be 2-50 characters and contain only letters and spaces' 
+        });
+      }
+
+      if (phone_number !== undefined && !validatePhoneNumber(phone_number)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid phone_number. Must be a valid Vietnamese 10-digit phone number starting with 0' 
+        });
+      }
+
       const updatedLearner = await LearnerService.update(req.params.id as string, body);
       return res.status(200).json({ 
         success: true, 

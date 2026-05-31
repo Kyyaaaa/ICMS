@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
-import { validateEmail, validatePassword } from '../utils/validators';
+import { validateEmail, validatePassword, validateFullName, validatePhoneNumber } from '../utils/validators';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -27,6 +27,20 @@ export class AuthController {
         return res.status(400).json({ 
           success: false, 
           message: 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character' 
+        });
+      }
+
+      if (!validateFullName(full_name)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid full_name. Must be 2-50 characters and contain only letters and spaces' 
+        });
+      }
+
+      if (phone_number && !validatePhoneNumber(phone_number)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid phone_number. Must be a valid Vietnamese 10-digit phone number starting with 0' 
         });
       }
 

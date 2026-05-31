@@ -27,13 +27,13 @@ const router = Router();
  *               password:
  *                 type: string
  *                 format: password
- *                 description: Password
+ *                 description: Password (8-15 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char)
  *               full_name:
  *                 type: string
- *                 description: Full name
+ *                 description: Full name (2-50 chars, letters and spaces only)
  *               phone_number:
  *                 type: string
- *                 description: Phone number (optional)
+ *                 description: Vietnamese phone number (optional, 10 digits starting with 03/05/07/08/09)
  *     responses:
  *       201:
  *         description: Registration successful

@@ -5,7 +5,7 @@ export class LearnerService {
    * Lấy danh sách tất cả học viên
    */
   static async getAll() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('learner')
       .select('*, account(email, phone_number, status, role)');
     if (error) throw error;
@@ -16,7 +16,7 @@ export class LearnerService {
    * Lấy chi tiết 1 học viên
    */
   static async getById(id: string) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('learner')
       .select('*, account(email, phone_number, status, role)')
       .eq('account_id', id)
@@ -55,7 +55,7 @@ export class LearnerService {
     
     // Cập nhật bảng learner nếu có full_name
     if (full_name) {
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('learner')
         .update({ full_name, updated_at: new Date().toISOString() })
         .eq('account_id', id);
@@ -68,7 +68,7 @@ export class LearnerService {
       if (phone_number) updateData.phone_number = phone_number;
       if (status) updateData.status = status;
       
-      const { error: accError } = await supabase
+      const { error: accError } = await supabaseAdmin
         .from('account')
         .update(updateData)
         .eq('id', id);

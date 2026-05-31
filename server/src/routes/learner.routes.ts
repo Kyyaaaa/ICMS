@@ -27,8 +27,12 @@ router.use(verifyToken);
  *     responses:
  *       200:
  *         description: Returns a list of learners
+ *       401:
+ *         description: Missing or invalid token
  *       403:
  *         description: Unauthorized access
+ *       500:
+ *         description: Internal Server Error
  * 
  *   post:
  *     summary: Create a new learner manually (For Staff/Admin)
@@ -44,12 +48,18 @@ router.use(verifyToken);
  *             required: [email, password, full_name]
  *             properties:
  *               email: { type: string }
- *               password: { type: string }
- *               full_name: { type: string }
- *               phone_number: { type: string }
+ *               password: { type: string, description: "8-15 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char" }
+ *               full_name: { type: string, description: "2-50 chars, letters and spaces only" }
+ *               phone_number: { type: string, description: "Vietnamese phone number (optional, 10 digits starting with 03/05/07/08/09)" }
  *     responses:
  *       201:
  *         description: Learner created successfully
+ *       400:
+ *         description: Bad Request (Validation errors or creation failure)
+ *       401:
+ *         description: Missing or invalid token
+ *       403:
+ *         description: Unauthorized access
  * 
  * /api/learners/{id}:
  *   get:
@@ -66,6 +76,10 @@ router.use(verifyToken);
  *     responses:
  *       200:
  *         description: Learner details
+ *       401:
+ *         description: Missing or invalid token
+ *       403:
+ *         description: Unauthorized access (Forbidden to access other learners' profiles)
  *       404:
  *         description: Learner not found
  * 
@@ -87,12 +101,18 @@ router.use(verifyToken);
  *           schema:
  *             type: object
  *             properties:
- *               full_name: { type: string }
- *               phone_number: { type: string }
+ *               full_name: { type: string, description: "2-50 chars, letters and spaces only" }
+ *               phone_number: { type: string, description: "Vietnamese phone number (optional, 10 digits starting with 03/05/07/08/09)" }
  *               status: { type: string, enum: [ACTIVE, INACTIVE, SUSPENDED] }
  *     responses:
  *       200:
  *         description: Update successful
+ *       400:
+ *         description: Bad Request (Validation errors)
+ *       401:
+ *         description: Missing or invalid token
+ *       403:
+ *         description: Unauthorized access
  * 
  *   delete:
  *     summary: Permanently delete a learner from the system (Admin only)
@@ -108,6 +128,12 @@ router.use(verifyToken);
  *     responses:
  *       200:
  *         description: Successfully deleted
+ *       400:
+ *         description: Bad Request
+ *       401:
+ *         description: Missing or invalid token
+ *       403:
+ *         description: Unauthorized access (Admin only)
  */
 
 // Định tuyến

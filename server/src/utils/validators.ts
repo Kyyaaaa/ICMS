@@ -9,3 +9,13 @@ export const validatePassword = (password: string) => {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,15}$/;
   return regex.test(password);
 };
+
+export const validatePhoneNumber = (phone: string) => {
+  const regex = /^0[35789]\d{8}$/;
+  return regex.test(phone);
+};
+
+export const validateFullName = (fullName: string) => {
+  const regex = /^[\p{L}\s]{2,50}$/u;
+  return regex.test(fullName);
+};
