@@ -27,4 +27,34 @@ export class AuthService {
 
     return data;
   }
+
+  /**
+   * Đăng nhập
+   * @param email Email đăng nhập
+   * @param password Mật khẩu
+   */
+  static async login(email: string, password: string) {
+    // Gọi Supabase xác thực mật khẩu
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    // (Tuỳ chọn) Bạn có thể truy vấn thêm thông tin từ public.account
+    // const { data: accountData } = await supabase
+    //   .from('account')
+    //   .select('role, status')
+    //   .eq('id', data.user.id)
+    //   .single();
+
+    return {
+      session: data.session,
+      user: data.user,
+      // account: accountData
+    };
+  }
 }

@@ -31,4 +31,41 @@ export class AuthController {
       });
     }
   }
+
+  static async login(req: Request, res: Response) {
+    try {
+      const body = req.body || {};
+      const { email, password } = body;
+
+      if (!email || !password) {
+        return res.status(400).json({
+          success: false,
+          message: 'Vui lòng cung cấp email và password'
+        });
+      }
+
+      const result = await AuthService.login(email, password);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Đăng nhập thành công',
+        data: {
+          access_token: result.session?.access_token,
+          refresh_token: result.session?.refresh_token,
+          user: {
+            id: result.user.id,
+            email: result.user.email,
+            role: result.user.user_metadata?.role,
+            full_name: result.user.user_metadata?.full_name,
+          }
+        }
+      });
+    } catch (error: any) {
+      console.error('Lỗi khi đăng nhập:', error);
+      return res.status(401).json({
+        success: false,
+        message: error.message || 'Sai email hoặc mật khẩu'
+      });
+    }
+  }
 }

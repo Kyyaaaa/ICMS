@@ -62,4 +62,56 @@ const router = Router();
  */
 router.post('/register', AuthController.register);
 
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Đăng nhập hệ thống
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email đăng nhập
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 description: Mật khẩu
+ *     responses:
+ *       200:
+ *         description: Đăng nhập thành công, trả về Access Token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     access_token:
+ *                       type: string
+ *                     refresh_token:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *       400:
+ *         description: Thiếu thông tin đầu vào
+ *       401:
+ *         description: Sai thông tin đăng nhập
+ */
+router.post('/login', AuthController.login);
+
 export default router;
