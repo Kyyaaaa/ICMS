@@ -7,7 +7,7 @@ const router = Router();
  * @swagger
  * /api/auth/register:
  *   post:
- *     summary: Đăng ký tài khoản Learner mới
+ *     summary: Register a new Learner account
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -23,20 +23,20 @@ const router = Router();
  *               email:
  *                 type: string
  *                 format: email
- *                 description: Email đăng ký
+ *                 description: Registration email
  *               password:
  *                 type: string
  *                 format: password
- *                 description: Mật khẩu
+ *                 description: Password
  *               full_name:
  *                 type: string
- *                 description: Họ và tên
+ *                 description: Full name
  *               phone_number:
  *                 type: string
- *                 description: Số điện thoại (tuỳ chọn)
+ *                 description: Phone number (optional)
  *     responses:
  *       201:
- *         description: Đăng ký thành công
+ *         description: Registration successful
  *         content:
  *           application/json:
  *             schema:
@@ -49,7 +49,7 @@ const router = Router();
  *                 data:
  *                   type: object
  *       400:
- *         description: Lỗi dữ liệu đầu vào hoặc lỗi từ hệ thống
+ *         description: Invalid input data or system error
  *         content:
  *           application/json:
  *             schema:
@@ -66,7 +66,7 @@ router.post('/register', AuthController.register);
  * @swagger
  * /api/auth/login:
  *   post:
- *     summary: Đăng nhập hệ thống
+ *     summary: System login
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -81,14 +81,14 @@ router.post('/register', AuthController.register);
  *               email:
  *                 type: string
  *                 format: email
- *                 description: Email đăng nhập
+ *                 description: Login email
  *               password:
  *                 type: string
  *                 format: password
- *                 description: Mật khẩu
+ *                 description: Password
  *     responses:
  *       200:
- *         description: Đăng nhập thành công, trả về Access Token
+ *         description: Login successful, returns Access Token
  *         content:
  *           application/json:
  *             schema:
@@ -108,9 +108,9 @@ router.post('/register', AuthController.register);
  *                     user:
  *                       type: object
  *       400:
- *         description: Thiếu thông tin đầu vào
+ *         description: Missing input data
  *       401:
- *         description: Sai thông tin đăng nhập
+ *         description: Invalid login credentials
  */
 router.post('/login', AuthController.login);
 

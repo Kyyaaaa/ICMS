@@ -11,7 +11,7 @@ export class AuthController {
       if (!email || !password || !full_name) {
         return res.status(400).json({ 
           success: false, 
-          message: 'Vui lòng cung cấp đầy đủ email, password và full_name' 
+          message: 'Please provide email, password and full_name' 
         });
       }
 
@@ -20,14 +20,14 @@ export class AuthController {
 
       return res.status(201).json({
         success: true,
-        message: 'Đăng ký tài khoản thành công',
+        message: 'Account registered successfully',
         data: result.user
       });
     } catch (error: any) {
       console.error('Lỗi khi đăng ký:', error);
       return res.status(400).json({
         success: false,
-        message: error.message || 'Có lỗi xảy ra khi đăng ký tài khoản'
+        message: error.message || 'An error occurred during registration'
       });
     }
   }
@@ -40,7 +40,7 @@ export class AuthController {
       if (!email || !password) {
         return res.status(400).json({
           success: false,
-          message: 'Vui lòng cung cấp email và password'
+          message: 'Please provide email and password'
         });
       }
 
@@ -48,7 +48,7 @@ export class AuthController {
 
       return res.status(200).json({
         success: true,
-        message: 'Đăng nhập thành công',
+        message: 'Login successful',
         data: {
           access_token: result.session?.access_token,
           refresh_token: result.session?.refresh_token,
@@ -64,7 +64,7 @@ export class AuthController {
       console.error('Lỗi khi đăng nhập:', error);
       return res.status(401).json({
         success: false,
-        message: error.message || 'Sai email hoặc mật khẩu'
+        message: error.message || 'Invalid email or password'
       });
     }
   }
