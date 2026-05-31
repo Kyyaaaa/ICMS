@@ -6,7 +6,7 @@ const options: swaggerJsdoc.Options = {
     info: {
       title: 'ICMS API Documentation',
       version: '1.0.0',
-      description: 'Tài liệu API cho dự án IELTS Center Management System (ICMS)',
+      description: 'API Documentation for IELTS Center Management System (ICMS)',
       contact: {
         name: 'Developer',
       },

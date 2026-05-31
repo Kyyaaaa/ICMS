@@ -39,7 +39,7 @@ export class AuthController {
         data: result.user
       });
     } catch (error: any) {
-      console.error('Lỗi khi đăng ký:', error);
+      console.error('Error during registration:', error);
       return res.status(400).json({
         success: false,
         message: error.message || 'An error occurred during registration'
@@ -83,7 +83,7 @@ export class AuthController {
         }
       });
     } catch (error: any) {
-      console.error('Lỗi khi đăng nhập:', error);
+      console.error('Error during login:', error);
       return res.status(401).json({
         success: false,
         message: error.message || 'Invalid email or password'

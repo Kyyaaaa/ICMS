@@ -20,18 +20,18 @@ router.use(verifyToken);
  * 
  * /api/learners:
  *   get:
- *     summary: Lấy danh sách tất cả học viên
+ *     summary: Get a list of all learners
  *     tags: [Learners]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Trả về danh sách học viên
+ *         description: Returns a list of learners
  *       403:
- *         description: Không có quyền truy cập
+ *         description: Unauthorized access
  * 
  *   post:
- *     summary: Tạo mới học viên thủ công (Dành cho Staff/Admin)
+ *     summary: Create a new learner manually (For Staff/Admin)
  *     tags: [Learners]
  *     security:
  *       - bearerAuth: []
@@ -49,11 +49,11 @@ router.use(verifyToken);
  *               phone_number: { type: string }
  *     responses:
  *       201:
- *         description: Tạo học viên thành công
+ *         description: Learner created successfully
  * 
  * /api/learners/{id}:
  *   get:
- *     summary: Lấy chi tiết 1 học viên theo Account ID
+ *     summary: Get details of a learner by Account ID
  *     tags: [Learners]
  *     security:
  *       - bearerAuth: []
@@ -65,12 +65,12 @@ router.use(verifyToken);
  *           type: string
  *     responses:
  *       200:
- *         description: Chi tiết học viên
+ *         description: Learner details
  *       404:
- *         description: Không tìm thấy học viên
+ *         description: Learner not found
  * 
  *   put:
- *     summary: Cập nhật thông tin học viên
+ *     summary: Update learner information
  *     tags: [Learners]
  *     security:
  *       - bearerAuth: []
@@ -92,10 +92,10 @@ router.use(verifyToken);
  *               status: { type: string, enum: [ACTIVE, INACTIVE, SUSPENDED] }
  *     responses:
  *       200:
- *         description: Cập nhật thành công
+ *         description: Update successful
  * 
  *   delete:
- *     summary: Xóa hoàn toàn học viên khỏi hệ thống (Chỉ Admin)
+ *     summary: Permanently delete a learner from the system (Admin only)
  *     tags: [Learners]
  *     security:
  *       - bearerAuth: []
@@ -107,7 +107,7 @@ router.use(verifyToken);
  *           type: string
  *     responses:
  *       200:
- *         description: Đã xóa thành công
+ *         description: Successfully deleted
  */
 
 // Định tuyến

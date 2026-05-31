@@ -31,11 +31,11 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ 
     status: 'OK',
-    message: 'Server NodeJS + TypeScript đang chạy mượt mà!' 
+    message: 'NodeJS + TypeScript Server is running smoothly!' 
   });
 });
 
 // Bật Server lắng nghe các request
 app.listen(PORT, () => {
-  console.log(`[Server]: Đang chạy tại giao lộ http://localhost:${PORT}`);
+  console.log(`[Server]: Running at http://localhost:${PORT}`);
 });
