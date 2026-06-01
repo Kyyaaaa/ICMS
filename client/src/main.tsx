@@ -129,6 +129,7 @@ createRoot(document.getElementById('root')!).render(
             
             <Route path="/staff/classes" element={<ManageClasses />} />
             <Route path="/staff/classes/create" element={<CreateClass />} />
+            <Route path="/staff/classes/edit/:id" element={<CreateClass />} />
             <Route path="/staff/classes/:id" element={<StaffClassDetail />} />
             <Route path="/staff/master-schedule" element={<MasterSchedule />} />
             

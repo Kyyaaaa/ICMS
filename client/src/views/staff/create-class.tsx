@@ -1,11 +1,32 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Users, MapPin, Calendar, ChevronRight, ChevronDown } from 'lucide-react';
 
 const CreateClass = () => {
+    const location = useLocation();
+    const isEdit = location.pathname.includes('/edit');
+    const { id } = useParams();
+
     const [isRoomDropdownOpen, setIsRoomDropdownOpen] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState<{id: string, name: string, cap: number} | null>(null);
     const roomDropdownRef = useRef<HTMLDivElement>(null);
+
+    const [course, setCourse] = useState('');
+    const [className, setClassName] = useState('');
+    const [tutor, setTutor] = useState('');
+    const [studyDays, setStudyDays] = useState('mwf');
+    const [shift, setShift] = useState('morning');
+
+    useEffect(() => {
+        if (isEdit) {
+            setCourse('ielts');
+            setClassName('IELTS-A03');
+            setTutor('sarah');
+            setSelectedRoom({ id: '101', name: 'Room 101', cap: 20 });
+            setStudyDays('mwf');
+            setShift('evening');
+        }
+    }, [isEdit]);
 
     const availableRooms = [
         { id: '101', name: 'Room 101', cap: 20 },
@@ -29,11 +50,11 @@ const CreateClass = () => {
                     <ArrowLeft className="w-4 h-4" /> Manage Classes
                 </Link>
                 <ChevronRight className="w-4 h-4" />
-                <span className="font-semibold text-[#002045]">Create New Class</span>
+                <span className="font-semibold text-[#002045]">{isEdit ? 'Edit Class' : 'Create New Class'}</span>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Create New Class</h1>
+                <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">{isEdit ? 'Edit Class' : 'Create New Class'}</h1>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden">
@@ -44,7 +65,7 @@ const CreateClass = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e]">Course Program <span className="text-red-500">*</span></label>
-                                <select className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
+                                <select value={course} onChange={(e) => setCourse(e.target.value)} className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
                                     <option value="">-- Select Course --</option>
                                     <option value="ielts">IELTS Masterclass (Band 7.0+)</option>
                                     <option value="toeic">TOEIC Intensive (750+)</option>
@@ -52,7 +73,7 @@ const CreateClass = () => {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e]">Class Name (Code) <span className="text-red-500">*</span></label>
-                                <input type="text" placeholder="e.g. IELTS-A03" className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
+                                <input type="text" value={className} onChange={(e) => setClassName(e.target.value)} placeholder="e.g. IELTS-A03" className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
                             </div>
                         </div>
                     </div>
@@ -63,7 +84,7 @@ const CreateClass = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1"><Users className="w-4 h-4 text-gray-500"/> Assign Tutor</label>
-                                <select className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
+                                <select value={tutor} onChange={(e) => setTutor(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
                                     <option value="">-- Select Available Tutor --</option>
                                     <option value="sarah">Dr. Sarah Connor (IELTS Expert)</option>
                                     <option value="james">Mr. James Bond (Advanced Comm.)</option>
@@ -115,7 +136,7 @@ const CreateClass = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1"><Calendar className="w-4 h-4 text-gray-500"/> Study Days</label>
-                                <select className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
+                                <select value={studyDays} onChange={(e) => setStudyDays(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
                                     <option value="mwf">Mon - Wed - Fri</option>
                                     <option value="tts">Tue - Thu - Sat</option>
                                     <option value="ss">Sat - Sun</option>
@@ -123,7 +144,7 @@ const CreateClass = () => {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e]">Time / Shift</label>
-                                <select className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
+                                <select value={shift} onChange={(e) => setShift(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
                                     <option value="morning">09:00 - 11:30 (Morning)</option>
                                     <option value="afternoon">14:00 - 16:30 (Afternoon)</option>
                                     <option value="evening">18:00 - 20:30 (Evening)</option>
@@ -138,7 +159,7 @@ const CreateClass = () => {
                         Cancel
                     </Link>
                     <button className="px-6 py-3 font-semibold text-white bg-[#0061a5] rounded-xl hover:bg-[#004a80] transition-colors flex items-center gap-2">
-                        <Save className="w-5 h-5" /> Save Class
+                        <Save className="w-5 h-5" /> {isEdit ? 'Save Changes' : 'Save Class'}
                     </button>
                 </div>
             </div>

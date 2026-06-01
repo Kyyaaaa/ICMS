@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronRight, ArrowLeft, Users, Calendar, MapPin, Edit, BookOpen, CheckCircle, Clock, Save, X, ChevronDown } from 'lucide-react';
+import { ChevronRight, ArrowLeft, Users, Calendar, MapPin, Edit, BookOpen, CheckCircle, Clock, Save, X, ChevronDown, Trash2 } from 'lucide-react';
 
 const StaffClassDetail = () => {
     const { id } = useParams();
+    const enrolledStudents = 15; // Mock data for student count
     const [activeTab, setActiveTab] = useState('schedule');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedSession, setSelectedSession] = useState<any>(null);
@@ -54,9 +55,24 @@ const StaffClassDetail = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Class: {classNameStr}</h1>
                 <div className="flex gap-2">
-                    <Link to="/staff/classes/create" className="px-4 py-2 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-semibold hover:bg-gray-50 flex items-center gap-2">
+                    <Link to={`/staff/classes/edit/${id}`} className="px-4 py-2 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-semibold hover:bg-gray-50 flex items-center gap-2">
                         <Edit className="w-4 h-4" /> Edit Info
                     </Link>
+                    <button 
+                            onClick={() => {
+                                if (enrolledStudents > 0) {
+                                    alert('Cannot delete this class because there are students enrolled. Please remove all students first.');
+                                } else {
+                                    if (window.confirm('Are you sure you want to delete this class?')) {
+                                        // Delete logic
+                                    }
+                                }
+                            }} 
+                            className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-colors ${enrolledStudents > 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' : 'bg-red-50 border border-red-200 text-red-600 hover:bg-red-100'}`}
+                            title={enrolledStudents > 0 ? "Cannot delete class with enrolled students" : "Delete Class"}
+                        >
+                            <Trash2 className="w-4 h-4" /> Delete Class
+                        </button>
                 </div>
             </div>
 
@@ -104,7 +120,7 @@ const StaffClassDetail = () => {
                     onClick={() => setActiveTab('students')}
                     className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors ${activeTab === 'students' ? 'border-[#0061a5] text-[#0061a5]' : 'border-transparent text-[#74777f] hover:text-[#002045]'}`}
                 >
-                    Enrolled Students (15/20)
+                    Enrolled Students ({enrolledStudents}/20)
                 </button>
             </div>
 
