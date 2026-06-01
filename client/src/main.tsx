@@ -63,6 +63,17 @@ import AdminAnnouncements from './views/admin/announcements.tsx'
 import AdminAuditLogs from './views/admin/audit-logs.tsx'
 import AdminProfile from './views/admin/profile.tsx'
 
+// Tutor Views
+import TutorLayout from './components/layout/tutor-layout.tsx'
+import TutorDashboard from './views/tutor/dashboard.tsx'
+import TutorProfile from './views/tutor/profile.tsx'
+import TutorQualifications from './views/tutor/qualifications.tsx'
+import AvailabilityRegistration from './views/tutor/availability.tsx'
+import TeachingSchedule from './views/tutor/schedule.tsx'
+import ClassAttendance from './views/tutor/attendance.tsx'
+import TutorChangeRequests from './views/tutor/change-requests.tsx'
+import TutorSalaryHistory from './views/tutor/salary.tsx'
+
 // Shared Views
 import { NotificationsPage } from './views/shared/notifications.tsx'
 import PublicNotifications from './views/public-notifications.tsx'
@@ -145,6 +156,18 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/admin/payroll/:id" element={<AdminPayrollDetail />} />
             <Route path="/admin/announcements" element={<AdminAnnouncements />} />
             <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
+        </Route>
+        
+        {/* Tutor Routes */}
+        <Route element={<TutorLayout />}>
+            <Route path="/tutor/dashboard" element={<TutorDashboard />} />
+            <Route path="/tutor/profile" element={<TutorProfile />} />
+            <Route path="/tutor/qualifications" element={<TutorQualifications />} />
+            <Route path="/tutor/availability" element={<AvailabilityRegistration />} />
+            <Route path="/tutor/schedule" element={<TeachingSchedule />} />
+            <Route path="/tutor/attendance" element={<ClassAttendance />} />
+            <Route path="/tutor/change-requests" element={<TutorChangeRequests />} />
+            <Route path="/tutor/salary" element={<TutorSalaryHistory />} />
         </Route>
       </Routes>
     </BrowserRouter>
