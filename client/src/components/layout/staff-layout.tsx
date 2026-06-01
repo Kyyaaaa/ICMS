@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, BookOpen, Calendar, FileEdit, DollarSign, MessageSquare, UserCog, Banknote, LogOut, Menu, X, Bell, Briefcase } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Calendar, FileEdit, DollarSign, MessageSquare, UserCog, Banknote, LogOut, Menu, X, Bell, Briefcase, Globe } from 'lucide-react';
 
 const StaffLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -128,7 +128,11 @@ const StaffLayout = () => {
                     </ul>
                 </nav>
                 
-                <div className="p-4 border-t border-[#e0e3e5] shrink-0 bg-[#f8f9fa]">
+                <div className="p-4 border-t border-[#e0e3e5] shrink-0 bg-[#f8f9fa] space-y-1.5">
+                    <Link to="/homepage" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#43474e] font-bold hover:bg-[#e0e3e5]/50 transition-colors">
+                        <Globe className="w-5 h-5" />
+                        <span className="text-[14px]">Back to Homepage</span>
+                    </Link>
                     <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 transition-colors">
                         <LogOut className="w-5 h-5" />
                         <span className="text-[14px]">Log Out</span>

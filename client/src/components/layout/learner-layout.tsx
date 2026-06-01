@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, User, Key, BookOpen, Calendar, DollarSign, MessageSquare, Bell, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, User, Key, BookOpen, Calendar, DollarSign, MessageSquare, Bell, LogOut, Menu, X, Globe } from 'lucide-react';
 
 const LearnerLayout = () => {
     const location = useLocation();
@@ -51,8 +51,8 @@ const LearnerLayout = () => {
     return (
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
             {/* Sidebar Desktop */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:relative md:translate-x-0 flex flex-col`}>
-                <div className="flex items-center justify-between h-[80px] px-6 border-b border-[#e0e3e5] shrink-0">
+            <aside className={`fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:sticky md:top-0 md:h-screen md:translate-x-0 flex flex-col`}>
+                <div className="flex items-center justify-between h-[72px] px-6 border-b border-[#e0e3e5] shrink-0">
                     <Link to="/learner/dashboard" className="text-[24px] font-extrabold text-[#002045] flex items-center gap-2">
                         <BookOpen className="w-7 h-7 text-[#0061a5]" />
                         ICMS <span className="text-[#0061a5] font-semibold text-[18px]">Learner</span>
@@ -90,7 +90,11 @@ const LearnerLayout = () => {
                     </div>
                 </nav>
                 
-                <div className="p-4 border-t border-[#e0e3e5] shrink-0 bg-[#f8f9fa]">
+                <div className="p-4 border-t border-[#e0e3e5] shrink-0 bg-[#f8f9fa] space-y-1.5">
+                    <Link to="/homepage" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#43474e] font-semibold hover:bg-[#e0e3e5]/50 transition-colors">
+                        <Globe className="w-5 h-5" />
+                        <span className="text-[14px]">Back to Homepage</span>
+                    </Link>
                     <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-semibold hover:bg-[#ffdad6]/50 transition-colors">
                         <LogOut className="w-5 h-5" />
                         <span className="text-[14px]">Log Out</span>
@@ -99,9 +103,9 @@ const LearnerLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+            <div className="flex-1 flex flex-col min-w-0">
                 {/* Header */}
-                <header className="h-[80px] bg-white border-b border-[#e0e3e5] flex items-center justify-between px-6 shrink-0 z-40 relative">
+                <header className="sticky top-0 h-[72px] bg-white/80 backdrop-blur-md border-b border-[#e0e3e5] flex items-center justify-between px-6 shrink-0 z-40">
                     <div className="flex items-center gap-4">
                         <button className="md:hidden p-2 -ml-2 text-[#43474e] hover:bg-[#f1f4f6] rounded-xl transition-colors" onClick={() => setSidebarOpen(true)}>
                             <Menu className="w-6 h-6" />
@@ -171,7 +175,7 @@ const LearnerLayout = () => {
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 p-6 md:p-8 overflow-auto bg-[#f7fafc] scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
+                <main className="flex-1 p-6 lg:p-8 bg-[#f8f9fa]">
                     <Outlet />
                 </main>
             </div>

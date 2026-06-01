@@ -61,6 +61,7 @@ import AdminPayroll from './views/admin/payroll.tsx'
 import AdminPayrollDetail from './views/admin/payroll-detail.tsx'
 import AdminAnnouncements from './views/admin/announcements.tsx'
 import AdminAuditLogs from './views/admin/audit-logs.tsx'
+import AdminProfile from './views/admin/profile.tsx'
 
 // Shared Views
 import { NotificationsPage } from './views/shared/notifications.tsx'
@@ -131,6 +132,7 @@ createRoot(document.getElementById('root')!).render(
         </Route>
         <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/profile" element={<AdminProfile />} />
             <Route path="/admin/courses" element={<AdminCourses />} />
             <Route path="/admin/courses/:id" element={<AdminCourseDetail />} />
             <Route path="/admin/discount-codes" element={<AdminDiscountCodes />} />

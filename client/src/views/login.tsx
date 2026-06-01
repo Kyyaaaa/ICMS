@@ -53,14 +53,14 @@ const Login = () => {
                                 <label className="block text-[14px] leading-[16px] font-semibold tracking-[0.05em] text-[#181c1e]" htmlFor="email">Email Address</label>
                                 <div className="relative transition-transform duration-300 hover:scale-[1.01]">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
-                                    <input className="w-full pl-10 pr-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-[8px] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all text-[16px] leading-[24px] text-[#181c1e] hover:border-[#74777f]" id="email" name="email" placeholder="admin@institution.edu" required type="email" />
+                                    <input className="w-full pl-10 pr-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-[8px] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all text-[16px] leading-[24px] text-[#181c1e] hover:border-[#74777f]" id="email" name="email" placeholder="admin@icms.edu.vn" required type="email" />
                                 </div>
                             </div>
                             {/* Password Field */}
                             <div className="space-y-[8px] group animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                                 <div className="flex items-center justify-between">
                                     <label className="block text-[14px] leading-[16px] font-semibold tracking-[0.05em] text-[#181c1e]" htmlFor="password">Password</label>
-                                    <a className="text-[12px] leading-[16px] font-medium text-[#0061a5] hover:text-[#002045] transition-colors underline-offset-2 hover:underline" href="#">Forgot Password?</a>
+                                    <Link className="text-[12px] leading-[16px] font-medium text-[#0061a5] hover:text-[#002045] transition-colors underline-offset-2 hover:underline" to="/forgot-password">Forgot Password?</Link>
                                 </div>
                                 <div className="relative transition-transform duration-300 hover:scale-[1.01]">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
@@ -103,7 +103,7 @@ const Login = () => {
                         </div>
                         <p className="mt-[40px] text-center text-[14px] leading-[20px] text-[#43474e] animate-fade-in" style={{ animationDelay: '700ms' }}>
                             Don't have an account?{' '}
-                            <Link className="text-[14px] leading-[16px] font-semibold tracking-[0.05em] text-[#0061a5] hover:text-[#002045] transition-colors hover:underline" to="/register">Register your institution</Link>
+                            <Link className="text-[14px] leading-[16px] font-semibold tracking-[0.05em] text-[#0061a5] hover:text-[#002045] transition-colors hover:underline" to="/register">Register an account</Link>
                         </p>
                     </div>
                 </div>
