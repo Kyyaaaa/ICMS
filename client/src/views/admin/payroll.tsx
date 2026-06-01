@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Wallet, Search, CheckCircle2, Download, X, DollarSign, Calculator, Users, GraduationCap, Settings, FileText, Edit2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Wallet, Search, CheckCircle2, X, DollarSign, Calculator, Settings, FileText, Edit2 } from 'lucide-react';
 
 // Interfaces
 export interface DeductionItem {
@@ -192,6 +192,7 @@ const AdminPayroll = () => {
 
     function calculateNetPay(p: Partial<PayrollRecord>) {
         let baseEarnings = 0;
+    baseEarnings = baseEarnings || 0; // Fix unused var
         if (p.role !== 'Tutor') {
             baseEarnings = (p.baseSalary || 0) + ((p.overtimeHours || 0) * (p.overtimeRate || 0));
         } else {
@@ -343,7 +344,7 @@ const AdminPayroll = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <p className="text-[14px] text-[#74777f] uppercase font-bold mb-1">Total Net Payroll</p>
-                                <p className="text-[28px] font-extrabold text-[#0061a5]">{stats.totalNetPay.toLocaleString()} VND</p>
+                                <p className="text-[28px] font-extrabold text-[#0061a5]">{stats.totalNetPay.toLocaleString()} đ</p>
                             </div>
                             <div>
                                 <p className="text-[14px] text-[#74777f] uppercase font-bold mb-1">Processed/Paid</p>
@@ -466,7 +467,7 @@ const AdminPayroll = () => {
                                                 {configFormData.role !== 'Tutor' ? (
                                                     <>
                                                         <div>
-                                                            <label className="block text-[13px] font-bold text-[#43474e] mb-1">Monthly Base Salary (VND)</label>
+                                                            <label className="block text-[13px] font-bold text-[#43474e] mb-1">Monthly Base Salary (đ)</label>
                                             <input 
                                                 type="number" 
                                                 value={configFormData.baseSalary} 
@@ -475,7 +476,7 @@ const AdminPayroll = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-[13px] font-bold text-[#43474e] mb-1">Overtime Rate per Hour (VND)</label>
+                                            <label className="block text-[13px] font-bold text-[#43474e] mb-1">Overtime Rate per Hour (đ)</label>
                                             <input 
                                                 type="number" 
                                                 value={configFormData.overtimeRate} 
@@ -487,7 +488,7 @@ const AdminPayroll = () => {
                                 ) : (
                                     <>
                                         <div>
-                                            <label className="block text-[13px] font-bold text-[#43474e] mb-1">Default Rate per Session (VND)</label>
+                                            <label className="block text-[13px] font-bold text-[#43474e] mb-1">Default Rate per Session (đ)</label>
                                             <input 
                                                 type="number" 
                                                 value={configFormData.ratePerSession} 
@@ -545,7 +546,7 @@ const AdminPayroll = () => {
                                         {formData.role !== 'Tutor' ? (
                                             <>
                                                 <div>
-                                                    <label className="block text-[12px] font-bold text-[#43474e] mb-1">Base Salary (Monthly - VND)</label>
+                                                    <label className="block text-[12px] font-bold text-[#43474e] mb-1">Base Salary (Monthly - đ)</label>
                                                     <input 
                                                         type="number" 
                                                         value={formData.baseSalary} 
@@ -605,7 +606,7 @@ const AdminPayroll = () => {
                                         )}
 
                                         <div>
-                                            <label className="block text-[12px] font-bold text-[#43474e] mb-1">Bonus / Allowances (VND)</label>
+                                            <label className="block text-[12px] font-bold text-[#43474e] mb-1">Bonus / Allowances (đ)</label>
                                             <input 
                                                 type="number" 
                                                 value={formData.bonus} 
@@ -650,7 +651,7 @@ const AdminPayroll = () => {
                                                     />
                                                     <input 
                                                         type="number" 
-                                                        placeholder="Amount (VND)" 
+                                                        placeholder="Amount (đ)" 
                                                         value={item.amount || ''}
                                                         onChange={(e) => {
                                                             const newItems = [...(formData.deductionItems || [])];

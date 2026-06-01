@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Phone, MapPin, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
 
@@ -21,7 +21,7 @@ const AdminAccountDetail = () => {
         address: '123 Education St, NY',
         role: 'Tutor',
         status: 'Active',
-        joinedDate: 'Oct 12, 2024'
+        joinedDate: '12-10-2024'
     });
 
     const handleSaveProfile = (e: React.FormEvent) => {

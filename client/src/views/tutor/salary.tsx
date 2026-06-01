@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Banknote } from 'lucide-react';
 
 const SalaryHistory = () => {

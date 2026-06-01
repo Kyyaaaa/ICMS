@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Eye, Search, X, Check } from 'lucide-react';
 
 const ConsultationList = () => {
     const [consultations, setConsultations] = useState([
-        { id: 1, name: 'Alex Johnson', phone: '+1 234 567 890', email: 'alex.johnson@example.com', status: 'New', message: 'I need consultation for the IELTS beginner course. What is the schedule?', targetScore: 'IELTS 6.5', date: 'Oct 20, 2026', staffNote: '' },
-        { id: 2, name: 'Sarah Connor', phone: '+1 987 654 321', email: 'sarah.c@example.com', status: 'Contacted', message: 'Could you please advise on evening classes for TOEIC preparation?', targetScore: 'TOEIC 700+', date: 'Oct 21, 2026', staffNote: 'Called on Oct 22, she will decide next week.' },
-        { id: 3, name: 'Michael Smith', phone: '+1 555 123 456', email: 'msmith@example.com', status: 'Resolved', message: 'What is the tuition fee for the basic communication course?', targetScore: 'Basic Comm.', date: 'Oct 22, 2026', staffNote: 'Enrolled in Basic Comm. cohort 45.' },
+        { id: 1, name: 'Alex Johnson', phone: '+1 234 567 890', email: 'alex.johnson@example.com', status: 'New', message: 'I need consultation for the IELTS beginner course. What is the schedule?', targetScore: 'IELTS 6.5', date: '20-10-2026', staffNote: '' },
+        { id: 2, name: 'Sarah Connor', phone: '+1 987 654 321', email: 'sarah.c@example.com', status: 'Contacted', message: 'Could you please advise on evening classes for TOEIC preparation?', targetScore: 'TOEIC 700+', date: '21-10-2026', staffNote: 'Called on Oct 22, she will decide next week.' },
+        { id: 3, name: 'Michael Smith', phone: '+1 555 123 456', email: 'msmith@example.com', status: 'Resolved', message: 'What is the tuition fee for the basic communication course?', targetScore: 'Basic Comm.', date: '22-10-2026', staffNote: 'Enrolled in Basic Comm. cohort 45.' },
     ]);
 
     const [selectedConsultation, setSelectedConsultation] = useState<any>(null);

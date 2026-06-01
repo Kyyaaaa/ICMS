@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Camera, Save, Eye, EyeOff, CheckCircle2, User, Phone, Mail, MapPin, CalendarDays, Users } from 'lucide-react';
 
 const LearnerProfile = () => {

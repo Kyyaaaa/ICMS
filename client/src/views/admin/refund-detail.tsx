@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, XCircle, RefreshCcw } from 'lucide-react';
 
@@ -18,7 +18,7 @@ const AdminRefundDetail = () => {
                 <div className="flex items-center gap-3 mb-6">
                     <RefreshCcw className="text-[#c9a82c]" size={28} />
                     <div>
-                        <h2 className="text-[20px] font-bold text-[#181c1e]">Amount Requested: $225.00</h2>
+                        <h2 className="text-[20px] font-bold text-[#181c1e]">Amount Requested: 225 đ</h2>
                         <span className="inline-block px-2 py-1 mt-1 bg-[#fff8e1] text-[#c9a82c] text-[12px] font-bold rounded uppercase">Pending Review</span>
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useLocation, Link } from 'react-router-dom';
 import { 
+    ScrollText, 
     LayoutDashboard, 
     BookOpen, 
     Tags, 
@@ -39,7 +40,7 @@ export const AdminLayout = () => {
     const navItems = [
         { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
         { name: 'Academics', path: '/admin/courses', icon: BookOpen, activePaths: ['/admin/courses', '/admin/classrooms'] },
-        { name: 'Finance', path: '/admin/discount-codes', icon: Wallet, activePaths: ['/admin/discount-codes', '/admin/refunds', '/admin/payroll'] },
+        { name: 'Finance', path: '/admin/discount-codes', icon: Wallet, activePaths: ['/admin/discount-codes', '/admin/refunds', '/admin/payroll', '/admin/finance'] },
         { name: 'User Management', path: '/admin/accounts', icon: Users, activePaths: ['/admin/accounts'] },
         { name: 'System', path: '/admin/announcements', icon: Megaphone, activePaths: ['/admin/announcements', '/admin/audit-logs'] },
         { name: 'My Profile', path: '/admin/profile', icon: UserCog },
@@ -59,11 +60,12 @@ export const AdminLayout = () => {
                 { name: 'Manage Courses', path: '/admin/courses', icon: BookOpen },
                 { name: 'Manage Classrooms', path: '/admin/classrooms', icon: MonitorPlay },
             ];
-        } else if (path.startsWith('/admin/discount-codes') || path.startsWith('/admin/refunds') || path.startsWith('/admin/payroll')) {
+        } else if (path.startsWith('/admin/discount-codes') || path.startsWith('/admin/refunds') || path.startsWith('/admin/payroll') || path.startsWith('/admin/finance')) {
             tabs = [
                 { name: 'Discount Codes', path: '/admin/discount-codes', icon: Tags },
                 { name: 'Manage Refunds', path: '/admin/refunds', icon: RefreshCcw },
                 { name: 'Manage Payroll', path: '/admin/payroll', icon: Wallet },
+                { name: 'Transaction History', path: '/admin/finance', icon: ScrollText },
             ];
         } else if (path.startsWith('/admin/announcements') || path.startsWith('/admin/audit-logs')) {
             tabs = [

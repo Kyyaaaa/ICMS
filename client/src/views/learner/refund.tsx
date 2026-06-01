@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FileWarning, Send, CheckCircle2 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
@@ -56,7 +56,7 @@ const RefundRequest = () => {
                         <span>Invoice ID:</span>
                         <span className="font-semibold text-[#181c1e]">{id}</span>
                         <span>Amount Paid:</span>
-                        <span className="font-semibold text-[#181c1e]">$450.00</span>
+                        <span className="font-semibold text-[#181c1e]">450,000 đ</span>
                         <span>Course:</span>
                         <span className="font-semibold text-[#181c1e]">IELTS Academic - Reading</span>
                     </div>

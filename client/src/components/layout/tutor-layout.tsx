@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, UserCog, Calendar, FileEdit, Banknote, LogOut, Menu, X, Bell, Globe, FileBadge, CalendarClock, ClipboardCheck } from 'lucide-react';
+import { BookOpen, LayoutDashboard, UserCog, Calendar, FileEdit, Banknote, LogOut, Menu, X, Bell, Globe, FileBadge, CalendarClock, ClipboardCheck , Wallet} from 'lucide-react';
 
 const TutorLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -34,10 +34,10 @@ const TutorLayout = () => {
         { name: 'Teaching & Schedule', path: '/tutor/schedule', icon: Calendar, activePaths: ['/tutor/schedule', '/tutor/availability'] },
         { name: 'Class Management', path: '/tutor/attendance', icon: ClipboardCheck },
         { name: 'Requests', path: '/tutor/change-requests', icon: FileEdit },
-        { name: 'Finance', path: '/tutor/salary', icon: Banknote },
+        { name: 'Finance', path: '/tutor/salary', icon: Wallet },
     ];
 
-    const isGroupActive = (item: any) => {
+    const isGroupActive = (item: { path: string; activePaths?: string[] }) => {
         if (item.activePaths) return item.activePaths.some((p: string) => isActivePath(p));
         return isActivePath(item.path);
     };
@@ -45,7 +45,7 @@ const TutorLayout = () => {
     // Sub-navigation Tabs based on the current active group
     const renderSubTabs = () => {
         const path = location.pathname;
-        let tabs: any[] = [];
+        let tabs: unknown[] = [];
 
         if (path.startsWith('/tutor/profile') || path.startsWith('/tutor/qualifications')) {
             tabs = [
@@ -84,54 +84,44 @@ const TutorLayout = () => {
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
             {/* Sidebar Desktop */}
             <aside className={`fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:sticky md:top-0 md:h-screen md:translate-x-0 flex flex-col`}>
-                <div className="h-[72px] flex items-center px-6 border-b border-[#e0e3e5] shrink-0 justify-between">
-                    <Link to="/tutor/dashboard" className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#002045] flex items-center justify-center">
-                            <Globe className="text-white w-5 h-5" />
-                        </div>
-                        <span className="text-[20px] font-bold text-[#002045] tracking-tight">ICMS</span>
+                <div className="flex items-center justify-between h-[72px] px-6 border-b border-[#e0e3e5] shrink-0">
+                    <Link to="/tutor/dashboard" className="text-[24px] font-extrabold text-[#002045] flex items-center gap-2">
+                        <BookOpen className="w-7 h-7 text-[#0061a5]" />
+                        ICMS <span className="text-[#0061a5] font-semibold text-[18px]">Tutor</span>
                     </Link>
-                    <button className="md:hidden text-[#43474e]" onClick={() => setSidebarOpen(false)}>
+                    <button className="md:hidden text-[#74777f] hover:text-[#002045]" onClick={() => setSidebarOpen(false)}>
                         <X className="w-6 h-6" />
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-1 scrollbar-none">
-                    <div className="text-[11px] font-bold tracking-[0.08em] text-[#74777f] uppercase px-3 py-2 mb-1">Tutor Portal</div>
-                    {navItems.map((item) => {
-                        const active = isGroupActive(item);
-                        return (
-                            <Link
-                                key={item.name}
-                                to={item.path}
-                                onClick={() => setSidebarOpen(false)}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-semibold transition-all duration-200 ${
-                                    active 
-                                    ? 'bg-[#002045] text-white shadow-md' 
-                                    : 'text-[#43474e] hover:bg-[#f0f4f8] hover:text-[#002045]'
-                                }`}
-                            >
-                                <item.icon className={`w-5 h-5 ${active ? 'text-white' : 'text-[#74777f]'}`} />
-                                {item.name}
-                            </Link>
-                        );
-                    })}
-                </div>
+                <nav className="flex-1 overflow-y-auto py-6 px-4 scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
+                    <ul className="space-y-1.5">
+                        {navItems.map((item) => {
+                            const isActive = isGroupActive(item);
+                            return (
+                                <li key={item.name}>
+                                    <Link 
+                                        to={item.path} 
+                                        onClick={() => setSidebarOpen(false)}
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-[14px] ${isActive ? 'bg-[#e6f0fa] text-[#0061a5]' : 'text-[#43474e] hover:bg-[#f8f9fa] hover:text-[#002045]'}`}
+                                    >
+                                        <item.icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#0061a5]' : 'text-[#74777f]'}`} />
+                                        <span className="truncate">{item.name}</span>
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </nav>
 
-                <div className="p-4 border-t border-[#e0e3e5] shrink-0 space-y-2">
-                    <Link 
-                        to="/homepage" 
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-semibold text-[#0061a5] hover:bg-[#e3f2fd] transition-colors"
-                    >
+                <div className="p-4 border-t border-[#e0e3e5] shrink-0 bg-[#f8f9fa] space-y-1.5">
+                    <Link to="/homepage" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#43474e] font-bold hover:bg-[#e0e3e5]/50 transition-colors">
                         <Globe className="w-5 h-5" />
-                        Back to Homepage
+                        <span className="text-[14px]">Back to Homepage</span>
                     </Link>
-                    <Link 
-                        to="/login" 
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-semibold text-[#ba1a1a] hover:bg-[#ba1a1a]/10 transition-colors"
-                    >
+                    <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 transition-colors">
                         <LogOut className="w-5 h-5" />
-                        Logout
+                        <span className="text-[14px]">Log Out</span>
                     </Link>
                 </div>
             </aside>
@@ -139,24 +129,25 @@ const TutorLayout = () => {
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
                 {/* Header */}
-                <header className="h-[72px] bg-white border-b border-[#e0e3e5] flex items-center justify-between px-4 md:px-6 shrink-0 sticky top-0 z-40">
+                <header className="sticky top-0 h-[72px] bg-white/80 backdrop-blur-md border-b border-[#e0e3e5] flex items-center justify-between px-6 shrink-0 z-40">
                     <div className="flex items-center gap-4">
-                        <button 
-                            className="md:hidden p-2 -ml-2 text-[#43474e] hover:bg-[#f0f4f8] rounded-lg transition-colors"
-                            onClick={() => setSidebarOpen(true)}
-                        >
+                        <button className="md:hidden p-2 -ml-2 text-[#43474e] hover:bg-[#f1f4f6] rounded-xl transition-colors" onClick={() => setSidebarOpen(true)}>
                             <Menu className="w-6 h-6" />
                         </button>
+                        <div className="hidden md:flex flex-col">
+                            <span className="text-[18px] font-bold text-[#002045]">Welcome back, Tutor!</span>
+                            <span className="text-[13px] text-[#74777f]">Ready for your classes today?</span>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-2 md:gap-4">
+                    <div className="flex items-center gap-5">
                         {/* Notifications */}
                         <div className="relative">
                             <button 
-                                className={`p-2 rounded-full transition-colors relative ${showNotifications ? 'bg-[#f0f4f8] text-[#002045]' : 'text-[#43474e] hover:bg-[#f0f4f8]'}`}
+                                className={`p-2 rounded-full transition-colors ${showNotifications ? 'bg-[#e6f0fa] text-[#0061a5]' : 'text-[#43474e] hover:bg-[#f1f4f6]'}`}
                                 onClick={() => setShowNotifications(!showNotifications)}
                             >
-                                <Bell className="w-5 h-5" />
+                                <Bell className="w-6 h-6" />
                                 {unreadCount > 0 && (
                                     <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#ba1a1a] rounded-full border-2 border-white"></span>
                                 )}
@@ -191,8 +182,8 @@ const TutorLayout = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                        <div className="p-3 text-center border-t border-[#e0e3e5] bg-white">
-                                            <button className="text-[13px] font-semibold text-[#0061a5] hover:text-[#002045]">View All Notifications</button>
+                                        <div className="p-3 text-center border-t border-[#e0e3e5] bg-[#f8f9fa]">
+                                            <Link to="/tutor/notifications" onClick={() => setShowNotifications(false)} className="text-[13px] font-bold text-[#0061a5] hover:underline block w-full">View All Notifications</Link>
                                         </div>
                                     </div>
                                 </>
@@ -200,15 +191,15 @@ const TutorLayout = () => {
                         </div>
 
                         {/* Profile Dropdown */}
-                        <div className="flex items-center gap-3 pl-2 md:pl-4 border-l border-[#e0e3e5]">
-                            <div className="hidden md:block text-right">
-                                <div className="text-[14px] font-bold text-[#181c1e]">Jane Doe</div>
-                                <div className="text-[12px] font-medium text-[#74777f]">Tutor</div>
+                        <Link to="/tutor/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
+                            <div className="hidden md:flex flex-col text-right">
+                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">Jane Doe</span>
+                                <span className="text-[12px] text-[#74777f] leading-tight">Tutor</span>
                             </div>
-                            <div className="w-9 h-9 rounded-full bg-[#0061a5] text-white flex items-center justify-center font-bold text-[14px] shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all">
                                 JD
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </header>
 

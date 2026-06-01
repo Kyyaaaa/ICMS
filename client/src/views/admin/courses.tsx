@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BookOpen, Search, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -7,8 +7,8 @@ const AdminCourses = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const [courses, setCourses] = useState([
-        { id: '1', title: 'IELTS Intensive Mastery', code: 'IEL-INT-01', category: 'Masterclass', status: 'Active', price: '899', classes: 3 },
-        { id: '2', title: 'Academic 6.5+', code: 'IEL-ACA-01', category: 'Standard', status: 'Active', price: '499', classes: 5 }
+        { id: '1', title: 'IELTS Intensive Mastery', code: 'IEL-INT-01', category: 'Masterclass', status: 'Active', price: '899,000', classes: 3 },
+        { id: '2', title: 'Academic 6.5+', code: 'IEL-ACA-01', category: 'Standard', status: 'Active', price: '499,000', classes: 5 }
     ]);
 
     const handleDelete = (id: string) => {
@@ -77,7 +77,7 @@ const AdminCourses = () => {
                                     </td>
                                     <td className="py-4 px-6 text-[14px] text-[#43474e]">{course.category}</td>
                                     <td className="py-4 px-6 text-[14px] font-bold text-[#0061a5]">{course.classes} classes</td>
-                                    <td className="py-4 px-6 text-[14px] font-bold text-[#181c1e]">${course.price}</td>
+                                    <td className="py-4 px-6 text-[14px] font-bold text-[#181c1e]">{course.price} đ</td>
                                     <td className="py-4 px-6">
                                         <span className={`px-2 py-1 text-[12px] font-bold rounded uppercase ${course.status === 'Active' ? 'bg-[#e6f4ea] text-[#137333]' : course.status === 'Hidden' ? 'bg-[#ffebed] text-[#ba1a1a]' : 'bg-[#f1f4f6] text-[#74777f]'}`}>
                                             {course.status}

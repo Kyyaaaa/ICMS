@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { CalendarClock } from 'lucide-react';
 
 const AvailabilityRegistration = () => {

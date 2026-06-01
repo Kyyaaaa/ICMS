@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, User, Key, BookOpen, Calendar, DollarSign, MessageSquare, Bell, LogOut, Menu, X, Globe } from 'lucide-react';
+import { LayoutDashboard, User, Key, BookOpen, Calendar, DollarSign, MessageSquare, Bell, LogOut, Menu, X, Globe , Wallet, UserCog} from 'lucide-react';
 
 const LearnerLayout = () => {
     const location = useLocation();
@@ -19,33 +19,13 @@ const LearnerLayout = () => {
         setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
     };
 
-    const navGroups = [
-        {
-            title: 'Overview',
-            items: [
-                { name: 'Dashboard', path: '/learner/dashboard', icon: LayoutDashboard },
-            ]
-        },
-        {
-            title: 'Academics',
-            items: [
-                { name: 'My Classes', path: '/learner/classes', icon: BookOpen },
-                { name: 'My Schedules', path: '/learner/schedules', icon: Calendar },
-            ]
-        },
-        {
-            title: 'Services & Support',
-            items: [
-                { name: 'Payments', path: '/learner/payments', icon: DollarSign },
-                { name: 'Support Tickets', path: '/learner/support', icon: MessageSquare },
-            ]
-        },
-        {
-            title: 'Account Settings',
-            items: [
-                { name: 'My Profile', path: '/learner/profile', icon: User },
-            ]
-        }
+        const navItems = [
+        { name: 'Dashboard', path: '/learner/dashboard', icon: LayoutDashboard },
+        { name: 'My Classes', path: '/learner/classes', icon: BookOpen },
+        { name: 'My Schedules', path: '/learner/schedules', icon: Calendar },
+        { name: 'Payments', path: '/learner/payments', icon: Wallet },
+        { name: 'Support Tickets', path: '/learner/support', icon: MessageSquare },
+        { name: 'My Profile', path: '/learner/profile', icon: UserCog },
     ];
 
     return (
@@ -62,40 +42,33 @@ const LearnerLayout = () => {
                     </button>
                 </div>
                 
-                <nav className="flex-1 overflow-y-auto py-6 scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
-                    <div className="space-y-6">
-                        {navGroups.map((group) => (
-                            <div key={group.title}>
-                                <div className="px-7 mb-2 text-[11px] font-bold text-[#74777f] uppercase tracking-wider">{group.title}</div>
-                                <ul className="space-y-1 px-3">
-                                    {group.items.map((item) => {
-                                        const Icon = item.icon;
-                                        const isActive = location.pathname.startsWith(item.path);
-                                        return (
-                                            <li key={item.name}>
-                                                <Link 
-                                                    to={item.path} 
-                                                    onClick={() => setSidebarOpen(false)}
-                                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-[14px] ${isActive ? 'bg-[#e6f0fa] text-[#0061a5]' : 'text-[#43474e] hover:bg-[#f8f9fa] hover:text-[#002045]'}`}
-                                                >
-                                                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#0061a5]' : 'text-[#74777f]'}`} />
-                                                    <span className="truncate">{item.name}</span>
-                                                </Link>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            </div>
-                        ))}
-                    </div>
+                                <nav className="flex-1 overflow-y-auto py-6 px-4 scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
+                    <ul className="space-y-1.5">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = location.pathname.startsWith(item.path);
+                            return (
+                                <li key={item.name}>
+                                    <Link 
+                                        to={item.path} 
+                                        onClick={() => setSidebarOpen(false)}
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-[14px] ${isActive ? 'bg-[#e6f0fa] text-[#0061a5]' : 'text-[#43474e] hover:bg-[#f8f9fa] hover:text-[#002045]'}`}
+                                    >
+                                        <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#0061a5]' : 'text-[#74777f]'}`} />
+                                        <span className="truncate">{item.name}</span>
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </nav>
                 
                 <div className="p-4 border-t border-[#e0e3e5] shrink-0 bg-[#f8f9fa] space-y-1.5">
-                    <Link to="/homepage" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#43474e] font-semibold hover:bg-[#e0e3e5]/50 transition-colors">
+                    <Link to="/homepage" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#43474e] font-bold hover:bg-[#e0e3e5]/50 transition-colors">
                         <Globe className="w-5 h-5" />
                         <span className="text-[14px]">Back to Homepage</span>
                     </Link>
-                    <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-semibold hover:bg-[#ffdad6]/50 transition-colors">
+                    <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 transition-colors">
                         <LogOut className="w-5 h-5" />
                         <span className="text-[14px]">Log Out</span>
                     </Link>
@@ -162,7 +135,7 @@ const LearnerLayout = () => {
                                 </>
                             )}
                         </div>
-                        <div className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
+                        <Link to="/learner/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
                                 <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">John Doe</span>
                                 <span className="text-[12px] text-[#74777f] leading-tight">Learner</span>
@@ -170,7 +143,7 @@ const LearnerLayout = () => {
                             <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all">
                                 JD
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </header>
 

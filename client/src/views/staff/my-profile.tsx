@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Camera, Save, Eye, EyeOff, CheckCircle2, User, Phone, Mail, MapPin, CalendarDays, Users, ShieldCheck, Briefcase } from 'lucide-react';
+import { useState } from 'react';
+import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, MapPin, CalendarDays, Users, ShieldCheck, } from 'lucide-react';
 
 const StaffProfile = () => {
     const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -62,7 +62,7 @@ const StaffProfile = () => {
                             </div>
                             <div className="flex justify-between items-center text-[14px]">
                                 <span className="text-[#74777f]">Join Date</span>
-                                <span className="font-bold text-[#181c1e]">Jan 15, 2026</span>
+                                <span className="font-bold text-[#181c1e]">15-01-2026</span>
                             </div>
                         </div>
                     </div>

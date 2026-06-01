@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, BookOpen, Calendar, FileEdit, DollarSign, MessageSquare, UserCog, Banknote, LogOut, Menu, X, Bell, Briefcase, Globe } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Calendar, FileEdit, DollarSign, MessageSquare, UserCog, Banknote, LogOut, Menu, X, Bell, Briefcase, Globe , Wallet} from 'lucide-react';
 
 const StaffLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -34,7 +34,7 @@ const StaffLayout = () => {
         { name: 'Dashboard', path: '/staff/dashboard', icon: LayoutDashboard },
         { name: 'Operations', path: '/staff/master-schedule', icon: Calendar, activePaths: ['/staff/classes', '/staff/master-schedule'] },
         { name: 'Requests & Support', path: '/staff/consultations', icon: MessageSquare, activePaths: ['/staff/consultations', '/staff/change-requests', '/staff/support'] },
-        { name: 'Finance', path: '/staff/invoices', icon: DollarSign, activePaths: ['/staff/invoices', '/staff/salary'] },
+        { name: 'Finance', path: '/staff/invoices', icon: Wallet, activePaths: ['/staff/invoices', '/staff/salary'] },
         { name: 'User Management', path: '/staff/accounts', icon: Users, activePaths: ['/staff/accounts', '/staff/profiles'] },
         { name: 'My Profile', path: '/staff/profile', icon: UserCog },
     ];
@@ -200,7 +200,7 @@ const StaffLayout = () => {
                                 </>
                             )}
                         </div>
-                        <div className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
+                        <Link to="/staff/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
                                 <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">Admin User</span>
                                 <span className="text-[12px] text-[#74777f] leading-tight">System Staff</span>
@@ -208,7 +208,7 @@ const StaffLayout = () => {
                             <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all">
                                 AD
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </header>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { School, Mail, Lock, Eye, EyeOff, Star, AlertCircle, LineChart, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

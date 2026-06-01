@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Users, BookOpen, DollarSign, Activity, FileText, MessageSquare, AlertCircle, Plus, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

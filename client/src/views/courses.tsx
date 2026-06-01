@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search, BookOpen, Headset, Compass, ArrowRight, Filter, Star, Clock, MonitorPlay, Users, ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TopNav } from '../components/layout/TopNav';
@@ -9,12 +9,12 @@ const Courses = () => {
 
     // Mock data for courses
     const allCourses = [
-        { id: '1', title: 'IELTS Intensive Mastery', band: '7.5+', duration: '12 Weeks', format: 'Offline', category: 'Masterclass', price: '$899', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '2', title: 'Academic Fundamentals', band: '5.5-6.5', duration: '8 Weeks', format: 'Offline', category: 'Fundamentals', price: '$599', image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '3', title: 'Speaking Boot Camp', band: '7.0+', duration: '4 Weeks', format: 'Offline', category: 'Specialized', price: '$299', image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '4', title: 'Writing Task 2 Accelerator', band: '7.0+', duration: '4 Weeks', format: 'Offline', category: 'Specialized', price: '$299', image: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '5', title: 'General Training Crash Course', band: '6.0-7.0', duration: '6 Weeks', format: 'Offline', category: 'General', price: '$499', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '6', title: '1-on-1 Elite Coaching', band: '8.0+', duration: 'Flexible', format: 'Offline', category: 'Private', price: '$120/hr', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '1', title: 'IELTS Intensive Mastery', band: '7.5+', duration: '12 Weeks', format: 'Offline', category: 'Masterclass', price: '899,000 đ', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '2', title: 'Academic Fundamentals', band: '5.5-6.5', duration: '8 Weeks', format: 'Offline', category: 'Fundamentals', price: '599,000 đ', image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '3', title: 'Speaking Boot Camp', band: '7.0+', duration: '4 Weeks', format: 'Offline', category: 'Specialized', price: '299,000 đ', image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '4', title: 'Writing Task 2 Accelerator', band: '7.0+', duration: '4 Weeks', format: 'Offline', category: 'Specialized', price: '299,000 đ', image: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '5', title: 'General Training Crash Course', band: '6.0-7.0', duration: '6 Weeks', format: 'Offline', category: 'General', price: '499,000 đ', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=600&h=400' },
+        { id: '6', title: '1-on-1 Elite Coaching', band: '8.0+', duration: 'Flexible', format: 'Offline', category: 'Private', price: '120,000 đ/hr', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=600&h=400' },
     ];
 
     // Filter states

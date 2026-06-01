@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { BookOpen, Calendar, DollarSign, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

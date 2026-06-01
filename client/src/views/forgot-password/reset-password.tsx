@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { EyeOff, Eye, Circle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Loader2, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

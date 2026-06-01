@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Megaphone, Plus, Edit, Trash2, X, Users, BookOpen, Save, Filter, Globe, ShieldAlert, Clock, CalendarClock, Search } from 'lucide-react';
 
 type Role = 'Admin' | 'Staff' | 'Tutor' | 'Learner';
@@ -32,7 +32,7 @@ const mockAnnouncements: Announcement[] = [
         id: '1',
         title: 'Scheduled Maintenance',
         content: 'The ICMS platform will undergo scheduled maintenance this Sunday from 2:00 AM to 4:00 AM EST. Access may be temporarily unavailable. Please save your work.',
-        date: 'Oct 25, 2026',
+        date: '25-10-2026',
         status: 'Published',
         audience: { scope: 'System Wide', roles: [], classes: [] }
     },
@@ -40,7 +40,7 @@ const mockAnnouncements: Announcement[] = [
         id: '4',
         title: 'Upcoming System Upgrade',
         content: 'We will be deploying new features next week. Please review the changelog sent to your email.',
-        date: 'Nov 01, 2026',
+        date: '01-11-2026',
         status: 'Scheduled',
         scheduledFor: '2026-11-01T08:00',
         audience: { scope: 'System Wide', roles: [], classes: [] }
@@ -49,7 +49,7 @@ const mockAnnouncements: Announcement[] = [
         id: '2',
         title: 'New Exam Format for Math 101',
         content: 'Please be informed that the midterm exam format for Math 101 has been updated. Check the course syllabus for more details.',
-        date: 'Oct 24, 2026',
+        date: '24-10-2026',
         status: 'Published',
         audience: { scope: 'Specific Classes', roles: [], classes: ['c1'] }
     },
@@ -57,7 +57,7 @@ const mockAnnouncements: Announcement[] = [
         id: '3',
         title: 'Staff Meeting Reminder',
         content: 'Monthly all-hands staff meeting will take place tomorrow at 9:00 AM in the Main Conference Room. Attendance is mandatory.',
-        date: 'Oct 22, 2026',
+        date: '22-10-2026',
         status: 'Published',
         audience: { scope: 'Specific Roles', roles: ['Staff', 'Admin'], classes: [] }
     }

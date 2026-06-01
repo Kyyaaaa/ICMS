@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search, Filter, Calendar, Activity, ShieldAlert } from 'lucide-react';
 
 type ActionType = 'CREATE' | 'UPDATE' | 'DELETE' | 'APPROVE' | 'SYSTEM';

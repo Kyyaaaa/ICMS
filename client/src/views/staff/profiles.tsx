@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Search, ShieldCheck, Eye, ShieldAlert } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -57,9 +57,9 @@ const ProfileList = () => {
                         </thead>
                         <tbody className="text-sm">
                             {[
-                                { name: 'Dr. Sarah Connor', subject: 'IELTS / TOEFL', date: 'Oct 24, 2026', status: 'Pending' },
-                                { name: 'Mr. James Bond', subject: 'Advanced Communication', date: 'Oct 23, 2026', status: 'Verified' },
-                                { name: 'Ms. Emily Blunt', subject: 'Basic English', date: 'Oct 20, 2026', status: 'Pending' },
+                                { name: 'Dr. Sarah Connor', subject: 'IELTS / TOEFL', date: '24-10-2026', status: 'Pending' },
+                                { name: 'Mr. James Bond', subject: 'Advanced Communication', date: '23-10-2026', status: 'Verified' },
+                                { name: 'Ms. Emily Blunt', subject: 'Basic English', date: '20-10-2026', status: 'Pending' },
                             ].map((tutor, i) => (
                                 <tr key={i} className="border-b border-[#e0e3e5] hover:bg-[#f0f7ff]/50 transition-colors">
                                     <td className="p-4 font-bold text-[#002045]">{tutor.name}</td>

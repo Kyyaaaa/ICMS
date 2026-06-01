@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Wallet, CalendarDays, TrendingUp, Eye, CheckCircle2, ChevronDown, Search, Filter, X, Building, Receipt } from 'lucide-react';
 
 type SalaryRecord = {
@@ -18,11 +18,11 @@ const SalaryHistory = () => {
 
     // Mock data for salary records (Admin Confirmed)
     const salaryRecords: SalaryRecord[] = [
-        { id: 'PAY-1004', period: 'October 2026', baseSalary: 1200, bonuses: 150, deductions: 0, netPay: 1350, payDate: 'Nov 05, 2026', status: 'Paid' },
-        { id: 'PAY-1003', period: 'September 2026', baseSalary: 1200, bonuses: 200, deductions: 50, netPay: 1350, payDate: 'Oct 05, 2026', status: 'Paid' },
-        { id: 'PAY-1002', period: 'August 2026', baseSalary: 1200, bonuses: 100, deductions: 0, netPay: 1300, payDate: 'Sep 05, 2026', status: 'Paid' },
-        { id: 'PAY-1001', period: 'July 2026', baseSalary: 1200, bonuses: 50, deductions: 0, netPay: 1250, payDate: 'Aug 05, 2026', status: 'Paid' },
-        { id: 'PAY-1000', period: 'June 2026', baseSalary: 1200, bonuses: 300, deductions: 20, netPay: 1480, payDate: 'Jul 05, 2026', status: 'Paid' },
+        { id: 'PAY-1004', period: '10-2026', baseSalary: 12000000, bonuses: 1500000, deductions: 0, netPay: 13500000, payDate: '05-11-2026', status: 'Paid' },
+        { id: 'PAY-1003', period: '09-2026', baseSalary: 12000000, bonuses: 2000000, deductions: 500000, netPay: 13500000, payDate: '05-10-2026', status: 'Paid' },
+        { id: 'PAY-1002', period: '08-2026', baseSalary: 12000000, bonuses: 1000000, deductions: 0, netPay: 13000000, payDate: '05-09-2026', status: 'Paid' },
+        { id: 'PAY-1001', period: '07-2026', baseSalary: 12000000, bonuses: 500000, deductions: 0, netPay: 12500000, payDate: '05-08-2026', status: 'Paid' },
+        { id: 'PAY-1000', period: '06-2026', baseSalary: 12000000, bonuses: 3000000, deductions: 200000, netPay: 14800000, payDate: '05-07-2026', status: 'Paid' },
     ];
 
     const totalYTD = salaryRecords.reduce((acc, curr) => acc + curr.netPay, 0);
@@ -45,7 +45,7 @@ const SalaryHistory = () => {
                         <div className="flex items-center gap-2 text-[#adc7f7] font-bold text-[14px] uppercase tracking-wider mb-2">
                             <TrendingUp className="w-4 h-4" /> Total Earnings (YTD)
                         </div>
-                        <div className="text-[36px] font-extrabold leading-none">${totalYTD.toLocaleString()}</div>
+                        <div className="text-[36px] font-extrabold leading-none">{totalYTD.toLocaleString()} đ</div>
                     </div>
                     <Wallet className="absolute -right-4 -bottom-4 w-32 h-32 text-white opacity-5 group-hover:scale-110 transition-transform duration-500" />
                 </div>
@@ -62,7 +62,7 @@ const SalaryHistory = () => {
                     <div className="flex items-center gap-2 text-[#0061a5] font-bold text-[14px] uppercase tracking-wider mb-2">
                         <Wallet className="w-4 h-4" /> Last Net Pay
                     </div>
-                    <div className="text-[32px] font-extrabold text-[#0061a5]">${lastPayout.netPay.toLocaleString()}</div>
+                    <div className="text-[32px] font-extrabold text-[#0061a5]">{lastPayout.netPay.toLocaleString()} đ</div>
                 </div>
             </div>
 
@@ -108,10 +108,10 @@ const SalaryHistory = () => {
                                         <div className="font-bold text-[#002045]">{record.period}</div>
                                         <div className="text-[12px] text-[#74777f]">{record.id}</div>
                                     </td>
-                                    <td className="p-4 text-[#43474e]">${record.baseSalary.toLocaleString()}</td>
-                                    <td className="p-4 text-green-600 font-semibold">+${record.bonuses.toLocaleString()}</td>
-                                    <td className="p-4 text-red-600 font-semibold">-${record.deductions.toLocaleString()}</td>
-                                    <td className="p-4 font-extrabold text-[#0061a5]">${record.netPay.toLocaleString()}</td>
+                                    <td className="p-4 text-[#43474e]">{record.baseSalary.toLocaleString()} đ</td>
+                                    <td className="p-4 text-green-600 font-semibold">+{record.bonuses.toLocaleString()} đ</td>
+                                    <td className="p-4 text-red-600 font-semibold">-{record.deductions.toLocaleString()} đ</td>
+                                    <td className="p-4 font-extrabold text-[#0061a5]">{record.netPay.toLocaleString()} đ</td>
                                     <td className="p-4 text-[#43474e]">{record.payDate}</td>
                                     <td className="p-4 text-right">
                                         <button 
@@ -215,27 +215,27 @@ const SalaryHistory = () => {
                                         <div className="space-y-3">
                                             {/* Base Salary */}
                                             <div className="flex justify-between items-center text-[14px]">
-                                                <span className="text-[#43474e] font-medium">Base Salary (160h x $7.5/h)</span>
-                                                <span className="font-bold text-[#181c1e]">${selectedRecord.baseSalary.toLocaleString()}</span>
+                                                <span className="text-[#43474e] font-medium">Base Salary (160h x 75,000 đ/h)</span>
+                                                <span className="font-bold text-[#181c1e]">{selectedRecord.baseSalary.toLocaleString()} đ</span>
                                             </div>
                                             
                                             {/* Allowances */}
                                             <div className="flex justify-between items-center text-[14px]">
                                                 <span className="text-[#43474e] font-medium">Internet & Equipment Allowance</span>
-                                                <span className="font-bold text-[#181c1e]">$50</span>
+                                                <span className="font-bold text-[#181c1e]">500,000 đ</span>
                                             </div>
 
                                             {/* Bonus */}
                                             <div className="flex justify-between items-center text-[14px]">
                                                 <span className="text-green-600 font-medium">Performance Bonus</span>
-                                                <span className="font-bold text-green-600">+${(selectedRecord.bonuses - 50).toLocaleString()}</span>
+                                                <span className="font-bold text-green-600">+{Math.max(0, selectedRecord.bonuses - 500000).toLocaleString()} đ</span>
                                             </div>
 
                                             {/* Deductions */}
                                             <div className="pt-3 border-t border-dashed border-[#e0e3e5]">
                                                 <div className="flex justify-between items-center text-[14px]">
                                                     <span className="text-red-600 font-medium">Tax Deduction (5%)</span>
-                                                    <span className="font-bold text-red-600">-${selectedRecord.deductions.toLocaleString()}</span>
+                                                    <span className="font-bold text-red-600">-{selectedRecord.deductions.toLocaleString()} đ</span>
                                                 </div>
                                             </div>
                                             
@@ -243,10 +243,10 @@ const SalaryHistory = () => {
                                             <div className="pt-4 mt-2 border-t border-[#c4c6cf]">
                                                 <div className="flex justify-between items-center bg-[#e6f0fa] p-4 rounded-xl border border-[#bbdefb]">
                                                     <span className="font-extrabold text-[#002045] text-[16px]">Total Net Pay</span>
-                                                    <span className="font-extrabold text-[#0061a5] text-[28px]">${selectedRecord.netPay.toLocaleString()}</span>
+                                                    <span className="font-extrabold text-[#0061a5] text-[28px]">{selectedRecord.netPay.toLocaleString()} đ</span>
                                                 </div>
                                                 <p className="text-center text-[12px] text-[#74777f] mt-3 italic">
-                                                    *All amounts are represented in USD.
+                                                    *All amounts are represented in đ.
                                                 </p>
                                             </div>
                                         </div>

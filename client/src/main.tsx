@@ -62,6 +62,7 @@ import AdminPayrollDetail from './views/admin/payroll-detail.tsx'
 import AdminAnnouncements from './views/admin/announcements.tsx'
 import AdminAuditLogs from './views/admin/audit-logs.tsx'
 import AdminProfile from './views/admin/profile.tsx'
+import AdminFinance from './views/admin/finance.tsx'
 
 // Tutor Views
 import TutorLayout from './components/layout/tutor-layout.tsx'
@@ -146,6 +147,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/admin/profile" element={<AdminProfile />} />
             <Route path="/admin/courses" element={<AdminCourses />} />
             <Route path="/admin/courses/:id" element={<AdminCourseDetail />} />
+            <Route path="/admin/finance" element={<AdminFinance />} />
             <Route path="/admin/discount-codes" element={<AdminDiscountCodes />} />
             <Route path="/admin/classrooms" element={<AdminClassrooms />} />
             <Route path="/admin/accounts" element={<AdminAccounts />} />
@@ -162,6 +164,7 @@ createRoot(document.getElementById('root')!).render(
         <Route element={<TutorLayout />}>
             <Route path="/tutor/dashboard" element={<TutorDashboard />} />
             <Route path="/tutor/profile" element={<TutorProfile />} />
+            <Route path="/tutor/notifications" element={<NotificationsPage />} />
             <Route path="/tutor/qualifications" element={<TutorQualifications />} />
             <Route path="/tutor/availability" element={<AvailabilityRegistration />} />
             <Route path="/tutor/schedule" element={<TeachingSchedule />} />

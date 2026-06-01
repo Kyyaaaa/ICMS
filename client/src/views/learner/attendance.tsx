@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
@@ -6,11 +6,11 @@ const AttendanceProgress = () => {
     const { id } = useParams();
 
     const sessions = [
-        { id: 1, date: 'Oct 01, 2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'present' },
-        { id: 2, date: 'Oct 03, 2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'present' },
-        { id: 3, date: 'Oct 08, 2024', time: '18:00 - 20:00', tutor: 'John Doe (Sub)', room: 'Room 302', status: 'absent' },
-        { id: 4, date: 'Oct 10, 2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'absent' },
-        { id: 5, date: 'Oct 15, 2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'upcoming' },
+        { id: 1, date: '01-10-2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'present' },
+        { id: 2, date: '03-10-2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'present' },
+        { id: 3, date: '08-10-2024', time: '18:00 - 20:00', tutor: 'John Doe (Sub)', room: 'Room 302', status: 'absent' },
+        { id: 4, date: '10-10-2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'absent' },
+        { id: 5, date: '15-10-2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'upcoming' },
     ];
 
     const getStatusIcon = (status: string) => {

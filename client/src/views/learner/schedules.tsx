@@ -1,80 +1,172 @@
-import React from 'react';
-import { Clock, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Clock, MapPin, ChevronLeft, ChevronRight, User, CheckCircle, XCircle, AlertCircle, CalendarDays } from 'lucide-react';
+
+const MOCK_LEARNER_SCHEDULE = [
+    { id: 1, class: 'IELTS Mastery', session: 'Session 4', tutor: 'Dr. Sarah Smith', room: 'Room 302', dayIndex: 1, startTime: '18:00', endTime: '20:00', attendance: 'present' },
+    { id: 2, class: 'IELTS Mastery', session: 'Session 5', tutor: 'Dr. Sarah Smith', room: 'Room 302', dayIndex: 3, startTime: '18:00', endTime: '20:00', attendance: 'upcoming' },
+    { id: 3, class: 'TOEIC Prep', session: 'Session 12', tutor: 'Mr. John Doe', room: 'Room 305', dayIndex: 0, startTime: '19:00', endTime: '21:00', attendance: 'present' },
+    { id: 4, class: 'TOEIC Prep', session: 'Session 13', tutor: 'Mr. John Doe', room: 'Room 305', dayIndex: 2, startTime: '19:00', endTime: '21:00', attendance: 'absent' },
+    { id: 5, class: 'Communication Skills', session: 'Session 1', tutor: 'Ms. Emily Chen', room: 'Room 201', dayIndex: 5, startTime: '09:00', endTime: '11:00', attendance: 'upcoming' },
+];
+
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const getMonday = (d: Date) => {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    date.setDate(diff);
+    date.setHours(0, 0, 0, 0);
+    return date;
+};
+
+const formatDate = (d: Date) => {
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+};
+
+const attendanceBadge = (status: string) => {
+    switch (status) {
+        case 'present':
+            return (
+                <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-1.5 py-0.5 w-fit">
+                    <CheckCircle className="w-3 h-3" />
+                    Present
+                </div>
+            );
+        case 'absent':
+            return (
+                <div className="flex items-center gap-1 text-[11px] font-bold text-[#ba1a1a] bg-red-50 border border-red-200 rounded-md px-1.5 py-0.5 w-fit">
+                    <XCircle className="w-3 h-3" />
+                    Absent
+                </div>
+            );
+        case 'upcoming':
+        default:
+            return (
+                <div className="flex items-center gap-1 text-[11px] font-bold text-[#74777f] bg-gray-50 border border-gray-200 rounded-md px-1.5 py-0.5 w-fit">
+                    <AlertCircle className="w-3 h-3" />
+                    Upcoming
+                </div>
+            );
+    }
+};
 
 const LearnerSchedules = () => {
-    // Mock data for weekly schedule
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    
+    const [currentMonday, setCurrentMonday] = useState(() => getMonday(new Date()));
+    const dateInputRef = useRef<HTMLInputElement>(null);
+
+    const goToPrevWeek = () => {
+        setCurrentMonday(prev => {
+            const d = new Date(prev);
+            d.setDate(d.getDate() - 7);
+            return d;
+        });
+    };
+
+    const goToNextWeek = () => {
+        setCurrentMonday(prev => {
+            const d = new Date(prev);
+            d.setDate(d.getDate() + 7);
+            return d;
+        });
+    };
+
+    const handleDatePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        if (val) {
+            setCurrentMonday(getMonday(new Date(val)));
+        }
+    };
+
+    const weekDates = DAY_NAMES.map((_, i) => {
+        const d = new Date(currentMonday);
+        d.setDate(d.getDate() + i);
+        return d;
+    });
+
+    const sundayDate = weekDates[6];
+    const weekLabel = `${formatDate(currentMonday)} to ${formatDate(sundayDate)}`;
+
     return (
         <div className="space-y-[24px] animate-fade-in-up">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-[16px]">
                 <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">My Schedules</h1>
                 
-                <div className="flex items-center gap-[16px] bg-white rounded-full border border-[#e0e3e5] p-[4px]">
-                    <button className="p-[8px] text-[#43474e] hover:bg-[#f1f4f6] rounded-full transition-colors"><ChevronLeft className="w-5 h-5"/></button>
-                    <span className="text-[14px] font-bold text-[#181c1e] px-[16px]">October 2024</span>
-                    <button className="p-[8px] text-[#43474e] hover:bg-[#f1f4f6] rounded-full transition-colors"><ChevronRight className="w-5 h-5"/></button>
+                <div className="flex items-center bg-white rounded-lg border border-[#c4c6cf] overflow-hidden shadow-sm">
+                    <button onClick={goToPrevWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-r border-[#c4c6cf]">
+                        <ChevronLeft className="w-5 h-5 text-[#43474e]" />
+                    </button>
+                    <button 
+                        onClick={() => dateInputRef.current?.showPicker()}
+                        className="px-4 py-2 font-bold text-[#181c1e] flex items-center gap-2 hover:bg-[#f8f9fa] transition-colors cursor-pointer"
+                    >
+                        <CalendarDays className="w-4 h-4 text-[#74777f]" />
+                        {weekLabel}
+                    </button>
+                    <input 
+                        ref={dateInputRef}
+                        type="date" 
+                        className="absolute opacity-0 w-0 h-0 pointer-events-none" 
+                        onChange={handleDatePick}
+                    />
+                    <button onClick={goToNextWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-l border-[#c4c6cf]">
+                        <ChevronRight className="w-5 h-5 text-[#43474e]" />
+                    </button>
                 </div>
             </div>
 
             <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden overflow-x-auto">
-                <div className="min-w-[800px]">
+                <div className="min-w-[900px]">
                     {/* Header */}
                     <div className="grid grid-cols-7 border-b border-[#e0e3e5] bg-[#f7fafc]">
-                        {days.map((day, i) => (
-                            <div key={day} className="py-[12px] text-center border-r border-[#e0e3e5] last:border-0">
-                                <span className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider">{day}</span>
-                                <span className="block text-[20px] font-bold text-[#181c1e] mt-1">{i + 14}</span>
-                            </div>
-                        ))}
+                        {DAY_NAMES.map((dayName, i) => {
+                            const d = weekDates[i];
+                            const isToday = new Date().toDateString() === d.toDateString();
+                            return (
+                                <div key={dayName} className={`py-[12px] text-center border-r border-[#e0e3e5] last:border-0 ${isToday ? 'bg-[#e6f0fa]' : ''}`}>
+                                    <span className={`text-[12px] font-bold uppercase tracking-wider ${isToday ? 'text-[#0061a5]' : 'text-[#74777f]'}`}>{dayName}</span>
+                                    <span className={`block text-[20px] font-bold mt-1 ${isToday ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>{String(d.getDate()).padStart(2, '0')}</span>
+                                </div>
+                            );
+                        })}
                     </div>
 
                     {/* Grid */}
                     <div className="grid grid-cols-7 min-h-[400px]">
-                        {days.map((day, i) => (
-                            <div key={day} className="p-[8px] border-r border-[#e0e3e5] last:border-0 hover:bg-[#f7fafc] transition-colors relative">
-                                {i === 1 && (
-                                    <div className="bg-[#d2e4ff] border border-[#0061a5] rounded-[8px] p-[8px] mb-[8px] cursor-pointer hover:shadow-md transition-shadow">
-                                        <p className="text-[12px] font-bold text-[#0061a5] leading-tight">Reading</p>
-                                        <p className="text-[10px] text-[#002045] mt-1 flex items-center gap-1"><Clock className="w-3 h-3"/> 18:00 - 20:00</p>
-                                        <p className="text-[10px] text-[#002045] mt-1 flex items-center gap-1"><MapPin className="w-3 h-3"/> Room 302</p>
+                        {DAY_NAMES.map((_, dayIdx) => (
+                            <div key={dayIdx} className="border-r border-[#e0e3e5] last:border-0 p-2 space-y-3 bg-gray-50/30">
+                                {MOCK_LEARNER_SCHEDULE.filter(s => s.dayIndex === dayIdx).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(session => (
+                                    <div 
+                                        key={session.id} 
+                                        className="p-3 bg-white rounded-xl border border-[#e0e3e5] shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:-translate-y-0.5 transform duration-200"
+                                    >
+                                        <h4 className="font-extrabold text-[#002045] text-[14px] leading-tight mb-0.5">{session.class}</h4>
+                                        <div className="text-[12px] font-semibold text-[#0061a5] mb-2">{session.session}</div>
+                                        
+                                        <div className="space-y-1 mb-2">
+                                            <div className="flex items-center gap-1.5 text-[12px] text-[#43474e]">
+                                                <Clock className="w-3.5 h-3.5 shrink-0" />
+                                                <span>{session.startTime} - {session.endTime}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-[12px] text-[#43474e]">
+                                                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                                <span className="truncate font-semibold">{session.room}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-[12px] text-[#43474e]">
+                                                <User className="w-3.5 h-3.5 shrink-0" />
+                                                <span className="truncate">{session.tutor}</span>
+                                            </div>
+                                        </div>
+
+                                        {attendanceBadge(session.attendance)}
                                     </div>
-                                )}
-                                {i === 3 && (
-                                    <div className="bg-[#d2e4ff] border border-[#0061a5] rounded-[8px] p-[8px] mb-[8px] cursor-pointer hover:shadow-md transition-shadow">
-                                        <p className="text-[12px] font-bold text-[#0061a5] leading-tight">Reading</p>
-                                        <p className="text-[10px] text-[#002045] mt-1 flex items-center gap-1"><Clock className="w-3 h-3"/> 18:00 - 20:00</p>
-                                        <p className="text-[10px] text-[#002045] mt-1 flex items-center gap-1"><MapPin className="w-3 h-3"/> Room 302</p>
-                                    </div>
-                                )}
-                                {i === 0 && (
-                                    <div className="bg-[#ffebed] border border-[#ba1a1a] rounded-[8px] p-[8px] mb-[8px] cursor-pointer hover:shadow-md transition-shadow">
-                                        <p className="text-[12px] font-bold text-[#ba1a1a] leading-tight">Writing</p>
-                                        <p className="text-[10px] text-[#ba1a1a] mt-1 flex items-center gap-1"><Clock className="w-3 h-3"/> 19:00 - 21:00</p>
-                                        <p className="text-[10px] text-[#ba1a1a] mt-1 flex items-center gap-1"><MapPin className="w-3 h-3"/> Room 305</p>
-                                    </div>
-                                )}
-                                {i === 2 && (
-                                    <div className="bg-[#ffebed] border border-[#ba1a1a] rounded-[8px] p-[8px] mb-[8px] cursor-pointer hover:shadow-md transition-shadow">
-                                        <p className="text-[12px] font-bold text-[#ba1a1a] leading-tight">Writing</p>
-                                        <p className="text-[10px] text-[#ba1a1a] mt-1 flex items-center gap-1"><Clock className="w-3 h-3"/> 19:00 - 21:00</p>
-                                        <p className="text-[10px] text-[#ba1a1a] mt-1 flex items-center gap-1"><MapPin className="w-3 h-3"/> Room 305</p>
-                                    </div>
-                                )}
+                                ))}
                             </div>
                         ))}
                     </div>
-                </div>
-            </div>
-            
-            <div className="flex flex-wrap gap-[16px] text-[14px]">
-                <div className="flex items-center gap-[8px]">
-                    <span className="w-3 h-3 rounded-full bg-[#0061a5]"></span>
-                    <span className="text-[#43474e]">Reading Classes</span>
-                </div>
-                <div className="flex items-center gap-[8px]">
-                    <span className="w-3 h-3 rounded-full bg-[#ba1a1a]"></span>
-                    <span className="text-[#43474e]">Writing Classes</span>
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search, UserPlus, Edit, Ban, CheckCircle2, ShieldAlert, X, RefreshCw, EyeOff, Eye } from 'lucide-react';
 
 type Account = {
@@ -12,9 +12,9 @@ type Account = {
 
 const ManageAccounts = () => {
     const [accounts, setAccounts] = useState<Account[]>([
-        { id: '1', name: 'Alice Nguyen', email: 'alice.ng@gmail.com', role: 'Learner', date: 'Oct 24, 2026', status: 'Active' },
-        { id: '2', name: 'David Smith', email: 'david.tutor@icms.edu', role: 'Tutor', date: 'Oct 23, 2026', status: 'Active' },
-        { id: '3', name: 'Bob Johnson', email: 'bob.j@gmail.com', role: 'Learner', date: 'Oct 20, 2026', status: 'Banned' },
+        { id: '1', name: 'Alice Nguyen', email: 'alice.ng@gmail.com', role: 'Learner', date: '24-10-2026', status: 'Active' },
+        { id: '2', name: 'David Smith', email: 'david.tutor@icms.edu', role: 'Tutor', date: '23-10-2026', status: 'Active' },
+        { id: '3', name: 'Bob Johnson', email: 'bob.j@gmail.com', role: 'Learner', date: '20-10-2026', status: 'Banned' },
     ]);
 
     const [searchTerm, setSearchTerm] = useState('');

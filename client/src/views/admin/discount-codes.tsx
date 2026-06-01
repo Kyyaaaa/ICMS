@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Tags, Search, Plus, Trash2, Edit, X } from 'lucide-react';
 
 export interface DiscountCode {
@@ -151,7 +151,7 @@ const AdminDiscountCodes = () => {
                                         </div>
                                     </td>
                                     <td className="py-4 px-6 text-[14px] font-bold text-[#0061a5]">
-                                        {code.value.toLocaleString()} VND
+                                        {code.value.toLocaleString()} đ
                                     </td>
                                     <td className="py-4 px-6 text-[14px] text-[#43474e]">
                                         {code.validFrom ? new Date(code.validFrom).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A'}
@@ -208,7 +208,7 @@ const AdminDiscountCodes = () => {
                             
                             <div className="flex flex-col sm:flex-row gap-4">
                                         <div className="flex-[2]">
-                                            <label className="block text-[13px] font-bold text-[#43474e] mb-1">Discount Amount (VND)</label>
+                                            <label className="block text-[13px] font-bold text-[#43474e] mb-1">Discount Amount (đ)</label>
                                             <input 
                                                 type="number" 
                                                 value={formData.value} 

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronRight, ArrowLeft, Users, Calendar, MapPin, Edit, BookOpen, CheckCircle, Clock, Save, X, ChevronDown } from 'lucide-react';
 
@@ -28,11 +28,11 @@ const StaffClassDetail = () => {
     }, []);
 
     const scheduleData = [
-        { session: 1, date: 'Oct 01, 2026', time: '18:00 - 20:00', topic: 'Introduction to IELTS Speaking Part 1', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Completed' },
-        { session: 2, date: 'Oct 03, 2026', time: '18:00 - 20:00', topic: 'Listening: Form Completion', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Completed' },
-        { session: 3, date: 'Oct 05, 2026', time: '18:00 - 20:00', topic: 'Reading: True/False/Not Given', tutor: 'Mr. James Bond', room: 'Room 102', status: 'Upcoming' },
-        { session: 4, date: 'Oct 08, 2026', time: '18:00 - 20:00', topic: 'Writing Task 1: Bar Charts', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Upcoming' },
-        { session: 5, date: 'Oct 10, 2026', time: '18:00 - 20:00', topic: 'Speaking Part 2 Practice', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Upcoming' },
+        { session: 1, date: '01-10-2026', time: '18:00 - 20:00', topic: 'Introduction to IELTS Speaking Part 1', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Completed' },
+        { session: 2, date: '03-10-2026', time: '18:00 - 20:00', topic: 'Listening: Form Completion', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Completed' },
+        { session: 3, date: '05-10-2026', time: '18:00 - 20:00', topic: 'Reading: True/False/Not Given', tutor: 'Mr. James Bond', room: 'Room 102', status: 'Upcoming' },
+        { session: 4, date: '08-10-2026', time: '18:00 - 20:00', topic: 'Writing Task 1: Bar Charts', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Upcoming' },
+        { session: 5, date: '10-10-2026', time: '18:00 - 20:00', topic: 'Speaking Part 2 Practice', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Upcoming' },
     ];
 
     const courseName = id === '101' || id === '102' ? 'IELTS Masterclass' : id === '201' ? 'TOEIC Intensive' : 'Course Name';
@@ -185,7 +185,7 @@ const StaffClassDetail = () => {
                                     <tr key={i} className="border-b border-[#e0e3e5] hover:bg-[#f0f7ff]/50 transition-colors">
                                         <td className="p-4 font-bold text-[#002045]">Student Name {i}</td>
                                         <td className="p-4 text-[#43474e]">student{i}@gmail.com</td>
-                                        <td className="p-4 text-[#74777f]">Oct 01, 2026</td>
+                                        <td className="p-4 text-[#74777f]">01-10-2026</td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-full bg-gray-200 rounded-full h-2 max-w-[100px]">
@@ -267,7 +267,7 @@ const StaffClassDetail = () => {
                                                 className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors"
                                                 onClick={() => { setSelectedEditRoom(room); setIsEditRoomDropdownOpen(false); }}
                                             >
-                                                {room.name} (Cap: {room.cap}) {room.current && '(Current)'} • <span className="text-[#16a34a] font-medium">Available</span>
+                                                {room.name} (Cap: {room.cap}) {(room as any).current && '(Current)'} • <span className="text-[#16a34a] font-medium">Available</span>
                                             </button>
                                         ))}
                                     </div>
