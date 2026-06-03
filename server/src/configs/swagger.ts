@@ -19,7 +19,7 @@ const options: swaggerJsdoc.Options = {
     ],
   },
   // Đường dẫn tới các file chứa comment để tạo API docs (quét tất cả các file trong thư mục routes)
-  apis: ['./src/routes/*.ts'],
+  apis: ['./src/modules/**/*.routes.ts'],
 };
 
 export const swaggerSpec = swaggerJsdoc(options);

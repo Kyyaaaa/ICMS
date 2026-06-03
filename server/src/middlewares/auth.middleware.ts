@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabase } from '../config/supabase';
+import { supabase } from '../configs/supabase';
 
 // Mở rộng interface Request của Express để chứa dữ liệu user
 export interface AuthenticatedRequest extends Request {

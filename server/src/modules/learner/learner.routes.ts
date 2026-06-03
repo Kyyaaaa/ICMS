@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { LearnerController } from '../controllers/learner.controller';
-import { verifyToken, requireRole } from '../middlewares/auth.middleware';
+import { LearnerController } from './learner.controller';
+import { verifyToken, requireRole } from '../../middlewares/auth.middleware';
 
 const router = Router();
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { LearnerService } from '../services/learner.service';
-import { validateEmail, validatePassword, validateFullName, validatePhoneNumber } from '../utils/validators';
-import { AuthenticatedRequest } from '../middlewares/auth.middleware';
+import { LearnerService } from './learner.service';
+import { validateEmail, validatePassword, validateFullName, validatePhoneNumber } from '../../utils/validators';
+import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
 
 export class LearnerController {
   /**

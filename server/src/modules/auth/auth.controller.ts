@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { AuthService } from '../services/auth.service';
-import { validateEmail, validatePassword, validateFullName, validatePhoneNumber } from '../utils/validators';
+import { AuthService } from './auth.service';
+import { validateEmail, validatePassword, validateFullName, validatePhoneNumber } from '../../utils/validators';
 
 export class AuthController {
   static async register(req: Request, res: Response) {

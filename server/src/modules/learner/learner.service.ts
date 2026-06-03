@@ -1,4 +1,4 @@
-import { supabase, supabaseAdmin } from '../config/supabase';
+import { supabase, supabaseAdmin } from '../../configs/supabase';
 
 export class LearnerService {
   /**
