@@ -32,7 +32,7 @@ const StaffLayout = () => {
     // Flat Sidebar Links (pointing to the primary sub-page of each logical group)
     const navItems = [
         { name: 'Dashboard', path: '/staff/dashboard', icon: LayoutDashboard },
-        { name: 'Operations', path: '/staff/master-schedule', icon: Calendar, activePaths: ['/staff/classes', '/staff/master-schedule'] },
+        { name: 'Operations', path: '/staff/master-schedule', icon: Calendar, activePaths: ['/staff/classes', '/staff/master-schedule', '/staff/tutor-availability'] },
         { name: 'Requests & Support', path: '/staff/consultations', icon: MessageSquare, activePaths: ['/staff/consultations', '/staff/change-requests', '/staff/support'] },
         { name: 'Finance', path: '/staff/invoices', icon: Wallet, activePaths: ['/staff/invoices', '/staff/salary'] },
         { name: 'User Management', path: '/staff/accounts', icon: Users, activePaths: ['/staff/accounts', '/staff/profiles'] },
@@ -50,10 +50,11 @@ const StaffLayout = () => {
         const path = location.pathname;
         let tabs = [];
 
-        if (path.startsWith('/staff/classes') || path.startsWith('/staff/master-schedule')) {
+        if (path.startsWith('/staff/classes') || path.startsWith('/staff/master-schedule') || path.startsWith('/staff/tutor-availability')) {
             tabs = [
                 { name: 'Master Schedule', path: '/staff/master-schedule', icon: Calendar },
                 { name: 'Manage Classes', path: '/staff/classes', icon: BookOpen },
+                { name: 'Manage Tutor Availability', path: '/staff/tutor-availability', icon: BookOpen }, // We can use BookOpen or Calendar for now, let's use Users or Calendar
             ];
         } else if (path.startsWith('/staff/consultations') || path.startsWith('/staff/change-requests') || path.startsWith('/staff/support')) {
             tabs = [

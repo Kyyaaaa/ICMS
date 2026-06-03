@@ -39,6 +39,7 @@ import ChangeRequests from './views/staff/change-requests.tsx'
 import InvoiceList from './views/staff/invoices.tsx'
 import InvoiceDetail from './views/staff/invoice-detail.tsx'
 import StaffProfile from './views/staff/my-profile.tsx'
+import StaffTutorAvailability from './views/staff/tutor-availability.tsx'
 import ManageAccounts from './views/staff/accounts.tsx'
 import SalaryHistory from './views/staff/salary.tsx'
 import { StaffSupportTickets } from './views/staff/support-tickets.tsx'
@@ -132,6 +133,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/staff/classes/edit/:id" element={<CreateClass />} />
             <Route path="/staff/classes/:id" element={<StaffClassDetail />} />
             <Route path="/staff/master-schedule" element={<MasterSchedule />} />
+            <Route path="/staff/tutor-availability" element={<StaffTutorAvailability />} />
             
             <Route path="/staff/change-requests" element={<ChangeRequests />} />
             

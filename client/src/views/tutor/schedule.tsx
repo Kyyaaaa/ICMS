@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
-import { Clock, MapPin, ChevronLeft, ChevronRight, User, CheckCircle, XCircle, AlertCircle, CalendarDays } from 'lucide-react';
+import { Clock, MapPin, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, CalendarDays, Users } from 'lucide-react';
 
 const MOCK_TUTOR_SCHEDULE = [
-    { id: 1, class: 'IELTS Mastery', session: 'Session 4', tutor: 'Dr. Sarah Smith', room: 'Room 302', dayIndex: 1, startTime: '18:00', endTime: '20:00', attendance: 'present' },
-    { id: 2, class: 'IELTS Mastery', session: 'Session 5', tutor: 'Dr. Sarah Smith', room: 'Room 302', dayIndex: 3, startTime: '18:00', endTime: '20:00', attendance: 'upcoming' },
-    { id: 3, class: 'TOEIC Prep', session: 'Session 12', tutor: 'Mr. John Doe', room: 'Room 305', dayIndex: 0, startTime: '19:00', endTime: '21:00', attendance: 'present' },
-    { id: 4, class: 'TOEIC Prep', session: 'Session 13', tutor: 'Mr. John Doe', room: 'Room 305', dayIndex: 2, startTime: '19:00', endTime: '21:00', attendance: 'absent' },
-    { id: 5, class: 'Communication Skills', session: 'Session 1', tutor: 'Ms. Emily Chen', room: 'Room 201', dayIndex: 5, startTime: '09:00', endTime: '11:00', attendance: 'upcoming' },
+    { id: 1, class: 'IELTS Mastery', session: 'Session 4', room: 'Room 302', students: 15, dayIndex: 1, startTime: '18:00', endTime: '20:00', attendance: 'taken' },
+    { id: 2, class: 'IELTS Mastery', session: 'Session 5', room: 'Room 302', students: 15, dayIndex: 3, startTime: '18:00', endTime: '20:00', attendance: 'pending' },
+    { id: 3, class: 'TOEIC Prep', session: 'Session 12', room: 'Room 305', students: 20, dayIndex: 0, startTime: '19:00', endTime: '21:00', attendance: 'taken' },
+    { id: 4, class: 'TOEIC Prep', session: 'Session 13', room: 'Room 305', students: 20, dayIndex: 2, startTime: '19:00', endTime: '21:00', attendance: 'pending' },
+    { id: 5, class: 'Communication Skills', session: 'Session 1', room: 'Room 201', students: 12, dayIndex: 5, startTime: '09:00', endTime: '11:00', attendance: 'pending' },
 ];
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -29,26 +29,19 @@ const formatDate = (d: Date) => {
 
 const attendanceBadge = (status: string) => {
     switch (status) {
-        case 'present':
+        case 'taken':
             return (
-                <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-1.5 py-0.5 w-fit">
-                    <CheckCircle className="w-3 h-3" />
-                    Present
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-1 w-fit mt-3">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Attendance Taken
                 </div>
             );
-        case 'absent':
-            return (
-                <div className="flex items-center gap-1 text-[11px] font-bold text-[#ba1a1a] bg-red-50 border border-red-200 rounded-md px-1.5 py-0.5 w-fit">
-                    <XCircle className="w-3 h-3" />
-                    Absent
-                </div>
-            );
-        case 'upcoming':
+        case 'pending':
         default:
             return (
-                <div className="flex items-center gap-1 text-[11px] font-bold text-[#74777f] bg-gray-50 border border-gray-200 rounded-md px-1.5 py-0.5 w-fit">
-                    <AlertCircle className="w-3 h-3" />
-                    Upcoming
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1 w-fit mt-3">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    Attendance Pending
                 </div>
             );
     }
@@ -93,7 +86,10 @@ const TeachingSchedule = () => {
     return (
         <div className="space-y-[24px] animate-fade-in-up">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-[16px]">
-                <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Teaching Schedule</h1>
+                <div>
+                    <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Teaching Schedule</h1>
+                    <p className="text-[#43474e] text-[14px]">View your assigned classes and attendance status.</p>
+                </div>
                 
                 <div className="flex items-center bg-white rounded-lg border border-[#c4c6cf] overflow-hidden shadow-sm">
                     <button onClick={goToPrevWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-r border-[#c4c6cf]">
@@ -135,33 +131,37 @@ const TeachingSchedule = () => {
                     </div>
 
                     {/* Grid */}
-                    <div className="grid grid-cols-7 min-h-[400px]">
+                    <div className="grid grid-cols-7 min-h-[500px]">
                         {DAY_NAMES.map((_, dayIdx) => (
                             <div key={dayIdx} className="border-r border-[#e0e3e5] last:border-0 p-2 space-y-3 bg-gray-50/30">
                                 {MOCK_TUTOR_SCHEDULE.filter(s => s.dayIndex === dayIdx).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(session => (
                                     <div 
                                         key={session.id} 
-                                        className="p-3 bg-white rounded-xl border border-[#e0e3e5] shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:-translate-y-0.5 transform duration-200"
+                                        className="p-3 bg-white rounded-xl border border-[#e0e3e5] shadow-sm hover:shadow-md transition-shadow hover:-translate-y-0.5 transform duration-200 flex flex-col"
                                     >
-                                        <h4 className="font-extrabold text-[#002045] text-[14px] leading-tight mb-0.5">{session.class}</h4>
-                                        <div className="text-[12px] font-semibold text-[#0061a5] mb-2">{session.session}</div>
-                                        
-                                        <div className="space-y-1 mb-2">
-                                            <div className="flex items-center gap-1.5 text-[12px] text-[#43474e]">
-                                                <Clock className="w-3.5 h-3.5 shrink-0" />
-                                                <span>{session.startTime} - {session.endTime}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-[12px] text-[#43474e]">
-                                                <MapPin className="w-3.5 h-3.5 shrink-0" />
-                                                <span className="truncate font-semibold">{session.room}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-[12px] text-[#43474e]">
-                                                <User className="w-3.5 h-3.5 shrink-0" />
-                                                <span className="truncate">{session.tutor}</span>
+                                        <div>
+                                            <h4 className="font-extrabold text-[#002045] text-[15px] leading-tight mb-1">{session.class}</h4>
+                                            <div className="text-[12px] font-bold text-[#0061a5] mb-3">{session.session}</div>
+                                            
+                                            <div className="space-y-2 mb-2">
+                                                <div className="flex items-center gap-2 text-[12px] text-[#43474e] font-medium">
+                                                    <Clock className="w-3.5 h-3.5 text-[#74777f] shrink-0" />
+                                                    <span>{session.startTime} - {session.endTime}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[12px] text-[#43474e] font-medium">
+                                                    <MapPin className="w-3.5 h-3.5 text-[#74777f] shrink-0" />
+                                                    <span>{session.room}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[12px] text-[#43474e] font-medium">
+                                                    <Users className="w-3.5 h-3.5 text-[#74777f] shrink-0" />
+                                                    <span>{session.students} Students</span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {attendanceBadge(session.attendance)}
+                                        <div className="mt-auto">
+                                            {attendanceBadge(session.attendance)}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
