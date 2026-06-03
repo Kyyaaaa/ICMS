@@ -33,7 +33,7 @@ const TutorLayout = () => {
         { name: 'My Profile & Info', path: '/tutor/profile', icon: UserCog, activePaths: ['/tutor/profile', '/tutor/qualifications'] },
         { name: 'Teaching & Schedule', path: '/tutor/schedule', icon: Calendar, activePaths: ['/tutor/schedule', '/tutor/availability'] },
         { name: 'Class Management', path: '/tutor/attendance', icon: ClipboardCheck },
-        { name: 'Requests', path: '/tutor/change-requests', icon: FileEdit },
+        { name: 'Requests', path: '/tutor/change-requests', icon: FileEdit, activePaths: ['/tutor/change-requests', '/tutor/support-tickets'] },
         { name: 'Finance', path: '/tutor/salary', icon: Wallet },
     ];
 
@@ -56,6 +56,11 @@ const TutorLayout = () => {
             tabs = [
                 { name: 'Teaching Schedule', path: '/tutor/schedule', icon: Calendar },
                 { name: 'Availability Registration', path: '/tutor/availability', icon: CalendarClock },
+            ];
+        } else if (path.startsWith('/tutor/change-requests') || path.startsWith('/tutor/support-tickets')) {
+            tabs = [
+                { name: 'Schedule Changes', path: '/tutor/change-requests', icon: FileEdit },
+                { name: 'Support Tickets', path: '/tutor/support-tickets', icon: FileEdit },
             ];
         }
 

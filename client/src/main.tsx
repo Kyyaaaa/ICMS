@@ -75,6 +75,7 @@ import TeachingSchedule from './views/tutor/schedule.tsx'
 import ClassAttendance from './views/tutor/attendance.tsx'
 import TutorChangeRequests from './views/tutor/change-requests.tsx'
 import TutorSalaryHistory from './views/tutor/salary.tsx'
+import { TutorSupportTickets } from './views/tutor/support-tickets.tsx'
 
 // Shared Views
 import { NotificationsPage } from './views/shared/notifications.tsx'
@@ -173,6 +174,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/tutor/schedule" element={<TeachingSchedule />} />
             <Route path="/tutor/attendance" element={<ClassAttendance />} />
             <Route path="/tutor/change-requests" element={<TutorChangeRequests />} />
+            <Route path="/tutor/support-tickets" element={<TutorSupportTickets />} />
             <Route path="/tutor/salary" element={<TutorSalaryHistory />} />
         </Route>
       </Routes>
