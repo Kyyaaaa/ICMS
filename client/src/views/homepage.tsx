@@ -21,6 +21,7 @@ const marqueeStyles = `
 const Homepage = () => {
     // Auth state for demonstration (will be managed by global state/context in reality)
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userRole, setUserRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>('learner');
 
     const tutors = [
         { name: "Dr. Eleanor Vance", ielts: "9.0", role: "Former IELTS Examiner", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200" },
@@ -36,7 +37,7 @@ const Homepage = () => {
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-[16px] leading-[24px] font-sans min-h-screen flex flex-col">
             <style>{marqueeStyles}</style>
-            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole} />
 
             <main className="flex-grow">
                 {/* Hero Section */}

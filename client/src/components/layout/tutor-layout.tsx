@@ -7,10 +7,19 @@ const TutorLayout = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     
     const [notifications, setNotifications] = useState([
-        { id: 1, type: 'role', title: 'Schedule Updated', message: 'Your teaching schedule for next week has been confirmed.', time: '10 mins ago', unread: true },
+        { id: 1, type: 'staff', title: 'Schedule Updated', message: 'Your teaching schedule for next week has been confirmed.', time: '10 mins ago', unread: true },
         { id: 2, type: 'system', title: 'System Update', message: 'ICMS platform will have a scheduled maintenance this Sunday at 2 AM.', time: '1 day ago', unread: false },
-        { id: 3, type: 'role', title: 'Salary Disbursed', message: 'Your salary for last month has been transferred.', time: '3 days ago', unread: false },
+        { id: 3, type: 'admin', title: 'Salary Disbursed', message: 'Your salary for last month has been transferred.', time: '3 days ago', unread: false },
     ]);
+
+    const getTagColor = (type: string) => {
+        switch(type) {
+            case 'staff': return 'bg-[#fff4ce] text-[#855e00]';
+            case 'system': return 'bg-[#d2e4ff] text-[#001d37]';
+            case 'tutor': return 'bg-[#c2f0ce] text-[#00210a]';
+            default: return 'bg-[#e0e3e5] text-[#43474e]';
+        }
+    };
 
     const unreadCount = notifications.filter(n => n.unread).length;
 
@@ -177,9 +186,14 @@ const TutorLayout = () => {
                                                     <div className="flex gap-3">
                                                         <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${notification.unread ? 'bg-[#0061a5]' : 'bg-transparent'}`}></div>
                                                         <div>
-                                                            <h4 className={`text-[14px] ${notification.unread ? 'font-bold text-[#181c1e]' : 'font-medium text-[#43474e]'}`}>
-                                                                {notification.title}
-                                                            </h4>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider uppercase ${getTagColor(notification.type)}`}>
+                                                                    {notification.type}
+                                                                </span>
+                                                                <h4 className={`text-[14px] ${notification.unread ? 'font-bold text-[#181c1e]' : 'font-medium text-[#43474e]'}`}>
+                                                                    {notification.title}
+                                                                </h4>
+                                                            </div>
                                                             <p className="text-[13px] text-[#43474e] mt-1 leading-relaxed">{notification.message}</p>
                                                             <span className="text-[11px] font-medium text-[#74777f] mt-2 block">{notification.time}</span>
                                                         </div>

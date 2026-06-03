@@ -5,17 +5,29 @@ import { Link } from 'react-router-dom';
 interface TopNavProps {
     isLoggedIn?: boolean;
     setIsLoggedIn?: (val: boolean) => void;
+    userRole?: 'learner' | 'tutor' | 'staff' | 'admin';
 }
 
-export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedIn }) => {
+export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedIn, userRole = 'learner' }) => {
     const [showNotifications, setShowNotifications] = useState(false);
 
     const [allNotifs, setAllNotifs] = useState([
         { id: 1, title: 'System Maintenance', desc: 'Scheduled maintenance on Sunday 2AM.', time: '2 hours ago', read: false, type: 'system' },
-        { id: 2, title: 'New Course Added', desc: 'Check out our new IELTS Speaking Masterclass.', time: '1 day ago', read: true, type: 'system' },
-        { id: 3, title: 'Class Reminder', desc: 'Your Intensive Reading class starts in 1 hour.', time: 'Just now', read: false, type: 'role' },
-        { id: 4, title: 'Assignment Graded', desc: 'Your Writing Task 2 has been graded. Score: 7.5', time: '5 hours ago', read: false, type: 'role' },
+        { id: 2, title: 'New Course Added', desc: 'Check out our new IELTS Speaking Masterclass.', time: '1 day ago', read: true, type: 'admin' },
+        { id: 3, title: 'Class Reminder', desc: 'Your class starts in 1 hour.', time: 'Just now', read: false, type: 'staff' },
+        { id: 4, title: 'Notice', desc: 'New materials or tasks are available.', time: '5 hours ago', read: false, type: 'tutor' },
     ]);
+
+    const getTagColor = (type: string) => {
+        switch(type) {
+            case 'staff': return 'bg-[#fff4ce] text-[#855e00]';
+            case 'system': return 'bg-[#d2e4ff] text-[#001d37]';
+            case 'tutor': return 'bg-[#c2f0ce] text-[#00210a]';
+            case 'learner': return 'bg-[#ffdad6] text-[#410002]';
+            case 'admin': return 'bg-[#e0e3e5] text-[#002045]';
+            default: return 'bg-[#e0e3e5] text-[#43474e]';
+        }
+    };
 
     const notifications = isLoggedIn ? allNotifs : allNotifs.filter(n => n.type === 'system');
     const unreadCount = notifications.filter(n => !n.read).length;
@@ -66,7 +78,12 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
                                     {notifications.length > 0 ? notifications.map(notif => (
                                         <div key={notif.id} className={`px-4 py-3 border-b border-[#f1f4f6] hover:bg-[#f8f9fa] cursor-pointer transition-colors ${!notif.read ? 'bg-[#f0f7ff]' : ''}`}>
                                             <div className="flex justify-between items-start mb-1">
-                                                <h5 className={`text-[14px] ${!notif.read ? 'font-bold text-[#002045]' : 'font-semibold text-[#43474e]'}`}>{notif.title}</h5>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider uppercase ${getTagColor(notif.type)}`}>
+                                                        {notif.type}
+                                                    </span>
+                                                    <h5 className={`text-[14px] ${!notif.read ? 'font-bold text-[#002045]' : 'font-semibold text-[#43474e]'}`}>{notif.title}</h5>
+                                                </div>
                                                 {!notif.read && <span className="w-2 h-2 bg-[#0061a5] rounded-full mt-1.5 shrink-0"></span>}
                                             </div>
                                             <p className="text-[13px] text-[#74777f] line-clamp-2 leading-tight mb-1">{notif.desc}</p>

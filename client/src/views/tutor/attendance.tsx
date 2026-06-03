@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ClipboardCheck, Calendar, Clock, CheckCircle2, XCircle, Search, Check, Send, Users, ChevronRight, BookOpen, ArrowLeft, ChevronDown, Info } from 'lucide-react';
 
@@ -37,6 +37,13 @@ const ClassAttendance = () => {
     const [searchQuery, setSearchQuery] = useState('');
     
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    
+    useEffect(() => {
+        const classId = searchParams.get('classId');
+        const sessionId = searchParams.get('sessionId');
+        if (classId) setSelectedClassId(classId);
+        if (sessionId) setSelectedSessionId(sessionId);
+    }, [searchParams]);
     
     // State to hold attendance records per session
     // Map<sessionId, Map<studentId, status>>

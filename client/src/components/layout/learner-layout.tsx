@@ -7,11 +7,22 @@ const LearnerLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState([
-        { id: 1, type: 'role', title: 'Class Rescheduled', message: 'Your IE1601 class has been moved to Room 402.', time: '10 mins ago', unread: true },
-        { id: 2, type: 'role', title: 'Payment Reminder', message: 'Tuition fee for next month is due in 3 days.', time: '2 hours ago', unread: true },
+        { id: 1, type: 'staff', title: 'Class Rescheduled', message: 'Your IE1601 class has been moved to Room 402.', time: '10 mins ago', unread: true },
+        { id: 2, type: 'admin', title: 'Payment Reminder', message: 'Tuition fee for next month is due in 3 days.', time: '2 hours ago', unread: true },
         { id: 3, type: 'system', title: 'System Update', message: 'ICMS platform will have a scheduled maintenance this Sunday at 2 AM.', time: '1 day ago', unread: false },
-        { id: 4, type: 'role', title: 'Material Uploaded', message: 'Tutor Dr. Sarah Smith uploaded new materials for IELTS Mastery.', time: '2 days ago', unread: false },
+        { id: 4, type: 'tutor', title: 'Material Uploaded', message: 'Tutor Dr. Sarah Smith uploaded new materials for IELTS Mastery.', time: '2 days ago', unread: false },
     ]);
+
+    const getTagColor = (type: string) => {
+        switch(type) {
+            case 'staff': return 'bg-[#fff4ce] text-[#855e00]';
+            case 'system': return 'bg-[#d2e4ff] text-[#001d37]';
+            case 'tutor': return 'bg-[#c2f0ce] text-[#00210a]';
+            case 'learner': return 'bg-[#ffdad6] text-[#410002]';
+            case 'admin': return 'bg-[#e0e3e5] text-[#002045]';
+            default: return 'bg-[#e0e3e5] text-[#43474e]';
+        }
+    };
 
     const unreadCount = notifications.filter(n => n.unread).length;
 
@@ -112,11 +123,9 @@ const LearnerLayout = () => {
                                                 <div key={notif.id} className={`p-4 border-b border-[#e0e3e5] last:border-b-0 hover:bg-[#f8f9fa] transition-colors cursor-pointer ${notif.unread ? 'bg-blue-50/30' : ''}`}>
                                                     <div className="flex justify-between items-start mb-1">
                                                         <div className="flex items-center gap-2">
-                                                            {notif.type === 'system' ? (
-                                                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#e6f0fa] text-[#0061a5] uppercase">System</span>
-                                                            ) : (
-                                                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 uppercase">Learner</span>
-                                                            )}
+                                                            <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider uppercase ${getTagColor(notif.type)}`}>
+                                                                {notif.type}
+                                                            </span>
                                                             <h4 className={`text-[14px] leading-tight text-[#002045] ${notif.unread ? 'font-bold' : 'font-semibold'}`}>{notif.title}</h4>
                                                         </div>
                                                         {notif.unread && <span className="w-2 h-2 rounded-full bg-[#0061a5] shrink-0 mt-1"></span>}
