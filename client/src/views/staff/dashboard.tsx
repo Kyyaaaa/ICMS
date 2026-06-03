@@ -28,12 +28,12 @@ const StaffDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Pending Tasks (Action Required) */}
+                {/* Pending Tasks */}
                 <div className="lg:col-span-2 space-y-6">
                     <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-6">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-[18px] font-bold text-[#002045] flex items-center gap-2">
-                                <AlertCircle className="w-5 h-5 text-amber-500" /> Action Required
+                                <AlertCircle className="w-5 h-5 text-amber-500" /> Pending Tasks
                             </h2>
                             <button className="text-[#0061a5] text-[13px] font-bold hover:underline">View All</button>
                         </div>

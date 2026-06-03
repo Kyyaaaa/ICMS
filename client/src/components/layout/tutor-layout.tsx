@@ -207,7 +207,7 @@ const TutorLayout = () => {
                 {renderSubTabs()}
 
                 {/* Page Content */}
-                <main className="flex-1 overflow-y-auto scrollbar-none bg-[#f7fafc] relative">
+                <main className="flex-1 p-6 lg:p-8 overflow-y-auto scrollbar-none bg-[#f7fafc] relative">
                     <Outlet />
                 </main>
             </div>
