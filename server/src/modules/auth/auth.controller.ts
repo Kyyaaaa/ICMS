@@ -10,42 +10,42 @@ export class AuthController {
 
       // Validate input cơ bản
       if (!email || !password || !full_name) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Please provide email, password and full_name' 
+        return res.status(400).json({
+          success: false,
+          message: 'Please provide email, password and full_name'
         });
       }
 
       if (!validateEmail(email)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Invalid email format' 
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
         });
       }
 
       if (!validatePassword(password)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character' 
+        return res.status(400).json({
+          success: false,
+          message: 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character'
         });
       }
 
       if (!validateFullName(full_name)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Invalid full_name. Must be 2-50 characters and contain only letters and spaces' 
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid full_name. Must be 2-50 characters and contain only letters and spaces'
         });
       }
 
       if (phone_number && !validatePhoneNumber(phone_number)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Invalid phone_number. Must be a valid Vietnamese 10-digit phone number starting with 0' 
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid phone_number. Must be a valid Vietnamese 10-digit phone number starting with 0'
         });
       }
 
       // Gọi service xử lý đăng ký
-      const result = await AuthService.registerLearner(email, password, full_name, phone_number || '');
+      const result = await AuthService.registerLearner(email, password, full_name, phone_number || null);
 
       return res.status(201).json({
         success: true,
@@ -74,9 +74,9 @@ export class AuthController {
       }
 
       if (!validateEmail(email)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Invalid email format' 
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
         });
       }
 

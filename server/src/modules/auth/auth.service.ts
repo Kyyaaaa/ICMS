@@ -8,16 +8,16 @@ export class AuthService {
    * @param fullName Họ và tên
    * @param phoneNumber Số điện thoại
    */
-  static async registerLearner(email: string, password: string, fullName: string, phoneNumber: string) {
-    const { data, error } = await supabase.auth.signUp({
+  static async registerLearner(email: string, password: string, fullName: string, phoneNumber: string | null) {
+
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-          phone_number: phoneNumber,
-          role: 'LEARNER' // Trigger DB sẽ đọc role này để lưu
-        }
+      email_confirm: true,
+      user_metadata: {
+        full_name: fullName,
+        phone_number: phoneNumber,
+        role: 'LEARNER' // Trigger DB sẽ đọc role này để lưu
       }
     });
 

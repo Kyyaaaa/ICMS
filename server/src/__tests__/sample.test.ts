@@ -17,3 +17,10 @@ describe('utils: validateEmail', () => {
     expect(validateEmail('hahahahgmail.com')).toBe(false);
   });
 });
+
+describe('utils: validateEmail', () => {
+  it('true case 1', () => {
+    expect(validateEmail('hoanglbp3300@gmail.com')).toBe(true);
+  });
+
+});
