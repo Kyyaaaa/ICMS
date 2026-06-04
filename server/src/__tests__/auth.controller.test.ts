@@ -137,3 +137,174 @@ describe('Auth Controller - POST /api/auth/register', () => {
     });
   });
 });
+
+describe('Auth Controller - POST /api/auth/login', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Validation Error Handling', () => {
+    it('should return 400 if missing password', async () => {
+      const res = await request(app).post('/api/auth/login').send({
+        email: 'test@example.com' // Thiếu password
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe('Please provide email and password');
+    });
+
+    it('should return 400 if missing email', async () => {
+      const res = await request(app).post('/api/auth/login').send({
+        password: "123123123@As"
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe('Please provide email and password');
+    });
+
+    it('should return 400 if email is invalid', async () => {
+      const res = await request(app).post('/api/auth/login').send({
+        email: 'invalid-email',
+        password: 'Password123!'
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe('Invalid email format');
+    });
+  });
+
+  describe('Successful Login', () => {
+    it('should return 200 and auth tokens if credentials are correct', async () => {
+      // Giả lập login thành công
+      (AuthService.login as jest.Mock).mockResolvedValue({
+        session: { access_token: 'mock-access', refresh_token: 'mock-refresh' },
+        user: {
+          id: 'mock-uuid',
+          email: 'test@example.com',
+          user_metadata: { role: 'LEARNER', full_name: 'John Doe' }
+        }
+      });
+
+      const res = await request(app).post('/api/auth/login').send({
+        email: 'test@example.com',
+        password: 'Password123!'
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.access_token).toBe('mock-access');
+      expect(res.body.data.user.id).toBe('mock-uuid');
+      expect(res.body.data.user.role).toBe('LEARNER');
+
+      expect(AuthService.login).toHaveBeenCalledWith('test@example.com', 'Password123!');
+    });
+  });
+
+  describe('Login Errors', () => {
+    it('should return 401 if wrong credentials', async () => {
+      // Giả lập AuthService báo lỗi Invalid login credentials
+      (AuthService.login as jest.Mock).mockRejectedValue(new Error('Invalid login credentials'));
+
+      const res = await request(app).post('/api/auth/login').send({
+        email: 'wrong@example.com',
+        password: 'WrongPassword'
+      });
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe('Invalid login credentials');
+    });
+  });
+});
+
+describe('Auth Controller - POST /api/auth/forgot-password', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return 400 if email is missing', async () => {
+    const res = await request(app).post('/api/auth/forgot-password').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Please provide email');
+  });
+
+  it('should return 400 if email is not found in our system', async () => {
+    (AuthService.forgotPassword as jest.Mock).mockRejectedValue(new Error('Email not found in our system'));
+    const res = await request(app).post('/api/auth/forgot-password').send({ email: 'unknown@example.com' });
+    
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe('Email not found in our system');
+  });
+
+  it('should return 200 and send OTP if email is provided', async () => {
+    (AuthService.forgotPassword as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post('/api/auth/forgot-password').send({ email: 'test@example.com' });
+    
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('OTP has been sent to your email');
+    expect(AuthService.forgotPassword).toHaveBeenCalledWith('test@example.com');
+  });
+});
+
+describe('Auth Controller - POST /api/auth/verify-otp', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return 400 if email or otp is missing', async () => {
+    const res = await request(app).post('/api/auth/verify-otp').send({ email: 'test@example.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Please provide email and otp');
+  });
+
+  it('should return 400 if otp is not 6 digits', async () => {
+    const res = await request(app).post('/api/auth/verify-otp').send({ email: 'test@example.com', otp: '123' });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('OTP must be 6 digits');
+  });
+
+  it('should return 200 and reset_token if otp is valid', async () => {
+    (AuthService.verifyOtp as jest.Mock).mockResolvedValue({
+      reset_token: 'valid-reset-token'
+    });
+    const res = await request(app).post('/api/auth/verify-otp').send({ email: 'test@example.com', otp: '123456' });
+    
+    expect(res.status).toBe(200);
+    expect(res.body.data.reset_token).toBe('valid-reset-token');
+    expect(AuthService.verifyOtp).toHaveBeenCalledWith('test@example.com', '123456');
+  });
+});
+
+describe('Auth Controller - POST /api/auth/reset-password', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return 400 if reset_token or new_password is missing', async () => {
+    const res = await request(app).post('/api/auth/reset-password').send({ reset_token: 'abc' });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Please provide reset_token and new_password');
+  });
+
+  it('should return 400 if new_password does not meet requirements', async () => {
+    const res = await request(app).post('/api/auth/reset-password').send({
+      reset_token: 'valid-token',
+      new_password: 'weak'
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toContain('Password must be 8-15 characters long');
+  });
+
+  it('should return 200 if password reset is successful', async () => {
+    (AuthService.resetPassword as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post('/api/auth/reset-password').send({
+      reset_token: 'valid-token',
+      new_password: 'Password123!'
+    });
+    
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('Password reset successfully');
+    expect(AuthService.resetPassword).toHaveBeenCalledWith('valid-token', 'Password123!');
+  });
+});

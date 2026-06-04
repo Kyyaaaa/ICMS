@@ -104,4 +104,90 @@ export class AuthController {
       });
     }
   }
+
+  static async forgotPassword(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ success: false, message: 'Please provide email' });
+      }
+
+      await AuthService.forgotPassword(email);
+
+      return res.status(200).json({
+        success: true,
+        message: 'OTP has been sent to your email'
+      });
+    } catch (error: any) {
+      console.error('Error during forgotPassword:', error);
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Failed to send OTP'
+      });
+    }
+  }
+
+  static async verifyOtp(req: Request, res: Response) {
+    try {
+      const { email, otp } = req.body;
+
+      if (!email || !otp) {
+        return res.status(400).json({ success: false, message: 'Please provide email and otp' });
+      }
+
+      if (otp.length !== 6) {
+        return res.status(400).json({ success: false, message: 'OTP must be 6 digits' });
+      }
+
+      const result = await AuthService.verifyOtp(email, otp);
+
+      return res.status(200).json({
+        success: true,
+        message: 'OTP verified successfully',
+        data: {
+          reset_token: result.reset_token
+        }
+      });
+    } catch (error: any) {
+      console.error('Error during verifyOtp:', error);
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Invalid OTP'
+      });
+    }
+  }
+
+  static async resetPassword(req: Request, res: Response) {
+    try {
+      const { reset_token, new_password } = req.body;
+
+      if (!reset_token || !new_password) {
+        return res.status(400).json({ success: false, message: 'Please provide reset_token and new_password' });
+      }
+
+      // We can reuse the validatePassword function here if it's imported. Wait, I should import it.
+      // I'll assume validatePassword is automatically accessible or I will import it if it's not. 
+      // Let's use the same validatePassword as in register.
+      if (!validatePassword(new_password)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character'
+        });
+      }
+
+      await AuthService.resetPassword(reset_token, new_password);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Password reset successfully'
+      });
+    } catch (error: any) {
+      console.error('Error during resetPassword:', error);
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Failed to reset password'
+      });
+    }
+  }
 }
