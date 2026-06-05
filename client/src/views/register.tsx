@@ -1,24 +1,53 @@
 import { useState } from 'react';
-import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Globe } from 'lucide-react';
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Globe, CheckCircle2, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Register = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
     };
 
-    const getStrengthLevel = () => {
-        const length = password.length;
-        if (length === 0) return 0;
-        if (length < 5) return 1;
-        if (length < 8) return 2;
-        return 3;
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!isValid) return;
+        setLoading(true);
+        setError('');
+        try {
+            const res = await fetch('http://localhost:5000/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, full_name: fullName, phone_number: phone })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.message || 'Registration failed');
+                return;
+            }
+            alert('Registration successful! Please login.');
+            window.location.href = '/login';
+        } catch (error) {
+            setError('System error. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const strengthLevel = getStrengthLevel();
+    const isLength = password.length >= 8 && password.length <= 15;
+    const isCases = /[a-z]/.test(password) && /[A-Z]/.test(password);
+    const isNumber = /[0-9]/.test(password);
+    const isSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    const score = [isLength, isCases, isNumber, isSpecial].filter(Boolean).length;
+    const isValid = score === 4 && agreedToTerms;
 
     return (
         <main className="flex w-full min-h-screen bg-[#f7fafc] text-[#181c1e] font-sans">
@@ -72,7 +101,12 @@ const Register = () => {
                         </p>
                     </div>
                     {/* Registration Form */}
-                    <form className="space-y-[16px]">
+                    <form className="space-y-[16px]" onSubmit={handleRegister}>
+                        {error && (
+                            <div className="bg-[#ffdad6] text-[#93000a] p-[12px] rounded-[8px] flex items-start gap-2 border border-[#ba1a1a]/20 animate-fade-in-down">
+                                <p className="text-[14px] leading-[20px]">{error}</p>
+                            </div>
+                        )}
                         {/* Full Name */}
                         <div className="space-y-[8px] group">
                             <label className="block text-[14px] leading-[16px] font-semibold tracking-[0.05em] text-[#181c1e]" htmlFor="fullName">
@@ -81,6 +115,8 @@ const Register = () => {
                             <div className="relative transition-transform duration-300 hover:scale-[1.01]">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
                                 <input
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
                                     className="w-full pl-10 pr-3 py-3 bg-white border border-[#c4c6cf] rounded-[8px] text-[#181c1e] text-[16px] leading-[24px] focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
                                     id="fullName"
                                     name="fullName"
@@ -98,6 +134,8 @@ const Register = () => {
                             <div className="relative transition-transform duration-300 hover:scale-[1.01]">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
                                 <input
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="w-full pl-10 pr-3 py-3 bg-white border border-[#c4c6cf] rounded-[8px] text-[#181c1e] text-[16px] leading-[24px] focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
                                     id="email"
                                     name="email"
@@ -115,6 +153,8 @@ const Register = () => {
                             <div className="relative transition-transform duration-300 hover:scale-[1.01]">
                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
                                 <input
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
                                     className="w-full pl-10 pr-3 py-3 bg-white border border-[#c4c6cf] rounded-[8px] text-[#181c1e] text-[16px] leading-[24px] focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
                                     id="phone"
                                     name="phone"
@@ -149,17 +189,35 @@ const Register = () => {
                                     {passwordVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                                 </button>
                             </div>
-                            {/* Password Strength Indicator */}
-                            <div className="pt-1">
-                                <div className="flex gap-1 h-1.5 w-full rounded-full overflow-hidden bg-[#e0e3e5]">
-                                    <div className={`w-1/3 transition-all duration-500 ease-out ${strengthLevel >= 1 ? (strengthLevel === 1 ? 'bg-[#ba1a1a]' : strengthLevel === 2 ? 'bg-[#e6c446]' : 'bg-[#34A853]') : 'bg-transparent'}`}></div>
-                                    <div className={`w-1/3 transition-all duration-500 ease-out ${strengthLevel >= 2 ? (strengthLevel === 2 ? 'bg-[#e6c446]' : 'bg-[#34A853]') : 'bg-transparent'}`}></div>
-                                    <div className={`w-1/3 transition-all duration-500 ease-out ${strengthLevel >= 3 ? 'bg-[#34A853]' : 'bg-transparent'}`}></div>
+                            {/* Password Strength Visual Indicator */}
+                            <div className="mt-[8px]">
+                                <div className="w-full h-1.5 bg-[#e0e3e5] rounded-full overflow-hidden flex gap-1">
+                                    <div className={`h-full w-1/4 transition-colors duration-300 ${password.length > 0 && score >= 1 ? (score <= 2 ? 'bg-[#ba1a1a]' : (score === 3 ? 'bg-[#c9a82c]' : 'bg-[#0061a5]')) : 'bg-transparent'}`}></div>
+                                    <div className={`h-full w-1/4 transition-colors duration-300 ${password.length > 0 && score >= 2 ? (score <= 2 ? 'bg-[#ba1a1a]' : (score === 3 ? 'bg-[#c9a82c]' : 'bg-[#0061a5]')) : 'bg-transparent'}`}></div>
+                                    <div className={`h-full w-1/4 transition-colors duration-300 ${password.length > 0 && score >= 3 ? (score === 3 ? 'bg-[#c9a82c]' : 'bg-[#0061a5]') : 'bg-transparent'}`}></div>
+                                    <div className={`h-full w-1/4 transition-colors duration-300 ${password.length > 0 && score === 4 ? 'bg-[#0061a5]' : 'bg-transparent'}`}></div>
                                 </div>
-                                <p className="text-[12px] leading-[16px] font-medium text-[#74777f] mt-1 transition-colors duration-300" style={{ color: strengthLevel === 3 ? '#34A853' : '' }}>
-                                    Password must be at least 8 characters.
-                                </p>
                             </div>
+                            
+                            {/* Validation Rules Checklist */}
+                            <ul className="mt-[8px] space-y-[4px]">
+                                <li className={`flex items-center gap-[8px] text-[13px] leading-[20px] transition-colors ${isLength ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                    {isLength ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
+                                    Length from 8 to 15 characters
+                                </li>
+                                <li className={`flex items-center gap-[8px] text-[13px] leading-[20px] transition-colors ${isCases ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                    {isCases ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
+                                    Contains uppercase and lowercase letters
+                                </li>
+                                <li className={`flex items-center gap-[8px] text-[13px] leading-[20px] transition-colors ${isNumber ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                    {isNumber ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
+                                    Contains a number
+                                </li>
+                                <li className={`flex items-center gap-[8px] text-[13px] leading-[20px] transition-colors ${isSpecial ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                    {isSpecial ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
+                                    Contains a special symbol
+                                </li>
+                            </ul>
                         </div>
                         {/* Terms Checkbox */}
                         <div className="flex items-start gap-2 pt-2">
@@ -168,6 +226,8 @@ const Register = () => {
                                     className="w-4 h-4 rounded border-[#c4c6cf] text-[#0061a5] focus:ring-[#0061a5]/20 focus:ring-2 bg-white cursor-pointer transition-colors"
                                     id="terms"
                                     type="checkbox"
+                                    checked={agreedToTerms}
+                                    onChange={(e) => setAgreedToTerms(e.target.checked)}
                                 />
                             </div>
                             <label className="text-[14px] leading-[20px] font-normal text-[#43474e] cursor-pointer hover:text-[#181c1e] transition-colors" htmlFor="terms">
@@ -177,11 +237,12 @@ const Register = () => {
                         {/* Submit Button */}
                         <div className="pt-[16px]">
                             <button
-                                className="w-full py-3 px-4 bg-[#0061a5] hover:bg-[#002045] active:scale-[0.98] text-white text-[14px] leading-[16px] font-semibold tracking-[0.05em] rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex justify-center items-center gap-2 group"
+                                disabled={loading || !isValid}
+                                className="w-full py-3 px-4 bg-[#0061a5] hover:bg-[#002045] active:scale-[0.98] text-white text-[14px] leading-[16px] font-semibold tracking-[0.05em] rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex justify-center items-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                                 type="submit"
                             >
-                                Create Account
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+                                {loading ? 'Creating Account...' : 'Create Account'}
+                                {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />}
                             </button>
                         </div>
                     </form>

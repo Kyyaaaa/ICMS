@@ -5,14 +5,41 @@ import { Link } from 'react-router-dom';
 const Login = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [showError, setShowError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setShowError(true);
+        setLoading(true);
+        setShowError(false);
+        try {
+            const res = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setShowError(true);
+                setErrorMsg(data.message || 'Invalid credentials');
+                return;
+            }
+            // Success
+            localStorage.setItem('access_token', data.data.access_token);
+            alert('Login successful!');
+            window.location.href = '/homepage';
+        } catch (error) {
+            setShowError(true);
+            setErrorMsg('System error. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -42,8 +69,8 @@ const Login = () => {
                             <div className="bg-[#ffdad6] text-[#93000a] p-[16px] rounded-[8px] mb-[24px] flex items-start gap-3 border border-[#ba1a1a]/20 animate-fade-in-down">
                                 <AlertCircle className="mt-0.5 text-[#ba1a1a] w-5 h-5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-[14px] leading-[16px] tracking-[0.05em] font-semibold text-[#ba1a1a] mb-1">Invalid credentials</p>
-                                    <p className="text-[14px] leading-[20px] text-[#93000a]">The email or password you entered is incorrect. Please try again or reset your password.</p>
+                                    <p className="text-[14px] leading-[16px] tracking-[0.05em] font-semibold text-[#ba1a1a] mb-1">Login failed</p>
+                                    <p className="text-[14px] leading-[20px] text-[#93000a]">{errorMsg}</p>
                                 </div>
                             </div>
                         )}
@@ -53,7 +80,7 @@ const Login = () => {
                                 <label className="block text-[14px] leading-[16px] font-semibold tracking-[0.05em] text-[#181c1e]" htmlFor="email">Email Address</label>
                                 <div className="relative transition-transform duration-300 hover:scale-[1.01]">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
-                                    <input className="w-full pl-10 pr-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-[8px] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all text-[16px] leading-[24px] text-[#181c1e] hover:border-[#74777f]" id="email" name="email" placeholder="admin@icms.edu.vn" required type="email" />
+                                    <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full pl-10 pr-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-[8px] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all text-[16px] leading-[24px] text-[#181c1e] hover:border-[#74777f]" id="email" name="email" placeholder="admin@icms.edu.vn" required type="email" />
                                 </div>
                             </div>
                             {/* Password Field */}
@@ -64,7 +91,7 @@ const Login = () => {
                                 </div>
                                 <div className="relative transition-transform duration-300 hover:scale-[1.01]">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
-                                    <input className="w-full pl-10 pr-10 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-[8px] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all text-[16px] leading-[24px] text-[#181c1e] hover:border-[#74777f]" id="password" name="password" placeholder="••••••••" required type={passwordVisible ? 'text' : 'password'} />
+                                    <input value={password} onChange={(e) => setPassword(e.target.value)} className="w-full pl-10 pr-10 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-[8px] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all text-[16px] leading-[24px] text-[#181c1e] hover:border-[#74777f]" id="password" name="password" placeholder="••••••••" required type={passwordVisible ? 'text' : 'password'} />
                                     <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#181c1e] transition-colors focus:outline-none" type="button" onClick={togglePasswordVisibility}>
                                         {passwordVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                                     </button>
@@ -78,8 +105,8 @@ const Login = () => {
                                 </label>
                             </div>
                             {/* Submit Button */}
-                            <button className="w-full flex justify-center py-3 px-4 border border-transparent rounded-[8px] shadow-sm text-[14px] leading-[16px] font-semibold tracking-[0.05em] text-white bg-[#0061a5] hover:bg-[#002045] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 transition-all duration-200 animate-fade-in-up" style={{ animationDelay: '400ms' }} type="submit">
-                                Sign In
+                            <button disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-[8px] shadow-sm text-[14px] leading-[16px] font-semibold tracking-[0.05em] text-white bg-[#0061a5] hover:bg-[#002045] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 transition-all duration-200 animate-fade-in-up disabled:opacity-50" style={{ animationDelay: '400ms' }} type="submit">
+                                {loading ? 'Signing in...' : 'Sign In'}
                             </button>
                         </form>
                         <div className="mt-[24px] relative animate-fade-in" style={{ animationDelay: '500ms' }}>

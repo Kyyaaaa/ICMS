@@ -13,25 +13,16 @@ const ResetPassword = () => {
     const [isSuccess, setIsSuccess] = useState(false);
 
     // Validation Rules
-    const isLength = newPassword.length >= 8;
-    const isUpper = /[A-Z]/.test(newPassword);
-    const isNumber = /[0-9!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+    const isLength = newPassword.length >= 8 && newPassword.length <= 15;
+    const isCases = /[a-z]/.test(newPassword) && /[A-Z]/.test(newPassword);
+    const isNumber = /[0-9]/.test(newPassword);
+    const isSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
     
-    const score = [isLength, isUpper, isNumber].filter(Boolean).length;
-    
-    const strengthLabels = ['None', 'Weak', 'Medium', 'Strong'];
-    const strengthLabel = newPassword.length === 0 ? 'None' : strengthLabels[score];
-    
-    let labelColor = 'text-[#74777f]';
-    if (newPassword.length > 0) {
-        if (score === 1) labelColor = 'text-[#ba1a1a]';
-        else if (score === 2) labelColor = 'text-[#715c00]';
-        else if (score === 3) labelColor = 'text-[#0061a5]';
-    }
+    const score = [isLength, isCases, isNumber, isSpecial].filter(Boolean).length;
 
     const isMatch = confirmPassword.length > 0 && newPassword === confirmPassword;
     const showMatchError = confirmPassword.length > 0 && !isMatch;
-    const isValid = score === 3 && isMatch && newPassword.length > 0;
+    const isValid = score === 4 && isMatch && newPassword.length > 0;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -101,9 +92,10 @@ const ResetPassword = () => {
                                 {/* Password Strength Visual Indicator */}
                                 <div className="mt-[6px]">
                                     <div className="w-full h-1.5 bg-[#e0e3e5] rounded-full overflow-hidden flex gap-1">
-                                        <div className={`h-full w-1/3 transition-colors duration-300 ${newPassword.length > 0 && score >= 1 ? (score === 1 ? 'bg-[#ba1a1a]' : (score === 2 ? 'bg-[#c9a82c]' : 'bg-[#0061a5]')) : 'bg-transparent'}`}></div>
-                                        <div className={`h-full w-1/3 transition-colors duration-300 ${newPassword.length > 0 && score >= 2 ? (score === 2 ? 'bg-[#c9a82c]' : 'bg-[#0061a5]') : 'bg-transparent'}`}></div>
-                                        <div className={`h-full w-1/3 transition-colors duration-300 ${newPassword.length > 0 && score === 3 ? 'bg-[#0061a5]' : 'bg-transparent'}`}></div>
+                                        <div className={`h-full w-1/4 transition-colors duration-300 ${newPassword.length > 0 && score >= 1 ? (score <= 2 ? 'bg-[#ba1a1a]' : (score === 3 ? 'bg-[#c9a82c]' : 'bg-[#0061a5]')) : 'bg-transparent'}`}></div>
+                                        <div className={`h-full w-1/4 transition-colors duration-300 ${newPassword.length > 0 && score >= 2 ? (score <= 2 ? 'bg-[#ba1a1a]' : (score === 3 ? 'bg-[#c9a82c]' : 'bg-[#0061a5]')) : 'bg-transparent'}`}></div>
+                                        <div className={`h-full w-1/4 transition-colors duration-300 ${newPassword.length > 0 && score >= 3 ? (score === 3 ? 'bg-[#c9a82c]' : 'bg-[#0061a5]') : 'bg-transparent'}`}></div>
+                                        <div className={`h-full w-1/4 transition-colors duration-300 ${newPassword.length > 0 && score === 4 ? 'bg-[#0061a5]' : 'bg-transparent'}`}></div>
                                     </div>
                                 </div>
                                 
@@ -111,15 +103,19 @@ const ResetPassword = () => {
                                 <ul className="mt-[8px] space-y-[4px]">
                                     <li className={`flex items-center gap-[8px] text-[14px] leading-[20px] transition-colors ${isLength ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
                                         {isLength ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
-                                        At least 8 characters
+                                        Length from 8 to 15 characters
                                     </li>
-                                    <li className={`flex items-center gap-[8px] text-[14px] leading-[20px] transition-colors ${isUpper ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
-                                        {isUpper ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
-                                        Contains an uppercase letter
+                                    <li className={`flex items-center gap-[8px] text-[14px] leading-[20px] transition-colors ${isCases ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                        {isCases ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
+                                        Contains uppercase and lowercase letters
                                     </li>
                                     <li className={`flex items-center gap-[8px] text-[14px] leading-[20px] transition-colors ${isNumber ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
                                         {isNumber ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
-                                        Contains a number or symbol
+                                        Contains a number
+                                    </li>
+                                    <li className={`flex items-center gap-[8px] text-[14px] leading-[20px] transition-colors ${isSpecial ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                        {isSpecial ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
+                                        Contains a special symbol
                                     </li>
                                 </ul>
                             </div>
