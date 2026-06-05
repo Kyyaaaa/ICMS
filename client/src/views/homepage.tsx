@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, ArrowRight, Clock, Users, Headset, Trophy, CheckCircle2, Star, BookOpen, CalendarCheck, Award, Compass, Quote, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TopNav } from '../components/layout/TopNav';
+import Cookies from 'js-cookie';
 
 const marqueeStyles = `
 @keyframes marquee {
@@ -22,6 +23,21 @@ const Homepage = () => {
     // Auth state for demonstration (will be managed by global state/context in reality)
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userRole, setUserRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>('learner');
+    const [userInfo, setUserInfo] = useState<any>(null);
+
+    useEffect(() => {
+        const token = Cookies.get('access_token');
+        const userStr = Cookies.get('user_info');
+        
+        if (token && userStr) {
+            setIsLoggedIn(true);
+            try {
+                const user = JSON.parse(userStr);
+                setUserInfo(user);
+                if (user.role) setUserRole(user.role);
+            } catch(e) {}
+        }
+    }, []);
 
     const tutors = [
         { name: "Dr. Eleanor Vance", ielts: "9.0", role: "Former IELTS Examiner", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200" },
@@ -37,7 +53,7 @@ const Homepage = () => {
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-[16px] leading-[24px] font-sans min-h-screen flex flex-col">
             <style>{marqueeStyles}</style>
-            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole} />
+            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole} userInfo={userInfo} />
 
             <main className="flex-grow">
                 {/* Hero Section */}

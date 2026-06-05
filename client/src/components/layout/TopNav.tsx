@@ -1,22 +1,37 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, BookOpen, ChevronDown, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 interface TopNavProps {
     isLoggedIn?: boolean;
     setIsLoggedIn?: (val: boolean) => void;
     userRole?: 'learner' | 'tutor' | 'staff' | 'admin';
+    userInfo?: any;
 }
 
-export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedIn, userRole = 'learner' }) => {
+export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedIn, userRole = 'learner', userInfo }) => {
     const [showNotifications, setShowNotifications] = useState(false);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-    const [allNotifs, setAllNotifs] = useState([
+    const initialNotifs = [
         { id: 1, title: 'System Maintenance', desc: 'Scheduled maintenance on Sunday 2AM.', time: '2 hours ago', read: false, type: 'system' },
         { id: 2, title: 'New Course Added', desc: 'Check out our new IELTS Speaking Masterclass.', time: '1 day ago', read: true, type: 'admin' },
         { id: 3, title: 'Class Reminder', desc: 'Your class starts in 1 hour.', time: 'Just now', read: false, type: 'staff' },
         { id: 4, title: 'Notice', desc: 'New materials or tasks are available.', time: '5 hours ago', read: false, type: 'tutor' },
-    ]);
+    ];
+
+    const [allNotifs, setAllNotifs] = useState(() => {
+        const saved = localStorage.getItem('notifications');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        return initialNotifs;
+    });
+
+    React.useEffect(() => {
+        localStorage.setItem('notifications', JSON.stringify(allNotifs));
+    }, [allNotifs]);
 
     const getTagColor = (type: string) => {
         switch(type) {
@@ -102,15 +117,43 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
 
                     <div className="flex gap-[16px] pl-[16px] lg:pl-[24px] border-l border-[#c4c6cf] items-center">
                         {isLoggedIn ? (
-                            <div className="flex items-center gap-[12px] cursor-pointer hover:bg-[#f1f4f6] py-1.5 px-3 rounded-full transition-colors" onClick={() => setIsLoggedIn && setIsLoggedIn(false)} title="Click to logout">
-                                <div className="w-[40px] h-[40px] bg-[#0061a5] rounded-full flex items-center justify-center text-white font-bold shadow-sm border-2 border-white">
-                                    HV
+                            <div className="relative">
+                                <div className="flex items-center gap-[12px] cursor-pointer hover:bg-[#f1f4f6] py-1.5 px-3 rounded-full transition-colors" onClick={() => setShowProfileMenu(!showProfileMenu)} title="Profile Menu">
+                                    <div className="w-[40px] h-[40px] bg-[#0061a5] rounded-full flex items-center justify-center text-white font-bold shadow-sm border-2 border-white">
+                                        {userInfo?.full_name ? userInfo.full_name.charAt(0).toUpperCase() : 'HV'}
+                                    </div>
+                                    <div className="hidden md:flex flex-col text-left">
+                                        <span className="text-[14px] font-bold text-[#002045] leading-tight">{userInfo?.full_name || 'Học viên'}</span>
+                                        <span className="text-[12px] text-[#43474e] leading-tight capitalize">{userRole.toLowerCase()}</span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 text-[#74777f] ml-1 hidden md:block transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} />
                                 </div>
-                                <div className="hidden md:flex flex-col text-left">
-                                    <span className="text-[14px] font-bold text-[#002045] leading-tight">Học viên</span>
-                                    <span className="text-[12px] text-[#43474e] leading-tight">My Dashboard</span>
-                                </div>
-                                <ChevronDown className="w-4 h-4 text-[#74777f] ml-1 hidden md:block" />
+
+                                {/* Profile Dropdown Menu */}
+                                {showProfileMenu && (
+                                    <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-xl border border-[#e0e3e5] overflow-hidden flex flex-col z-[100] animate-fade-in">
+                                        <Link 
+                                            to={`/${userRole.toLowerCase()}/dashboard`} 
+                                            className="px-4 py-3 text-[14px] font-semibold text-[#002045] hover:bg-[#f1f4f6] transition-colors border-b border-[#f1f4f6]"
+                                            onClick={() => setShowProfileMenu(false)}
+                                        >
+                                            My Dashboard
+                                        </Link>
+                                        <button 
+                                            className="px-4 py-3 text-[14px] font-semibold text-[#ba1a1a] hover:bg-[#ffdad6] text-left transition-colors"
+                                            onClick={() => {
+                                                setShowProfileMenu(false);
+                                                if (setIsLoggedIn) setIsLoggedIn(false);
+                                                Cookies.remove('access_token', { path: '/' });
+                                                Cookies.remove('refresh_token', { path: '/' });
+                                                Cookies.remove('user_info', { path: '/' });
+                                                window.location.href = '/homepage';
+                                            }}
+                                        >
+                                            Logout
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <>

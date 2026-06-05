@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import { LayoutDashboard, Users, BookOpen, Calendar, FileEdit, DollarSign, MessageSquare, UserCog, Banknote, LogOut, Menu, X, Bell, Briefcase, Globe , Wallet} from 'lucide-react';
 
 const StaffLayout = () => {
@@ -143,10 +144,15 @@ const StaffLayout = () => {
                         <Globe className="w-5 h-5" />
                         <span className="text-[14px]">Back to Homepage</span>
                     </Link>
-                    <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 transition-colors">
+                    <button onClick={() => {
+                        Cookies.remove('access_token', { path: '/' });
+                        Cookies.remove('refresh_token', { path: '/' });
+                        Cookies.remove('user_info', { path: '/' });
+                        window.location.href = '/homepage';
+                    }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 transition-colors">
                         <LogOut className="w-5 h-5" />
                         <span className="text-[14px]">Log Out</span>
-                    </Link>
+                    </button>
                 </div>
             </aside>
 
