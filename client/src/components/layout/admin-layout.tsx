@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet, useLocation, Link } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import { 
     ScrollText, 
     LayoutDashboard, 
@@ -21,6 +22,7 @@ import {
 
 export const AdminLayout = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     
@@ -157,13 +159,18 @@ export const AdminLayout = () => {
                         <Globe size={20} />
                         <span className="text-[14px]">Back to Homepage</span>
                     </Link>
-                    <NavLink
-                        to="/auth/login"
-                        className="flex items-center gap-3 px-4 py-3 text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 rounded-xl transition-colors"
+                    <button
+                        onClick={() => {
+                            Cookies.remove('access_token', { path: '/' });
+                            Cookies.remove('refresh_token', { path: '/' });
+                            Cookies.remove('user_info', { path: '/' });
+                            window.location.href = '/homepage';
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 rounded-xl transition-colors"
                     >
                         <LogOut size={20} />
                         <span className="text-[14px]">Log Out</span>
-                    </NavLink>
+                    </button>
                 </div>
             </aside>
 

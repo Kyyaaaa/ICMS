@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { School, Mail, Lock, Eye, EyeOff, Star, AlertCircle, LineChart, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const Login = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -8,6 +9,7 @@ const Login = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -26,13 +28,28 @@ const Login = () => {
             });
             const data = await res.json();
             if (!res.ok) {
+                let displayMsg = data.message || 'Invalid credentials';
+                if (displayMsg === 'Invalid login credentials') {
+                    displayMsg = 'Incorrect email address or password.';
+                }
                 setShowError(true);
-                setErrorMsg(data.message || 'Invalid credentials');
+                setErrorMsg(displayMsg);
                 return;
             }
             // Success
-            localStorage.setItem('access_token', data.data.access_token);
-            alert('Login successful!');
+            if (rememberMe) {
+                Cookies.set('access_token', data.data.access_token, { expires: 30, path: '/' });
+                Cookies.set('user_info', JSON.stringify(data.data.user), { expires: 30, path: '/' });
+                if (data.data.refresh_token) {
+                    Cookies.set('refresh_token', data.data.refresh_token, { expires: 30, path: '/' });
+                }
+            } else {
+                Cookies.set('access_token', data.data.access_token, { path: '/' });
+                Cookies.set('user_info', JSON.stringify(data.data.user), { path: '/' });
+                if (data.data.refresh_token) {
+                    Cookies.set('refresh_token', data.data.refresh_token, { path: '/' });
+                }
+            }
             window.location.href = '/homepage';
         } catch (error) {
             setShowError(true);
@@ -64,23 +81,13 @@ const Login = () => {
                             <h1 className="text-[48px] leading-[56px] font-bold tracking-[-0.02em] text-[#002045] mb-[8px]">Welcome Back</h1>
                             <p className="text-[18px] leading-[28px] text-[#43474e]">Log in to the IELTS Center Management System to continue managing your institution.</p>
                         </div>
-                        {/* Error State */}
-                        {showError && (
-                            <div className="bg-[#ffdad6] text-[#93000a] p-[16px] rounded-[8px] mb-[24px] flex items-start gap-3 border border-[#ba1a1a]/20 animate-fade-in-down">
-                                <AlertCircle className="mt-0.5 text-[#ba1a1a] w-5 h-5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-[14px] leading-[16px] tracking-[0.05em] font-semibold text-[#ba1a1a] mb-1">Login failed</p>
-                                    <p className="text-[14px] leading-[20px] text-[#93000a]">{errorMsg}</p>
-                                </div>
-                            </div>
-                        )}
-                        <form className="space-y-[24px]" onSubmit={handleLogin}>
+                        <form className={`space-y-[24px] ${showError ? 'animate-shake' : ''}`} onSubmit={handleLogin}>
                             {/* Email Field */}
                             <div className="space-y-[8px] group animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                                 <label className="block text-[14px] leading-[16px] font-semibold tracking-[0.05em] text-[#181c1e]" htmlFor="email">Email Address</label>
                                 <div className="relative transition-transform duration-300 hover:scale-[1.01]">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
-                                    <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full pl-10 pr-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-[8px] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all text-[16px] leading-[24px] text-[#181c1e] hover:border-[#74777f]" id="email" name="email" placeholder="admin@icms.edu.vn" required type="email" />
+                                    <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${showError ? 'text-[#ba1a1a]' : 'text-[#74777f] group-focus-within:text-[#0061a5]'}`} />
+                                    <input value={email} onChange={(e) => { setEmail(e.target.value); setShowError(false); }} className={`w-full pl-10 pr-4 py-3 bg-[#f7fafc] border rounded-[8px] focus:outline-none focus:ring-4 transition-all text-[16px] leading-[24px] text-[#181c1e] ${showError ? 'border-[#ba1a1a] focus:ring-[#ba1a1a]/20 focus:border-[#ba1a1a]' : 'border-[#c4c6cf] focus:ring-[#0061a5]/20 focus:border-[#0061a5] hover:border-[#74777f]'}`} id="email" name="email" placeholder="admin@icms.edu.vn" required type="email" autoComplete="username" />
                                 </div>
                             </div>
                             {/* Password Field */}
@@ -90,16 +97,29 @@ const Login = () => {
                                     <Link className="text-[12px] leading-[16px] font-medium text-[#0061a5] hover:text-[#002045] transition-colors underline-offset-2 hover:underline" to="/forgot-password">Forgot Password?</Link>
                                 </div>
                                 <div className="relative transition-transform duration-300 hover:scale-[1.01]">
-                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
-                                    <input value={password} onChange={(e) => setPassword(e.target.value)} className="w-full pl-10 pr-10 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-[8px] focus:outline-none focus:ring-4 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all text-[16px] leading-[24px] text-[#181c1e] hover:border-[#74777f]" id="password" name="password" placeholder="••••••••" required type={passwordVisible ? 'text' : 'password'} />
+                                    <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${showError ? 'text-[#ba1a1a]' : 'text-[#74777f] group-focus-within:text-[#0061a5]'}`} />
+                                    <input value={password} onChange={(e) => { setPassword(e.target.value); setShowError(false); }} className={`w-full pl-10 pr-10 py-3 bg-[#f7fafc] border rounded-[8px] focus:outline-none focus:ring-4 transition-all text-[16px] leading-[24px] text-[#181c1e] ${showError ? 'border-[#ba1a1a] focus:ring-[#ba1a1a]/20 focus:border-[#ba1a1a]' : 'border-[#c4c6cf] focus:ring-[#0061a5]/20 focus:border-[#0061a5] hover:border-[#74777f]'}`} id="password" name="password" placeholder="••••••••" required type={passwordVisible ? 'text' : 'password'} autoComplete="current-password" />
                                     <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#181c1e] transition-colors focus:outline-none" type="button" onClick={togglePasswordVisibility}>
                                         {passwordVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                                     </button>
                                 </div>
+                                {showError && (
+                                    <p className="text-[#ba1a1a] text-[13px] leading-[16px] flex items-center gap-1.5 mt-1.5 font-medium animate-fade-in">
+                                        <AlertCircle className="w-4 h-4" />
+                                        {errorMsg}
+                                    </p>
+                                )}
                             </div>
                             {/* Remember Me */}
                             <div className="flex items-center animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-                                <input className="h-4 w-4 rounded border-[#c4c6cf] text-[#0061a5] focus:ring-[#0061a5] bg-[#f7fafc] cursor-pointer" id="remember-me" name="remember-me" type="checkbox" />
+                                <input 
+                                    className="h-4 w-4 rounded border-[#c4c6cf] text-[#0061a5] focus:ring-[#0061a5] bg-[#f7fafc] cursor-pointer" 
+                                    id="remember-me" 
+                                    name="remember-me" 
+                                    type="checkbox" 
+                                    checked={rememberMe}
+                                    onChange={(e) => setRememberMe(e.target.checked)}
+                                />
                                 <label className="ml-2 block text-[14px] leading-[20px] text-[#43474e] cursor-pointer hover:text-[#181c1e] transition-colors" htmlFor="remember-me">
                                     Remember me for 30 days
                                 </label>
