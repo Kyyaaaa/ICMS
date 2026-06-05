@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { BookOpen, MapPin, Calendar, Clock } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Clock, Users, Edit, Target, MonitorPlay, Save, X, Image as ImageIcon, Star, Globe, ChevronRight, CheckCircle2, ShieldCheck, MapPin, Ticket } from 'lucide-react';
 
@@ -36,9 +36,9 @@ const AdminCourseDetail = () => {
             maxSize: '15',
             format: 'Offline',
             targetBand: '7.5 - 8.0',
-            price: '899',
-            originalPrice: '1,200',
-            nextCohort: 'Oct 15, 2024',
+            price: '899,000',
+            originalPrice: '1,200,000',
+            nextCohort: '15-10-2024',
             imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=600&h=400',
             modules: [
                 { 
@@ -63,6 +63,7 @@ const AdminCourseDetail = () => {
         };
     });
 
+    const [activeTab, setActiveTab] = useState('syllabus');
     const [isEditing, setIsEditing] = useState(id === 'new' ? true : new URLSearchParams(location.search).get('edit') === 'true');
 
     const handleSave = () => {
@@ -304,7 +305,7 @@ const AdminCourseDetail = () => {
                                     <label className="block text-[13px] font-bold text-[#43474e] mb-1">Course Starts</label>
                                     <div className="flex items-center gap-2">
                                         <Clock className="text-[#74777f]" size={20} />
-                                        <input type="text" name="nextCohort" value={courseData.nextCohort} onChange={handleChange} className="flex-1 text-[14px] font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]" placeholder="Oct 15, 2024" />
+                                        <input type="text" name="nextCohort" value={courseData.nextCohort} onChange={handleChange} className="flex-1 text-[14px] font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]" placeholder="15-10-2024" />
                                     </div>
                                 </div>
                             </div>
@@ -368,9 +369,9 @@ const AdminCourseDetail = () => {
                         {/* Enrollment Action Box */}
                         <div className="bg-white rounded-2xl p-[32px] shadow-xl w-full md:w-[340px] z-10 flex flex-col border border-[#e0e3e5]">
                             <div className="flex justify-between items-end mb-[16px]">
-                                <span className="text-[40px] font-extrabold text-[#002045] leading-none">${courseData.price}</span>
+                                <span className="text-[40px] font-extrabold text-[#002045] leading-none">{courseData.price} đ</span>
                                 {courseData.originalPrice && (
-                                    <span className="text-[18px] text-[#74777f] line-through font-medium mb-1">${courseData.originalPrice}</span>
+                                    <span className="text-[18px] text-[#74777f] line-through font-medium mb-1">{courseData.originalPrice} đ</span>
                                 )}
                             </div>
                             <div className="flex items-center gap-3 bg-[#f7fafc] rounded-xl p-[16px] mb-[24px] border border-[#e0e3e5]">

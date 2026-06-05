@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Ticket, Search, MessageSquare, ChevronRight, Send, Paperclip } from 'lucide-react';
 
 interface TicketMessage {

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Wallet, CheckCircle2, Clock } from 'lucide-react';
 
@@ -22,7 +22,7 @@ const AdminPayrollDetail = () => {
                         </div>
                         <div>
                             <h2 className="text-[24px] font-bold text-[#181c1e]">Dr. Sarah Smith</h2>
-                            <p className="text-[#43474e]">Senior Tutor • October 2026</p>
+                            <p className="text-[#43474e]">Senior Tutor • 10-2026</p>
                         </div>
                     </div>
                     <div className="text-right">
@@ -39,15 +39,15 @@ const AdminPayrollDetail = () => {
                         <div className="space-y-3">
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg">
                                 <span className="text-[#43474e]">Base Salary</span>
-                                <span className="font-bold text-[#181c1e]">$2,800.00</span>
+                                <span className="font-bold text-[#181c1e]">2.800 đ</span>
                             </div>
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg">
                                 <span className="text-[#43474e]">Overtime (10 hrs)</span>
-                                <span className="font-bold text-[#181c1e]">$350.00</span>
+                                <span className="font-bold text-[#181c1e]">350,000 đ</span>
                             </div>
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg border border-[#e6f0fa]">
                                 <span className="text-[#0061a5] font-bold">Total Earnings</span>
-                                <span className="font-bold text-[#0061a5]">$3,150.00</span>
+                                <span className="font-bold text-[#0061a5]">3.150 đ</span>
                             </div>
                         </div>
                     </div>
@@ -57,11 +57,11 @@ const AdminPayrollDetail = () => {
                         <div className="space-y-3">
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg">
                                 <span className="text-[#43474e]">Tax (10%)</span>
-                                <span className="font-bold text-[#ba1a1a]">-$315.00</span>
+                                <span className="font-bold text-[#ba1a1a]">-315 đ</span>
                             </div>
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg border border-[#ffebed]">
                                 <span className="text-[#ba1a1a] font-bold">Total Deductions</span>
-                                <span className="font-bold text-[#ba1a1a]">-$315.00</span>
+                                <span className="font-bold text-[#ba1a1a]">-315 đ</span>
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@ const AdminPayrollDetail = () => {
 
                 <div className="bg-[#e6f0fa] rounded-[12px] p-6 flex justify-between items-center border border-[#0061a5]">
                     <span className="text-[20px] font-bold text-[#002045]">Net Pay</span>
-                    <span className="text-[32px] font-extrabold text-[#0061a5]">$2,835.00</span>
+                    <span className="text-[32px] font-extrabold text-[#0061a5]">2.835 đ</span>
                 </div>
             </div>
         </div>

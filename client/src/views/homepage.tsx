@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search, ArrowRight, Clock, Users, Headset, Trophy, CheckCircle2, Star, BookOpen, CalendarCheck, Award, Compass, Quote, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TopNav } from '../components/layout/TopNav';
@@ -21,6 +21,7 @@ const marqueeStyles = `
 const Homepage = () => {
     // Auth state for demonstration (will be managed by global state/context in reality)
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userRole, setUserRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>('learner');
 
     const tutors = [
         { name: "Dr. Eleanor Vance", ielts: "9.0", role: "Former IELTS Examiner", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200" },
@@ -36,7 +37,7 @@ const Homepage = () => {
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-[16px] leading-[24px] font-sans min-h-screen flex flex-col">
             <style>{marqueeStyles}</style>
-            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole} />
 
             <main className="flex-grow">
                 {/* Hero Section */}
@@ -105,7 +106,7 @@ const Homepage = () => {
                                         <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">7.5+</span></div>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[20px] font-bold text-[#002045]">$899</span>
+                                        <span className="text-[20px] font-bold text-[#002045]">899,000 đ</span>
                                         <Link to="/courses/1" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                     </div>
                                 </div>
@@ -127,7 +128,7 @@ const Homepage = () => {
                                         <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">6.5+</span></div>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[20px] font-bold text-[#002045]">$499</span>
+                                        <span className="text-[20px] font-bold text-[#002045]">499,000 đ</span>
                                         <Link to="/courses/2" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                     </div>
                                 </div>
@@ -149,7 +150,7 @@ const Homepage = () => {
                                         <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">6.0+</span></div>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[20px] font-bold text-[#002045]">$350</span>
+                                        <span className="text-[20px] font-bold text-[#002045]">350,000 đ</span>
                                         <Link to="/courses/3" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                     </div>
                                 </div>
@@ -171,7 +172,7 @@ const Homepage = () => {
                                         <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">4.5 - 5.0</span></div>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[20px] font-bold text-[#002045]">$299</span>
+                                        <span className="text-[20px] font-bold text-[#002045]">299,000 đ</span>
                                         <Link to="/courses/4" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                     </div>
                                 </div>

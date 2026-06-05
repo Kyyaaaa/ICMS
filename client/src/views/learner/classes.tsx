@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { BookOpen, MapPin, Calendar, Clock, User, CalendarDays } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -29,7 +29,7 @@ const LearnerClasses = () => {
                             <div className="flex items-center gap-[8px]"><MapPin className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Room:</span> Room 302</div>
                             <div className="flex items-center gap-[8px]"><Calendar className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Schedule:</span> Tue, Thu</div>
                             <div className="flex items-center gap-[8px]"><Clock className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Time:</span> 18:00 - 20:00</div>
-                            <div className="flex items-center gap-[8px]"><CalendarDays className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Duration:</span> Oct 01 - Dec 31, 2026</div>
+                            <div className="flex items-center gap-[8px]"><CalendarDays className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Duration:</span> Oct 01 - 31-12-2026</div>
                         </div>
                     </div>
                     <div className="p-[16px] border-t border-[#e0e3e5] bg-[#f7fafc] grid grid-cols-2 gap-[16px]">
@@ -55,7 +55,7 @@ const LearnerClasses = () => {
                             <div className="flex items-center gap-[8px]"><MapPin className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Room:</span> Room 305</div>
                             <div className="flex items-center gap-[8px]"><Calendar className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Schedule:</span> Mon, Wed</div>
                             <div className="flex items-center gap-[8px]"><Clock className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Time:</span> 19:00 - 21:00</div>
-                            <div className="flex items-center gap-[8px]"><CalendarDays className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Duration:</span> Oct 01 - Dec 31, 2026</div>
+                            <div className="flex items-center gap-[8px]"><CalendarDays className="w-4 h-4 text-[#74777f]"/> <span className="font-medium text-[#181c1e]">Duration:</span> Oct 01 - 31-12-2026</div>
                         </div>
                     </div>
                     <div className="p-[16px] border-t border-[#e0e3e5] bg-[#f7fafc] grid grid-cols-2 gap-[16px]">

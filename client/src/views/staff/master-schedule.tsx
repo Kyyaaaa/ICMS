@@ -1,30 +1,71 @@
-import React, { useState } from 'react';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, MapPin, User, Clock, X } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { CalendarDays, ChevronLeft, ChevronRight, MapPin, User, Clock, X } from 'lucide-react';
 
-const WEEK_DAYS = [
-    { name: 'Monday', date: '26', isToday: false },
-    { name: 'Tuesday', date: '27', isToday: false },
-    { name: 'Wednesday', date: '28', isToday: true },
-    { name: 'Thursday', date: '29', isToday: false },
-    { name: 'Friday', date: '30', isToday: false },
-    { name: 'Saturday', date: '31', isToday: false },
-    { name: 'Sunday', date: '01', isToday: false }
-];
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 const MOCK_SCHEDULE = [
-    { id: 1, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', day: 'Monday', startTime: '08:00', endTime: '10:00', color: 'bg-blue-100 border-blue-300' },
-    { id: 2, class: 'TOEIC-B12', tutor: 'Mr. John Doe', room: 'Room 202', day: 'Monday', startTime: '14:00', endTime: '16:00', color: 'bg-emerald-100 border-emerald-300' },
-    { id: 3, class: 'COM202', tutor: 'Ms. Emily Chen', room: 'Room 205', day: 'Tuesday', startTime: '09:00', endTime: '11:00', color: 'bg-purple-100 border-purple-300' },
-    { id: 4, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', day: 'Wednesday', startTime: '08:00', endTime: '10:00', color: 'bg-blue-100 border-blue-300' },
-    { id: 5, class: 'TOEIC-B12', tutor: 'Mr. John Doe', room: 'Room 202', day: 'Wednesday', startTime: '14:00', endTime: '16:00', color: 'bg-emerald-100 border-emerald-300' },
-    { id: 6, class: 'ENG401', tutor: 'Mr. Alan Wake', room: 'Room 402', day: 'Thursday', startTime: '18:00', endTime: '20:00', color: 'bg-amber-100 border-amber-300' },
-    { id: 7, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', day: 'Friday', startTime: '08:00', endTime: '10:00', color: 'bg-blue-100 border-blue-300' },
-    { id: 8, class: 'COM202', tutor: 'Ms. Emily Chen', room: 'Room 205', day: 'Saturday', startTime: '09:00', endTime: '11:00', color: 'bg-purple-100 border-purple-300' },
+    { id: 1, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', dayIndex: 0, startTime: '08:00', endTime: '10:00', color: 'bg-blue-100 border-blue-300' },
+    { id: 2, class: 'TOEIC-B12', tutor: 'Mr. John Doe', room: 'Room 202', dayIndex: 0, startTime: '14:00', endTime: '16:00', color: 'bg-emerald-100 border-emerald-300' },
+    { id: 3, class: 'COM202', tutor: 'Ms. Emily Chen', room: 'Room 205', dayIndex: 1, startTime: '09:00', endTime: '11:00', color: 'bg-purple-100 border-purple-300' },
+    { id: 4, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', dayIndex: 2, startTime: '08:00', endTime: '10:00', color: 'bg-blue-100 border-blue-300' },
+    { id: 5, class: 'TOEIC-B12', tutor: 'Mr. John Doe', room: 'Room 202', dayIndex: 2, startTime: '14:00', endTime: '16:00', color: 'bg-emerald-100 border-emerald-300' },
+    { id: 6, class: 'ENG401', tutor: 'Mr. Alan Wake', room: 'Room 402', dayIndex: 3, startTime: '18:00', endTime: '20:00', color: 'bg-amber-100 border-amber-300' },
+    { id: 7, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', dayIndex: 4, startTime: '08:00', endTime: '10:00', color: 'bg-blue-100 border-blue-300' },
+    { id: 8, class: 'COM202', tutor: 'Ms. Emily Chen', room: 'Room 205', dayIndex: 5, startTime: '09:00', endTime: '11:00', color: 'bg-purple-100 border-purple-300' },
 ];
 
+const getMonday = (d: Date) => {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    date.setDate(diff);
+    date.setHours(0, 0, 0, 0);
+    return date;
+};
+
+const formatDate = (d: Date) => {
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+};
+
 const MasterSchedule = () => {
-    const [currentWeek] = useState('Oct 26 - Nov 01, 2026');
+    const [currentMonday, setCurrentMonday] = useState(() => getMonday(new Date()));
     const [selectedSession, setSelectedSession] = useState<any>(null);
+    const dateInputRef = useRef<HTMLInputElement>(null);
+
+    const goToPrevWeek = () => {
+        setCurrentMonday(prev => {
+            const d = new Date(prev);
+            d.setDate(d.getDate() - 7);
+            return d;
+        });
+    };
+
+    const goToNextWeek = () => {
+        setCurrentMonday(prev => {
+            const d = new Date(prev);
+            d.setDate(d.getDate() + 7);
+            return d;
+        });
+    };
+
+    const handleDatePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        if (val) {
+            setCurrentMonday(getMonday(new Date(val)));
+        }
+    };
+
+    const weekDates = DAY_NAMES.map((_, i) => {
+        const d = new Date(currentMonday);
+        d.setDate(d.getDate() + i);
+        return d;
+    });
+
+    const sundayDate = weekDates[6];
+    const weekLabel = `${formatDate(currentMonday)} to ${formatDate(sundayDate)}`;
 
     return (
         <div className="space-y-6 animate-fade-in-up h-full flex flex-col pb-8">
@@ -33,14 +74,23 @@ const MasterSchedule = () => {
                 
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="flex items-center bg-white rounded-lg border border-[#c4c6cf] overflow-hidden shadow-sm">
-                        <button className="p-2 hover:bg-[#f8f9fa] transition-colors border-r border-[#c4c6cf]">
+                        <button onClick={goToPrevWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-r border-[#c4c6cf]">
                             <ChevronLeft className="w-5 h-5 text-[#43474e]" />
                         </button>
-                        <div className="px-4 py-2 font-bold text-[#181c1e] flex items-center gap-2">
-                            <CalendarIcon className="w-4 h-4 text-[#74777f]" />
-                            {currentWeek}
-                        </div>
-                        <button className="p-2 hover:bg-[#f8f9fa] transition-colors border-l border-[#c4c6cf]">
+                        <button 
+                            onClick={() => dateInputRef.current?.showPicker()}
+                            className="px-4 py-2 font-bold text-[#181c1e] flex items-center gap-2 hover:bg-[#f8f9fa] transition-colors cursor-pointer"
+                        >
+                            <CalendarDays className="w-4 h-4 text-[#74777f]" />
+                            {weekLabel}
+                        </button>
+                        <input 
+                            ref={dateInputRef}
+                            type="date" 
+                            className="absolute opacity-0 w-0 h-0 pointer-events-none" 
+                            onChange={handleDatePick}
+                        />
+                        <button onClick={goToNextWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-l border-[#c4c6cf]">
                             <ChevronRight className="w-5 h-5 text-[#43474e]" />
                         </button>
                     </div>
@@ -49,18 +99,22 @@ const MasterSchedule = () => {
 
             <div className="bg-white flex-1 rounded-2xl shadow-sm border border-[#e0e3e5] flex flex-col overflow-hidden">
                 <div className="grid grid-cols-7 border-b border-[#e0e3e5] bg-[#f8f9fa]">
-                    {WEEK_DAYS.map((day) => (
-                        <div key={day.name} className={`p-4 text-center font-bold text-[#43474e] border-r last:border-r-0 border-[#e0e3e5] ${day.isToday ? 'bg-[#e6f0fa] text-[#0061a5]' : ''}`}>
-                            <div className="text-[13px] uppercase tracking-wider">{day.name}</div>
-                            <div className="text-[20px]">{day.date}</div>
-                        </div>
-                    ))}
+                    {DAY_NAMES.map((dayName, i) => {
+                        const d = weekDates[i];
+                        const isToday = new Date().toDateString() === d.toDateString();
+                        return (
+                            <div key={dayName} className={`p-4 text-center font-bold text-[#43474e] border-r last:border-r-0 border-[#e0e3e5] ${isToday ? 'bg-[#e6f0fa] text-[#0061a5]' : ''}`}>
+                                <div className="text-[13px] uppercase tracking-wider">{dayName}</div>
+                                <div className="text-[20px]">{String(d.getDate()).padStart(2, '0')}</div>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 <div className="grid grid-cols-7 flex-1 min-h-[600px] overflow-y-auto">
-                    {WEEK_DAYS.map(day => (
-                        <div key={day.name} className="border-r last:border-r-0 border-[#e0e3e5] p-2 space-y-3 bg-gray-50/30">
-                            {MOCK_SCHEDULE.filter(s => s.day === day.name).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(session => (
+                    {DAY_NAMES.map((_, dayIdx) => (
+                        <div key={dayIdx} className="border-r last:border-r-0 border-[#e0e3e5] p-2 space-y-3 bg-gray-50/30">
+                            {MOCK_SCHEDULE.filter(s => s.dayIndex === dayIdx).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(session => (
                                 <div 
                                     key={session.id} 
                                     onClick={() => setSelectedSession(session)}

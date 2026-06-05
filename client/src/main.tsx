@@ -39,6 +39,7 @@ import ChangeRequests from './views/staff/change-requests.tsx'
 import InvoiceList from './views/staff/invoices.tsx'
 import InvoiceDetail from './views/staff/invoice-detail.tsx'
 import StaffProfile from './views/staff/my-profile.tsx'
+import StaffTutorAvailability from './views/staff/tutor-availability.tsx'
 import ManageAccounts from './views/staff/accounts.tsx'
 import SalaryHistory from './views/staff/salary.tsx'
 import { StaffSupportTickets } from './views/staff/support-tickets.tsx'
@@ -61,6 +62,20 @@ import AdminPayroll from './views/admin/payroll.tsx'
 import AdminPayrollDetail from './views/admin/payroll-detail.tsx'
 import AdminAnnouncements from './views/admin/announcements.tsx'
 import AdminAuditLogs from './views/admin/audit-logs.tsx'
+import AdminProfile from './views/admin/profile.tsx'
+import AdminFinance from './views/admin/finance.tsx'
+
+// Tutor Views
+import TutorLayout from './components/layout/tutor-layout.tsx'
+import TutorDashboard from './views/tutor/dashboard.tsx'
+import TutorProfile from './views/tutor/profile.tsx'
+import TutorQualifications from './views/tutor/qualifications.tsx'
+import AvailabilityRegistration from './views/tutor/availability.tsx'
+import TeachingSchedule from './views/tutor/schedule.tsx'
+import ClassAttendance from './views/tutor/attendance.tsx'
+import TutorChangeRequests from './views/tutor/change-requests.tsx'
+import TutorSalaryHistory from './views/tutor/salary.tsx'
+import { TutorSupportTickets } from './views/tutor/support-tickets.tsx'
 
 // Shared Views
 import { NotificationsPage } from './views/shared/notifications.tsx'
@@ -116,8 +131,10 @@ createRoot(document.getElementById('root')!).render(
             
             <Route path="/staff/classes" element={<ManageClasses />} />
             <Route path="/staff/classes/create" element={<CreateClass />} />
+            <Route path="/staff/classes/edit/:id" element={<CreateClass />} />
             <Route path="/staff/classes/:id" element={<StaffClassDetail />} />
             <Route path="/staff/master-schedule" element={<MasterSchedule />} />
+            <Route path="/staff/tutor-availability" element={<StaffTutorAvailability />} />
             
             <Route path="/staff/change-requests" element={<ChangeRequests />} />
             
@@ -131,8 +148,10 @@ createRoot(document.getElementById('root')!).render(
         </Route>
         <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/profile" element={<AdminProfile />} />
             <Route path="/admin/courses" element={<AdminCourses />} />
             <Route path="/admin/courses/:id" element={<AdminCourseDetail />} />
+            <Route path="/admin/finance" element={<AdminFinance />} />
             <Route path="/admin/discount-codes" element={<AdminDiscountCodes />} />
             <Route path="/admin/classrooms" element={<AdminClassrooms />} />
             <Route path="/admin/accounts" element={<AdminAccounts />} />
@@ -143,6 +162,20 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/admin/payroll/:id" element={<AdminPayrollDetail />} />
             <Route path="/admin/announcements" element={<AdminAnnouncements />} />
             <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
+        </Route>
+        
+        {/* Tutor Routes */}
+        <Route element={<TutorLayout />}>
+            <Route path="/tutor/dashboard" element={<TutorDashboard />} />
+            <Route path="/tutor/profile" element={<TutorProfile />} />
+            <Route path="/tutor/notifications" element={<NotificationsPage />} />
+            <Route path="/tutor/qualifications" element={<TutorQualifications />} />
+            <Route path="/tutor/availability" element={<AvailabilityRegistration />} />
+            <Route path="/tutor/schedule" element={<TeachingSchedule />} />
+            <Route path="/tutor/attendance" element={<ClassAttendance />} />
+            <Route path="/tutor/change-requests" element={<TutorChangeRequests />} />
+            <Route path="/tutor/support-tickets" element={<TutorSupportTickets />} />
+            <Route path="/tutor/salary" element={<TutorSalaryHistory />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronRight, ArrowLeft, Users, Calendar, MapPin, Edit, BookOpen, CheckCircle, Clock, Save, X, ChevronDown } from 'lucide-react';
+import { ChevronRight, ArrowLeft, Users, Calendar, MapPin, Edit, BookOpen, CheckCircle, Clock, Save, X, ChevronDown, Trash2 } from 'lucide-react';
 
 const StaffClassDetail = () => {
     const { id } = useParams();
+    const enrolledStudents = 15; // Mock data for student count
     const [activeTab, setActiveTab] = useState('schedule');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedSession, setSelectedSession] = useState<any>(null);
@@ -28,11 +29,11 @@ const StaffClassDetail = () => {
     }, []);
 
     const scheduleData = [
-        { session: 1, date: 'Oct 01, 2026', time: '18:00 - 20:00', topic: 'Introduction to IELTS Speaking Part 1', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Completed' },
-        { session: 2, date: 'Oct 03, 2026', time: '18:00 - 20:00', topic: 'Listening: Form Completion', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Completed' },
-        { session: 3, date: 'Oct 05, 2026', time: '18:00 - 20:00', topic: 'Reading: True/False/Not Given', tutor: 'Mr. James Bond', room: 'Room 102', status: 'Upcoming' },
-        { session: 4, date: 'Oct 08, 2026', time: '18:00 - 20:00', topic: 'Writing Task 1: Bar Charts', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Upcoming' },
-        { session: 5, date: 'Oct 10, 2026', time: '18:00 - 20:00', topic: 'Speaking Part 2 Practice', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Upcoming' },
+        { session: 1, date: '01-10-2026', time: '18:00 - 20:00', topic: 'Introduction to IELTS Speaking Part 1', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Completed' },
+        { session: 2, date: '03-10-2026', time: '18:00 - 20:00', topic: 'Listening: Form Completion', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Completed' },
+        { session: 3, date: '05-10-2026', time: '18:00 - 20:00', topic: 'Reading: True/False/Not Given', tutor: 'Mr. James Bond', room: 'Room 102', status: 'Upcoming' },
+        { session: 4, date: '08-10-2026', time: '18:00 - 20:00', topic: 'Writing Task 1: Bar Charts', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Upcoming' },
+        { session: 5, date: '10-10-2026', time: '18:00 - 20:00', topic: 'Speaking Part 2 Practice', tutor: 'Dr. Sarah Connor', room: 'Room 102', status: 'Upcoming' },
     ];
 
     const courseName = id === '101' || id === '102' ? 'IELTS Masterclass' : id === '201' ? 'TOEIC Intensive' : 'Course Name';
@@ -54,9 +55,24 @@ const StaffClassDetail = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Class: {classNameStr}</h1>
                 <div className="flex gap-2">
-                    <Link to="/staff/classes/create" className="px-4 py-2 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-semibold hover:bg-gray-50 flex items-center gap-2">
+                    <Link to={`/staff/classes/edit/${id}`} className="px-4 py-2 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-semibold hover:bg-gray-50 flex items-center gap-2">
                         <Edit className="w-4 h-4" /> Edit Info
                     </Link>
+                    <button 
+                            onClick={() => {
+                                if (enrolledStudents > 0) {
+                                    alert('Cannot delete this class because there are students enrolled. Please remove all students first.');
+                                } else {
+                                    if (window.confirm('Are you sure you want to delete this class?')) {
+                                        // Delete logic
+                                    }
+                                }
+                            }} 
+                            className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-colors ${enrolledStudents > 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' : 'bg-red-50 border border-red-200 text-red-600 hover:bg-red-100'}`}
+                            title={enrolledStudents > 0 ? "Cannot delete class with enrolled students" : "Delete Class"}
+                        >
+                            <Trash2 className="w-4 h-4" /> Delete Class
+                        </button>
                 </div>
             </div>
 
@@ -104,7 +120,7 @@ const StaffClassDetail = () => {
                     onClick={() => setActiveTab('students')}
                     className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors ${activeTab === 'students' ? 'border-[#0061a5] text-[#0061a5]' : 'border-transparent text-[#74777f] hover:text-[#002045]'}`}
                 >
-                    Enrolled Students (15/20)
+                    Enrolled Students ({enrolledStudents}/20)
                 </button>
             </div>
 
@@ -185,7 +201,7 @@ const StaffClassDetail = () => {
                                     <tr key={i} className="border-b border-[#e0e3e5] hover:bg-[#f0f7ff]/50 transition-colors">
                                         <td className="p-4 font-bold text-[#002045]">Student Name {i}</td>
                                         <td className="p-4 text-[#43474e]">student{i}@gmail.com</td>
-                                        <td className="p-4 text-[#74777f]">Oct 01, 2026</td>
+                                        <td className="p-4 text-[#74777f]">01-10-2026</td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-full bg-gray-200 rounded-full h-2 max-w-[100px]">
@@ -267,7 +283,7 @@ const StaffClassDetail = () => {
                                                 className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors"
                                                 onClick={() => { setSelectedEditRoom(room); setIsEditRoomDropdownOpen(false); }}
                                             >
-                                                {room.name} (Cap: {room.cap}) {room.current && '(Current)'} • <span className="text-[#16a34a] font-medium">Available</span>
+                                                {room.name} (Cap: {room.cap}) {(room as any).current && '(Current)'} • <span className="text-[#16a34a] font-medium">Available</span>
                                             </button>
                                         ))}
                                     </div>

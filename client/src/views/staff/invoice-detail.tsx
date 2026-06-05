@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { ArrowLeft, CheckCircle2, Clock, AlertCircle, DollarSign, User, BookOpen, Calendar } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
@@ -9,8 +9,8 @@ const InvoiceDetail = () => {
     const invoice = {
         id: id || 'INV-10025',
         status: 'Partial',
-        issueDate: 'Oct 01, 2026',
-        dueDate: 'Dec 01, 2026',
+        issueDate: '01-10-2026',
+        dueDate: '01-12-2026',
         
         learner: {
             name: 'Sarah Connor',
@@ -23,7 +23,7 @@ const InvoiceDetail = () => {
             name: 'TOEIC Target 700+',
             code: 'TOEIC-B01',
             duration: '16 Weeks',
-            startDate: 'Oct 15, 2026'
+            startDate: '15-10-2026'
         },
         
         payment: {
@@ -32,9 +32,9 @@ const InvoiceDetail = () => {
             paidAmount: 200.00,
             remainingAmount: 100.00,
             installments: [
-                { id: 1, term: '1st Installment (Deposit)', amount: 100.00, dueDate: 'Oct 01, 2026', paidDate: 'Oct 01, 2026', status: 'Paid', method: 'Credit Card (*4421)' },
-                { id: 2, term: '2nd Installment', amount: 100.00, dueDate: 'Nov 01, 2026', paidDate: 'Oct 22, 2026', status: 'Paid', method: 'Bank Transfer' },
-                { id: 3, term: '3rd Installment (Final)', amount: 100.00, dueDate: 'Dec 01, 2026', paidDate: null, status: 'Pending', method: '-' },
+                { id: 1, term: '1st Installment (Deposit)', amount: 100.00, dueDate: '01-10-2026', paidDate: '01-10-2026', status: 'Paid', method: 'Credit Card (*4421)' },
+                { id: 2, term: '2nd Installment', amount: 100.00, dueDate: '01-11-2026', paidDate: '22-10-2026', status: 'Paid', method: 'Bank Transfer' },
+                { id: 3, term: '3rd Installment (Final)', amount: 100.00, dueDate: '01-12-2026', paidDate: null, status: 'Pending', method: '-' },
             ]
         }
     };
@@ -89,7 +89,7 @@ const InvoiceDetail = () => {
                     
                     <div className="text-left md:text-right">
                         <div className="text-[13px] font-bold text-[#74777f] uppercase tracking-wider mb-1">Total Amount</div>
-                        <div className="text-[36px] font-extrabold text-[#0061a5] leading-none">${invoice.payment.totalAmount.toFixed(2)}</div>
+                        <div className="text-[36px] font-extrabold text-[#0061a5] leading-none">{invoice.payment.totalAmount.toLocaleString()} đ</div>
                     </div>
                 </div>
 
@@ -167,7 +167,7 @@ const InvoiceDetail = () => {
                                             )}
                                         </td>
                                         <td className="p-4 text-right font-bold text-[#181c1e]">
-                                            ${inst.amount.toFixed(2)}
+                                            {inst.amount.toLocaleString()} đ
                                         </td>
                                     </tr>
                                 ))}
@@ -175,11 +175,11 @@ const InvoiceDetail = () => {
                             <tfoot className="bg-[#f8f9fa] border-t border-[#e0e3e5]">
                                 <tr>
                                     <td colSpan={4} className="p-4 text-right font-bold text-[#43474e]">Total Paid</td>
-                                    <td className="p-4 text-right font-bold text-green-600">${invoice.payment.paidAmount.toFixed(2)}</td>
+                                    <td className="p-4 text-right font-bold text-green-600">{invoice.payment.paidAmount.toLocaleString()} đ</td>
                                 </tr>
                                 <tr>
                                     <td colSpan={4} className="p-4 text-right font-extrabold text-[#002045] text-[16px]">Remaining Balance</td>
-                                    <td className="p-4 text-right font-extrabold text-[#0061a5] text-[18px]">${invoice.payment.remainingAmount.toFixed(2)}</td>
+                                    <td className="p-4 text-right font-extrabold text-[#0061a5] text-[18px]">{invoice.payment.remainingAmount.toLocaleString()} đ</td>
                                 </tr>
                             </tfoot>
                         </table>

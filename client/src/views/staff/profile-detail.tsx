@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Calendar, Award, CheckCircle2, XCircle, ChevronLeft } from 'lucide-react';
 
 const ProfileDetail = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id } = useParams();
+    useParams();
     const [status, setStatus] = useState<'Pending' | 'Verified' | 'Rejected'>('Pending');
 
     const handleApprove = () => setStatus('Verified');

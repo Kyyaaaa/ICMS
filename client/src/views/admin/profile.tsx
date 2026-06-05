@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Camera, Save, Eye, EyeOff, CheckCircle2, User, Phone, Mail, MapPin, CalendarDays, Users } from 'lucide-react';
+import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users } from 'lucide-react';
 
-const LearnerProfile = () => {
+const AdminProfile = () => {
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [isProfileSuccess, setIsProfileSuccess] = useState(false);
 
@@ -36,34 +36,30 @@ const LearnerProfile = () => {
         <div className="max-w-4xl space-y-6 animate-fade-in-up">
             <div>
                 <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">My Profile</h1>
-                <p className="text-[#74777f] text-[14px] mt-1">Manage your personal information and account security.</p>
+                <p className="text-[#74777f] text-[14px] mt-1">Manage your admin account settings and security preferences.</p>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column: Avatar & Basic Info */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
-                        <div className="relative w-32 h-32 rounded-full bg-[#d2e4ff] flex items-center justify-center text-[#0061a5] font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
-                            <span>JD</span>
+                        <div className="relative w-32 h-32 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
+                            <span>AD</span>
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Camera className="w-8 h-8 text-white" />
                             </div>
                         </div>
-                        <h2 className="text-[20px] font-bold text-[#002045]">John Doe</h2>
-                        <p className="text-[14px] text-[#74777f] font-semibold">Learner</p>
+                        <h2 className="text-[20px] font-bold text-[#002045]">Admin User</h2>
+                        <p className="text-[14px] text-[#74777f] font-semibold">System Administrator</p>
                         
                         <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-3">
                             <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
                                 <Mail className="w-4 h-4 text-[#74777f]" />
-                                <span className="truncate">johndoe@example.com</span>
+                                <span className="truncate">admin@icms.edu.vn</span>
                             </div>
                             <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
                                 <Phone className="w-4 h-4 text-[#74777f]" />
-                                <span>+123 456 7890</span>
-                            </div>
-                            <div className="flex items-start gap-3 text-[14px] text-[#43474e]">
-                                <MapPin className="w-4 h-4 text-[#74777f] mt-0.5 shrink-0" />
-                                <span className="text-left">123 Academic St, Education City</span>
+                                <span>+84 987 654 321</span>
                             </div>
                         </div>
                     </div>
@@ -82,14 +78,14 @@ const LearnerProfile = () => {
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Full Name</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="text" defaultValue="John Doe" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
+                                        <input type="text" defaultValue="Admin User" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Phone Number</label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="tel" defaultValue="+1234567890" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" />
+                                        <input type="tel" defaultValue="+84 987 654 321" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" />
                                     </div>
                                 </div>
                             </div>
@@ -99,7 +95,7 @@ const LearnerProfile = () => {
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
                                     <div className="relative">
                                         <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="date" defaultValue="1998-05-15" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" />
+                                        <input type="date" defaultValue="1985-10-20" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
@@ -115,21 +111,13 @@ const LearnerProfile = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-2 mb-5">
+                            <div className="space-y-2 mb-6">
                                 <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                    <input type="email" defaultValue="johndoe@example.com" disabled className="w-full pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-[14px] text-[#74777f] cursor-not-allowed" />
+                                    <input type="email" defaultValue="admin@icms.edu.vn" disabled className="w-full pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-[14px] text-[#74777f] cursor-not-allowed" />
                                 </div>
-                                <p className="text-[12px] text-[#74777f] mt-1">Email address cannot be changed once registered.</p>
-                            </div>
-
-                            <div className="space-y-2 mb-6">
-                                <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Home Address</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                    <input type="text" defaultValue="123 Academic St, Education City" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" />
-                                </div>
+                                <p className="text-[12px] text-[#74777f] mt-1">Admin email address cannot be changed.</p>
                             </div>
 
                             <div className="flex items-center justify-end gap-4 pt-4 border-t border-[#e0e3e5]">
@@ -192,4 +180,4 @@ const LearnerProfile = () => {
     );
 };
 
-export default LearnerProfile;
+export default AdminProfile;

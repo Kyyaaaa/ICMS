@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Bell, CheckCircle2, Circle, Clock, MailOpen } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ export const NotificationsPage = () => {
     const isLearner = location.pathname.startsWith('/learner');
     const isGuest = !isStaff && !isLearner;
 
-    const allNotifications = React.useMemo(() => [
+    const allNotifications = useMemo(() => [
         { id: 1, type: 'system', title: 'System Maintenance', message: 'ICMS platform will have a scheduled maintenance this Sunday at 2 AM. Expect downtime for up to 2 hours.', time: '1 day ago', unread: false, date: '2026-05-30' },
         { id: 2, type: 'role', title: isStaff ? 'New Profile Verification' : 'Class Rescheduled', message: isStaff ? 'Tutor Ms. Emily Chen submitted documents for review.' : 'Your IE1601 class has been moved to Room 402.', time: '10 mins ago', unread: true, date: '2026-05-31' },
         { id: 3, type: 'role', title: isStaff ? 'Consultation Request' : 'Payment Reminder', message: isStaff ? 'A new learner requested a consultation schedule for tomorrow.' : 'Tuition fee for next month is due in 3 days.', time: '2 hours ago', unread: true, date: '2026-05-31' },
@@ -22,7 +22,7 @@ export const NotificationsPage = () => {
     const [notifications, setNotifications] = useState(initialNotifications);
     const [filter, setFilter] = useState<'all' | 'unread' | 'system' | 'role'>('all');
 
-    React.useEffect(() => {
+    useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setNotifications(isGuest ? allNotifications.filter(n => n.type === 'system') : allNotifications);
         setFilter('all');

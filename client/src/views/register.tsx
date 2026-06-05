@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -208,9 +208,9 @@ const Register = () => {
                     <div className="mt-[24px] text-center">
                         <p className="text-[14px] leading-[20px] font-normal text-[#43474e]">
                             Already have an account?{' '}
-                            <a className="text-[#0061a5] hover:text-[#002045] text-[14px] leading-[16px] font-semibold tracking-[0.05em] transition-colors hover:underline underline-offset-4" href="#">
+                            <Link className="text-[#0061a5] hover:text-[#002045] text-[14px] leading-[16px] font-semibold tracking-[0.05em] transition-colors hover:underline underline-offset-4" to="/login">
                                 Log in here
-                            </a>
+                            </Link>
                         </p>
                     </div>
                 </div>

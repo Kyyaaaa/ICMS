@@ -19,41 +19,41 @@ interface SupportTicket {
 
 const mockTickets: SupportTicket[] = [
     {
-        id: 'TCK-1042',
-        title: 'Cannot access material for Writing Task 2',
+        id: 'TCK-2041',
+        title: 'Projector not working in Room 302',
         status: 'Open',
-        category: 'Technical Issue',
+        category: 'Facility & Equipment',
         updatedAt: '10 mins ago',
         messages: [
-            { id: 1, sender: 'user', text: 'Hi, I am enrolled in the IELTS Intensive Mastery but I cannot download the PDF for week 3 Writing Task 2. It shows an error 404.', time: '10:30 AM' }
+            { id: 1, sender: 'user', text: 'Hi, I am currently teaching in Room 302 and the projector won\'t turn on. Please send IT support.', time: '18:05' }
         ]
     },
     {
-        id: 'TCK-0981',
-        title: 'Request to change class schedule',
+        id: 'TCK-1981',
+        title: 'Salary discrepancy for last month',
         status: 'In Progress',
-        category: 'Course Management',
+        category: 'Payroll',
         updatedAt: 'Yesterday',
         messages: [
-            { id: 1, sender: 'user', text: 'I would like to move from Class 1 to Class 2 if possible.', time: 'Oct 24, 09:00 AM' },
-            { id: 2, sender: 'support', text: 'Hello! Let me check the availability for Class 2. I will get back to you shortly.', time: 'Oct 24, 10:15 AM' }
+            { id: 1, sender: 'user', text: 'Hello, my teaching hours for the TOEIC Prep class on May 15th seem to be missing from the payroll.', time: 'May 20, 09:00 AM' },
+            { id: 2, sender: 'support', text: 'Hi, we are checking the logs. We will get back to you shortly.', time: 'May 20, 10:15 AM' }
         ]
     },
     {
-        id: 'TCK-0855',
-        title: 'Payment receipt not received',
+        id: 'TCK-1855',
+        title: 'Air conditioning issue in Room 201',
         status: 'Resolved',
-        category: 'Billing',
-        updatedAt: 'Oct 20',
+        category: 'Facility & Equipment',
+        updatedAt: 'May 10',
         messages: [
-            { id: 1, sender: 'user', text: 'I paid for the course but haven\'t received the email receipt.', time: 'Oct 19, 02:00 PM' },
-            { id: 2, sender: 'support', text: 'We apologize for the delay. The receipt has been resent to your registered email.', time: 'Oct 20, 09:00 AM' },
-            { id: 3, sender: 'user', text: 'Got it, thanks!', time: 'Oct 20, 09:15 AM' }
+            { id: 1, sender: 'user', text: 'The AC is leaking water near the whiteboard.', time: 'May 09, 02:00 PM' },
+            { id: 2, sender: 'support', text: 'Thank you for reporting. Maintenance has fixed the issue.', time: 'May 10, 09:00 AM' },
+            { id: 3, sender: 'user', text: 'Great, thanks!', time: 'May 10, 09:15 AM' }
         ]
     }
 ];
 
-export const SupportTickets = () => {
+export const TutorSupportTickets = () => {
     const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(mockTickets[0]);
     const [searchTerm, setSearchTerm] = useState('');
     const [replyText, setReplyText] = useState('');
@@ -73,7 +73,7 @@ export const SupportTickets = () => {
     return (
         <div className="flex h-[calc(100vh-128px)] md:h-[calc(100vh-144px)] bg-white overflow-hidden font-sans text-[#181c1e] rounded-2xl border border-[#e0e3e5] shadow-sm -mt-2">
             {/* Left Sidebar - Ticket List */}
-            <div className="w-full md:w-[350px] lg:w-[400px] border-r border-[#e0e3e5] bg-white flex flex-col h-full shrink-0 absolute md:relative z-10 transition-transform ${(!selectedTicket && !isCreating) ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}">
+            <div className={`w-full md:w-[350px] lg:w-[400px] border-r border-[#e0e3e5] bg-white flex flex-col h-full shrink-0 absolute md:relative z-10 transition-transform ${(!selectedTicket && !isCreating) ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 <div className="p-6 border-b border-[#e0e3e5]">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-[24px] font-extrabold text-[#002045] flex items-center gap-2">
@@ -138,9 +138,10 @@ export const SupportTickets = () => {
                             <div>
                                 <label className="block text-[14px] font-bold text-[#002045] mb-2">Category</label>
                                 <select className="w-full p-3 bg-white border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5]">
-                                    <option>Technical Issue</option>
-                                    <option>Course Management</option>
-                                    <option>Billing & Payment</option>
+                                    <option>Facility & Equipment</option>
+                                    <option>Schedule Issue</option>
+                                    <option>System Issue</option>
+                                    <option>Payroll</option>
                                     <option>Other</option>
                                 </select>
                             </div>

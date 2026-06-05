@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { TopNav } from '../components/layout/TopNav.tsx';
 import { NotificationsPage } from './shared/notifications.tsx';
 

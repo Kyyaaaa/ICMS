@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Eye, Search, X, CheckCircle, XCircle, Calendar, Users } from 'lucide-react';
 
 const ChangeRequests = () => {
@@ -9,11 +9,11 @@ const ChangeRequests = () => {
             className: 'IELTS-A01', 
             session: 5,
             type: 'Reschedule', 
-            originalTime: 'Oct 10, 2026 (18:00 - 20:00)', 
-            proposedTime: 'Oct 11, 2026 (18:00 - 20:00)', 
+            originalTime: '10-10-2026 (18:00 - 20:00)', 
+            proposedTime: '11-10-2026 (18:00 - 20:00)', 
             reason: 'Personal emergency, need to move the class to the next day.',
             status: 'Pending', 
-            submittedAt: 'Oct 05, 2026' 
+            submittedAt: '05-10-2026' 
         },
         { 
             id: 2, 
@@ -21,11 +21,11 @@ const ChangeRequests = () => {
             className: 'TOEIC-B01', 
             session: 2,
             type: 'Substitute', 
-            originalTime: 'Oct 12, 2026 (19:00 - 21:00)', 
+            originalTime: '12-10-2026 (19:00 - 21:00)', 
             proposedTime: null, 
             reason: 'Attending a conference, please find a substitute for this session.',
             status: 'Pending', 
-            submittedAt: 'Oct 06, 2026' 
+            submittedAt: '06-10-2026' 
         },
         { 
             id: 3, 
@@ -33,11 +33,11 @@ const ChangeRequests = () => {
             className: 'IELTS-A02', 
             session: 8,
             type: 'Reschedule', 
-            originalTime: 'Oct 15, 2026 (18:00 - 20:00)', 
-            proposedTime: 'Oct 16, 2026 (18:00 - 20:00)', 
+            originalTime: '15-10-2026 (18:00 - 20:00)', 
+            proposedTime: '16-10-2026 (18:00 - 20:00)', 
             reason: 'Conflict with another schedule.',
             status: 'Approved', 
-            submittedAt: 'Oct 01, 2026' 
+            submittedAt: '01-10-2026' 
         },
         { 
             id: 4, 
@@ -45,11 +45,11 @@ const ChangeRequests = () => {
             className: 'IELTS-A01', 
             session: 12,
             type: 'Reschedule', 
-            originalTime: 'Oct 20, 2026 (18:00 - 20:00)', 
+            originalTime: '20-10-2026 (18:00 - 20:00)', 
             proposedTime: null, 
             reason: 'I am sick, please reschedule this session for me but I am not sure when I can teach yet.',
             status: 'Pending', 
-            submittedAt: 'Oct 18, 2026' 
+            submittedAt: '18-10-2026' 
         },
     ]);
 

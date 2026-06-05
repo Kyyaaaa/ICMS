@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, User, Key, BookOpen, Calendar, DollarSign, MessageSquare, Bell, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, User, Key, BookOpen, Calendar, DollarSign, MessageSquare, Bell, LogOut, Menu, X, Globe , Wallet, UserCog} from 'lucide-react';
 
 const LearnerLayout = () => {
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState([
-        { id: 1, type: 'role', title: 'Class Rescheduled', message: 'Your IE1601 class has been moved to Room 402.', time: '10 mins ago', unread: true },
-        { id: 2, type: 'role', title: 'Payment Reminder', message: 'Tuition fee for next month is due in 3 days.', time: '2 hours ago', unread: true },
+        { id: 1, type: 'staff', title: 'Class Rescheduled', message: 'Your IE1601 class has been moved to Room 402.', time: '10 mins ago', unread: true },
+        { id: 2, type: 'admin', title: 'Payment Reminder', message: 'Tuition fee for next month is due in 3 days.', time: '2 hours ago', unread: true },
         { id: 3, type: 'system', title: 'System Update', message: 'ICMS platform will have a scheduled maintenance this Sunday at 2 AM.', time: '1 day ago', unread: false },
-        { id: 4, type: 'role', title: 'Material Uploaded', message: 'Tutor Dr. Sarah Smith uploaded new materials for IELTS Mastery.', time: '2 days ago', unread: false },
+        { id: 4, type: 'tutor', title: 'Material Uploaded', message: 'Tutor Dr. Sarah Smith uploaded new materials for IELTS Mastery.', time: '2 days ago', unread: false },
     ]);
+
+    const getTagColor = (type: string) => {
+        switch(type) {
+            case 'staff': return 'bg-[#fff4ce] text-[#855e00]';
+            case 'system': return 'bg-[#d2e4ff] text-[#001d37]';
+            case 'tutor': return 'bg-[#c2f0ce] text-[#00210a]';
+            case 'learner': return 'bg-[#ffdad6] text-[#410002]';
+            case 'admin': return 'bg-[#e0e3e5] text-[#002045]';
+            default: return 'bg-[#e0e3e5] text-[#43474e]';
+        }
+    };
 
     const unreadCount = notifications.filter(n => n.unread).length;
 
@@ -19,40 +30,20 @@ const LearnerLayout = () => {
         setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
     };
 
-    const navGroups = [
-        {
-            title: 'Overview',
-            items: [
-                { name: 'Dashboard', path: '/learner/dashboard', icon: LayoutDashboard },
-            ]
-        },
-        {
-            title: 'Academics',
-            items: [
-                { name: 'My Classes', path: '/learner/classes', icon: BookOpen },
-                { name: 'My Schedules', path: '/learner/schedules', icon: Calendar },
-            ]
-        },
-        {
-            title: 'Services & Support',
-            items: [
-                { name: 'Payments', path: '/learner/payments', icon: DollarSign },
-                { name: 'Support Tickets', path: '/learner/support', icon: MessageSquare },
-            ]
-        },
-        {
-            title: 'Account Settings',
-            items: [
-                { name: 'My Profile', path: '/learner/profile', icon: User },
-            ]
-        }
+        const navItems = [
+        { name: 'Dashboard', path: '/learner/dashboard', icon: LayoutDashboard },
+        { name: 'My Classes', path: '/learner/classes', icon: BookOpen },
+        { name: 'My Schedules', path: '/learner/schedules', icon: Calendar },
+        { name: 'Payments', path: '/learner/payments', icon: Wallet },
+        { name: 'Support Tickets', path: '/learner/support', icon: MessageSquare },
+        { name: 'My Profile', path: '/learner/profile', icon: UserCog },
     ];
 
     return (
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
             {/* Sidebar Desktop */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:relative md:translate-x-0 flex flex-col`}>
-                <div className="flex items-center justify-between h-[80px] px-6 border-b border-[#e0e3e5] shrink-0">
+            <aside className={`fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:sticky md:top-0 md:h-screen md:translate-x-0 flex flex-col`}>
+                <div className="flex items-center justify-between h-[72px] px-6 border-b border-[#e0e3e5] shrink-0">
                     <Link to="/learner/dashboard" className="text-[24px] font-extrabold text-[#002045] flex items-center gap-2">
                         <BookOpen className="w-7 h-7 text-[#0061a5]" />
                         ICMS <span className="text-[#0061a5] font-semibold text-[18px]">Learner</span>
@@ -62,36 +53,33 @@ const LearnerLayout = () => {
                     </button>
                 </div>
                 
-                <nav className="flex-1 overflow-y-auto py-6 scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
-                    <div className="space-y-6">
-                        {navGroups.map((group) => (
-                            <div key={group.title}>
-                                <div className="px-7 mb-2 text-[11px] font-bold text-[#74777f] uppercase tracking-wider">{group.title}</div>
-                                <ul className="space-y-1 px-3">
-                                    {group.items.map((item) => {
-                                        const Icon = item.icon;
-                                        const isActive = location.pathname.startsWith(item.path);
-                                        return (
-                                            <li key={item.name}>
-                                                <Link 
-                                                    to={item.path} 
-                                                    onClick={() => setSidebarOpen(false)}
-                                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-[14px] ${isActive ? 'bg-[#e6f0fa] text-[#0061a5]' : 'text-[#43474e] hover:bg-[#f8f9fa] hover:text-[#002045]'}`}
-                                                >
-                                                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#0061a5]' : 'text-[#74777f]'}`} />
-                                                    <span className="truncate">{item.name}</span>
-                                                </Link>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            </div>
-                        ))}
-                    </div>
+                                <nav className="flex-1 overflow-y-auto py-6 px-4 scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
+                    <ul className="space-y-1.5">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = location.pathname.startsWith(item.path);
+                            return (
+                                <li key={item.name}>
+                                    <Link 
+                                        to={item.path} 
+                                        onClick={() => setSidebarOpen(false)}
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-[14px] ${isActive ? 'bg-[#e6f0fa] text-[#0061a5]' : 'text-[#43474e] hover:bg-[#f8f9fa] hover:text-[#002045]'}`}
+                                    >
+                                        <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#0061a5]' : 'text-[#74777f]'}`} />
+                                        <span className="truncate">{item.name}</span>
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </nav>
                 
-                <div className="p-4 border-t border-[#e0e3e5] shrink-0 bg-[#f8f9fa]">
-                    <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-semibold hover:bg-[#ffdad6]/50 transition-colors">
+                <div className="p-4 border-t border-[#e0e3e5] shrink-0 bg-[#f8f9fa] space-y-1.5">
+                    <Link to="/homepage" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#43474e] font-bold hover:bg-[#e0e3e5]/50 transition-colors">
+                        <Globe className="w-5 h-5" />
+                        <span className="text-[14px]">Back to Homepage</span>
+                    </Link>
+                    <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 transition-colors">
                         <LogOut className="w-5 h-5" />
                         <span className="text-[14px]">Log Out</span>
                     </Link>
@@ -99,9 +87,9 @@ const LearnerLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+            <div className="flex-1 flex flex-col min-w-0">
                 {/* Header */}
-                <header className="h-[80px] bg-white border-b border-[#e0e3e5] flex items-center justify-between px-6 shrink-0 z-40 relative">
+                <header className="sticky top-0 h-[72px] bg-white/80 backdrop-blur-md border-b border-[#e0e3e5] flex items-center justify-between px-6 shrink-0 z-40">
                     <div className="flex items-center gap-4">
                         <button className="md:hidden p-2 -ml-2 text-[#43474e] hover:bg-[#f1f4f6] rounded-xl transition-colors" onClick={() => setSidebarOpen(true)}>
                             <Menu className="w-6 h-6" />
@@ -135,11 +123,9 @@ const LearnerLayout = () => {
                                                 <div key={notif.id} className={`p-4 border-b border-[#e0e3e5] last:border-b-0 hover:bg-[#f8f9fa] transition-colors cursor-pointer ${notif.unread ? 'bg-blue-50/30' : ''}`}>
                                                     <div className="flex justify-between items-start mb-1">
                                                         <div className="flex items-center gap-2">
-                                                            {notif.type === 'system' ? (
-                                                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#e6f0fa] text-[#0061a5] uppercase">System</span>
-                                                            ) : (
-                                                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 uppercase">Learner</span>
-                                                            )}
+                                                            <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider uppercase ${getTagColor(notif.type)}`}>
+                                                                {notif.type}
+                                                            </span>
                                                             <h4 className={`text-[14px] leading-tight text-[#002045] ${notif.unread ? 'font-bold' : 'font-semibold'}`}>{notif.title}</h4>
                                                         </div>
                                                         {notif.unread && <span className="w-2 h-2 rounded-full bg-[#0061a5] shrink-0 mt-1"></span>}
@@ -158,7 +144,7 @@ const LearnerLayout = () => {
                                 </>
                             )}
                         </div>
-                        <div className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
+                        <Link to="/learner/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
                                 <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">John Doe</span>
                                 <span className="text-[12px] text-[#74777f] leading-tight">Learner</span>
@@ -166,12 +152,12 @@ const LearnerLayout = () => {
                             <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all">
                                 JD
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 p-6 md:p-8 overflow-auto bg-[#f7fafc] scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
+                <main className="flex-1 p-6 lg:p-8 bg-[#f8f9fa]">
                     <Outlet />
                 </main>
             </div>

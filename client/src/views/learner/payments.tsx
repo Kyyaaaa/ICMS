@@ -1,12 +1,12 @@
-import React from 'react';
+
 import { Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PaymentHistory = () => {
     const invoices = [
-        { id: 'INV-2024-001', course: 'IELTS Academic - Reading', date: 'Oct 01, 2024', amount: 450, status: 'paid' },
-        { id: 'INV-2024-002', course: 'IELTS Academic - Writing', date: 'Oct 15, 2024', amount: 450, status: 'pending' },
-        { id: 'INV-2024-003', course: 'IELTS General - Speaking', date: 'Sep 10, 2024', amount: 350, status: 'refunded' },
+        { id: 'INV-2024-001', course: 'IELTS Academic - Reading', date: '01-10-2024', amount: 450, status: 'paid' },
+        { id: 'INV-2024-002', course: 'IELTS Academic - Writing', date: '15-10-2024', amount: 450, status: 'pending' },
+        { id: 'INV-2024-003', course: 'IELTS General - Speaking', date: '10-09-2024', amount: 350, status: 'refunded' },
     ];
 
     const getStatusIcon = (status: string) => {
@@ -50,7 +50,7 @@ const PaymentHistory = () => {
                                     <td className="py-[16px] px-[24px] font-medium text-[#181c1e]">{inv.id}</td>
                                     <td className="py-[16px] px-[24px] text-[#43474e]">{inv.course}</td>
                                     <td className="py-[16px] px-[24px] text-[#43474e]">{inv.date}</td>
-                                    <td className="py-[16px] px-[24px] font-bold text-[#181c1e]">${inv.amount.toFixed(2)}</td>
+                                    <td className="py-[16px] px-[24px] font-bold text-[#181c1e]">{inv.amount.toLocaleString()} đ</td>
                                     <td className="py-[16px] px-[24px]">
                                         <div className="flex items-center gap-[8px]">
                                             {getStatusIcon(inv.status)}

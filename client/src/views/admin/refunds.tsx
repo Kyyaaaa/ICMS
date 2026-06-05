@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search, Eye, Plus, CheckCircle2, XCircle, RefreshCcw, Landmark, Clock, FileText, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -181,10 +181,10 @@ const AdminRefunds = () => {
                                         <div className="text-[13px] text-[#74777f] truncate max-w-[200px]" title={r.courseName}>{r.courseName}</div>
                                     </td>
                                     <td className="py-4 px-6 text-[14px] text-[#43474e]">
-                                        {r.totalPaid.toLocaleString()} VND
+                                        {r.totalPaid.toLocaleString()} đ
                                     </td>
                                     <td className="py-4 px-6 text-[14px] font-bold text-[#ba1a1a]">
-                                        {r.refundAmount.toLocaleString()} VND
+                                        {r.refundAmount.toLocaleString()} đ
                                     </td>
                                     <td className="py-4 px-6 text-[14px] text-[#43474e]">
                                         {new Date(r.requestedDate).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short', hour12: false })}

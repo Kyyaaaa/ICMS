@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BookOpen, MapPin, Calendar, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
@@ -97,16 +97,16 @@ const ClassRegistration = () => {
                     <div className="bg-[#f7fafc] rounded-[8px] p-[16px] space-y-[12px]">
                         <div className="flex justify-between text-[14px] text-[#43474e]">
                             <span>Course Tuition Fee</span>
-                            <span>$450.00</span>
+                            <span>450,000 đ</span>
                         </div>
                         <div className="flex justify-between text-[14px] text-[#43474e]">
                             <span>Discount</span>
-                            <span>-$0.00</span>
+                            <span>-0 đ</span>
                         </div>
                         <div className="border-t border-[#e0e3e5] my-[8px]"></div>
                         <div className="flex justify-between text-[18px] font-bold text-[#181c1e]">
                             <span>Total Due</span>
-                            <span>$450.00</span>
+                            <span>450,000 đ</span>
                         </div>
                     </div>
                 </div>

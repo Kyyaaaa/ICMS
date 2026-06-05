@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MonitorPlay, Search, Plus, MapPin, Edit, Trash2, X } from 'lucide-react';
 
 export interface Room {

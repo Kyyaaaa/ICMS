@@ -4,6 +4,8 @@ import { Wallet, CalendarDays, TrendingUp, Eye, CheckCircle2, ChevronDown, Searc
 type SalaryRecord = {
     id: string;
     period: string;
+    sessions: number;
+    sessionRate: number;
     baseSalary: number;
     bonuses: number;
     deductions: number;
@@ -12,17 +14,17 @@ type SalaryRecord = {
     status: string;
 };
 
-const SalaryHistory = () => {
+const TutorSalaryHistory = () => {
     const [selectedYear] = useState('2026');
     const [selectedRecord, setSelectedRecord] = useState<SalaryRecord | null>(null);
 
-    // Mock data for salary records (Admin Confirmed)
+    // Mock data for salary records (Tutor specific)
     const salaryRecords: SalaryRecord[] = [
-        { id: 'PAY-1004', period: '10-2026', baseSalary: 12000000, bonuses: 1500000, deductions: 0, netPay: 13500000, payDate: '05-11-2026', status: 'Paid' },
-        { id: 'PAY-1003', period: '09-2026', baseSalary: 12000000, bonuses: 2000000, deductions: 500000, netPay: 13500000, payDate: '05-10-2026', status: 'Paid' },
-        { id: 'PAY-1002', period: '08-2026', baseSalary: 12000000, bonuses: 1000000, deductions: 0, netPay: 13000000, payDate: '05-09-2026', status: 'Paid' },
-        { id: 'PAY-1001', period: '07-2026', baseSalary: 12000000, bonuses: 500000, deductions: 0, netPay: 12500000, payDate: '05-08-2026', status: 'Paid' },
-        { id: 'PAY-1000', period: '06-2026', baseSalary: 12000000, bonuses: 3000000, deductions: 200000, netPay: 14800000, payDate: '05-07-2026', status: 'Paid' },
+        { id: 'PAY-T-1004', period: '10-2026', sessions: 24, sessionRate: 625000, baseSalary: 15000000, bonuses: 2000000, deductions: 0, netPay: 17000000, payDate: '05-11-2026', status: 'Paid' },
+        { id: 'PAY-T-1003', period: '09-2026', sessions: 22, sessionRate: 625000, baseSalary: 13750000, bonuses: 1500000, deductions: 500000, netPay: 14750000, payDate: '05-10-2026', status: 'Paid' },
+        { id: 'PAY-T-1002', period: '08-2026', sessions: 26, sessionRate: 625000, baseSalary: 16250000, bonuses: 1000000, deductions: 0, netPay: 17250000, payDate: '05-09-2026', status: 'Paid' },
+        { id: 'PAY-T-1001', period: '07-2026', sessions: 20, sessionRate: 625000, baseSalary: 12500000, bonuses: 500000, deductions: 0, netPay: 13000000, payDate: '05-08-2026', status: 'Paid' },
+        { id: 'PAY-T-1000', period: '06-2026', sessions: 24, sessionRate: 625000, baseSalary: 15000000, bonuses: 2500000, deductions: 200000, netPay: 17300000, payDate: '05-07-2026', status: 'Paid' },
     ];
 
     const totalYTD = salaryRecords.reduce((acc, curr) => acc + curr.netPay, 0);
@@ -32,9 +34,14 @@ const SalaryHistory = () => {
         <div className="space-y-[24px] animate-fade-in-up pb-[40px]">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-[28px] font-extrabold text-[#002045]">Salary History</h1>
-                    <p className="text-[#43474e] text-[15px] mt-1">View your confirmed payroll records and payslip details.</p>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#e3f2fd] flex items-center justify-center text-[#0061a5] shrink-0">
+                        <Wallet className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-[28px] font-extrabold text-[#002045]">Salary History</h1>
+                        <p className="text-[#43474e] text-[15px] mt-1">View your confirmed teaching payroll records and payslip details.</p>
+                    </div>
                 </div>
             </div>
 
@@ -93,9 +100,9 @@ const SalaryHistory = () => {
                         <thead className="bg-white">
                             <tr>
                                 <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Period</th>
-                                <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Base Salary</th>
-                                <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Bonus</th>
-                                <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Deduct</th>
+                                <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Teaching Salary</th>
+                                <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Bonus/Allowances</th>
+                                <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Deductions</th>
                                 <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Net Pay</th>
                                 <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Date Paid</th>
                                 <th className="p-4 text-[13px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5] text-right">Action</th>
@@ -128,7 +135,7 @@ const SalaryHistory = () => {
                 </div>
 
                 <div className="p-[16px] bg-[#f8f9fa] border-t border-[#e0e3e5] text-center text-[#74777f] text-[13px]">
-                    <p>Salary is processed and confirmed by the Admin team. If you have any inquiries regarding your payslip, please contact HR.</p>
+                    <p>Salary is processed and confirmed by the Admin team. If you have any inquiries regarding your payslip or hours, please submit a Support Ticket.</p>
                 </div>
             </div>
 
@@ -164,7 +171,7 @@ const SalaryHistory = () => {
                                         <p className="text-[#74777f] text-[14px]">123 University Ave, Ho Chi Minh City</p>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-[20px] font-bold text-[#002045]">Payslip</div>
+                                        <div className="text-[20px] font-bold text-[#002045]">Tutor Payslip</div>
                                         <p className="text-[#74777f] font-medium mt-1">{selectedRecord.period}</p>
                                         <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2.5 py-1 rounded-md text-[12px] font-bold mt-2">
                                             <CheckCircle2 className="w-3.5 h-3.5" /> Confirmed
@@ -176,19 +183,19 @@ const SalaryHistory = () => {
                                     {/* Left Column: Employee Info */}
                                     <div className="space-y-6">
                                         <div className="bg-[#f8f9fa] p-5 rounded-xl border border-[#e0e3e5]">
-                                            <h4 className="font-bold text-[#002045] border-b border-[#e0e3e5] pb-2 mb-4">Employee Information</h4>
+                                            <h4 className="font-bold text-[#002045] border-b border-[#e0e3e5] pb-2 mb-4">Tutor Information</h4>
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <div className="text-[12px] font-bold text-[#74777f] uppercase">Employee Name</div>
-                                                    <div className="font-bold text-[#181c1e] text-[14px]">Admin Staff</div>
+                                                    <div className="text-[12px] font-bold text-[#74777f] uppercase">Tutor Name</div>
+                                                    <div className="font-bold text-[#181c1e] text-[14px]">John Doe</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-[12px] font-bold text-[#74777f] uppercase">Employee ID</div>
-                                                    <div className="font-bold text-[#181c1e] text-[14px]">STF-2026-001</div>
+                                                    <div className="text-[12px] font-bold text-[#74777f] uppercase">Tutor ID</div>
+                                                    <div className="font-bold text-[#181c1e] text-[14px]">TUT-2026-042</div>
                                                 </div>
                                                 <div className="col-span-2">
                                                     <div className="text-[12px] font-bold text-[#74777f] uppercase">Role</div>
-                                                    <div className="font-bold text-[#181c1e] text-[14px]">Staff</div>
+                                                    <div className="font-bold text-[#181c1e] text-[14px]">Senior English Tutor</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -214,28 +221,31 @@ const SalaryHistory = () => {
                                         
                                         <div className="space-y-3">
                                             {/* Base Salary */}
-                                            <div className="flex justify-between items-center text-[14px]">
-                                                <span className="text-[#43474e] font-medium">Base Salary (160h x 75,000 đ/h)</span>
-                                                <span className="font-bold text-[#181c1e]">{selectedRecord.baseSalary.toLocaleString()} đ</span>
+                                            <div className="flex justify-between items-start text-[14px]">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[#43474e] font-medium">Teaching Classes ({selectedRecord.sessions} sessions)</span>
+                                                    <span className="text-[12px] text-[#74777f]">{selectedRecord.sessionRate.toLocaleString()} đ/session</span>
+                                                </div>
+                                                <span className="font-bold text-[#181c1e] whitespace-nowrap">{selectedRecord.baseSalary.toLocaleString()} đ</span>
                                             </div>
                                             
                                             {/* Allowances */}
-                                            <div className="flex justify-between items-center text-[14px]">
-                                                <span className="text-[#43474e] font-medium">Internet & Equipment Allowance</span>
-                                                <span className="font-bold text-[#181c1e]">500,000 đ</span>
+                                            <div className="flex justify-between items-start text-[14px] pt-1">
+                                                <span className="text-[#43474e] font-medium">Transport Allowance</span>
+                                                <span className="font-bold text-[#181c1e] whitespace-nowrap">500,000 đ</span>
                                             </div>
 
                                             {/* Bonus */}
-                                            <div className="flex justify-between items-center text-[14px]">
-                                                <span className="text-green-600 font-medium">Performance Bonus</span>
-                                                <span className="font-bold text-green-600">+{Math.max(0, selectedRecord.bonuses - 500000).toLocaleString()} đ</span>
+                                            <div className="flex justify-between items-start text-[14px] pt-1">
+                                                <span className="text-green-600 font-medium">Excellent Feedback Bonus</span>
+                                                <span className="font-bold text-green-600 whitespace-nowrap">+{Math.max(0, selectedRecord.bonuses - 500000).toLocaleString()} đ</span>
                                             </div>
 
                                             {/* Deductions */}
                                             <div className="pt-3 border-t border-dashed border-[#e0e3e5]">
-                                                <div className="flex justify-between items-center text-[14px]">
-                                                    <span className="text-red-600 font-medium">Tax Deduction (5%)</span>
-                                                    <span className="font-bold text-red-600">-{selectedRecord.deductions.toLocaleString()} đ</span>
+                                                <div className="flex justify-between items-start text-[14px]">
+                                                    <span className="text-red-600 font-medium">Tax Deduction (10%)</span>
+                                                    <span className="font-bold text-red-600 whitespace-nowrap">-{selectedRecord.deductions.toLocaleString()} đ</span>
                                                 </div>
                                             </div>
                                             
@@ -243,7 +253,7 @@ const SalaryHistory = () => {
                                             <div className="pt-4 mt-2 border-t border-[#c4c6cf]">
                                                 <div className="flex justify-between items-center bg-[#e6f0fa] p-4 rounded-xl border border-[#bbdefb]">
                                                     <span className="font-extrabold text-[#002045] text-[16px]">Total Net Pay</span>
-                                                    <span className="font-extrabold text-[#0061a5] text-[28px]">{selectedRecord.netPay.toLocaleString()} đ</span>
+                                                    <span className="font-extrabold text-[#0061a5] text-[28px] whitespace-nowrap">{selectedRecord.netPay.toLocaleString()} đ</span>
                                                 </div>
                                                 <p className="text-center text-[12px] text-[#74777f] mt-3 italic">
                                                     *All amounts are represented in đ.
@@ -261,4 +271,4 @@ const SalaryHistory = () => {
     );
 };
 
-export default SalaryHistory;
+export default TutorSalaryHistory;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, BookOpen, Headset, Compass, ArrowRight, Star, CheckCircle2, ChevronRight, Clock, MapPin, Globe, Users, ArrowUpRight, GraduationCap, PlayCircle, ShieldCheck, Ticket, X } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { TopNav } from '../components/layout/TopNav';
@@ -27,7 +27,7 @@ const CourseDetail = () => {
     // Mock data for the specific courses
     const mockCourses: Record<string, any> = {
         '1': {
-            id: 1, title: 'IELTS Intensive Mastery', band: '7.5 - 8.0', duration: '12 Weeks', sessions: 48, format: 'Offline', type: 'Masterclass', price: '$899', originalPrice: '$1,200', description: 'A comprehensive, high-intensity preparation course designed to elevate your IELTS band score across all four modules. Ideal for students aiming for Band 7.5+.', nextCohort: 'Oct 15, 2024',
+            id: 1, title: 'IELTS Intensive Mastery', band: '7.5 - 8.0', duration: '12 Weeks', sessions: 48, format: 'Offline', type: 'Masterclass', price: '899,000 đ', originalPrice: '1,200,000 đ', description: 'A comprehensive, high-intensity preparation course designed to elevate your IELTS band score across all four modules. Ideal for students aiming for Band 7.5+.', nextCohort: '15-10-2024',
             modules: [
                 { 
                     title: 'Listening Mastery', 
@@ -50,13 +50,13 @@ const CourseDetail = () => {
             ]
         },
         '2': {
-            id: 2, title: 'Academic 6.5+', band: '6.5+', duration: '16 Weeks', sessions: 64, format: 'Offline', type: 'Standard', price: '$499', originalPrice: '$699', description: 'Perfect for beginners aiming for a solid 6.5 band score. Master grammar and core vocab before diving into formal test strategies.', nextCohort: 'Oct 20, 2024'
+            id: 2, title: 'Academic 6.5+', band: '6.5+', duration: '16 Weeks', sessions: 64, format: 'Offline', type: 'Standard', price: '499,000 đ', originalPrice: '699,000 đ', description: 'Perfect for beginners aiming for a solid 6.5 band score. Master grammar and core vocab before diving into formal test strategies.', nextCohort: '20-10-2024'
         },
         '3': {
-            id: 3, title: '1-Month Crash Course', band: '6.0+', duration: '4 Weeks', sessions: 20, format: 'Offline', type: 'Intensive', price: '$350', originalPrice: '$450', description: 'Short on time? Intensive 4-week test-taking strategies and daily practice for immediate results in your upcoming exam.', nextCohort: 'Nov 01, 2024'
+            id: 3, title: '1-Month Crash Course', band: '6.0+', duration: '4 Weeks', sessions: 20, format: 'Offline', type: 'Intensive', price: '350,000 đ', originalPrice: '450,000 đ', description: 'Short on time? Intensive 4-week test-taking strategies and daily practice for immediate results in your upcoming exam.', nextCohort: '01-11-2024'
         },
         '4': {
-            id: 4, title: 'Foundation English', band: '4.5 - 5.0', duration: '8 Weeks', sessions: 32, format: 'Offline', type: 'Beginner', price: '$299', originalPrice: '$400', description: 'Build a strong English foundation focusing on daily communication, basic grammar, and general listening skills.', nextCohort: 'Nov 05, 2024'
+            id: 4, title: 'Foundation English', band: '4.5 - 5.0', duration: '8 Weeks', sessions: 32, format: 'Offline', type: 'Beginner', price: '299,000 đ', originalPrice: '400,000 đ', description: 'Build a strong English foundation focusing on daily communication, basic grammar, and general listening skills.', nextCohort: '05-11-2024'
         }
     };
 
