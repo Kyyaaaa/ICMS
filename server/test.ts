@@ -1,4 +1,4 @@
-import { supabaseAdmin } from './src/config/supabase';
+import { supabaseAdmin } from './src/configs/supabase';
 
 async function createTutor() {
   console.log("Creating Tutor account...");
