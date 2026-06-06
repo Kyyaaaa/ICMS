@@ -1,8 +1,23 @@
 import { useState } from 'react';
 import { Eye, Search, X, CheckCircle, XCircle, Calendar, Users } from 'lucide-react';
 
+interface ChangeRequest {
+    id: number;
+    tutor: string;
+    className: string;
+    session: number;
+    type: string;
+    originalTime: string;
+    proposedTime: string | null;
+    reason: string;
+    status: string;
+    submittedAt: string;
+    finalTime?: string;
+    staffNote?: string;
+}
+
 const ChangeRequests = () => {
-    const [requests, setRequests] = useState([
+    const [requests, setRequests] = useState<ChangeRequest[]>([
         { 
             id: 1, 
             tutor: 'Dr. Sarah Connor', 
@@ -53,7 +68,7 @@ const ChangeRequests = () => {
         },
     ]);
 
-    const [selectedRequest, setSelectedRequest] = useState<any>(null);
+    const [selectedRequest, setSelectedRequest] = useState<ChangeRequest | null>(null);
     const [selectedNewDate, setSelectedNewDate] = useState('');
     const [selectedNewTime, setSelectedNewTime] = useState('');
     const [selectedNewRoom, setSelectedNewRoom] = useState('');

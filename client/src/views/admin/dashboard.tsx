@@ -1,5 +1,5 @@
 
-import { Users, BookOpen, DollarSign, CheckCircle, MonitorPlay, BookMarked, Clock, TrendingDown } from 'lucide-react';
+import { Users, BookOpen, DollarSign, CheckCircle, MonitorPlay, BookMarked, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {

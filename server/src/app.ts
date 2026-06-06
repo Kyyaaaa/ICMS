@@ -4,6 +4,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './configs/swagger';
 import authRoutes from './modules/auth/auth.routes';
 import learnerRoutes from './modules/learner/learner.routes';
+import accountRoutes from './modules/account/account.routes';
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json()); // Cho phép Server đọc dữ liệu JSON gửi lên 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/learners', learnerRoutes);
+app.use('/api/accounts', accountRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

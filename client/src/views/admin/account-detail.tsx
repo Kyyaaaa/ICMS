@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Phone, MapPin, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
+import Cookies from 'js-cookie';
 
 const AdminAccountDetail = () => {
     const { id } = useParams();
     
+    const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
     
@@ -13,36 +15,127 @@ const AdminAccountDetail = () => {
     
     const [showNewPassword, setShowNewPassword] = useState(false);
 
-    // Mock data for the specific user
     const [account, setAccount] = useState({
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 234 567 8900',
-        address: '123 Education St, NY',
-        role: 'Tutor',
-        status: 'Active',
-        joinedDate: '12-10-2024'
+        full_name: '',
+        account_code: '',
+        email: '',
+        phone_number: '',
+        date_of_birth: '',
+        gender: '',
+        role: 'LEARNER',
+        is_active: true,
+        created_at: '',
+        password: '',
+        confirm_password: ''
     });
 
-    const handleSaveProfile = (e: React.FormEvent) => {
+    useEffect(() => {
+        const fetchAccount = async () => {
+            setIsLoading(true);
+            try {
+                const token = Cookies.get('access_token');
+                const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    setAccount(prev => ({
+                        ...prev,
+                        full_name: data.data.full_name || '',
+                        account_code: data.data.account_code || '',
+                        email: data.data.email,
+                        phone_number: data.data.phone_number || '',
+                        date_of_birth: data.data.date_of_birth || '',
+                        gender: data.data.gender || '',
+                        role: data.data.role,
+                        is_active: data.data.is_active,
+                        created_at: new Date(data.data.created_at).toLocaleDateString()
+                    }));
+                } else {
+                    alert(data.message || 'Failed to fetch account details');
+                }
+            } catch (error) {
+                console.error('Error fetching account:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchAccount();
+    }, [id]);
+
+    const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
-        setTimeout(() => {
+        try {
+            const token = Cookies.get('access_token');
+            const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    full_name: account.full_name,
+                    phone_number: account.phone_number,
+                    date_of_birth: account.date_of_birth,
+                    gender: account.gender
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setIsSaved(true);
+                setTimeout(() => setIsSaved(false), 3000);
+            } else {
+                alert(data.message || 'Failed to save profile');
+            }
+        } catch {
+            alert('An error occurred');
+        } finally {
             setIsSaving(false);
-            setIsSaved(true);
-            setTimeout(() => setIsSaved(false), 3000);
-        }, 1000);
+        }
     };
 
-    const handleSavePassword = (e: React.FormEvent) => {
+    const handleSavePassword = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (account.password !== account.confirm_password) {
+            alert("Passwords do not match!");
+            return;
+        }
+        if (account.password.length < 8) {
+            alert("Password must be at least 8 characters long.");
+            return;
+        }
+
         setIsSavingPassword(true);
-        setTimeout(() => {
+        try {
+            const token = Cookies.get('access_token');
+            const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    password: account.password
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAccount({ ...account, password: '', confirm_password: '' });
+                setIsPasswordSaved(true);
+                setTimeout(() => setIsPasswordSaved(false), 3000);
+            } else {
+                alert(data.message || 'Failed to update password');
+            }
+        } catch {
+            alert('An error occurred');
+        } finally {
             setIsSavingPassword(false);
-            setIsPasswordSaved(true);
-            setTimeout(() => setIsPasswordSaved(false), 3000);
-        }, 1000);
+        }
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 animate-fade-in-up pb-8">
@@ -58,14 +151,14 @@ const AdminAccountDetail = () => {
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
                         <div className="relative w-32 h-32 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm mb-4">
-                            JD
+                            {account.full_name ? account.full_name.charAt(0).toUpperCase() : 'U'}
                         </div>
-                        <h2 className="text-[20px] font-bold text-[#002045]">{account.name}</h2>
+                        <h2 className="text-[20px] font-bold text-[#002045]">{account.full_name || ''}</h2>
                         <div className="flex flex-col items-center gap-2 mt-2">
                             <span className="px-3 py-1 bg-[#e8def8] text-[#6750a4] text-[13px] font-bold rounded uppercase">{account.role}</span>
-                            {account.status === 'Active' ? (
+                            {account.is_active ? (
                                 <span className="flex items-center gap-1.5 text-[#137333] text-[13px] font-bold">
-                                    <CheckCircle2 size={16} /> Verified Active
+                                    <CheckCircle2 size={16} /> Active Account
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-1.5 text-[#ba1a1a] text-[13px] font-bold">
@@ -75,13 +168,15 @@ const AdminAccountDetail = () => {
                         </div>
                         
                         <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-3">
+                            {account.account_code && (
+                                <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
+                                    <User className="w-5 h-5 text-[#74777f] shrink-0" />
+                                    <span>Account ID: <span className="font-bold">{account.account_code}</span></span>
+                                </div>
+                            )}
                             <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
                                 <Calendar className="w-5 h-5 text-[#74777f] shrink-0" />
-                                <span>Joined {account.joinedDate}</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
-                                <MapPin className="w-5 h-5 text-[#74777f] shrink-0" />
-                                <span className="text-left line-clamp-2">{account.address}</span>
+                                <span>Joined {account.created_at}</span>
                             </div>
                         </div>
                     </div>
@@ -103,40 +198,11 @@ const AdminAccountDetail = () => {
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Full Name</label>
                                     <input 
                                         type="text" 
-                                        value={account.name}
-                                        onChange={e => setAccount({...account, name: e.target.value})}
+                                        value={account.full_name}
+                                        onChange={e => setAccount({...account, full_name: e.target.value})}
                                         className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                                         required 
                                     />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Role</label>
-                                    <select 
-                                        value={account.role}
-                                        onChange={e => setAccount({...account, role: e.target.value})}
-                                        className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors appearance-none cursor-pointer"
-                                    >
-                                        <option value="Learner">Learner</option>
-                                        <option value="Tutor">Tutor</option>
-                                        <option value="Staff">Staff</option>
-                                        <option value="Admin">Admin</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                                <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input 
-                                            type="email" 
-                                            value={account.email}
-                                            onChange={e => setAccount({...account, email: e.target.value})}
-                                            className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
-                                            required 
-                                        />
-                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Phone Number</label>
@@ -144,25 +210,57 @@ const AdminAccountDetail = () => {
                                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                         <input 
                                             type="tel" 
-                                            value={account.phone}
-                                            onChange={e => setAccount({...account, phone: e.target.value})}
+                                            value={account.phone_number}
+                                            onChange={e => setAccount({...account, phone_number: e.target.value})}
                                             className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                                         />
                                     </div>
                                 </div>
                             </div>
 
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                <div className="space-y-2">
+                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
+                                    <div className="relative">
+                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
+                                        <input 
+                                            type="date" 
+                                            value={account.date_of_birth}
+                                            onChange={e => setAccount({...account, date_of_birth: e.target.value})}
+                                            className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Gender</label>
+                                    <div className="relative">
+                                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
+                                        <select 
+                                            value={account.gender}
+                                            onChange={e => setAccount({...account, gender: e.target.value})}
+                                            className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors appearance-none cursor-pointer"
+                                        >
+                                            <option value="">Select Gender</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="space-y-2 mb-6">
-                                <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Home Address</label>
+                                <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
                                 <div className="relative">
-                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                     <input 
-                                        type="text" 
-                                        value={account.address}
-                                        onChange={e => setAccount({...account, address: e.target.value})}
-                                        className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                        type="email" 
+                                        value={account.email}
+                                        disabled
+                                        className="w-full pl-10 pr-4 py-2.5 bg-[#e0e3e5] border border-[#c4c6cf] rounded-xl text-[14px] text-[#74777f] cursor-not-allowed" 
                                     />
                                 </div>
+                                <p className="text-[12px] text-[#74777f] mt-1">Email address cannot be changed.</p>
                             </div>
 
                             <div className="flex items-center justify-end gap-4 pt-4 border-t border-[#e0e3e5]">
@@ -195,6 +293,8 @@ const AdminAccountDetail = () => {
                                     <div className="relative">
                                         <input 
                                             type={showNewPassword ? "text" : "password"} 
+                                            value={account.password}
+                                            onChange={e => setAccount({...account, password: e.target.value})}
                                             className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                                             required 
                                             minLength={8} 
@@ -209,6 +309,8 @@ const AdminAccountDetail = () => {
                                     <div className="relative">
                                         <input 
                                             type={showNewPassword ? "text" : "password"} 
+                                            value={account.confirm_password}
+                                            onChange={e => setAccount({...account, confirm_password: e.target.value})}
                                             className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                                             required 
                                             minLength={8} 

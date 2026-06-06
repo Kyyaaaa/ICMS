@@ -8,7 +8,7 @@ const ConsultationList = () => {
         { id: 3, name: 'Michael Smith', phone: '+1 555 123 456', email: 'msmith@example.com', status: 'Resolved', message: 'What is the tuition fee for the basic communication course?', targetScore: 'Basic Comm.', date: '22-10-2026', staffNote: 'Enrolled in Basic Comm. cohort 45.' },
     ]);
 
-    const [selectedConsultation, setSelectedConsultation] = useState<any>(null);
+    const [selectedConsultation, setSelectedConsultation] = useState<Record<string, unknown> | null>(null);
     const [tempStatus, setTempStatus] = useState('');
     const [tempNote, setTempNote] = useState('');
     const [searchTerm, setSearchTerm] = useState('');

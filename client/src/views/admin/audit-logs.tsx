@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Filter, Calendar, Activity, ShieldAlert } from 'lucide-react';
+import { Search, Filter, Calendar, Activity } from 'lucide-react';
 
 type ActionType = 'CREATE' | 'UPDATE' | 'DELETE' | 'APPROVE' | 'SYSTEM';
 
@@ -121,7 +121,7 @@ const AdminAuditLogs = () => {
                         <Filter className="w-4 h-4 text-[#74777f]" />
                         <select 
                             value={actionFilter}
-                            onChange={e => setActionFilter(e.target.value as any)}
+                            onChange={e => setActionFilter(e.target.value as 'ALL' | ActionType)}
                             className="px-4 py-2 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] font-bold text-[#002045] focus:outline-none focus:border-[#0061a5] cursor-pointer"
                         >
                             <option value="ALL">All Actions</option>
@@ -137,7 +137,7 @@ const AdminAuditLogs = () => {
                         <Calendar className="w-4 h-4 text-[#74777f]" />
                         <select 
                             value={dateFilter}
-                            onChange={e => setDateFilter(e.target.value as any)}
+                            onChange={e => setDateFilter(e.target.value as 'All' | 'Today' | 'Last 7 Days')}
                             className="px-4 py-2 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] font-bold text-[#002045] focus:outline-none focus:border-[#0061a5] cursor-pointer"
                         >
                             <option value="All">All Time</option>

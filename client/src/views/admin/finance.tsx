@@ -4,7 +4,17 @@ import { TrendingUp, TrendingDown, CheckCircle, Clock, AlertCircle, Filter, Sear
 const AdminFinance = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all'); // all, income, expense
-    const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+    interface Transaction {
+        id: string;
+        type: string;
+        category: string;
+        description: string;
+        user: { name: string; role: string };
+        date: string;
+        amount: number;
+        status: string;
+    }
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
     const transactions = [
         {

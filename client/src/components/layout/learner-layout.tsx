@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { LayoutDashboard, User, Key, BookOpen, Calendar, DollarSign, MessageSquare, Bell, LogOut, Menu, X, Globe , Wallet, UserCog} from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, MessageSquare, Bell, LogOut, Menu, X, Globe , Wallet, UserCog} from 'lucide-react';
 
 const LearnerLayout = () => {
     const location = useLocation();
@@ -40,6 +40,12 @@ const LearnerLayout = () => {
         { name: 'My Profile', path: '/learner/profile', icon: UserCog },
     ];
 
+    const userInfoStr = Cookies.get('user_info');
+    const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
+    const fullName = userInfo?.full_name || 'Learner User';
+    const roleText = userInfo?.role === 'LEARNER' ? 'Learner' : (userInfo?.role || 'Learner');
+    const initials = fullName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+
     return (
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
             {/* Sidebar Desktop */}
@@ -54,7 +60,7 @@ const LearnerLayout = () => {
                     </button>
                 </div>
                 
-                                <nav className="flex-1 overflow-y-auto py-6 px-4 scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
+                <nav className="flex-1 overflow-y-auto py-6 px-4 scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
                     <ul className="space-y-1.5">
                         {navItems.map((item) => {
                             const Icon = item.icon;
@@ -101,7 +107,7 @@ const LearnerLayout = () => {
                             <Menu className="w-6 h-6" />
                         </button>
                         <div className="hidden md:flex flex-col">
-                            <span className="text-[18px] font-bold text-[#002045]">Welcome back, John Doe!</span>
+                            <span className="text-[18px] font-bold text-[#002045]">Welcome back, {fullName}!</span>
                             <span className="text-[13px] text-[#74777f]">Ready to learn something new today?</span>
                         </div>
                     </div>
@@ -152,11 +158,11 @@ const LearnerLayout = () => {
                         </div>
                         <Link to="/learner/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
-                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">John Doe</span>
-                                <span className="text-[12px] text-[#74777f] leading-tight">Learner</span>
+                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
+                                <span className="text-[12px] text-[#74777f] leading-tight">{roleText}</span>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all">
-                                JD
+                                {initials}
                             </div>
                         </Link>
                     </div>

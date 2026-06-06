@@ -5,28 +5,17 @@ import { ArrowLeft, Save, Users, MapPin, Calendar, ChevronRight, ChevronDown } f
 const CreateClass = () => {
     const location = useLocation();
     const isEdit = location.pathname.includes('/edit');
-    const { id } = useParams();
+    useParams();
 
     const [isRoomDropdownOpen, setIsRoomDropdownOpen] = useState(false);
-    const [selectedRoom, setSelectedRoom] = useState<{id: string, name: string, cap: number} | null>(null);
+    const [selectedRoom, setSelectedRoom] = useState<{id: string, name: string, cap: number} | null>(isEdit ? { id: '101', name: 'Room 101', cap: 20 } : null);
     const roomDropdownRef = useRef<HTMLDivElement>(null);
 
-    const [course, setCourse] = useState('');
-    const [className, setClassName] = useState('');
-    const [tutor, setTutor] = useState('');
-    const [studyDays, setStudyDays] = useState('mwf');
-    const [shift, setShift] = useState('morning');
-
-    useEffect(() => {
-        if (isEdit) {
-            setCourse('ielts');
-            setClassName('IELTS-A03');
-            setTutor('sarah');
-            setSelectedRoom({ id: '101', name: 'Room 101', cap: 20 });
-            setStudyDays('mwf');
-            setShift('evening');
-        }
-    }, [isEdit]);
+    const [course, setCourse] = useState(isEdit ? 'ielts' : '');
+    const [className, setClassName] = useState(isEdit ? 'IELTS-A03' : '');
+    const [tutor, setTutor] = useState(isEdit ? 'sarah' : '');
+    const [studyDays, setStudyDays] = useState(isEdit ? 'mwf' : 'mwf');
+    const [shift, setShift] = useState(isEdit ? 'evening' : 'morning');
 
     const availableRooms = [
         { id: '101', name: 'Room 101', cap: 20 },

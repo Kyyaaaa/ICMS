@@ -1,29 +1,31 @@
-import { useState } from 'react';
-import { Search, UserPlus, Edit, Ban, CheckCircle2, ShieldAlert, X, RefreshCw, EyeOff, Eye } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Search, UserPlus, Edit, Ban, CheckCircle2, ShieldAlert, X, RefreshCw, EyeOff, Eye, Unlock } from 'lucide-react';
+import Cookies from 'js-cookie';
 
-type Account = {
+type Role = 'ADMIN' | 'STAFF' | 'TUTOR' | 'LEARNER';
+
+interface Account {
     id: string;
-    name: string;
+    full_name: string;
     email: string;
-    role: string;
-    date: string;
-    status: 'Active' | 'Banned';
-};
+    role: Role;
+    is_active: boolean;
+    created_at: string;
+    avatar_url?: string;
+}
 
 const ManageAccounts = () => {
-    const [accounts, setAccounts] = useState<Account[]>([
-        { id: '1', name: 'Alice Nguyen', email: 'alice.ng@gmail.com', role: 'Learner', date: '24-10-2026', status: 'Active' },
-        { id: '2', name: 'David Smith', email: 'david.tutor@icms.edu', role: 'Tutor', date: '23-10-2026', status: 'Active' },
-        { id: '3', name: 'Bob Johnson', email: 'bob.j@gmail.com', role: 'Learner', date: '20-10-2026', status: 'Banned' },
-    ]);
-
+    const [accounts, setAccounts] = useState<Account[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [roleFilter, setRoleFilter] = useState('');
+    const [roleFilter, setRoleFilter] = useState<Role | 'All'>('All');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
-    const [formData, setFormData] = useState<Partial<Account> & { password?: string }>({ name: '', email: '', role: 'Learner', status: 'Active', password: '' });
+    const [formData, setFormData] = useState<Partial<Account> & { password?: string }>({ full_name: '', email: '', role: 'LEARNER', is_active: true, password: '' });
     const [showPassword, setShowPassword] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     const generatePassword = () => {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
@@ -35,44 +37,116 @@ const ManageAccounts = () => {
         setShowPassword(true);
     };
 
+    const fetchAccounts = useCallback(async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const token = Cookies.get('access_token');
+            const url = new URL('http://localhost:5000/api/accounts');
+            if (roleFilter !== 'All') url.searchParams.append('role', roleFilter);
+            if (searchTerm) url.searchParams.append('search', searchTerm);
+
+            const res = await fetch(url.toString(), {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                const sortedData = data.data.sort((a: Account, b: Account) => {
+                    const roleOrder: Record<Role, number> = { 'ADMIN': 1, 'STAFF': 2, 'TUTOR': 3, 'LEARNER': 4 };
+                    return (roleOrder[a.role] || 99) - (roleOrder[b.role] || 99);
+                });
+                setAccounts(sortedData);
+            } else {
+                setError(data.message || 'Failed to fetch accounts');
+            }
+        } catch {
+            setError('An error occurred while fetching accounts');
+        } finally {
+            setLoading(false);
+        }
+    }, [roleFilter, searchTerm]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetchAccounts();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [fetchAccounts]);
+
     const handleOpenModal = (mode: 'create' | 'edit', account?: Account) => {
         setModalMode(mode);
         if (mode === 'edit' && account) {
             setFormData({ ...account, password: '' });
         } else {
-            setFormData({ name: '', email: '', role: 'Learner', status: 'Active', password: '' });
+            setFormData({ full_name: '', email: '', role: 'LEARNER', is_active: true, password: '' });
         }
         setIsModalOpen(true);
     };
 
-    const handleSave = (e: React.FormEvent) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (modalMode === 'create') {
-            const newAccount: Account = {
-                id: Math.random().toString(36).substr(2, 9),
-                name: formData.name || '',
-                email: formData.email || '',
-                role: formData.role || 'Learner',
-                status: (formData.status as any) || 'Active',
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-            };
-            setAccounts([newAccount, ...accounts]);
-        } else {
-            setAccounts(accounts.map(acc => acc.id === formData.id ? { ...acc, ...formData } as Account : acc));
+        setIsSaving(true);
+        try {
+            const token = Cookies.get('access_token');
+            if (modalMode === 'create') {
+                const res = await fetch('http://localhost:5000/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(formData)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    setIsModalOpen(false);
+                    fetchAccounts();
+                } else {
+                    alert(data.message || 'Failed to create account');
+                }
+            } else {
+                const res = await fetch(`http://localhost:5000/api/accounts/${formData.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(formData)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    setIsModalOpen(false);
+                    fetchAccounts();
+                } else {
+                    alert(data.message || 'Failed to update account');
+                }
+            }
+        } catch {
+            alert('An error occurred while saving account');
+        } finally {
+            setIsSaving(false);
         }
-        setIsModalOpen(false);
     };
 
-    const handleBan = (id: string) => {
-        if(window.confirm("Are you sure you want to ban this account? It will no longer be accessible.")) {
-            setAccounts(accounts.map(acc => acc.id === id ? { ...acc, status: 'Banned' } : acc));
+    const handleToggleBan = async (id: string, currentStatus: boolean) => {
+        try {
+            const token = Cookies.get('access_token');
+            const res = await fetch(`http://localhost:5000/api/accounts/${id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ is_active: !currentStatus })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAccounts(accounts.map(acc => acc.id === id ? { ...acc, is_active: !currentStatus } : acc));
+            } else {
+                alert(data.message || 'Failed to update status');
+            }
+        } catch {
+            alert('An error occurred while updating status');
         }
     };
 
-    const filteredAccounts = accounts.filter(acc => 
-        (acc.name.toLowerCase().includes(searchTerm.toLowerCase()) || acc.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (roleFilter === '' || acc.role === roleFilter)
-    );
+    const getInitials = (name: string) => {
+        if (!name) return 'UN';
+        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    };
 
     return (
         <div className="space-y-[24px] animate-fade-in-up pb-[40px]">
@@ -90,7 +164,7 @@ const ManageAccounts = () => {
                 </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden relative min-h-[300px]">
                 <div className="p-5 border-b border-[#e0e3e5] flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#f8f9fa]">
                     <div className="relative w-full max-w-md">
                         <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f]" />
@@ -105,12 +179,12 @@ const ManageAccounts = () => {
                     <div className="flex gap-3 w-full sm:w-auto">
                         <select 
                             value={roleFilter}
-                            onChange={(e) => setRoleFilter(e.target.value)}
-                            className="px-4 py-2 border border-[#c4c6cf] rounded-xl text-[14px] bg-white focus:outline-none focus:border-[#0061a5] font-semibold text-[#43474e] w-full sm:w-auto"
+                            onChange={(e) => setRoleFilter(e.target.value as Role | 'All')}
+                            className="px-4 py-2 border border-[#c4c6cf] rounded-xl text-[14px] bg-white focus:outline-none focus:border-[#0061a5] font-semibold text-[#43474e] w-full sm:w-auto cursor-pointer"
                         >
-                            <option value="">All Roles</option>
-                            <option value="Learner">Learner</option>
-                            <option value="Tutor">Tutor</option>
+                            <option value="All">All Roles</option>
+                            <option value="LEARNER">Learner</option>
+                            <option value="TUTOR">Tutor</option>
                         </select>
                     </div>
                 </div>
@@ -128,57 +202,60 @@ const ManageAccounts = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#e0e3e5]">
-                            {filteredAccounts.length > 0 ? filteredAccounts.map((user) => (
-                                <tr key={user.id} className={`hover:bg-[#f8f9fa] transition-colors ${user.status === 'Banned' ? 'opacity-70 bg-gray-50' : ''}`}>
-                                    <td className="p-4 font-bold text-[#002045] flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-[14px] ${user.status === 'Banned' ? 'bg-red-100 text-red-700' : 'bg-[#e6f0fa] text-[#0061a5]'}`}>
-                                            {user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
-                                        </div>
-                                        <div>
-                                            <div className="text-[15px]">{user.name}</div>
-                                            {user.status === 'Banned' && <div className="text-[12px] text-red-600 font-semibold flex items-center gap-1"><ShieldAlert className="w-3 h-3"/> Restricted Access</div>}
-                                        </div>
-                                    </td>
-                                    <td className="p-4 text-[#43474e]">{user.email}</td>
-                                    <td className="p-4">
-                                        <span className={`px-2.5 py-1 rounded-md text-[12px] font-bold ${user.role === 'Tutor' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-[#0061a5]'}`}>
-                                            {user.role}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 text-[#74777f]">{user.date}</td>
-                                    <td className="p-4">
-                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[12px] font-bold 
-                                            ${user.status === 'Active' ? 'bg-green-100 text-green-700' : 
-                                              user.status === 'Banned' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}
-                                        >
-                                            {user.status === 'Active' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                                            {user.status === 'Banned' && <Ban className="w-3.5 h-3.5" />}
-                                            {user.status}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button 
-                                                onClick={() => handleOpenModal('edit', user)}
-                                                className="p-2 text-[#0061a5] hover:bg-[#e6f0fa] rounded-lg transition-colors" title="Edit Account"
-                                            >
-                                                <Edit className="w-4 h-4"/>
-                                            </button>
-                                            {user.status !== 'Banned' && (
-                                                <button 
-                                                    onClick={() => handleBan(user.id)}
-                                                    className="p-2 text-[#ba1a1a] hover:bg-[#ffdad6] rounded-lg transition-colors" title="Ban Account"
-                                                >
-                                                    <Ban className="w-4 h-4"/>
-                                                </button>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            )) : (
+                            {!loading && accounts.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="p-8 text-center text-[#74777f]">No accounts found matching your criteria.</td>
+                                    <td colSpan={6} className="p-8 text-center text-[#74777f]">{error || "No accounts found matching your criteria."}</td>
                                 </tr>
+                            ) : (
+                                accounts.map((user) => (
+                                    <tr key={user.id} className={`hover:bg-[#f8f9fa] transition-colors ${!user.is_active ? 'opacity-80 bg-red-50/30' : ''}`}>
+                                        <td className="p-4 font-bold text-[#002045] flex items-center gap-3">
+                                            {user.avatar_url ? (
+                                                <img src={user.avatar_url} alt={user.full_name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-[#e0e3e5]" />
+                                            ) : (
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-[14px] ${!user.is_active ? 'bg-red-100 text-red-700' : 'bg-[#e6f0fa] text-[#0061a5]'}`}>
+                                                    {getInitials(user.full_name)}
+                                                </div>
+                                            )}
+                                            <div>
+                                                <div className={`text-[15px] ${!user.is_active ? 'text-[#ba1a1a]' : 'text-[#002045]'}`}>{user.full_name || ''}</div>
+                                                {!user.is_active && <div className="text-[12px] text-[#ba1a1a] font-semibold flex items-center gap-1"><ShieldAlert className="w-3 h-3"/> Restricted Access</div>}
+                                            </div>
+                                        </td>
+                                        <td className="p-4 text-[#43474e]">{user.email}</td>
+                                        <td className="p-4">
+                                            <span className={`px-2.5 py-1 rounded-full uppercase tracking-wider text-[11px] font-bold ${user.role === 'TUTOR' ? 'bg-[#e8def8] text-[#6750a4]' : 'bg-[#e6f4ea] text-[#137333]'}`}>
+                                                {user.role}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-[#74777f]">{new Date(user.created_at).toLocaleDateString('en-GB')}</td>
+                                        <td className="p-4">
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[13px] font-bold 
+                                                ${user.is_active ? 'bg-[#e6f4ea] text-[#137333]' : 'bg-[#ffdad6] text-[#ba1a1a]'}`}
+                                            >
+                                                {user.is_active ? <CheckCircle2 className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                                                {user.is_active ? 'Active' : 'Banned'}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button 
+                                                    onClick={() => handleOpenModal('edit', user)}
+                                                    className="p-2 text-[#0061a5] hover:bg-[#e6f0fa] rounded-lg transition-colors" title="Edit Account"
+                                                >
+                                                    <Edit className="w-4 h-4"/>
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleToggleBan(user.id, user.is_active)}
+                                                    className={`p-2 rounded-lg transition-colors tooltip-trigger ${user.is_active ? 'text-[#ba1a1a] hover:bg-[#ffdad6]' : 'text-[#137333] hover:bg-[#e6f4ea]'}`} 
+                                                    title={user.is_active ? "Ban Account" : "Unban Account"}
+                                                >
+                                                    {user.is_active ? <Ban className="w-4 h-4"/> : <Unlock className="w-4 h-4"/>}
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
                             )}
                         </tbody>
                     </table>
@@ -193,7 +270,7 @@ const ManageAccounts = () => {
                             <h2 className="text-[20px] font-bold text-[#002045]">
                                 {modalMode === 'create' ? 'Create New Account' : 'Edit Account'}
                             </h2>
-                            <button onClick={() => setIsModalOpen(false)} className="text-[#74777f] hover:text-[#181c1e] transition-colors"><X size={24} /></button>
+                            <button onClick={() => setIsModalOpen(false)} className="text-[#74777f] hover:text-[#181c1e] transition-colors p-1 rounded-lg hover:bg-[#f1f4f6]"><X size={24} /></button>
                         </div>
                         
                         <form onSubmit={handleSave} className="p-6 space-y-5">
@@ -202,8 +279,8 @@ const ManageAccounts = () => {
                                 <input 
                                     type="text" 
                                     required
-                                    value={formData.name}
-                                    onChange={e => setFormData({...formData, name: e.target.value})}
+                                    value={formData.full_name}
+                                    onChange={e => setFormData({...formData, full_name: e.target.value})}
                                     className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors"
                                     placeholder="e.g. John Doe"
                                 />
@@ -227,18 +304,18 @@ const ManageAccounts = () => {
                                         <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Role</label>
                                         <select 
                                             value={formData.role}
-                                            onChange={e => setFormData({...formData, role: e.target.value})}
-                                            className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors appearance-none cursor-pointer"
+                                            onChange={e => setFormData({...formData, role: e.target.value as Role})}
+                                            className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors cursor-pointer"
                                         >
-                                            <option value="Learner">Learner</option>
-                                            <option value="Tutor">Tutor</option>
+                                            <option value="LEARNER">Learner</option>
+                                            <option value="TUTOR">Tutor</option>
                                         </select>
                                     </div>
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center">
                                             <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Password</label>
                                             <button type="button" onClick={generatePassword} className="text-[#0061a5] text-[12px] font-bold hover:underline flex items-center gap-1 transition-colors">
-                                                <RefreshCw size={12} /> Auto-generate
+                                                <RefreshCw size={12} /> Generate
                                             </button>
                                         </div>
                                         <div className="relative">
@@ -250,7 +327,7 @@ const ManageAccounts = () => {
                                                 className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors"
                                                 placeholder="Enter or generate"
                                             />
-                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045] transition-colors">
+                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045] transition-colors p-1">
                                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
                                         </div>
@@ -263,30 +340,30 @@ const ManageAccounts = () => {
                                             <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Role</label>
                                             <select 
                                                 value={formData.role}
-                                                onChange={e => setFormData({...formData, role: e.target.value})}
-                                                className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors appearance-none cursor-pointer"
+                                                onChange={e => setFormData({...formData, role: e.target.value as Role})}
+                                                className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors cursor-pointer"
                                             >
-                                                <option value="Learner">Learner</option>
-                                                <option value="Tutor">Tutor</option>
+                                                <option value="LEARNER">Learner</option>
+                                                <option value="TUTOR">Tutor</option>
                                             </select>
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Status</label>
                                             <select 
-                                                value={formData.status}
-                                                onChange={e => setFormData({...formData, status: e.target.value as any})}
-                                                className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors appearance-none cursor-pointer"
+                                                value={formData.is_active ? 'true' : 'false'}
+                                                onChange={e => setFormData({...formData, is_active: e.target.value === 'true'})}
+                                                className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors cursor-pointer"
                                             >
-                                                <option value="Active">Active</option>
-                                                <option value="Banned">Banned</option>
+                                                <option value="true">Active</option>
+                                                <option value="false">Banned</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center">
-                                            <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">New Password <span className="text-[#74777f] font-normal normal-case">(Leave blank to keep current)</span></label>
+                                            <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">New Password <span className="text-[#74777f] font-normal normal-case">(Leave blank to keep)</span></label>
                                             <button type="button" onClick={generatePassword} className="text-[#0061a5] text-[12px] font-bold hover:underline flex items-center gap-1 transition-colors">
-                                                <RefreshCw size={12} /> Auto-generate
+                                                <RefreshCw size={12} /> Generate
                                             </button>
                                         </div>
                                         <div className="relative">
@@ -297,7 +374,7 @@ const ManageAccounts = () => {
                                                 className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors"
                                                 placeholder="Enter new password"
                                             />
-                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045] transition-colors">
+                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045] transition-colors p-1">
                                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
                                         </div>
@@ -305,16 +382,17 @@ const ManageAccounts = () => {
                                 </>
                             )}
 
-                            {formData.status === 'Banned' && modalMode === 'edit' && (
+                            {!formData.is_active && modalMode === 'edit' && (
                                 <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2 mt-2">
                                     <ShieldAlert className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                                    <p className="text-[13px] text-red-700">This account is currently banned and will not be able to log in to the system.</p>
+                                    <p className="text-[13px] text-red-700">This account is currently banned and cannot log in to the system.</p>
                                 </div>
                             )}
 
                             <div className="pt-4 flex justify-end gap-3 border-t border-[#e0e3e5]">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-[#43474e] font-bold rounded-xl hover:bg-[#f1f4f6] transition-colors">Cancel</button>
-                                <button type="submit" className="bg-[#0061a5] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#004d80] transition-colors">
+                                <button type="submit" disabled={isSaving} className="bg-[#0061a5] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#004d80] transition-colors disabled:opacity-70 flex items-center gap-2">
+                                    {isSaving && <RefreshCw className="w-4 h-4 animate-spin" />}
                                     {modalMode === 'create' ? 'Create Account' : 'Save Changes'}
                                 </button>
                             </div>

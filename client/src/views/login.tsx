@@ -51,7 +51,7 @@ const Login = () => {
                 }
             }
             window.location.href = '/homepage';
-        } catch (error) {
+        } catch {
             setShowError(true);
             setErrorMsg('System error. Please try again later.');
         } finally {

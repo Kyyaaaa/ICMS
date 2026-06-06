@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink, Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { 
     ScrollText, 
@@ -22,7 +22,6 @@ import {
 
 export const AdminLayout = () => {
     const location = useLocation();
-    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     
@@ -59,14 +58,14 @@ export const AdminLayout = () => {
         { name: 'My Profile', path: '/admin/profile', icon: UserCog },
     ];
 
-    const isGroupActive = (item: any) => {
+    const isGroupActive = (item: { path: string; activePaths?: string[] }) => {
         if (item.activePaths) return item.activePaths.some((p: string) => isActivePath(p));
         return isActivePath(item.path);
     };
 
     const renderSubTabs = () => {
         const path = location.pathname;
-        let tabs = [];
+        let tabs: { name: string; path: string; icon: React.ElementType }[] = [];
 
         if (path.startsWith('/admin/courses') || path.startsWith('/admin/classrooms')) {
             tabs = [
@@ -107,6 +106,12 @@ export const AdminLayout = () => {
             </div>
         );
     };
+
+    const userInfoStr = Cookies.get('user_info');
+    const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
+    const fullName = userInfo?.full_name;
+    const roleText = userInfo?.role;
+    const initials = fullName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
 
     return (
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
@@ -183,7 +188,7 @@ export const AdminLayout = () => {
                             <Menu className="w-6 h-6" />
                         </button>
                         <div className="hidden md:flex flex-col">
-                            <span className="text-[18px] font-bold text-[#002045]">Welcome back, Admin!</span>
+                            <span className="text-[18px] font-bold text-[#002045]">Welcome back, {fullName}!</span>
                             <span className="text-[13px] text-[#74777f]">System is running smoothly today.</span>
                         </div>
                     </div>
@@ -234,11 +239,11 @@ export const AdminLayout = () => {
                         </div>
                         <Link to="/admin/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
-                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">Admin User</span>
-                                <span className="text-[12px] text-[#74777f] leading-tight">System Admin</span>
+                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
+                                <span className="text-[12px] text-[#74777f] leading-tight">{roleText}</span>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all">
-                                AD
+                                {initials}
                             </div>
                         </Link>
                     </div>
@@ -255,3 +260,4 @@ export const AdminLayout = () => {
         </div>
     );
 };
+

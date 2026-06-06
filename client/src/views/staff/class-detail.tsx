@@ -7,12 +7,12 @@ const StaffClassDetail = () => {
     const enrolledStudents = 15; // Mock data for student count
     const [activeTab, setActiveTab] = useState('schedule');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [selectedSession, setSelectedSession] = useState<any>(null);
+    const [selectedSession, setSelectedSession] = useState<Record<string, unknown> | null>(null);
     const [isEditRoomDropdownOpen, setIsEditRoomDropdownOpen] = useState(false);
-    const [selectedEditRoom, setSelectedEditRoom] = useState<{id: string, name: string, cap: number} | null>(null);
+    const [selectedEditRoom, setSelectedEditRoom] = useState<{id: string, name: string, cap: number, current?: boolean} | null>(null);
     const editRoomDropdownRef = useRef<HTMLDivElement>(null);
 
-    const availableEditRooms = [
+    const availableEditRooms: Array<{id: string, name: string, cap: number, current?: boolean}> = [
         { id: '102', name: 'Room 102', cap: 30, current: true },
         { id: '105', name: 'Room 105', cap: 30 },
         { id: '201', name: 'Room 201', cap: 25 },
@@ -283,7 +283,7 @@ const StaffClassDetail = () => {
                                                 className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors"
                                                 onClick={() => { setSelectedEditRoom(room); setIsEditRoomDropdownOpen(false); }}
                                             >
-                                                {room.name} (Cap: {room.cap}) {(room as any).current && '(Current)'} • <span className="text-[#16a34a] font-medium">Available</span>
+                                                {room.name} (Cap: {room.cap}) {room.current && '(Current)'} • <span className="text-[#16a34a] font-medium">Available</span>
                                             </button>
                                         ))}
                                     </div>

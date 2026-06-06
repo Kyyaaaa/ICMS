@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MonitorPlay, Search, Plus, MapPin, Edit, Trash2, X } from 'lucide-react';
+import {  Search, Plus, MapPin, Edit, Trash2, X } from 'lucide-react';
 
 export interface Room {
     id: string;
@@ -185,7 +185,7 @@ const AdminClassrooms = () => {
                                     <label className="block text-[13px] font-bold text-[#43474e] mb-1">Status</label>
                                     <select 
                                         value={formData.status} 
-                                        onChange={e => setFormData({...formData, status: e.target.value as any})}
+                                        onChange={e => setFormData({...formData, status: e.target.value as 'Available' | 'Occupied' | 'Maintenance'})}
                                         className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] bg-white"
                                     >
                                         <option value="Available">Available</option>
@@ -203,7 +203,7 @@ const AdminClassrooms = () => {
                                             <input 
                                                 type="date" 
                                                 value={formData.maintenanceSchedule?.date || ''} 
-                                                onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, date: e.target.value } as any})}
+                                                onChange={e => setFormData({...formData, maintenanceSchedule: { date: e.target.value, startTime: '', endTime: '', note: '', ...formData.maintenanceSchedule }})}
                                                 className="w-full px-3 py-2 text-[14px] border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] transition-colors"
                                             />
                                         </div>
@@ -212,7 +212,7 @@ const AdminClassrooms = () => {
                                             <input 
                                                 type="time" 
                                                 value={formData.maintenanceSchedule?.startTime || ''} 
-                                                onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, startTime: e.target.value } as any})}
+                                                onChange={e => setFormData({...formData, maintenanceSchedule: { date: '', startTime: e.target.value, endTime: '', note: '', ...formData.maintenanceSchedule }})}
                                                 className="w-full px-3 py-2 text-[14px] border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] transition-colors"
                                             />
                                         </div>
@@ -221,7 +221,7 @@ const AdminClassrooms = () => {
                                             <input 
                                                 type="time" 
                                                 value={formData.maintenanceSchedule?.endTime || ''} 
-                                                onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, endTime: e.target.value } as any})}
+                                                onChange={e => setFormData({...formData, maintenanceSchedule: { date: '', startTime: '', endTime: e.target.value, note: '', ...formData.maintenanceSchedule }})}
                                                 className="w-full px-3 py-2 text-[14px] border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] transition-colors"
                                             />
                                         </div>
@@ -231,7 +231,7 @@ const AdminClassrooms = () => {
                                         <input 
                                             type="text" 
                                             value={formData.maintenanceSchedule?.note || ''} 
-                                            onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, note: e.target.value } as any})}
+                                            onChange={e => setFormData({...formData, maintenanceSchedule: { date: '', startTime: '', endTime: '', note: e.target.value, ...formData.maintenanceSchedule }})}
                                             className="w-full px-3 py-2 text-[14px] border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] placeholder:text-[#ba1a1a]/40 transition-colors"
                                             placeholder="e.g. AC Repair"
                                         />

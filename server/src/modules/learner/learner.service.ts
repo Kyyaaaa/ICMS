@@ -53,20 +53,14 @@ export class LearnerService {
   static async update(id: string, learnerData: any) {
     const { full_name, phone_number, status } = learnerData;
     
-    // Cập nhật bảng learner nếu có full_name
-    if (full_name) {
-      const { error } = await supabaseAdmin
-        .from('learner')
-        .update({ full_name, updated_at: new Date().toISOString() })
-        .eq('account_id', id);
-      if (error) throw error;
-    }
+
     
-    // Cập nhật bảng account nếu có phone_number hoặc status
-    if (phone_number || status) {
+    // Cập nhật bảng account nếu có phone_number, status, hoặc full_name
+    if (phone_number || status || full_name) {
       const updateData: any = { updated_at: new Date().toISOString() };
       if (phone_number) updateData.phone_number = phone_number;
       if (status) updateData.status = status;
+      if (full_name) updateData.full_name = full_name;
       
       const { error: accError } = await supabaseAdmin
         .from('account')

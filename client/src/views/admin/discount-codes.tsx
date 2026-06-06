@@ -221,7 +221,7 @@ const AdminDiscountCodes = () => {
                                             <label className="block text-[13px] font-bold text-[#43474e] mb-1">Status</label>
                                             <select 
                                                 value={formData.status} 
-                                                onChange={e => setFormData({...formData, status: e.target.value as any})}
+                                                onChange={e => setFormData({...formData, status: e.target.value as 'Active' | 'Expired' | 'Disabled'})}
                                                 className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] bg-white"
                                             >
                                                 <option value="Active">Active</option>

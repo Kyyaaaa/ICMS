@@ -1,4 +1,4 @@
-import { FileBadge, Upload, CheckCircle2, Clock, Eye, Trash2, Edit2, Plus, AlertCircle, X, Download } from 'lucide-react';
+import { FileBadge, Upload, CheckCircle2, Clock, Eye, Trash2, Edit2, Plus, AlertCircle, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface Qualification {

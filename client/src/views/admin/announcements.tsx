@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Megaphone, Plus, Edit, Trash2, X, Users, BookOpen, Save, Filter, Globe, ShieldAlert, Clock, CalendarClock, Search } from 'lucide-react';
+import { Megaphone, Plus, Edit, Trash2, X, Users, BookOpen, Save, Filter, Globe, CalendarClock, Search } from 'lucide-react';
 
 type Role = 'Admin' | 'Staff' | 'Tutor' | 'Learner';
 type AudienceScope = 'System Wide' | 'Specific Roles' | 'Specific Classes';
@@ -231,7 +231,7 @@ const AdminAnnouncements = () => {
                         <Filter className="w-5 h-5 text-[#74777f]" />
                         <select 
                             value={filterScope}
-                            onChange={e => setFilterScope(e.target.value as any)}
+                            onChange={e => setFilterScope(e.target.value as 'All' | AudienceScope)}
                             className="px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] font-bold text-[#002045] focus:outline-none focus:border-[#0061a5] cursor-pointer w-full sm:w-auto"
                         >
                             <option value="All">All Scopes</option>
@@ -242,7 +242,7 @@ const AdminAnnouncements = () => {
                     </div>
                     <select 
                         value={filterStatus}
-                        onChange={e => setFilterStatus(e.target.value as any)}
+                        onChange={e => setFilterStatus(e.target.value as 'All' | 'Published' | 'Scheduled')}
                         className="px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] font-bold text-[#002045] focus:outline-none focus:border-[#0061a5] cursor-pointer w-full sm:w-auto"
                     >
                         <option value="All">All Statuses</option>

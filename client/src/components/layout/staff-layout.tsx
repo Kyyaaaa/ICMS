@@ -50,7 +50,7 @@ const StaffLayout = () => {
     ];
 
     // Helper to check if a group is active
-    const isGroupActive = (item: any) => {
+    const isGroupActive = (item: { path: string; activePaths?: string[] }) => {
         if (item.activePaths) return item.activePaths.some((p: string) => isActivePath(p));
         return isActivePath(item.path);
     };
@@ -58,7 +58,7 @@ const StaffLayout = () => {
     // Sub-navigation Tabs based on the current active group
     const renderSubTabs = () => {
         const path = location.pathname;
-        let tabs = [];
+        let tabs: { name: string; path: string; icon: React.ElementType }[] = [];
 
         if (path.startsWith('/staff/classes') || path.startsWith('/staff/master-schedule') || path.startsWith('/staff/tutor-availability')) {
             tabs = [
@@ -104,6 +104,12 @@ const StaffLayout = () => {
             </div>
         );
     };
+
+    const userInfoStr = Cookies.get('user_info');
+    const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
+    const fullName = userInfo?.full_name;
+    const roleText = userInfo?.role;
+    const initials = fullName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
 
     return (
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
@@ -165,7 +171,7 @@ const StaffLayout = () => {
                             <Menu className="w-6 h-6" />
                         </button>
                         <div className="hidden md:flex flex-col">
-                            <span className="text-[18px] font-bold text-[#002045]">Good Morning, Staff!</span>
+                            <span className="text-[18px] font-bold text-[#002045]">Good Morning, {fullName}!</span>
                             <span className="text-[13px] text-[#74777f]">Have a productive day ahead.</span>
                         </div>
                     </div>
@@ -216,11 +222,11 @@ const StaffLayout = () => {
                         </div>
                         <Link to="/staff/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
-                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">Admin User</span>
-                                <span className="text-[12px] text-[#74777f] leading-tight">System Staff</span>
+                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
+                                <span className="text-[12px] text-[#74777f] leading-tight">{roleText}</span>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all">
-                                AD
+                                {initials}
                             </div>
                         </Link>
                     </div>

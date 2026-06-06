@@ -1,4 +1,4 @@
-import { Users, BookOpen, Calendar, CheckSquare, RefreshCcw, DollarSign, AlertCircle, FileText, ChevronRight, Clock, MapPin, PlayCircle } from 'lucide-react';
+import { Users, BookOpen, Calendar, CheckSquare, RefreshCcw, DollarSign, AlertCircle, FileText, ChevronRight, Clock, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const TutorDashboard = () => {

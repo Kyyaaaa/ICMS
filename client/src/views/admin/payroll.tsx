@@ -191,13 +191,9 @@ const AdminPayroll = () => {
     };
 
     function calculateNetPay(p: Partial<PayrollRecord>) {
-        let baseEarnings = 0;
-    baseEarnings = baseEarnings || 0; // Fix unused var
-        if (p.role !== 'Tutor') {
-            baseEarnings = (p.baseSalary || 0) + ((p.overtimeHours || 0) * (p.overtimeRate || 0));
-        } else {
-            baseEarnings = (p.teachingSessions || 0) * (p.ratePerSession || 0);
-        }
+        const baseEarnings = p.role !== 'Tutor' 
+            ? (p.baseSalary || 0) + ((p.overtimeHours || 0) * (p.overtimeRate || 0))
+            : (p.teachingSessions || 0) * (p.ratePerSession || 0);
         const totalDeductions = p.deductionItems?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0;
         return baseEarnings + (p.bonus || 0) - totalDeductions;
     }
@@ -278,7 +274,7 @@ const AdminPayroll = () => {
                             <div className="w-full sm:w-auto">
                                 <select 
                                     value={roleFilter}
-                                    onChange={(e) => setRoleFilter(e.target.value as any)}
+                                    onChange={(e) => setRoleFilter(e.target.value as 'All' | 'Staff' | 'Tutor')}
                                     className="px-4 py-2 bg-white border border-[#c4c6cf] rounded-xl text-[14px] font-bold text-[#181c1e] focus:outline-none focus:border-[#0061a5] w-full"
                                 >
                                     <option value="All">All Roles</option>
@@ -373,7 +369,7 @@ const AdminPayroll = () => {
                             <div className="flex gap-3 w-full sm:w-auto">
                                 <select 
                                     value={roleFilter}
-                                    onChange={(e) => setRoleFilter(e.target.value as any)}
+                                    onChange={(e) => setRoleFilter(e.target.value as 'All' | 'Staff' | 'Tutor')}
                                     className="px-4 py-2 bg-white border border-[#c4c6cf] rounded-xl text-[14px] font-bold text-[#181c1e] focus:outline-none focus:border-[#0061a5] w-full sm:w-36"
                                 >
                                     <option value="All">All Roles</option>

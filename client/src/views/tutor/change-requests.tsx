@@ -44,7 +44,7 @@ const TutorChangeRequests = () => {
         },
     ]);
 
-    const [selectedRequest, setSelectedRequest] = useState<any>(null);
+    const [selectedRequest, setSelectedRequest] = useState<Record<string, unknown> | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     
     // Form States

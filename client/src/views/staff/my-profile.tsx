@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, MapPin, CalendarDays, Users, ShieldCheck, } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users, } from 'lucide-react';
+import Cookies from 'js-cookie';
 
 const StaffProfile = () => {
+    const [isLoading, setIsLoading] = useState(true);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [isProfileSuccess, setIsProfileSuccess] = useState(false);
 
@@ -12,25 +14,151 @@ const StaffProfile = () => {
     const [showNew, setShowNew] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
-    const handleSaveProfile = (e: React.FormEvent) => {
+    const [account, setAccount] = useState({
+        id: '',
+        full_name: '',
+        phone_number: '',
+        date_of_birth: '',
+        gender: '',
+        email: '',
+        role: '',
+        account_code: '',
+        created_at: ''
+    });
+
+    const [passwords, setPasswords] = useState({
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const userInfoStr = Cookies.get('user_info');
+                if (!userInfoStr) return;
+                const userInfo = JSON.parse(userInfoStr);
+                const token = Cookies.get('access_token');
+                
+                const res = await fetch(`http://localhost:5000/api/accounts/${userInfo.id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    setAccount({
+                        id: data.data.id,
+                        full_name: data.data.full_name || '',
+                        phone_number: data.data.phone_number || '',
+                        date_of_birth: data.data.date_of_birth || '',
+                        gender: data.data.gender || '',
+                        email: data.data.email,
+                        role: data.data.role,
+                        account_code: data.data.account_code || '',
+                        created_at: data.data.created_at || ''
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProfile();
+    }, []);
+
+    const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSavingProfile(true);
-        setTimeout(() => {
+        try {
+            const token = Cookies.get('access_token');
+            const res = await fetch(`http://localhost:5000/api/accounts/${account.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    full_name: account.full_name,
+                    phone_number: account.phone_number,
+                    date_of_birth: account.date_of_birth,
+                    gender: account.gender
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Update cookie to reflect new full_name across the app
+                const userInfoStr = Cookies.get('user_info');
+                if (userInfoStr) {
+                    const userInfo = JSON.parse(userInfoStr);
+                    userInfo.full_name = account.full_name;
+                    Cookies.set('user_info', JSON.stringify(userInfo), { path: '/' });
+                }
+                
+                setIsProfileSuccess(true);
+                setTimeout(() => setIsProfileSuccess(false), 3000);
+            } else {
+                alert(data.message || 'Failed to save profile');
+            }
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            alert('An error occurred');
+        } finally {
             setIsSavingProfile(false);
-            setIsProfileSuccess(true);
-            setTimeout(() => setIsProfileSuccess(false), 3000);
-        }, 1000);
+        }
     };
 
-    const handleSavePassword = (e: React.FormEvent) => {
+    const handleSavePassword = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (passwords.newPassword !== passwords.confirmPassword) {
+            alert("New passwords do not match!");
+            return;
+        }
+        if (passwords.newPassword.length < 8) {
+            alert("New password must be at least 8 characters long.");
+            return;
+        }
         setIsSavingPassword(true);
-        setTimeout(() => {
+        try {
+            const token = Cookies.get('access_token');
+            const res = await fetch(`http://localhost:5000/api/accounts/${account.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    password: passwords.newPassword
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });
+                setIsPasswordSuccess(true);
+                setTimeout(() => setIsPasswordSuccess(false), 3000);
+            } else {
+                alert(data.message || 'Failed to update password');
+            }
+        } catch {
+            alert('An error occurred');
+        } finally {
             setIsSavingPassword(false);
-            setIsPasswordSuccess(true);
-            setTimeout(() => setIsPasswordSuccess(false), 3000);
-        }, 1000);
+        }
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    const getInitials = (name: string) => {
+        if (!name) return 'AS';
+        const parts = name.trim().split(' ');
+        if (parts.length >= 2) {
+            return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+        }
+        return name.substring(0, 2).toUpperCase();
+    };
+
+    const initials = getInitials(account.full_name);
+    
+
 
     return (
         <div className="max-w-4xl space-y-6 animate-fade-in-up">
@@ -43,26 +171,25 @@ const StaffProfile = () => {
                 {/* Left Column: Avatar & Basic Info */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
-                        <div className="relative w-32 h-32 rounded-full bg-[#002045] flex items-center justify-center text-white font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
-                            <span>AS</span>
+                        <div className="relative w-32 h-32 rounded-full bg-[#edf4fb] flex items-center justify-center text-[#0061a5] font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
+                            <span>{initials}</span>
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Camera className="w-8 h-8 text-white" />
                             </div>
                         </div>
-                        <h2 className="text-[20px] font-bold text-[#002045]">Admin Staff</h2>
-                        <p className="text-[14px] text-[#0061a5] font-bold flex items-center justify-center gap-1 mt-1">
-                            <ShieldCheck className="w-4 h-4" /> System Admin
-                        </p>
+                        <h2 className="text-[20px] font-bold text-[#002045]">{account.full_name || ''}</h2>
+                        <div className="mt-2">
+                            <span className="px-3 py-1 bg-[#eadef7] text-[#4a0080] text-[12px] font-bold rounded-md uppercase tracking-wide">{account.role}</span>
+                        </div>
                         
-                        <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-3 text-left">
-                            <h3 className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-2">Employee Details</h3>
-                            <div className="flex justify-between items-center text-[14px]">
-                                <span className="text-[#74777f]">Employee ID</span>
-                                <span className="font-bold text-[#181c1e]">STF-2026-001</span>
+                        <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-4 text-left">
+                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
+                                <User className="w-5 h-5 text-[#74777f] shrink-0" />
+                                <span>Account ID: <span className="font-bold">{account.account_code || ''}</span></span>
                             </div>
-                            <div className="flex justify-between items-center text-[14px]">
-                                <span className="text-[#74777f]">Join Date</span>
-                                <span className="font-bold text-[#181c1e]">15-01-2026</span>
+                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
+                                <CalendarDays className="w-5 h-5 text-[#74777f] shrink-0" />
+                                <span>Joined {account.created_at ? new Date(account.created_at).toLocaleDateString() : ''}</span>
                             </div>
                         </div>
                     </div>
@@ -81,14 +208,14 @@ const StaffProfile = () => {
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Full Name</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="text" defaultValue="Admin Staff" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
+                                        <input type="text" value={account.full_name} onChange={e => setAccount({...account, full_name: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Phone Number</label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="tel" defaultValue="+84 123 456 789" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" />
+                                        <input type="tel" value={account.phone_number} onChange={e => setAccount({...account, phone_number: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" />
                                     </div>
                                 </div>
                             </div>
@@ -98,14 +225,14 @@ const StaffProfile = () => {
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
                                     <div className="relative">
                                         <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="date" defaultValue="1990-08-22" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" />
+                                        <input type="date" value={account.date_of_birth} onChange={e => setAccount({...account, date_of_birth: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Gender</label>
                                     <div className="relative">
                                         <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <select defaultValue="female" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e] appearance-none">
+                                        <select value={account.gender} onChange={e => setAccount({...account, gender: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e] appearance-none">
                                             <option value="male">Male</option>
                                             <option value="female">Female</option>
                                             <option value="other">Other</option>
@@ -118,17 +245,9 @@ const StaffProfile = () => {
                                 <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                    <input type="email" defaultValue="admin.staff@icms.edu" disabled className="w-full pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-[14px] text-[#74777f] cursor-not-allowed" />
+                                    <input type="email" value={account.email} disabled className="w-full pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-[14px] text-[#74777f] cursor-not-allowed" />
                                 </div>
                                 <p className="text-[12px] text-[#74777f] mt-1">Staff email address cannot be changed.</p>
-                            </div>
-
-                            <div className="space-y-2 mb-6">
-                                <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Location</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                    <input type="text" defaultValue="Ho Chi Minh City, Vietnam" className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" />
-                                </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-4 pt-4 border-t border-[#e0e3e5]">
@@ -150,7 +269,7 @@ const StaffProfile = () => {
                                 <div className="space-y-2">
                                     <label className="text-[14px] font-bold text-[#181c1e]">Current Password</label>
                                     <div className="relative">
-                                        <input type={showOld ? "text" : "password"} defaultValue="password123" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] text-[#74777f] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
+                                        <input type={showOld ? "text" : "password"} value={passwords.oldPassword} onChange={e => setPasswords({...passwords, oldPassword: e.target.value})} placeholder="Current password" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] text-[#181c1e] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
                                         <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045]">
                                             {showOld ? <Eye className="w-5 h-5"/> : <EyeOff className="w-5 h-5"/>}
                                         </button>
@@ -160,7 +279,7 @@ const StaffProfile = () => {
                                     <div className="space-y-2">
                                         <label className="text-[14px] font-bold text-[#181c1e]">New Password</label>
                                         <div className="relative">
-                                            <input type={showNew ? "text" : "password"} defaultValue="password123" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] text-[#74777f] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required minLength={8} />
+                                            <input type={showNew ? "text" : "password"} value={passwords.newPassword} onChange={e => setPasswords({...passwords, newPassword: e.target.value})} placeholder="New password" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] text-[#181c1e] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required minLength={8} />
                                             <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045]">
                                                 {showNew ? <Eye className="w-5 h-5"/> : <EyeOff className="w-5 h-5"/>}
                                             </button>
@@ -169,7 +288,7 @@ const StaffProfile = () => {
                                     <div className="space-y-2">
                                         <label className="text-[14px] font-bold text-[#181c1e]">Confirm New Password</label>
                                         <div className="relative">
-                                            <input type={showConfirm ? "text" : "password"} defaultValue="password123" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] text-[#74777f] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required minLength={8} />
+                                            <input type={showConfirm ? "text" : "password"} value={passwords.confirmPassword} onChange={e => setPasswords({...passwords, confirmPassword: e.target.value})} placeholder="Confirm new password" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] text-[#181c1e] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required minLength={8} />
                                             <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045]">
                                                 {showConfirm ? <Eye className="w-5 h-5"/> : <EyeOff className="w-5 h-5"/>}
                                             </button>

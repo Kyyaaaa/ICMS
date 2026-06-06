@@ -34,7 +34,7 @@ const Register = () => {
             }
             alert('Registration successful! Please login.');
             window.location.href = '/login';
-        } catch (error) {
+        } catch {
             setError('System error. Please try again later.');
         } finally {
             setLoading(false);

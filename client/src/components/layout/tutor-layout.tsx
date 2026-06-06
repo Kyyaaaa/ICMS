@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { BookOpen, LayoutDashboard, UserCog, Calendar, FileEdit, Banknote, LogOut, Menu, X, Bell, Globe, FileBadge, CalendarClock, ClipboardCheck , Wallet} from 'lucide-react';
+import { BookOpen, LayoutDashboard, UserCog, Calendar, FileEdit, LogOut, Menu, X, Bell, Globe, FileBadge, CalendarClock, ClipboardCheck , Wallet} from 'lucide-react';
 
 const TutorLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -55,7 +55,7 @@ const TutorLayout = () => {
     // Sub-navigation Tabs based on the current active group
     const renderSubTabs = () => {
         const path = location.pathname;
-        let tabs: unknown[] = [];
+        let tabs: { name: string; path: string; icon: React.ElementType }[] = [];
 
         if (path.startsWith('/tutor/profile') || path.startsWith('/tutor/qualifications')) {
             tabs = [
@@ -94,6 +94,12 @@ const TutorLayout = () => {
             </div>
         );
     };
+
+    const userInfoStr = Cookies.get('user_info');
+    const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
+    const fullName = userInfo?.full_name;
+    const roleText = userInfo?.role;
+    const initials = fullName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
 
     return (
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
@@ -155,7 +161,7 @@ const TutorLayout = () => {
                             <Menu className="w-6 h-6" />
                         </button>
                         <div className="hidden md:flex flex-col">
-                            <span className="text-[18px] font-bold text-[#002045]">Welcome back, Tutor!</span>
+                            <span className="text-[18px] font-bold text-[#002045]">Welcome back, {fullName}!</span>
                             <span className="text-[13px] text-[#74777f]">Ready for your classes today?</span>
                         </div>
                     </div>
@@ -218,11 +224,11 @@ const TutorLayout = () => {
                         {/* Profile Dropdown */}
                         <Link to="/tutor/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
-                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">Jane Doe</span>
-                                <span className="text-[12px] text-[#74777f] leading-tight">Tutor</span>
+                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
+                                <span className="text-[12px] text-[#74777f] leading-tight">{roleText}</span>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all">
-                                JD
+                                {initials}
                             </div>
                         </Link>
                     </div>

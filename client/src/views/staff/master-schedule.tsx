@@ -32,7 +32,7 @@ const formatDate = (d: Date) => {
 
 const MasterSchedule = () => {
     const [currentMonday, setCurrentMonday] = useState(() => getMonday(new Date()));
-    const [selectedSession, setSelectedSession] = useState<any>(null);
+    const [selectedSession, setSelectedSession] = useState<Record<string, unknown> | null>(null);
     const dateInputRef = useRef<HTMLInputElement>(null);
 
     const goToPrevWeek = () => {

@@ -1,5 +1,5 @@
 
-import { CheckCircle, XCircle, Clock } from 'lucide-react';
+import { CheckCircle, XCircle } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 const AttendanceProgress = () => {

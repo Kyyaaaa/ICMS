@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Search, Check, Lock, Unlock, Users, ChevronDown, Minus } from 'lucide-react';
 
 const SHIFTS = [
@@ -25,17 +25,10 @@ const StaffTutorAvailability = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     
-    const [draftSlots, setDraftSlots] = useState<Set<string>>(new Set());
+    const [draftSlots, setDraftSlots] = useState<Set<string>>(new Set(MOCK_TUTORS[0].slots));
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
     const selectedTutor = tutors.find(t => t.id === selectedTutorId);
-    
-    useEffect(() => {
-        if (selectedTutor) {
-            setDraftSlots(new Set(selectedTutor.slots));
-            setHasUnsavedChanges(false);
-        }
-    }, [selectedTutorId, tutors]);
 
     const toggleSlot = (day: string, shiftId: string) => {
         if (!selectedTutor) return;
@@ -169,7 +162,7 @@ const StaffTutorAvailability = () => {
                                 </div>
                                 <div className="max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#c4c6cf] p-2 space-y-1">
                                     {filteredTutors.length > 0 ? (
-                                        filteredTutors.sort((a, b) => a.status === 'submitted' ? -1 : 1).map(tutor => {
+                                        filteredTutors.sort((a) => a.status === 'submitted' ? -1 : 1).map(tutor => {
                                             const initials = tutor.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
                                             return (
                                                 <button
@@ -181,6 +174,8 @@ const StaffTutorAvailability = () => {
                                                             }
                                                         }
                                                         setSelectedTutorId(tutor.id);
+                                                        setDraftSlots(new Set(tutor.slots));
+                                                        setHasUnsavedChanges(false);
                                                         setIsDropdownOpen(false);
                                                         setSearchTerm('');
                                                     }}
@@ -344,26 +339,17 @@ const StaffTutorAvailability = () => {
                                                 const isSelected = draftSlots.has(slotKey);
                                                 const isModified = isOriginallySelected !== isSelected;
 
-                                                let boxClass = '';
-                                                if (isSelected) {
-                                                    boxClass = isModified 
-                                                        ? 'bg-amber-500 border-amber-500 text-white shadow-sm' 
-                                                        : 'bg-[#0061a5] border-[#0061a5] text-white';
-                                                } else {
-                                                    boxClass = isModified 
-                                                        ? 'border-amber-400 bg-amber-50 text-transparent hover:border-amber-500' 
-                                                        : 'border-[#e0e3e5] bg-white text-transparent hover:border-[#0061a5]';
-                                                }
+                                                const boxClass = isSelected 
+                                                    ? (isModified ? 'bg-amber-500 border-amber-500 text-white shadow-sm' : 'bg-[#0061a5] border-[#0061a5] text-white')
+                                                    : (isModified ? 'border-amber-400 bg-amber-50 text-transparent hover:border-amber-500' : 'border-[#e0e3e5] bg-white text-transparent hover:border-[#0061a5]');
 
-                                                let textClass = '';
-                                                let textLabel = '';
-                                                if (isSelected) {
-                                                    textClass = isModified ? 'text-amber-600' : 'text-[#0061a5]';
-                                                    textLabel = isModified ? 'Added *' : 'Available';
-                                                } else {
-                                                    textClass = isModified ? 'text-amber-600' : 'text-transparent select-none';
-                                                    textLabel = isModified ? 'Removed *' : 'Available';
-                                                }
+                                                const textClass = isSelected 
+                                                    ? (isModified ? 'text-amber-600' : 'text-[#0061a5]')
+                                                    : (isModified ? 'text-amber-600' : 'text-transparent select-none');
+
+                                                const textLabel = isSelected 
+                                                    ? (isModified ? 'Added *' : 'Available')
+                                                    : (isModified ? 'Removed *' : 'Available');
                                                 
                                                 return (
                                                     <div 

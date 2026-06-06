@@ -1,9 +1,9 @@
 
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Wallet, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, Wallet, CheckCircle2 } from 'lucide-react';
 
 const AdminPayrollDetail = () => {
-    const { id } = useParams();
+    useParams();
 
     return (
         <div className="space-y-6 animate-fade-in-up pb-8">

@@ -1,0 +1,150 @@
+import { Response } from 'express';
+import { AccountService } from './account.service';
+import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
+
+export class AccountController {
+  
+  static async getAllAccounts(req: AuthenticatedRequest, res: Response) {
+    try {
+      const callerRole = req.user.user_metadata?.role;
+      const { role, search, page, limit } = req.query;
+
+      const p = page ? parseInt(page as string) : 1;
+      const l = limit ? parseInt(limit as string) : 50;
+
+      const accounts = await AccountService.listAccounts(
+        callerRole, 
+        role as string, 
+        search as string, 
+        p, 
+        l
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: accounts,
+        message: 'Accounts retrieved successfully'
+      });
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  static async getAccountById(req: AuthenticatedRequest, res: Response) {
+    try {
+      const callerRole = req.user.user_metadata?.role as string;
+      const callerId = req.user.id;
+      const { id } = req.params;
+      const targetId = id as string;
+
+      if (callerRole !== 'ADMIN' && callerRole !== 'STAFF' && callerId !== targetId) {
+        return res.status(403).json({ success: false, message: 'Forbidden: You can only access your own account' });
+      }
+
+      const account = await AccountService.getAccount(callerRole, callerId, targetId);
+
+      return res.status(200).json({
+        success: true,
+        data: account,
+        message: 'Account retrieved successfully'
+      });
+    } catch (error: any) {
+      if (error.message.includes('Forbidden')) {
+        return res.status(403).json({ success: false, message: error.message });
+      }
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  static async createAccount(req: AuthenticatedRequest, res: Response) {
+    try {
+      const callerRole = req.user.user_metadata?.role as string;
+      const { email, password, role, full_name, phone_number } = req.body;
+
+      if (!email || !password || !role || !full_name) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing required fields: email, password, role, full_name'
+        });
+      }
+
+      const newAccount = await AccountService.createAccount(callerRole, email, password, role, full_name, phone_number);
+
+      return res.status(201).json({
+        success: true,
+        data: newAccount,
+        message: 'Account created successfully'
+      });
+    } catch (error: any) {
+      if (error.message.includes('Forbidden')) {
+        return res.status(403).json({ success: false, message: error.message });
+      }
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  static async updateAccount(req: AuthenticatedRequest, res: Response) {
+    try {
+      const callerRole = req.user.user_metadata?.role as string;
+      const callerId = req.user.id;
+      const { id } = req.params;
+      const targetId = id as string;
+
+      if (callerRole !== 'ADMIN' && callerRole !== 'STAFF' && callerId !== targetId) {
+        return res.status(403).json({ success: false, message: 'Forbidden: You can only update your own account' });
+      }
+
+      const { full_name, phone_number, password, date_of_birth, gender } = req.body;
+
+      const updatedAccount = await AccountService.updateAccount(callerRole, callerId, targetId, {
+        full_name,
+        phone_number,
+        password,
+        date_of_birth,
+        gender
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: updatedAccount,
+        message: 'Account updated successfully'
+      });
+    } catch (error: any) {
+      if (error.message.includes('Forbidden')) {
+        return res.status(403).json({ success: false, message: error.message });
+      }
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+
+
+  static async updateAccountStatus(req: AuthenticatedRequest, res: Response) {
+    try {
+      const callerRole = req.user.user_metadata?.role as string;
+      const { id } = req.params;
+      const targetId = id as string;
+      const { is_active } = req.body;
+
+      if (is_active === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: 'Missing required field: is_active (boolean)'
+        });
+      }
+
+      const updatedAccount = await AccountService.setAccountStatus(callerRole, targetId, is_active);
+
+      return res.status(200).json({
+        success: true,
+        data: updatedAccount,
+        message: `Account status updated to ${is_active ? 'Active' : 'Banned'}`
+      });
+    } catch (error: any) {
+      if (error.message.includes('Forbidden')) {
+        return res.status(403).json({ success: false, message: error.message });
+      }
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+}

@@ -1,8 +1,29 @@
-import { useState, useEffect } from 'react';
-import { Search, ArrowRight, Clock, Users, Headset, Trophy, CheckCircle2, Star, BookOpen, CalendarCheck, Award, Compass, Quote, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, Clock, Headset, Trophy, Star, BookOpen, Compass, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TopNav } from '../components/layout/TopNav';
 import Cookies from 'js-cookie';
+
+interface UserInfo {
+    role?: 'learner' | 'tutor' | 'staff' | 'admin';
+    name?: string;
+    email?: string;
+    [key: string]: unknown;
+}
+
+function parseUserFromCookies(): { loggedIn: boolean; role: 'learner' | 'tutor' | 'staff' | 'admin'; info: UserInfo | null } {
+    const token = Cookies.get('access_token');
+    const userStr = Cookies.get('user_info');
+    if (token && userStr) {
+        try {
+            const user = JSON.parse(userStr) as UserInfo;
+            return { loggedIn: true, role: user.role ?? 'learner', info: user };
+        } catch {
+            // invalid JSON in cookie
+        }
+    }
+    return { loggedIn: false, role: 'learner', info: null };
+}
 
 const marqueeStyles = `
 @keyframes marquee {
@@ -20,24 +41,8 @@ const marqueeStyles = `
 `;
 
 const Homepage = () => {
-    // Auth state for demonstration (will be managed by global state/context in reality)
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userRole, setUserRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>('learner');
-    const [userInfo, setUserInfo] = useState<any>(null);
-
-    useEffect(() => {
-        const token = Cookies.get('access_token');
-        const userStr = Cookies.get('user_info');
-        
-        if (token && userStr) {
-            setIsLoggedIn(true);
-            try {
-                const user = JSON.parse(userStr);
-                setUserInfo(user);
-                if (user.role) setUserRole(user.role);
-            } catch(e) {}
-        }
-    }, []);
+    // Auth state initialized synchronously from cookies (no useEffect needed)
+    const [{ loggedIn: isLoggedIn, role: userRole, info: userInfo }] = useState(parseUserFromCookies);
 
     const tutors = [
         { name: "Dr. Eleanor Vance", ielts: "9.0", role: "Former IELTS Examiner", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200" },
@@ -53,7 +58,7 @@ const Homepage = () => {
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-[16px] leading-[24px] font-sans min-h-screen flex flex-col">
             <style>{marqueeStyles}</style>
-            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole} userInfo={userInfo} />
+            <TopNav isLoggedIn={isLoggedIn} userRole={userRole} userInfo={userInfo} />
 
             <main className="flex-grow">
                 {/* Hero Section */}

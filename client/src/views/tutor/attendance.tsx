@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ClipboardCheck, Calendar, Clock, CheckCircle2, XCircle, Search, Check, Send, Users, ChevronRight, BookOpen, ArrowLeft, ChevronDown, Info } from 'lucide-react';
+import { ClipboardCheck, Calendar, Clock, CheckCircle2, XCircle, Search, Send, ChevronRight, BookOpen, ArrowLeft, ChevronDown } from 'lucide-react';
 
 const MOCK_CLASSES = [
     { id: 'c1', name: 'IELTS Mastery - Advanced', students: 5 },
@@ -37,13 +37,6 @@ const ClassAttendance = () => {
     const [searchQuery, setSearchQuery] = useState('');
     
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    
-    useEffect(() => {
-        const classId = searchParams.get('classId');
-        const sessionId = searchParams.get('sessionId');
-        if (classId) setSelectedClassId(classId);
-        if (sessionId) setSelectedSessionId(sessionId);
-    }, [searchParams]);
     
     // State to hold attendance records per session
     // Map<sessionId, Map<studentId, status>>

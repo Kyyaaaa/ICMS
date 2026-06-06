@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Clock, Users, Edit, Target, MonitorPlay, Save, X, Image as ImageIcon, Star, Globe, ChevronRight, CheckCircle2, ShieldCheck, MapPin, Ticket } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { ArrowLeft, BookOpen, Clock, Users, Edit, Target, Save, X, Image as ImageIcon, Star, Globe, CheckCircle2, ShieldCheck, MapPin } from 'lucide-react';
 
 const AdminCourseDetail = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
+//     const navigate = useNavigate();
     const [courseData, setCourseData] = useState(() => {
         if (id === 'new') {
             return {
@@ -192,7 +192,7 @@ const AdminCourseDetail = () => {
                                         </div>
                                         <div>
                                             <label className="block text-[13px] font-bold text-[#43474e] mb-1">Status</label>
-                                            <select name="status" value={courseData.status} onChange={handleChange as any} className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] bg-white">
+                                            <select name="status" value={courseData.status} onChange={handleChange} className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] bg-white">
                                                 <option value="Active">Active (Public)</option>
                                                 <option value="Hidden">Hidden (Private)</option>
                                                 <option value="Draft">Draft (Unpublished)</option>
