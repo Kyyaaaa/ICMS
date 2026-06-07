@@ -126,9 +126,9 @@ const CourseDetail = () => {
 
                     {/* Enrollment Action Box */}
                     <div className="bg-white rounded-2xl p-[32px] shadow-xl w-full md:w-[340px] z-10 flex flex-col border border-[#e0e3e5]">
-                        <div className="flex justify-between items-end mb-[16px]">
-                            <span className="text-[40px] font-extrabold text-[#002045] leading-none">{course.price}</span>
-                            <span className="text-[18px] text-[#74777f] line-through font-medium mb-1">{course.originalPrice}</span>
+                        <div className="flex flex-col mb-[24px]">
+                            <span className="text-[16px] text-[#74777f] line-through font-medium mb-1">{course.originalPrice}</span>
+                            <span className="text-[36px] font-extrabold text-[#002045] leading-none tracking-tight break-words">{course.price}</span>
                         </div>
                         <div className="flex items-center gap-3 bg-[#f7fafc] rounded-xl p-[16px] mb-[24px] border border-[#e0e3e5]">
                             <Clock className="text-[#0061a5] w-6 h-6" />
@@ -326,8 +326,8 @@ const CourseDetail = () => {
 
             {/* Footer Component */}
             <footer className="bg-[#00142d] text-[#f1f4f6] w-full pt-[80px] pb-[40px] border-t-4 border-[#0061a5] mt-auto">
-                <div className="max-w-[1200px] mx-auto px-4 lg:px-[32px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-[40px] lg:gap-[32px]">
-                    <div className="col-span-1 md:col-span-2 lg:col-span-4 flex flex-col items-start">
+                <div className="max-w-[1200px] mx-auto px-4 lg:px-[32px] grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-[40px] lg:gap-[32px]">
+                    <div className="col-span-1 md:col-span-3 lg:col-span-5 flex flex-col items-start">
                         <div className="text-[28px] font-extrabold text-white mb-[20px] flex items-center gap-2">
                             <BookOpen className="w-8 h-8 text-[#adc7f7]" /> ICMS
                         </div>
@@ -346,7 +346,7 @@ const CourseDetail = () => {
                         </div>
                     </div>
                     
-                    <div className="col-span-1 lg:col-span-3">
+                    <div className="col-span-1 lg:col-span-4">
                         <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Our Programs</h4>
                         <div className="flex flex-col gap-[16px]">
                             <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
@@ -364,34 +364,14 @@ const CourseDetail = () => {
                         </div>
                     </div>
                     
-                    <div className="col-span-1 lg:col-span-2">
+                    <div className="col-span-1 lg:col-span-3">
                         <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Explore</h4>
                         <div className="flex flex-col gap-[16px]">
-                            <a href="#" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">About ICMS</a>
-                            <a href="#" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Our Tutors</a>
-                            <a href="#" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Success Stories</a>
-                            <a href="#" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Mock Tests</a>
+                            <a href="/homepage#about" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">About ICMS</a>
+                            <a href="/homepage#tutors" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Our Tutors</a>
+                            <a href="/homepage#stories" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Success Stories</a>
+                            <a href="/homepage#consultation" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Free Consultation</a>
                         </div>
-                    </div>
-
-                    <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                        <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Stay Updated</h4>
-                        <p className="text-[#a8aeb4] text-[14px] mb-[16px]">
-                            Subscribe to get the latest IELTS tips and exclusive offers.
-                        </p>
-                        <form className="flex flex-col gap-3">
-                            <input 
-                                type="email" 
-                                placeholder="Your email address" 
-                                className="w-full px-4 py-3 bg-[#002045] border border-[#43474e] rounded-xl focus:outline-none focus:border-[#adc7f7] text-[14px] text-white"
-                            />
-                            <button 
-                                type="button" 
-                                className="w-full py-3 bg-[#0061a5] hover:bg-[#004a80] text-white text-[14px] font-bold rounded-xl transition-colors"
-                            >
-                                Subscribe
-                            </button>
-                        </form>
                     </div>
                 </div>
                 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { School, Mail, Lock, Eye, EyeOff, Star, AlertCircle, LineChart, ArrowLeft } from 'lucide-react';
+import { BookOpen, Mail, Lock, Eye, EyeOff, Star, AlertCircle, LineChart, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
@@ -68,7 +68,7 @@ const Login = () => {
                     {/* Branding Header */}
                     <div className="absolute top-0 left-0 w-full p-[16px] lg:p-[32px] flex items-center justify-between animate-fade-in-down">
                         <Link to="/homepage" className="flex items-center gap-2">
-                            <School className="text-[#002045] w-8 h-8" />
+                            <BookOpen className="text-[#002045] w-8 h-8" />
                             <span className="text-[24px] leading-[32px] font-bold text-[#002045] tracking-tight">ICMS</span>
                         </Link>
                         <Link to="/homepage" className="flex items-center gap-2 text-[14px] font-semibold text-[#43474e] hover:text-[#0061a5] transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-[#e0e3e5] hover:shadow-md">

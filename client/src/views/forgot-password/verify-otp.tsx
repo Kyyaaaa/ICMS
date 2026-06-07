@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MailCheck, CheckCircle2, AlertCircle, Globe, ArrowLeft } from 'lucide-react';
+import { MailCheck, CheckCircle2, AlertCircle, BookOpen, ArrowLeft } from 'lucide-react';
 
 const VerifyOTP = () => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -72,7 +72,7 @@ const VerifyOTP = () => {
                 <div className="flex justify-center mb-[32px] animate-fade-in-down">
                     <Link to="/login" className="flex items-center gap-[12px] group">
                         <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:bg-white/20 transition-colors">
-                            <Globe className="text-white w-7 h-7" />
+                            <BookOpen className="text-white w-7 h-7" />
                         </div>
                         <span className="text-[28px] font-bold text-white tracking-tight">ICMS</span>
                     </Link>

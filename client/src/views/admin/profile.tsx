@@ -77,6 +77,18 @@ const AdminProfile = () => {
         if (account.date_of_birth) {
             const dob = new Date(account.date_of_birth);
             const today = new Date();
+            
+            if (isNaN(dob.getTime())) {
+                alert('Invalid Date of Birth format. Please use a valid date.');
+                return;
+            }
+            
+            const dateString = account.date_of_birth;
+            if (dob.toISOString().split('T')[0] !== dateString) {
+                alert('Invalid Date of Birth. The date does not exist (e.g., February 30th).');
+                return;
+            }
+
             if (dob > today) {
                 alert('Invalid Date of Birth. Future dates are not allowed.');
                 return;

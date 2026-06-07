@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Globe, CheckCircle2, Circle } from 'lucide-react';
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, BookOpen, Globe, CheckCircle2, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Register = () => {
@@ -64,7 +64,7 @@ const Register = () => {
                 {/* Brand Top */}
                 <div className="relative z-20 p-[32px] animate-fade-in">
                     <div className="flex items-center gap-[8px]">
-                        <Globe className="text-white w-8 h-8" />
+                        <BookOpen className="text-white w-8 h-8" />
                         <span className="text-[24px] leading-[32px] font-semibold text-white">ICMS</span>
                     </div>
                 </div>
@@ -88,7 +88,7 @@ const Register = () => {
                 </div>
                 {/* Mobile Brand Header (Visible only on mobile) */}
                 <div className="absolute top-[16px] left-[16px] flex items-center gap-[8px] lg:hidden animate-fade-in-down">
-                    <Globe className="text-[#002045] w-7 h-7" />
+                    <BookOpen className="text-[#002045] w-7 h-7" />
                     <span className="text-[20px] leading-[28px] font-semibold text-[#002045]">ICMS</span>
                 </div>
                 <div className="w-full max-w-[440px] mt-[64px] lg:mt-0 animate-fade-in">

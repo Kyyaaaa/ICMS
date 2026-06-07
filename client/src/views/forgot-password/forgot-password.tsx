@@ -1,6 +1,6 @@
 
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, ArrowRight, ArrowLeft, Globe } from 'lucide-react';
+import { Mail, ArrowRight, ArrowLeft, BookOpen } from 'lucide-react';
 
 const ForgotPassword = () => {
     const navigate = useNavigate();
@@ -24,7 +24,7 @@ const ForgotPassword = () => {
                 <div className="flex justify-center mb-[32px] animate-fade-in-down">
                     <Link to="/login" className="flex items-center gap-[12px] group">
                         <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:bg-white/20 transition-colors">
-                            <Globe className="text-white w-7 h-7" />
+                            <BookOpen className="text-white w-7 h-7" />
                         </div>
                         <span className="text-[28px] font-bold text-white tracking-tight">ICMS</span>
                     </Link>

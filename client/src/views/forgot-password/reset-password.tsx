@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EyeOff, Eye, Circle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Loader2, Globe } from 'lucide-react';
+import { EyeOff, Eye, Circle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Loader2, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ResetPassword = () => {
@@ -49,7 +49,7 @@ const ResetPassword = () => {
                 <div className="flex justify-center mb-[32px] animate-fade-in-down">
                     <Link to="/login" className="flex items-center gap-[12px] group">
                         <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:bg-white/20 transition-colors">
-                            <Globe className="text-white w-7 h-7" />
+                            <BookOpen className="text-white w-7 h-7" />
                         </div>
                         <span className="text-[28px] font-bold text-white tracking-tight">ICMS</span>
                     </Link>

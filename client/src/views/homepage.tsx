@@ -62,7 +62,7 @@ const Homepage = () => {
 
             <main className="flex-grow">
                 {/* Hero Section */}
-                <section className="relative w-full py-[80px] lg:py-[120px] flex items-center justify-center overflow-hidden bg-[#f7fafc]">
+                <section id="about" className="relative w-full py-[80px] lg:py-[120px] flex items-center justify-center overflow-hidden bg-[#f7fafc]">
                     {/* Background decorations instead of full image */}
                     <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#d2e4ff] rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-50"></div>
                     <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#0061a5] rounded-full blur-3xl translate-y-1/2 -translate-x-1/3 opacity-10"></div>
@@ -203,7 +203,7 @@ const Homepage = () => {
                 </section>
 
                 {/* Elite Instructors Marquee Section */}
-                <section className="w-full py-[80px] bg-white overflow-hidden border-y border-[#e0e3e5]">
+                <section id="tutors" className="w-full py-[80px] bg-white overflow-hidden border-y border-[#e0e3e5]">
                     <div className="max-w-[1200px] mx-auto px-4 lg:px-[32px] mb-[48px] text-center">
                         <h2 className="text-[32px] md:text-[40px] font-extrabold text-[#002045] mb-[16px]">Meet Our Elite Instructors</h2>
                         <p className="text-[16px] md:text-[18px] text-[#43474e] max-w-[700px] mx-auto">
@@ -244,7 +244,7 @@ const Homepage = () => {
                 </section>
 
                 {/* Success Stories */}
-                <section className="w-full py-[80px] bg-white relative border-t border-[#e0e3e5]">
+                <section id="stories" className="w-full py-[80px] bg-white relative border-t border-[#e0e3e5]">
                     <div className="max-w-[1440px] mx-auto px-4 lg:px-[32px]">
                         <div className="text-center mb-[48px]">
                             <h2 className="text-[32px] md:text-[40px] font-extrabold text-[#002045] mb-[16px]">Success Stories</h2>
@@ -391,10 +391,10 @@ const Homepage = () => {
 
             {/* Footer Component */}
             <footer className="bg-[#00142d] text-[#f1f4f6] w-full pt-[80px] pb-[40px] border-t-4 border-[#0061a5]">
-                <div className="max-w-[1200px] mx-auto px-4 lg:px-[32px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-[40px] lg:gap-[32px]">
+                <div className="max-w-[1200px] mx-auto px-4 lg:px-[32px] grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-[40px] lg:gap-[32px]">
                     
                     {/* Brand & Contact */}
-                    <div className="col-span-1 md:col-span-2 lg:col-span-4 flex flex-col items-start">
+                    <div className="col-span-1 md:col-span-3 lg:col-span-5 flex flex-col items-start">
                         <div className="text-[28px] font-extrabold text-white mb-[20px] flex items-center gap-2">
                             <BookOpen className="w-8 h-8 text-[#adc7f7]" /> ICMS
                         </div>
@@ -414,7 +414,7 @@ const Homepage = () => {
                     </div>
                     
                     {/* Courses */}
-                    <div className="col-span-1 lg:col-span-3">
+                    <div className="col-span-1 lg:col-span-4">
                         <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Our Programs</h4>
                         <div className="flex flex-col gap-[16px]">
                             <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
@@ -433,35 +433,14 @@ const Homepage = () => {
                     </div>
                     
                     {/* Quick Links */}
-                    <div className="col-span-1 lg:col-span-2">
+                    <div className="col-span-1 lg:col-span-3">
                         <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Explore</h4>
                         <div className="flex flex-col gap-[16px]">
-                            <a href="#" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">About ICMS</a>
-                            <a href="#tutors" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Our Tutors</a>
-                            <a href="#stories" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Success Stories</a>
-                            <a href="#" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Mock Tests</a>
+                            <a href="/homepage#about" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">About ICMS</a>
+                            <a href="/homepage#tutors" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Our Tutors</a>
+                            <a href="/homepage#stories" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Success Stories</a>
+                            <a href="/homepage#consultation" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Free Consultation</a>
                         </div>
-                    </div>
-
-                    {/* Newsletter */}
-                    <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                        <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Stay Updated</h4>
-                        <p className="text-[#a8aeb4] text-[14px] mb-[16px]">
-                            Subscribe to get the latest IELTS tips and exclusive offers.
-                        </p>
-                        <form className="flex flex-col gap-3">
-                            <input 
-                                type="email" 
-                                placeholder="Your email address" 
-                                className="w-full px-4 py-3 bg-[#002045] border border-[#43474e] rounded-xl focus:outline-none focus:border-[#adc7f7] text-[14px] text-white"
-                            />
-                            <button 
-                                type="button" 
-                                className="w-full py-3 bg-[#0061a5] hover:bg-[#004a80] text-white text-[14px] font-bold rounded-xl transition-colors"
-                            >
-                                Subscribe
-                            </button>
-                        </form>
                     </div>
                 </div>
                 
