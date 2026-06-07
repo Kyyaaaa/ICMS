@@ -204,7 +204,7 @@ const StaffClassDetail = () => {
                                         <td className="p-4 text-[#74777f]">01-10-2026</td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-full bg-gray-200 rounded-full h-2 max-w-[100px]">
+                                                <div className="w-full bg-gray-200 rounded-full h-2 max-w-25">
                                                     <div className="bg-green-500 h-2 rounded-full" style={{ width: '90%' }}></div>
                                                 </div>
                                                 <span className="text-xs font-bold text-green-600">90%</span>

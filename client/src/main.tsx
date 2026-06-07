@@ -81,6 +81,8 @@ import { TutorSupportTickets } from './views/tutor/support-tickets.tsx'
 import { NotificationsPage } from './views/shared/notifications.tsx'
 import PublicNotifications from './views/public-notifications.tsx'
 
+import { ProtectedRoute } from './components/auth/ProtectedRoute.tsx'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
@@ -98,84 +100,92 @@ createRoot(document.getElementById('root')!).render(
 
 
         {/* Learner Routes wrapped in Layout */}
-        <Route element={<LearnerLayout />}>
-            <Route path="/learner/dashboard" element={<LearnerDashboard />} />
-            <Route path="/learner/profile" element={<LearnerProfile />} />
-            <Route path="/learner/notifications" element={<NotificationsPage />} />
-            
-            <Route path="/learner/classes" element={<LearnerClasses />} />
-            <Route path="/learner/classes/:id" element={<ClassDetail />} />
-            <Route path="/learner/classes/:id/feedback" element={<ClassFeedback />} />
-            <Route path="/learner/classes/:id/attendance" element={<AttendanceProgress />} />
-            
-            <Route path="/learner/schedules" element={<LearnerSchedules />} />
-            
-            <Route path="/courses/:courseId/register" element={<ClassRegistration />} />
-            
-            <Route path="/learner/payments" element={<PaymentHistory />} />
-            <Route path="/learner/payments/:id/checkout" element={<PaymentCheckout />} />
-            <Route path="/learner/payments/:id/refund" element={<RefundRequest />} />
-            
-            <Route path="/learner/support" element={<SupportTickets />} />
+        <Route element={<ProtectedRoute allowedRoles={['LEARNER']} />}>
+            <Route element={<LearnerLayout />}>
+                <Route path="/learner/dashboard" element={<LearnerDashboard />} />
+                <Route path="/learner/profile" element={<LearnerProfile />} />
+                <Route path="/learner/notifications" element={<NotificationsPage />} />
+                
+                <Route path="/learner/classes" element={<LearnerClasses />} />
+                <Route path="/learner/classes/:id" element={<ClassDetail />} />
+                <Route path="/learner/classes/:id/feedback" element={<ClassFeedback />} />
+                <Route path="/learner/classes/:id/attendance" element={<AttendanceProgress />} />
+                
+                <Route path="/learner/schedules" element={<LearnerSchedules />} />
+                
+                <Route path="/courses/:courseId/register" element={<ClassRegistration />} />
+                
+                <Route path="/learner/payments" element={<PaymentHistory />} />
+                <Route path="/learner/payments/:id/checkout" element={<PaymentCheckout />} />
+                <Route path="/learner/payments/:id/refund" element={<RefundRequest />} />
+                
+                <Route path="/learner/support" element={<SupportTickets />} />
+            </Route>
         </Route>
 
-        <Route element={<StaffLayout />}>
-            <Route path="/staff/dashboard" element={<StaffDashboard />} />
-            <Route path="/staff/profile" element={<StaffProfile />} />
-            <Route path="/staff/notifications" element={<NotificationsPage />} />
-            
-            <Route path="/staff/consultations" element={<ConsultationList />} />
-            
-            <Route path="/staff/profiles" element={<ProfileList />} />
-            <Route path="/staff/profiles/:id" element={<ProfileDetail />} />
-            
-            <Route path="/staff/classes" element={<ManageClasses />} />
-            <Route path="/staff/classes/create" element={<CreateClass />} />
-            <Route path="/staff/classes/edit/:id" element={<CreateClass />} />
-            <Route path="/staff/classes/:id" element={<StaffClassDetail />} />
-            <Route path="/staff/master-schedule" element={<MasterSchedule />} />
-            <Route path="/staff/tutor-availability" element={<StaffTutorAvailability />} />
-            
-            <Route path="/staff/change-requests" element={<ChangeRequests />} />
-            
-            <Route path="/staff/invoices" element={<InvoiceList />} />
-            <Route path="/staff/invoices/:id" element={<InvoiceDetail />} />
-            
-            <Route path="/staff/accounts" element={<ManageAccounts />} />
-            <Route path="/staff/salary" element={<SalaryHistory />} />
-            
-            <Route path="/staff/support" element={<StaffSupportTickets />} />
+        <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
+            <Route element={<StaffLayout />}>
+                <Route path="/staff/dashboard" element={<StaffDashboard />} />
+                <Route path="/staff/profile" element={<StaffProfile />} />
+                <Route path="/staff/notifications" element={<NotificationsPage />} />
+                
+                <Route path="/staff/consultations" element={<ConsultationList />} />
+                
+                <Route path="/staff/profiles" element={<ProfileList />} />
+                <Route path="/staff/profiles/:id" element={<ProfileDetail />} />
+                
+                <Route path="/staff/classes" element={<ManageClasses />} />
+                <Route path="/staff/classes/create" element={<CreateClass />} />
+                <Route path="/staff/classes/edit/:id" element={<CreateClass />} />
+                <Route path="/staff/classes/:id" element={<StaffClassDetail />} />
+                <Route path="/staff/master-schedule" element={<MasterSchedule />} />
+                <Route path="/staff/tutor-availability" element={<StaffTutorAvailability />} />
+                
+                <Route path="/staff/change-requests" element={<ChangeRequests />} />
+                
+                <Route path="/staff/invoices" element={<InvoiceList />} />
+                <Route path="/staff/invoices/:id" element={<InvoiceDetail />} />
+                
+                <Route path="/staff/accounts" element={<ManageAccounts />} />
+                <Route path="/staff/salary" element={<SalaryHistory />} />
+                
+                <Route path="/staff/support" element={<StaffSupportTickets />} />
+            </Route>
         </Route>
-        <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/profile" element={<AdminProfile />} />
-            <Route path="/admin/courses" element={<AdminCourses />} />
-            <Route path="/admin/courses/:id" element={<AdminCourseDetail />} />
-            <Route path="/admin/finance" element={<AdminFinance />} />
-            <Route path="/admin/discount-codes" element={<AdminDiscountCodes />} />
-            <Route path="/admin/classrooms" element={<AdminClassrooms />} />
-            <Route path="/admin/accounts" element={<AdminAccounts />} />
-            <Route path="/admin/accounts/:id" element={<AdminAccountDetail />} />
-            <Route path="/admin/refunds" element={<AdminRefunds />} />
-            <Route path="/admin/refunds/:id" element={<AdminRefundDetail />} />
-            <Route path="/admin/payroll" element={<AdminPayroll />} />
-            <Route path="/admin/payroll/:id" element={<AdminPayrollDetail />} />
-            <Route path="/admin/announcements" element={<AdminAnnouncements />} />
-            <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
+        <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+            <Route element={<AdminLayout />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/profile" element={<AdminProfile />} />
+                <Route path="/admin/courses" element={<AdminCourses />} />
+                <Route path="/admin/courses/:id" element={<AdminCourseDetail />} />
+                <Route path="/admin/finance" element={<AdminFinance />} />
+                <Route path="/admin/discount-codes" element={<AdminDiscountCodes />} />
+                <Route path="/admin/classrooms" element={<AdminClassrooms />} />
+                <Route path="/admin/accounts" element={<AdminAccounts />} />
+                <Route path="/admin/accounts/:id" element={<AdminAccountDetail />} />
+                <Route path="/admin/refunds" element={<AdminRefunds />} />
+                <Route path="/admin/refunds/:id" element={<AdminRefundDetail />} />
+                <Route path="/admin/payroll" element={<AdminPayroll />} />
+                <Route path="/admin/payroll/:id" element={<AdminPayrollDetail />} />
+                <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+                <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
+            </Route>
         </Route>
         
         {/* Tutor Routes */}
-        <Route element={<TutorLayout />}>
-            <Route path="/tutor/dashboard" element={<TutorDashboard />} />
-            <Route path="/tutor/profile" element={<TutorProfile />} />
-            <Route path="/tutor/notifications" element={<NotificationsPage />} />
-            <Route path="/tutor/qualifications" element={<TutorQualifications />} />
-            <Route path="/tutor/availability" element={<AvailabilityRegistration />} />
-            <Route path="/tutor/schedule" element={<TeachingSchedule />} />
-            <Route path="/tutor/attendance" element={<ClassAttendance />} />
-            <Route path="/tutor/change-requests" element={<TutorChangeRequests />} />
-            <Route path="/tutor/support-tickets" element={<TutorSupportTickets />} />
-            <Route path="/tutor/salary" element={<TutorSalaryHistory />} />
+        <Route element={<ProtectedRoute allowedRoles={['TUTOR']} />}>
+            <Route element={<TutorLayout />}>
+                <Route path="/tutor/dashboard" element={<TutorDashboard />} />
+                <Route path="/tutor/profile" element={<TutorProfile />} />
+                <Route path="/tutor/notifications" element={<NotificationsPage />} />
+                <Route path="/tutor/qualifications" element={<TutorQualifications />} />
+                <Route path="/tutor/availability" element={<AvailabilityRegistration />} />
+                <Route path="/tutor/schedule" element={<TeachingSchedule />} />
+                <Route path="/tutor/attendance" element={<ClassAttendance />} />
+                <Route path="/tutor/change-requests" element={<TutorChangeRequests />} />
+                <Route path="/tutor/support-tickets" element={<TutorSupportTickets />} />
+                <Route path="/tutor/salary" element={<TutorSalaryHistory />} />
+            </Route>
         </Route>
       </Routes>
     </BrowserRouter>
