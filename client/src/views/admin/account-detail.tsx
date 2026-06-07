@@ -69,8 +69,16 @@ const AdminAccountDetail = () => {
         e.preventDefault();
         // Validate phone number format before submitting
         if (account.phone_number && !validatePhoneNumber(account.phone_number)) {
-            alert('Invalid phone number. Must be 10 digits starting with 03, 05, 07, 08, or 09.');
+            alert('Invalid phone number. Must be a valid 10-digit Vietnamese phone number starting with 03, 05, 07, 08, or 09.');
             return;
+        }
+        if (account.date_of_birth) {
+            const dob = new Date(account.date_of_birth);
+            const today = new Date();
+            if (dob > today) {
+                alert('Invalid Date of Birth. Future dates are not allowed.');
+                return;
+            }
         }
         setIsSaving(true);
         try {
@@ -234,6 +242,7 @@ const AdminAccountDetail = () => {
                                             type="date" 
                                             value={account.date_of_birth}
                                             onChange={e => setAccount({...account, date_of_birth: e.target.value})}
+                                            max={new Date().toISOString().split('T')[0]}
                                             className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                                         />
                                     </div>
@@ -318,7 +327,7 @@ const AdminAccountDetail = () => {
                                             type={showNewPassword ? "text" : "password"} 
                                             value={account.confirm_password}
                                             onChange={e => setAccount({...account, confirm_password: e.target.value})}
-                                            className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                            className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border ${account.confirm_password.length > 0 && account.password === account.confirm_password ? 'border-green-500 shadow-[0_0_0_1px_#22c55e]' : account.confirm_password.length > 0 && account.password !== account.confirm_password ? 'border-red-500 shadow-[0_0_0_1px_#ef4444]' : 'border-[#c4c6cf]'} rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors`}
                                             required 
                                             minLength={8} 
                                         />
