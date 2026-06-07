@@ -1,6 +1,8 @@
 import { Response } from 'express';
 import { AccountService } from './account.service';
+import { AuthService } from '../auth/auth.service';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
+import { validatePassword, validatePhoneNumber, validateFullName } from '../../utils/validators';
 
 export class AccountController {
   
@@ -94,7 +96,54 @@ export class AccountController {
         return res.status(403).json({ success: false, message: 'Forbidden: You can only update your own account' });
       }
 
-      const { full_name, phone_number, password, date_of_birth, gender } = req.body;
+      const { full_name, phone_number, password, old_password, date_of_birth, gender } = req.body;
+
+      // --- Validate full name format ---
+      if (full_name !== undefined && full_name !== '' && !validateFullName(full_name)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid full name. Only letters and spaces allowed, 2-50 characters.'
+        });
+      }
+
+      // --- Validate phone number format ---
+      if (phone_number !== undefined && phone_number !== '' && !validatePhoneNumber(phone_number)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid phone number. Must be 10 digits starting with 03, 05, 07, 08, or 09.'
+        });
+      }
+
+      // --- Validate new password ---
+      if (password !== undefined && password !== '') {
+        if (!validatePassword(password)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid new password. Must be 8-15 characters, including uppercase, lowercase, digit, and special character.'
+          });
+        }
+
+        // Only require old password when user is changing their own password (not Admin reset)
+        const isSelfUpdate = callerId === targetId;
+        if (isSelfUpdate) {
+          if (!old_password) {
+            return res.status(400).json({
+              success: false,
+              message: 'Please enter your current password to confirm.'
+            });
+          }
+          // Verify old password by attempting to sign in
+          try {
+            const accountData = await AccountService.getAccount(callerRole, callerId, targetId);
+            await AuthService.login(accountData.email, old_password);
+          } catch {
+            return res.status(400).json({
+              success: false,
+              message: 'Incorrect current password.'
+            });
+          }
+        }
+      }
 
       const updatedAccount = await AccountService.updateAccount(callerRole, callerId, targetId, {
         full_name,
@@ -116,7 +165,6 @@ export class AccountController {
       return res.status(500).json({ success: false, message: error.message });
     }
   }
-
 
 
   static async updateAccountStatus(req: AuthenticatedRequest, res: Response) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
+import { validatePassword, validatePhoneNumber } from '../../lib/utils';
 
 const AdminAccountDetail = () => {
     const { id } = useParams();
@@ -66,6 +67,11 @@ const AdminAccountDetail = () => {
 
     const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
+        // Validate phone number format before submitting
+        if (account.phone_number && !validatePhoneNumber(account.phone_number)) {
+            alert('Invalid phone number. Must be 10 digits starting with 03, 05, 07, 08, or 09.');
+            return;
+        }
         setIsSaving(true);
         try {
             const token = Cookies.get('access_token');
@@ -84,10 +90,10 @@ const AdminAccountDetail = () => {
                 setIsSaved(true);
                 setTimeout(() => setIsSaved(false), 3000);
             } else {
-                alert(data.message || 'Failed to save profile');
+                alert(data.message || 'Failed to save profile.');
             }
         } catch {
-            alert('An error occurred');
+            alert('An error occurred. Please try again.');
         } finally {
             setIsSaving(false);
         }
@@ -96,11 +102,11 @@ const AdminAccountDetail = () => {
     const handleSavePassword = async (e: React.FormEvent) => {
         e.preventDefault();
         if (account.password !== account.confirm_password) {
-            alert("Passwords do not match!");
+            alert('Passwords do not match!');
             return;
         }
-        if (account.password.length < 8) {
-            alert("Password must be at least 8 characters long.");
+        if (!validatePassword(account.password)) {
+            alert('Invalid password.\nRequirements: 8-15 characters, including at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.');
             return;
         }
 
@@ -112,6 +118,7 @@ const AdminAccountDetail = () => {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({
                     password: account.password
+                    // Không cần old_password vì đây là Admin đặt lại mật khẩu cho người dùng khác
                 })
             });
             const data = await res.json();
@@ -120,10 +127,10 @@ const AdminAccountDetail = () => {
                 setIsPasswordSaved(true);
                 setTimeout(() => setIsPasswordSaved(false), 3000);
             } else {
-                alert(data.message || 'Failed to update password');
+                alert(data.message || 'Failed to update password.');
             }
         } catch {
-            alert('An error occurred');
+            alert('An error occurred. Please try again.');
         } finally {
             setIsSavingPassword(false);
         }

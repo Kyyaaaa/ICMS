@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users } from 'lucide-react';
 import Cookies from 'js-cookie';
+import { validatePassword, validatePhoneNumber } from '../../lib/utils';
 
 const TutorProfile = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +69,11 @@ const TutorProfile = () => {
 
     const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
+        // Validate phone number format before submitting
+        if (account.phone_number && !validatePhoneNumber(account.phone_number)) {
+            alert('Invalid phone number. Must be 10 digits starting with 03, 05, 07, 08, or 09.');
+            return;
+        }
         setIsSavingProfile(true);
         try {
             const token = Cookies.get('access_token');
@@ -94,24 +100,25 @@ const TutorProfile = () => {
                 setIsProfileSuccess(true);
                 setTimeout(() => setIsProfileSuccess(false), 3000);
             } else {
-                alert(data.message || 'Failed to save profile');
+                alert(data.message || 'Failed to save profile.');
             }
         } catch (error) {
             console.error('Error saving profile:', error);
-            alert('An error occurred');
+            alert('An error occurred. Please try again.');
         } finally {
             setIsSavingProfile(false);
         }
     };
 
+
     const handleSavePassword = async (e: React.FormEvent) => {
         e.preventDefault();
         if (passwords.newPassword !== passwords.confirmPassword) {
-            alert("New passwords do not match!");
+            alert('New passwords do not match!');
             return;
         }
-        if (passwords.newPassword.length < 8) {
-            alert("New password must be at least 8 characters long.");
+        if (!validatePassword(passwords.newPassword)) {
+            alert('Invalid new password.\nRequirements: 8-15 characters, including at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.');
             return;
         }
         setIsSavingPassword(true);
@@ -121,6 +128,7 @@ const TutorProfile = () => {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({
+                    old_password: passwords.oldPassword,
                     password: passwords.newPassword
                 })
             });
@@ -128,12 +136,18 @@ const TutorProfile = () => {
             if (data.success) {
                 setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });
                 setIsPasswordSuccess(true);
-                setTimeout(() => setIsPasswordSuccess(false), 3000);
+                // Logout after successful password change
+                setTimeout(() => {
+                    Cookies.remove('access_token', { path: '/' });
+                    Cookies.remove('refresh_token', { path: '/' });
+                    Cookies.remove('user_info', { path: '/' });
+                    window.location.href = '/homepage';
+                }, 2000);
             } else {
-                alert(data.message || 'Failed to update password');
+                alert(data.message || 'Failed to update password.');
             }
         } catch {
-            alert('An error occurred');
+            alert('An error occurred. Please try again.');
         } finally {
             setIsSavingPassword(false);
         }
@@ -297,7 +311,7 @@ const TutorProfile = () => {
                                 </div>
                             </div>
                             <div className="flex items-center justify-end gap-4">
-                                {isPasswordSuccess && <span className="text-[13px] text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Updated</span>}
+                                {isPasswordSuccess && <span className="text-[13px] text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Password changed! Logging out...</span>}
                                 <button type="submit" disabled={isSavingPassword} className="bg-white border-2 border-[#0061a5] text-[#0061a5] px-6 py-2.5 rounded-xl text-[15px] font-bold hover:bg-[#e6f0fa] transition-colors disabled:opacity-70">
                                     {isSavingPassword ? 'Updating...' : 'Update Password'}
                                 </button>
