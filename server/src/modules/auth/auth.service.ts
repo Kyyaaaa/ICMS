@@ -44,9 +44,16 @@ export class AuthService {
       throw error;
     }
 
+    // Lấy thông tin user từ DB nội bộ thay vì từ Supabase Auth
+    const { data: account, error: accError } = await AuthRepository.getAccountByEmail(email);
+    
+    if (accError || !account) {
+      throw new Error('User not found in internal database');
+    }
+
     return {
       session: data.session,
-      user: data.user,
+      user: account,
     };
   }
 

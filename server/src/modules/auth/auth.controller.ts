@@ -91,8 +91,9 @@ export class AuthController {
           user: {
             id: result.user.id,
             email: result.user.email,
-            role: result.user.user_metadata?.role,
-            full_name: result.user.user_metadata?.full_name,
+            role: result.user.role,
+            full_name: result.user.full_name,
+            avatar_url: result.user.avatar_url,
           }
         }
       });

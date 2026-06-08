@@ -33,6 +33,10 @@
   - Thiết lập logic đồng bộ (Sync) User: Khi đăng nhập Google qua Supabase thành công, tìm kiếm user theo email trong DB nội bộ.
   - **Chiến lược Merge Account:** Nếu email đã tồn tại (do đăng ký bằng email/pass trước đó), tiến hành liên kết (update thêm `google_id`, `avatar`) vào tài khoản hiện tại. Nếu chưa có, tạo user mới.
   - Trả về JWT Token theo chuẩn của hệ thống để Client sử dụng xuyên suốt.
+- `[x]` **BE-08: Đồng bộ nguồn dữ liệu User từ bảng Account (DB nội bộ)**
+  - Cập nhật `AuthRepository.getAccountByEmail` để `select('*')` thay vì chỉ `select('id')`.
+  - Cập nhật `AuthService.login`: Lấy thông tin user từ `AuthRepository.getAccountByEmail` và trả về thông tin này thay vì trả về `user` của Supabase Auth.
+  - Cập nhật `AuthController.login`: Lấy `full_name`, `role`, `avatar_url` từ kết quả của DB nội bộ thay vì từ `user_metadata`.
 
 ### 🎨 Frontend Agent
 - `[x]` **FE-01: Giao diện Quên mật khẩu (Forgot Password Screen)**

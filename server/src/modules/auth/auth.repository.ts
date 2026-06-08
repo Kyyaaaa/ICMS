@@ -32,12 +32,12 @@ export class AuthRepository {
   }
 
   /**
-   * Tìm account ID theo email
+   * Tìm account theo email
    */
   static async getAccountByEmail(email: string) {
     return await supabaseAdmin
       .from('account')
-      .select('id')
+      .select('*')
       .eq('email', email)
       .maybeSingle();
   }
