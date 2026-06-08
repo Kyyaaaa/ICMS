@@ -3,6 +3,8 @@ import { BookOpen, Mail, Lock, Eye, EyeOff, Star, AlertCircle, LineChart, ArrowL
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
+import { supabase } from '../lib/supabase';
+
 const Login = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [showError, setShowError] = useState(false);
@@ -14,6 +16,21 @@ const Login = () => {
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
+    };
+
+    const handleGoogleLogin = async () => {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+            if (error) throw error;
+        } catch (error: any) {
+            setShowError(true);
+            setErrorMsg(error.message || 'Failed to login with Google.');
+        }
     };
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -138,7 +155,7 @@ const Login = () => {
                             </div>
                         </div>
                         <div className="mt-[24px] animate-fade-in" style={{ animationDelay: '600ms' }}>
-                            <button className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-[#c4c6cf] rounded-[8px] shadow-sm bg-[#f7fafc] text-[#181c1e] text-[14px] leading-[16px] font-semibold tracking-[0.05em] hover:bg-[#ebeef0] active:scale-[0.98] transition-colors duration-200" type="button">
+                            <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-[#c4c6cf] rounded-[8px] shadow-sm bg-[#f7fafc] text-[#181c1e] text-[14px] leading-[16px] font-semibold tracking-[0.05em] hover:bg-[#ebeef0] active:scale-[0.98] transition-colors duration-200" type="button">
                                 <svg className="h-5 w-5 transition-transform duration-200 hover:scale-110" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
                                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>

@@ -25,6 +25,13 @@ export class AuthRepository {
   }
 
   /**
+   * Lấy thông tin User từ Access Token (dùng cho Google Sync)
+   */
+  static async getUserByToken(accessToken: string) {
+    return await supabase.auth.getUser(accessToken);
+  }
+
+  /**
    * Tìm account ID theo email
    */
   static async getAccountByEmail(email: string) {
@@ -116,5 +123,39 @@ export class AuthRepository {
       .from('otps')
       .update({ reset_token: null })
       .eq('id', id);
+  }
+
+  /**
+   * Đồng bộ tài khoản Google vào bảng account (Chiến lược Merge)
+   */
+  static async syncGoogleAccount(userId: string, email: string, fullName: string, avatarUrl: string) {
+    const { data: existingAcc } = await supabaseAdmin
+      .from('account')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
+      
+    if (existingAcc) {
+      // Merge account: update avatar nếu có thay đổi
+      return await supabaseAdmin
+        .from('account')
+        .update({ avatar_url: avatarUrl || existingAcc.avatar_url })
+        .eq('id', existingAcc.id)
+        .select()
+        .single();
+    } else {
+      // Nếu chưa có, tạo mới
+      return await supabaseAdmin
+        .from('account')
+        .insert({
+          id: userId,
+          email: email,
+          full_name: fullName,
+          avatar_url: avatarUrl,
+          role: 'LEARNER'
+        })
+        .select()
+        .single();
+    }
   }
 }

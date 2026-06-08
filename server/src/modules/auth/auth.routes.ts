@@ -199,4 +199,32 @@ router.post('/verify-otp', AuthController.verifyOtp);
  */
 router.post('/reset-password', AuthController.resetPassword);
 
+/**
+ * @swagger
+ * /api/auth/google-sync:
+ *   post:
+ *     summary: Sync Google user with internal DB
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - access_token
+ *             properties:
+ *               access_token:
+ *                 type: string
+ *                 description: Supabase access token obtained after Google login
+ *     responses:
+ *       200:
+ *         description: Sync successful, returns standardized user data
+ *       400:
+ *         description: Missing access token
+ *       401:
+ *         description: Invalid or expired token
+ */
+router.post('/google-sync', AuthController.syncGoogle);
+
 export default router;

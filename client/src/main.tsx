@@ -9,6 +9,7 @@ import ForgotPassword from './views/forgot-password/forgot-password.tsx'
 import VerifyOTP from './views/forgot-password/verify-otp.tsx'
 import ResetPassword from './views/forgot-password/reset-password.tsx'
 import Homepage from './views/homepage.tsx'
+import AuthCallback from './views/auth-callback.tsx'
 
 // Learner Views
 import LearnerLayout from './components/layout/learner-layout.tsx'
@@ -94,6 +95,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/homepage" element={<Homepage />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/courses" element={<Courses />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path="/notifications" element={<PublicNotifications />} />

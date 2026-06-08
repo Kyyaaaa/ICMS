@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, BookOpen, Globe, CheckCircle2, Circle } from 'lucide-react';
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, BookOpen, CheckCircle2, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 const Register = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -14,6 +15,20 @@ const Register = () => {
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
+    };
+
+    const handleGoogleLogin = async () => {
+        try {
+            const { error: authError } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+            if (authError) throw authError;
+        } catch (err: any) {
+            setError(err.message || 'Failed to sign up with Google.');
+        }
     };
 
     const handleRegister = async (e: React.FormEvent) => {
@@ -254,6 +269,7 @@ const Register = () => {
                     </div>
                     {/* Google Auth */}
                     <button
+                        onClick={handleGoogleLogin}
                         className="w-full py-3 px-4 bg-white border border-[#c4c6cf] hover:bg-[#f1f4f6] active:scale-[0.98] text-[#181c1e] text-[14px] leading-[16px] font-semibold tracking-[0.05em] rounded-[8px] shadow-sm transition-all duration-200 flex justify-center items-center gap-3"
                         type="button"
                     >

@@ -201,3 +201,29 @@ Content-Type: application/json
   "new_password": "321321321@As" 
 }
 # KỲ VỌNG: Lỗi 400 - Mật khẩu mới không được trùng với mật khẩu cũ
+
+### ------------------------------------------------------------------------
+### GOOGLE LOGIN (TASKS QA-06)
+### ------------------------------------------------------------------------
+
+### 16. QA-06 - Kịch bản 1, 2, 3: Đăng nhập Google (Tạo mới / Merge / Đăng nhập lại)
+# Yêu cầu truyền access_token được sinh ra từ Supabase OAuth
+# Lưu ý: Lấy access_token thực tế từ frontend hoặc Supabase Dashboard khi test
+POST {{baseUrl}}/auth/google-sync
+Content-Type: application/json
+
+{
+  "access_token": "supabase_google_access_token_here"
+}
+# KỲ VỌNG (Lần 1 - User chưa có tài khoản): Tạo user mới trong DB.
+# KỲ VỌNG (Lần 1 - User đã có tài khoản email/pass): Tự động Merge Account (Cập nhật google_id, avatar), không văng lỗi duplicate email.
+# KỲ VỌNG (Lần 2 trở đi): Đăng nhập thành công trơn tru.
+
+### 17. QA-06 - Edge Case: Token không hợp lệ
+POST {{baseUrl}}/auth/google-sync
+Content-Type: application/json
+
+{
+  "access_token": "invalid_or_expired_token_here"
+}
+# KỲ VỌNG: Lỗi báo Invalid or expired Google access token

@@ -143,4 +143,32 @@ export class AuthService {
 
     return data;
   }
+
+  /**
+   * Đồng bộ Google User và trả về chuẩn Token của hệ thống
+   */
+  static async syncGoogleUser(accessToken: string) {
+    // 1. Lấy thông tin user từ token Supabase bằng cách gọi auth API
+    const { data, error } = await AuthRepository.getUserByToken(accessToken);
+    if (error || !data?.user) {
+      throw new Error('Invalid or expired Google access token');
+    }
+
+    const user = data.user;
+    const email = user.email || '';
+    const fullName = user.user_metadata?.full_name || user.user_metadata?.name || 'Google User';
+    const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+
+    // 2. Đồng bộ vào DB nội bộ (Merge hoặc Tạo mới)
+    const { data: account, error: syncError } = await AuthRepository.syncGoogleAccount(user.id, email, fullName, avatarUrl);
+    
+    if (syncError) {
+      throw syncError;
+    }
+
+    // 3. Trả về Account record chuẩn
+    return {
+      user: account
+    };
+  }
 }

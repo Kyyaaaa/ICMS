@@ -190,4 +190,37 @@ export class AuthController {
       });
     }
   }
+
+  static async syncGoogle(req: Request, res: Response) {
+    try {
+      const { access_token } = req.body;
+
+      if (!access_token) {
+        return res.status(400).json({ success: false, message: 'Please provide access_token' });
+      }
+
+      const result = await AuthService.syncGoogleUser(access_token);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Google login synced successfully',
+        data: {
+          access_token: access_token,
+          user: {
+            id: result.user.id,
+            email: result.user.email,
+            role: result.user.role,
+            full_name: result.user.full_name,
+            avatar_url: result.user.avatar_url
+          }
+        }
+      });
+    } catch (error: any) {
+      console.error('Error during Google sync:', error);
+      return res.status(401).json({
+        success: false,
+        message: error.message || 'Failed to sync Google account'
+      });
+    }
+  }
 }
