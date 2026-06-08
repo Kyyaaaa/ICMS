@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EyeOff, Eye, Circle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Loader2, BookOpen } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const ResetPassword = () => {
     const [newPassword, setNewPassword] = useState('');
@@ -11,6 +11,18 @@ const ResetPassword = () => {
     
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    
+    const reset_token = location.state?.reset_token || '';
+
+    useEffect(() => {
+        if (!reset_token) {
+            navigate('/forgot-password');
+        }
+    }, [reset_token, navigate]);
 
     // Validation Rules
     const isLength = newPassword.length >= 8 && newPassword.length <= 15;
@@ -24,16 +36,36 @@ const ResetPassword = () => {
     const showMatchError = confirmPassword.length > 0 && !isMatch;
     const isValid = score === 4 && isMatch && newPassword.length > 0;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isValid) return;
         
         setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
+        setErrorMsg('');
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reset_token, new_password: newPassword }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setErrorMsg(data.message || 'Failed to reset password. Token might be expired.');
+                return;
+            }
+
             setIsSuccess(true);
-        }, 800);
+        } catch (err) {
+            setErrorMsg('Network error. Please try again later.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
+    if (!reset_token) return null;
 
     return (
         <div className="min-h-screen flex items-center justify-center p-[16px] md:p-[32px] font-sans antialiased bg-[#002045] relative overflow-hidden">
@@ -78,7 +110,8 @@ const ResetPassword = () => {
                                         placeholder="Enter new password" 
                                         type={showNewPassword ? "text" : "password"}
                                         value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        onChange={(e) => { setNewPassword(e.target.value); setErrorMsg(''); }}
+                                        disabled={isSubmitting}
                                     />
                                     <button 
                                         className="absolute right-[16px] top-1/2 -translate-y-1/2 text-[#43474e] hover:text-[#002045] transition-colors focus:outline-none" 
@@ -130,7 +163,8 @@ const ResetPassword = () => {
                                         placeholder="Re-enter new password" 
                                         type={showConfirmPassword ? "text" : "password"}
                                         value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        onChange={(e) => { setConfirmPassword(e.target.value); setErrorMsg(''); }}
+                                        disabled={isSubmitting}
                                     />
                                     <button 
                                         className="absolute right-[16px] top-1/2 -translate-y-1/2 text-[#43474e] hover:text-[#002045] transition-colors focus:outline-none" 
@@ -146,6 +180,13 @@ const ResetPassword = () => {
                                     </p>
                                 )}
                             </div>
+
+                            {errorMsg && (
+                                <div className="text-[14px] leading-[20px] text-[#ba1a1a] flex items-center gap-[6px] animate-fade-in font-medium">
+                                    <AlertCircle className="w-[18px] h-[18px]" />
+                                    {errorMsg}
+                                </div>
+                            )}
                             
                             {/* Action Buttons */}
                             <div className="mt-[16px]">
@@ -173,7 +214,7 @@ const ResetPassword = () => {
                     </div>
 
                     {/* View 2: Success State */}
-                    <div className={`absolute inset-0 bg-white flex flex-col items-center justify-center p-[40px] text-center transition-opacity duration-500 ${isSuccess ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                    <div className={`absolute inset-0 bg-white flex flex-col items-center justify-center p-[40px] text-center transition-opacity duration-500 ${isSuccess ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none'}`}>
                         <div className={`w-20 h-20 rounded-2xl bg-[#f7fafc] border border-[#e0e3e5] shadow-sm flex items-center justify-center mb-[24px] transition-transform duration-500 delay-100 ${isSuccess ? 'scale-100' : 'scale-0'}`}>
                             <CheckCircle2 className="text-[#0061a5] w-10 h-10" />
                         </div>

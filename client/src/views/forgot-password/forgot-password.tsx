@@ -1,13 +1,46 @@
-
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, ArrowRight, ArrowLeft, BookOpen } from 'lucide-react';
+import { Mail, ArrowRight, ArrowLeft, BookOpen, AlertCircle, Loader2 } from 'lucide-react';
 
 const ForgotPassword = () => {
     const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        navigate('/verify-otp');
+        if (!email) {
+            setError('Please enter your email address.');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.message || 'Failed to send reset code. Please try again.');
+                return;
+            }
+
+            // Success: navigate to verify-otp and pass the email
+            navigate('/verify-otp', { state: { email } });
+        } catch (err) {
+            setError('Network error. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -49,20 +82,45 @@ const ForgotPassword = () => {
                                     Your Email
                                 </label>
                                 <div className="relative transition-transform duration-300 hover:scale-[1.01]">
-                                    <Mail className="absolute left-[14px] top-1/2 -translate-y-1/2 text-[#74777f] w-[20px] h-[20px] group-focus-within:text-[#0061a5] transition-colors" />
+                                    <Mail className={`absolute left-[14px] top-1/2 -translate-y-1/2 w-[20px] h-[20px] transition-colors ${error ? 'text-[#ba1a1a]' : 'text-[#74777f] group-focus-within:text-[#0061a5]'}`} />
                                     <input 
-                                        className="w-full h-[52px] pl-[44px] pr-[16px] bg-[#f7fafc] border border-[#c4c6cf] rounded-xl text-[16px] leading-[24px] text-[#181c1e] focus:outline-none focus:border-[#0061a5] focus:ring-4 focus:ring-[#0061a5]/10 transition-all hover:border-[#74777f] shadow-sm" 
+                                        className={`w-full h-[52px] pl-[44px] pr-[16px] bg-[#f7fafc] border rounded-xl text-[16px] leading-[24px] text-[#181c1e] focus:outline-none focus:ring-4 transition-all shadow-sm ${error ? 'border-[#ba1a1a] focus:ring-[#ba1a1a]/10 focus:border-[#ba1a1a]' : 'border-[#c4c6cf] focus:border-[#0061a5] focus:ring-[#0061a5]/10 hover:border-[#74777f]'}`} 
                                         id="email" 
                                         placeholder="admin@icms.edu.vn" 
                                         required 
-                                        type="email" 
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            setError('');
+                                        }}
+                                        disabled={loading}
                                     />
                                 </div>
+                                {error && (
+                                    <p className="text-[#ba1a1a] text-[13px] leading-[16px] flex items-center gap-1.5 mt-1.5 font-medium animate-fade-in">
+                                        <AlertCircle className="w-4 h-4" />
+                                        {error}
+                                    </p>
+                                )}
                             </div>
                             
-                            <button className="w-full h-[52px] bg-gradient-to-r from-[#003c71] to-[#0061a5] text-white text-[15px] font-semibold rounded-xl shadow-[0_8px_16px_rgba(0,97,165,0.2)] hover:shadow-[0_12px_24px_rgba(0,97,165,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-[8px] group/btn mt-[8px]" type="submit">
-                                <span>Reset password</span>
-                                <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                            <button 
+                                className="w-full h-[52px] bg-gradient-to-r from-[#003c71] to-[#0061a5] text-white text-[15px] font-semibold rounded-xl shadow-[0_8px_16px_rgba(0,97,165,0.2)] hover:shadow-[0_12px_24px_rgba(0,97,165,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-[8px] group/btn mt-[8px] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none" 
+                                type="submit"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        <span>Sending...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>Reset password</span>
+                                        <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                                    </>
+                                )}
                             </button>
                         </form>
                         

@@ -63,9 +63,12 @@ export class AuthService {
       throw new Error('Email not found in our system');
     }
 
+    // 1.5. Vô hiệu hóa tất cả OTP cũ chưa sử dụng
+    await AuthRepository.invalidateOldOtps(email);
+
     // 2. Tạo mã OTP 6 số ngẫu nhiên
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 phút
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 phút
 
     // 3. Ra lệnh Repository lưu OTP
     const { error: insertError } = await AuthRepository.insertOtp(email, otp, expiresAt);
@@ -114,6 +117,13 @@ export class AuthService {
     if (otpError) throw otpError;
     if (!otpData) {
       throw new Error('Invalid reset token');
+    }
+
+    // 1.5. Kiểm tra mật khẩu mới có trùng với mật khẩu hiện tại không
+    // Bằng cách thử đăng nhập với mật khẩu mới. Nếu thành công -> trùng pass cũ.
+    const { data: signInData, error: signInError } = await AuthRepository.signIn(otpData.email, newPassword);
+    if (!signInError && signInData?.session) {
+      throw new Error('New password cannot be the same as the current password');
     }
 
     // 2. Tìm user ID

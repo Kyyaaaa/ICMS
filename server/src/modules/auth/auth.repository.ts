@@ -36,6 +36,17 @@ export class AuthRepository {
   }
 
   /**
+   * Vô hiệu hóa tất cả các OTP cũ chưa sử dụng của user
+   */
+  static async invalidateOldOtps(email: string) {
+    return await supabaseAdmin
+      .from('otps')
+      .update({ is_used: true })
+      .eq('email', email)
+      .eq('is_used', false);
+  }
+
+  /**
    * Lưu mã OTP vào database
    */
   static async insertOtp(email: string, otp: string, expiresAt: string) {
