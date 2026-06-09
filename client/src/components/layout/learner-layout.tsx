@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { LayoutDashboard, BookOpen, Calendar, MessageSquare, Bell, LogOut, Menu, X, Globe , Wallet, UserCog} from 'lucide-react';
@@ -40,8 +40,22 @@ const LearnerLayout = () => {
         { name: 'My Profile', path: '/learner/profile', icon: UserCog },
     ];
 
-    const userInfoStr = Cookies.get('user_info');
-    const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
+    const [userInfo, setUserInfo] = useState(() => {
+        const userInfoStr = Cookies.get('user_info');
+        return userInfoStr ? JSON.parse(userInfoStr) : null;
+    });
+
+    useEffect(() => {
+        const handleProfileUpdate = () => {
+            const str = Cookies.get('user_info');
+            if (str) {
+                setUserInfo(JSON.parse(str));
+            }
+        };
+        window.addEventListener('profileUpdated', handleProfileUpdate);
+        return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+    }, []);
+
     const fullName = userInfo?.full_name || 'Learner User';
     const roleText = userInfo?.role === 'LEARNER' ? 'Learner' : (userInfo?.role || 'Learner');
     const initials = fullName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
