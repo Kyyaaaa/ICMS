@@ -18,7 +18,6 @@ const AdminAccountDetail = () => {
 
     const [account, setAccount] = useState({
         full_name: '',
-        account_code: '',
         email: '',
         phone_number: '',
         date_of_birth: '',
@@ -43,13 +42,12 @@ const AdminAccountDetail = () => {
                     setAccount(prev => ({
                         ...prev,
                         full_name: data.data.full_name || '',
-                        account_code: data.data.account_code || '',
                         email: data.data.email,
                         phone_number: data.data.phone_number || '',
                         date_of_birth: data.data.date_of_birth || '',
                         gender: data.data.gender || '',
                         role: data.data.role,
-                        is_active: data.data.is_active,
+                        is_active: data.data.status === 'ACTIVE',
                         created_at: new Date(data.data.created_at).toLocaleDateString()
                     }));
                 } else {
@@ -195,12 +193,6 @@ const AdminAccountDetail = () => {
                         </div>
                         
                         <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-3">
-                            {account.account_code && (
-                                <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
-                                    <User className="w-5 h-5 text-[#74777f] shrink-0" />
-                                    <span>Account ID: <span className="font-bold">{account.account_code}</span></span>
-                                </div>
-                            )}
                             <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
                                 <Calendar className="w-5 h-5 text-[#74777f] shrink-0" />
                                 <span>Joined {account.created_at}</span>

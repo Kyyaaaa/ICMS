@@ -23,7 +23,6 @@ const AdminProfile = () => {
         gender: '',
         email: '',
         role: '',
-        account_code: '',
         created_at: ''
     });
 
@@ -54,7 +53,6 @@ const AdminProfile = () => {
                         gender: data.data.gender || '',
                         email: data.data.email,
                         role: data.data.role,
-                        account_code: data.data.account_code || '',
                         created_at: data.data.created_at || ''
                     });
                 }
@@ -217,10 +215,6 @@ const AdminProfile = () => {
                         </div>
                         
                         <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-4">
-                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
-                                <User className="w-5 h-5 text-[#74777f] shrink-0" />
-                                <span>Account ID: <span className="font-bold">{account.account_code || ''}</span></span>
-                            </div>
                             <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
                                 <CalendarDays className="w-5 h-5 text-[#74777f] shrink-0" />
                                 <span>Joined {account.created_at ? new Date(account.created_at).toLocaleDateString() : ''}</span>

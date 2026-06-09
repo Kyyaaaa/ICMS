@@ -1,6 +1,5 @@
 export interface AccountResponse {
   id: string;
-  account_code: string;
   email: string;
   role: string;
   full_name: string;

@@ -6,12 +6,28 @@ export class AuthRepository {
    * Tạo user mới trên Supabase Auth
    */
   static async createUser(email: string, password: string, metadata: UserMetadata) {
-    return await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
       user_metadata: metadata
     });
+    
+    if (authError) throw authError;
+
+    // Fetch the account that was auto-created by the DB trigger
+    const { data: accountData, error: accountError } = await supabaseAdmin
+      .from('account')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single();
+    
+    if (accountError) {
+      await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+      throw accountError;
+    }
+
+    return { user: accountData };
   }
 
   /**

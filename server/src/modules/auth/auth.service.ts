@@ -21,14 +21,9 @@ export class AuthService {
     };
 
     // Ra lệnh cho Repository gọi DB
-    const { data, error } = await AuthRepository.createUser(email, password, metadata);
+    const result = await AuthRepository.createUser(email, password, metadata);
 
-    // Xử lý lỗi nghiệp vụ
-    if (error) {
-      throw error;
-    }
-
-    return data;
+    return result;
   }
 
   /**

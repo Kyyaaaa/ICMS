@@ -8,7 +8,7 @@ export class AccountController {
   
   static async getAllAccounts(req: AuthenticatedRequest, res: Response) {
     try {
-      const callerRole = req.user.user_metadata?.role;
+      const callerRole = req.user.role;
       const { role, search, page, limit } = req.query;
 
       const p = page ? parseInt(page as string) : 1;
@@ -34,7 +34,7 @@ export class AccountController {
 
   static async getAccountById(req: AuthenticatedRequest, res: Response) {
     try {
-      const callerRole = req.user.user_metadata?.role as string;
+      const callerRole = req.user.role as string;
       const callerId = req.user.id;
       const { id } = req.params;
       const targetId = id as string;
@@ -60,7 +60,7 @@ export class AccountController {
 
   static async createAccount(req: AuthenticatedRequest, res: Response) {
     try {
-      const callerRole = req.user.user_metadata?.role as string;
+      const callerRole = req.user.role as string;
       const { email, password, role, full_name, phone_number } = req.body;
 
       if (!email || !password || !role || !full_name) {
@@ -87,7 +87,7 @@ export class AccountController {
 
   static async updateAccount(req: AuthenticatedRequest, res: Response) {
     try {
-      const callerRole = req.user.user_metadata?.role as string;
+      const callerRole = req.user.role as string;
       const callerId = req.user.id;
       const { id } = req.params;
       const targetId = id as string;
@@ -135,6 +135,12 @@ export class AccountController {
           // Verify old password by attempting to sign in
           try {
             const accountData = await AccountService.getAccount(callerRole, callerId, targetId);
+            if (!accountData) {
+              return res.status(404).json({
+                success: false,
+                message: 'Account not found.'
+              });
+            }
             await AuthService.login(accountData.email, old_password);
           } catch {
             return res.status(400).json({
@@ -169,7 +175,7 @@ export class AccountController {
 
   static async updateAccountStatus(req: AuthenticatedRequest, res: Response) {
     try {
-      const callerRole = req.user.user_metadata?.role as string;
+      const callerRole = req.user.role as string;
       const { id } = req.params;
       const targetId = id as string;
       const { is_active } = req.body;

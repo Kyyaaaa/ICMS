@@ -10,7 +10,7 @@ interface Account {
     full_name: string;
     email: string;
     role: Role;
-    is_active: boolean;
+    status: 'ACTIVE' | 'BANNED';
     created_at: string;
     avatar_url?: string;
 }
@@ -21,11 +21,14 @@ const AdminAccounts = () => {
     const [filterRole, setFilterRole] = useState<Role | 'All'>('All');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalAccounts, setTotalAccounts] = useState(0);
+    const limit = 10;
     
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
-    const [formData, setFormData] = useState<Partial<Account> & { password?: string }>({ full_name: '', email: '', role: 'LEARNER', is_active: true, password: '' });
+    const [formData, setFormData] = useState<Partial<Account> & { password?: string }>({ full_name: '', email: '', role: 'LEARNER', status: 'ACTIVE', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -44,7 +47,7 @@ const AdminAccounts = () => {
         if (mode === 'edit' && account) {
             setFormData({ ...account, password: '' });
         } else {
-            setFormData({ full_name: '', email: '', role: 'LEARNER', is_active: true, password: '' });
+            setFormData({ full_name: '', email: '', role: 'LEARNER', status: 'ACTIVE', password: '' });
         }
         setIsModalOpen(true);
     };
@@ -55,6 +58,8 @@ const AdminAccounts = () => {
         try {
             const token = Cookies.get('access_token');
             const url = new URL('http://localhost:5000/api/accounts');
+            url.searchParams.append('page', currentPage.toString());
+            url.searchParams.append('limit', limit.toString());
             if (filterRole !== 'All') url.searchParams.append('role', filterRole);
             if (searchQuery) url.searchParams.append('search', searchQuery);
 
@@ -65,11 +70,14 @@ const AdminAccounts = () => {
             });
             const data = await res.json();
             if (data.success) {
-                const sortedData = data.data.sort((a: Account, b: Account) => {
+                const accountsData = Array.isArray(data.data) ? data.data : data.data.data || [];
+                const total = !Array.isArray(data.data) ? data.data.total : accountsData.length;
+                const sortedData = accountsData.sort((a: Account, b: Account) => {
                     const roleOrder: Record<Role, number> = { 'ADMIN': 1, 'STAFF': 2, 'TUTOR': 3, 'LEARNER': 4 };
                     return (roleOrder[a.role] || 99) - (roleOrder[b.role] || 99);
                 });
                 setAccounts(sortedData);
+                setTotalAccounts(total);
             } else {
                 setError(data.message || 'Failed to fetch accounts');
             }
@@ -86,7 +94,7 @@ const AdminAccounts = () => {
         }, 250); // Debounce search
         return () => clearTimeout(timer);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchQuery, filterRole]);
+    }, [searchQuery, filterRole, currentPage]);
 
     const handleToggleBan = async (id: string, currentStatus: boolean) => {
         try {
@@ -102,7 +110,7 @@ const AdminAccounts = () => {
             const data = await res.json();
             if (data.success) {
                 // Update local state without refetching
-                setAccounts(accounts.map(acc => acc.id === id ? { ...acc, is_active: !currentStatus } : acc));
+                setAccounts(accounts.map(acc => acc.id === id ? { ...acc, status: currentStatus ? 'BANNED' : 'ACTIVE' } : acc));
             } else {
                 alert(data.message || 'Failed to update status');
             }
@@ -223,7 +231,7 @@ const AdminAccounts = () => {
                                 </tr>
                             ) : (
                                 accounts.map((acc) => (
-                                    <tr key={acc.id} className={`border-b border-[#e0e3e5] transition-colors ${!acc.is_active ? 'bg-[#fff5f6]' : 'hover:bg-[#f7fafc]'}`}>
+                                    <tr key={acc.id} className={`border-b border-[#e0e3e5] transition-colors ${acc.status !== 'ACTIVE' ? 'bg-[#fff5f6]' : 'hover:bg-[#f7fafc]'}`}>
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-3">
                                                 {acc.avatar_url ? (
@@ -234,7 +242,7 @@ const AdminAccounts = () => {
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <p className={`font-bold ${!acc.is_active ? 'text-[#ba1a1a]' : 'text-[#002045]'}`}>
+                                                    <p className={`font-bold ${acc.status !== 'ACTIVE' ? 'text-[#ba1a1a]' : 'text-[#002045]'}`}>
                                                         {acc.full_name || ''}
                                                     </p>
                                                     <p className="text-[13px] text-[#74777f]">{acc.email}</p>
@@ -250,7 +258,7 @@ const AdminAccounts = () => {
                                             {new Date(acc.created_at).toLocaleDateString('en-GB')}
                                         </td>
                                         <td className="py-4 px-6">
-                                            {acc.is_active ? (
+                                            {acc.status === 'ACTIVE' ? (
                                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e6f4ea] text-[#137333] text-[13px] font-bold rounded-full">
                                                     <CheckCircle2 size={16} /> Active
                                                 </span>
@@ -274,11 +282,11 @@ const AdminAccounts = () => {
                                                     <Edit size={18} />
                                                 </button>
                                                 <button 
-                                                    onClick={() => handleToggleBan(acc.id, acc.is_active)}
-                                                    className={`p-2 rounded-lg transition-colors tooltip-trigger ${acc.is_active ? 'text-[#ba1a1a] hover:bg-[#ffdad6]' : 'text-[#137333] hover:bg-[#e6f4ea]'}`} 
-                                                    title={acc.is_active ? "Ban Account" : "Unban Account"}
+                                                    onClick={() => handleToggleBan(acc.id, acc.status === 'ACTIVE')}
+                                                    className={`p-2 rounded-lg transition-colors tooltip-trigger ${acc.status === 'ACTIVE' ? 'text-[#ba1a1a] hover:bg-[#ffdad6]' : 'text-[#137333] hover:bg-[#e6f4ea]'}`} 
+                                                    title={acc.status === 'ACTIVE' ? "Ban Account" : "Unban Account"}
                                                 >
-                                                    {acc.is_active ? <Ban size={18} /> : <Lock size={18} />}
+                                                    {acc.status === 'ACTIVE' ? <Ban size={18} /> : <Lock size={18} />}
                                                 </button>
                                             </div>
                                         </td>
@@ -288,6 +296,30 @@ const AdminAccounts = () => {
                         </tbody>
                     </table>
                 </div>
+                {/* Pagination UI */}
+                {totalAccounts > limit && (
+                    <div className="flex items-center justify-between px-6 py-4 border-t border-[#e0e3e5] bg-[#f8f9fa]">
+                        <span className="text-[13px] text-[#43474e]">
+                            Showing <span className="font-bold">{(currentPage - 1) * limit + 1}</span> to <span className="font-bold">{Math.min(currentPage * limit, totalAccounts)}</span> of <span className="font-bold">{totalAccounts}</span> accounts
+                        </span>
+                        <div className="flex gap-2">
+                            <button 
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                className="px-3 py-1.5 border border-[#c4c6cf] rounded-lg text-[13px] font-bold text-[#43474e] bg-white hover:bg-[#f1f4f6] disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Previous
+                            </button>
+                            <button 
+                                disabled={currentPage * limit >= totalAccounts}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                className="px-3 py-1.5 border border-[#c4c6cf] rounded-lg text-[13px] font-bold text-[#43474e] bg-white hover:bg-[#f1f4f6] disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Create / Edit Account Modal */}
@@ -383,12 +415,12 @@ const AdminAccounts = () => {
                                         <div className="space-y-2">
                                             <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Status</label>
                                             <select 
-                                                value={formData.is_active ? 'true' : 'false'}
-                                                onChange={e => setFormData({...formData, is_active: e.target.value === 'true'})}
+                                                value={formData.status}
+                                                onChange={e => setFormData({...formData, status: e.target.value as 'ACTIVE' | 'BANNED'})}
                                                 className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors cursor-pointer"
                                             >
-                                                <option value="true">Active</option>
-                                                <option value="false">Banned</option>
+                                                <option value="ACTIVE">Active</option>
+                                                <option value="BANNED">Banned</option>
                                             </select>
                                         </div>
                                     </div>

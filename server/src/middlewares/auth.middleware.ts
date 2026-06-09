@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabase } from '../configs/supabase';
+import { supabase, supabaseAdmin } from '../configs/supabase';
 
 // Mở rộng interface Request của Express để chứa dữ liệu user
 export interface AuthenticatedRequest extends Request {
@@ -21,18 +21,33 @@ export const verifyToken = async (req: AuthenticatedRequest, res: Response, next
 
     const token = authHeader.split(' ')[1];
 
-    // Gọi Supabase để xác thực token và lấy thông tin user
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Gọi Supabase để xác thực token và lấy thông tin user (từ auth.users)
+    const { data: { user: authUser }, error } = await supabase.auth.getUser(token);
 
-    if (error || !user) {
+    if (error || !authUser) {
       return res.status(401).json({
         success: false,
         message: 'Invalid or expired token'
       });
     }
 
-    // Gắn thông tin user vào request để các route/controller sau có thể sử dụng
-    req.user = user;
+    // Query bảng public.account để lấy thông tin nghiệp vụ
+    // Dùng supabaseAdmin để bypass RLS (vì middleware Node không gắn token vào instance supabase)
+    const { data: accountInfo, error: accountError } = await supabaseAdmin
+      .from('account')
+      .select('*')
+      .eq('id', authUser.id)
+      .maybeSingle();
+
+    if (accountError || !accountInfo) {
+      return res.status(401).json({
+        success: false,
+        message: 'User account data not found in system'
+      });
+    }
+
+    // Gắn thông tin account vào request để các route/controller sau có thể sử dụng
+    req.user = accountInfo;
     next();
   } catch (error) {
     console.error('Lỗi khi xác thực token:', error);
@@ -57,8 +72,8 @@ export const requireRole = (allowedRoles: string[]) => {
       });
     }
 
-    // Lấy role từ metadata của tài khoản (do ta đã lưu lúc register)
-    const userRole = req.user.user_metadata?.role;
+    // Lấy role từ bảng account
+    const userRole = req.user.role;
 
     if (!userRole || !allowedRoles.includes(userRole)) {
       return res.status(403).json({

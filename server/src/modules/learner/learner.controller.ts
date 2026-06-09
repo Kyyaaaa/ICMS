@@ -28,7 +28,7 @@ export class LearnerController {
    */
   static async getById(req: AuthenticatedRequest, res: Response) {
     try {
-      const userRole = req.user?.user_metadata?.role;
+      const userRole = req.user?.role;
       if (userRole === 'LEARNER' && req.user?.id !== req.params.id) {
         return res.status(403).json({ 
           success: false, 
@@ -113,7 +113,7 @@ export class LearnerController {
    */
   static async update(req: AuthenticatedRequest, res: Response) {
     try {
-      const userRole = req.user?.user_metadata?.role;
+      const userRole = req.user?.role;
       if (userRole === 'LEARNER' && req.user?.id !== req.params.id) {
         return res.status(403).json({ 
           success: false, 

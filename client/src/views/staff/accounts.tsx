@@ -9,7 +9,7 @@ interface Account {
     full_name: string;
     email: string;
     role: Role;
-    is_active: boolean;
+    status: 'ACTIVE' | 'BANNED';
     created_at: string;
     avatar_url?: string;
 }
@@ -20,10 +20,13 @@ const ManageAccounts = () => {
     const [roleFilter, setRoleFilter] = useState<Role | 'All'>('All');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalAccounts, setTotalAccounts] = useState(0);
+    const limit = 10;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
-    const [formData, setFormData] = useState<Partial<Account> & { password?: string }>({ full_name: '', email: '', role: 'LEARNER', is_active: true, password: '' });
+    const [formData, setFormData] = useState<Partial<Account> & { password?: string }>({ full_name: '', email: '', role: 'LEARNER', status: 'ACTIVE', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -43,6 +46,8 @@ const ManageAccounts = () => {
         try {
             const token = Cookies.get('access_token');
             const url = new URL('http://localhost:5000/api/accounts');
+            url.searchParams.append('page', currentPage.toString());
+            url.searchParams.append('limit', limit.toString());
             if (roleFilter !== 'All') url.searchParams.append('role', roleFilter);
             if (searchTerm) url.searchParams.append('search', searchTerm);
 
@@ -53,11 +58,14 @@ const ManageAccounts = () => {
             });
             const data = await res.json();
             if (data.success) {
-                const sortedData = data.data.sort((a: Account, b: Account) => {
+                const accountsData = Array.isArray(data.data) ? data.data : data.data.data || [];
+                const total = !Array.isArray(data.data) ? data.data.total : accountsData.length;
+                const sortedData = accountsData.sort((a: Account, b: Account) => {
                     const roleOrder: Record<Role, number> = { 'ADMIN': 1, 'STAFF': 2, 'TUTOR': 3, 'LEARNER': 4 };
                     return (roleOrder[a.role] || 99) - (roleOrder[b.role] || 99);
                 });
                 setAccounts(sortedData);
+                setTotalAccounts(total);
             } else {
                 setError(data.message || 'Failed to fetch accounts');
             }
@@ -66,7 +74,7 @@ const ManageAccounts = () => {
         } finally {
             setLoading(false);
         }
-    }, [roleFilter, searchTerm]);
+    }, [roleFilter, searchTerm, currentPage]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -80,7 +88,7 @@ const ManageAccounts = () => {
         if (mode === 'edit' && account) {
             setFormData({ ...account, password: '' });
         } else {
-            setFormData({ full_name: '', email: '', role: 'LEARNER', is_active: true, password: '' });
+            setFormData({ full_name: '', email: '', role: 'LEARNER', status: 'ACTIVE', password: '' });
         }
         setIsModalOpen(true);
     };
@@ -134,7 +142,7 @@ const ManageAccounts = () => {
             });
             const data = await res.json();
             if (data.success) {
-                setAccounts(accounts.map(acc => acc.id === id ? { ...acc, is_active: !currentStatus } : acc));
+                setAccounts(accounts.map(acc => acc.id === id ? { ...acc, status: currentStatus ? 'BANNED' : 'ACTIVE' } : acc));
             } else {
                 alert(data.message || 'Failed to update status');
             }
@@ -208,18 +216,18 @@ const ManageAccounts = () => {
                                 </tr>
                             ) : (
                                 accounts.map((user) => (
-                                    <tr key={user.id} className={`hover:bg-[#f8f9fa] transition-colors ${!user.is_active ? 'opacity-80 bg-red-50/30' : ''}`}>
+                                    <tr key={user.id} className={`hover:bg-[#f8f9fa] transition-colors ${user.status !== 'ACTIVE' ? 'opacity-80 bg-red-50/30' : ''}`}>
                                         <td className="p-4 font-bold text-[#002045] flex items-center gap-3">
                                             {user.avatar_url ? (
                                                 <img src={user.avatar_url} alt={user.full_name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-[#e0e3e5]" />
                                             ) : (
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-[14px] ${!user.is_active ? 'bg-red-100 text-red-700' : 'bg-[#e6f0fa] text-[#0061a5]'}`}>
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-[14px] ${user.status !== 'ACTIVE' ? 'bg-red-100 text-red-700' : 'bg-[#e6f0fa] text-[#0061a5]'}`}>
                                                     {getInitials(user.full_name)}
                                                 </div>
                                             )}
                                             <div>
-                                                <div className={`text-[15px] ${!user.is_active ? 'text-[#ba1a1a]' : 'text-[#002045]'}`}>{user.full_name || ''}</div>
-                                                {!user.is_active && <div className="text-[12px] text-[#ba1a1a] font-semibold flex items-center gap-1"><ShieldAlert className="w-3 h-3"/> Restricted Access</div>}
+                                                <div className={`text-[15px] ${user.status !== 'ACTIVE' ? 'text-[#ba1a1a]' : 'text-[#002045]'}`}>{user.full_name || ''}</div>
+                                                {user.status !== 'ACTIVE' && <div className="text-[12px] text-[#ba1a1a] font-semibold flex items-center gap-1"><ShieldAlert className="w-3 h-3"/> Restricted Access</div>}
                                             </div>
                                         </td>
                                         <td className="p-4 text-[#43474e]">{user.email}</td>
@@ -231,10 +239,10 @@ const ManageAccounts = () => {
                                         <td className="p-4 text-[#74777f]">{new Date(user.created_at).toLocaleDateString('en-GB')}</td>
                                         <td className="p-4">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[13px] font-bold 
-                                                ${user.is_active ? 'bg-[#e6f4ea] text-[#137333]' : 'bg-[#ffdad6] text-[#ba1a1a]'}`}
+                                                ${user.status === 'ACTIVE' ? 'bg-[#e6f4ea] text-[#137333]' : 'bg-[#ffdad6] text-[#ba1a1a]'}`}
                                             >
-                                                {user.is_active ? <CheckCircle2 className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
-                                                {user.is_active ? 'Active' : 'Banned'}
+                                                {user.status === 'ACTIVE' ? <CheckCircle2 className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                                                {user.status === 'ACTIVE' ? 'Active' : 'Banned'}
                                             </span>
                                         </td>
                                         <td className="p-4 text-right">
@@ -246,11 +254,11 @@ const ManageAccounts = () => {
                                                     <Edit className="w-4 h-4"/>
                                                 </button>
                                                 <button 
-                                                    onClick={() => handleToggleBan(user.id, user.is_active)}
-                                                    className={`p-2 rounded-lg transition-colors tooltip-trigger ${user.is_active ? 'text-[#ba1a1a] hover:bg-[#ffdad6]' : 'text-[#137333] hover:bg-[#e6f4ea]'}`} 
-                                                    title={user.is_active ? "Ban Account" : "Unban Account"}
+                                                    onClick={() => handleToggleBan(user.id, user.status === 'ACTIVE')}
+                                                    className={`p-2 rounded-lg transition-colors tooltip-trigger ${user.status === 'ACTIVE' ? 'text-[#ba1a1a] hover:bg-[#ffdad6]' : 'text-[#137333] hover:bg-[#e6f4ea]'}`} 
+                                                    title={user.status === 'ACTIVE' ? "Ban Account" : "Unban Account"}
                                                 >
-                                                    {user.is_active ? <Ban className="w-4 h-4"/> : <Unlock className="w-4 h-4"/>}
+                                                    {user.status === 'ACTIVE' ? <Ban className="w-4 h-4"/> : <Unlock className="w-4 h-4"/>}
                                                 </button>
                                             </div>
                                         </td>
@@ -260,6 +268,30 @@ const ManageAccounts = () => {
                         </tbody>
                     </table>
                 </div>
+                {/* Pagination UI */}
+                {totalAccounts > limit && (
+                    <div className="flex items-center justify-between px-6 py-4 border-t border-[#e0e3e5] bg-[#f8f9fa]">
+                        <span className="text-[13px] text-[#43474e]">
+                            Showing <span className="font-bold">{(currentPage - 1) * limit + 1}</span> to <span className="font-bold">{Math.min(currentPage * limit, totalAccounts)}</span> of <span className="font-bold">{totalAccounts}</span> accounts
+                        </span>
+                        <div className="flex gap-2">
+                            <button 
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                className="px-3 py-1.5 border border-[#c4c6cf] rounded-lg text-[13px] font-bold text-[#43474e] bg-white hover:bg-[#f1f4f6] disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Previous
+                            </button>
+                            <button 
+                                disabled={currentPage * limit >= totalAccounts}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                className="px-3 py-1.5 border border-[#c4c6cf] rounded-lg text-[13px] font-bold text-[#43474e] bg-white hover:bg-[#f1f4f6] disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Modal for Create/Edit */}
@@ -350,12 +382,12 @@ const ManageAccounts = () => {
                                         <div className="space-y-2">
                                             <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Status</label>
                                             <select 
-                                                value={formData.is_active ? 'true' : 'false'}
-                                                onChange={e => setFormData({...formData, is_active: e.target.value === 'true'})}
+                                                value={formData.status}
+                                                onChange={e => setFormData({...formData, status: e.target.value as 'ACTIVE' | 'BANNED'})}
                                                 className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors cursor-pointer"
                                             >
-                                                <option value="true">Active</option>
-                                                <option value="false">Banned</option>
+                                                <option value="ACTIVE">Active</option>
+                                                <option value="BANNED">Banned</option>
                                             </select>
                                         </div>
                                     </div>
@@ -382,7 +414,7 @@ const ManageAccounts = () => {
                                 </>
                             )}
 
-                            {!formData.is_active && modalMode === 'edit' && (
+                            {formData.status === 'BANNED' && modalMode === 'edit' && (
                                 <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2 mt-2">
                                     <ShieldAlert className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                                     <p className="text-[13px] text-red-700">This account is currently banned and cannot log in to the system.</p>

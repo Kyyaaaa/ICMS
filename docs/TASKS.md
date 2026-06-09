@@ -55,7 +55,7 @@
 - `[x]` **FE-05: Hiển thị lỗi mật khẩu trùng lặp**
   - Bắt lỗi từ API nếu mật khẩu mới trùng với mật khẩu cũ và hiển thị trực quan thông báo lỗi (helper text/toast) cho người dùng.
 - `[x]` **FE-06: Giao diện & Tích hợp Đăng nhập Google**
-  - Bổ sung nút "Login with Google" bằng icon chuẩn ở màn hình Đăng nhập & Đăng ký.
+  - Bổ sung nút "Login với Google" bằng icon chuẩn ở màn hình Đăng nhập & Đăng ký.
   - Sử dụng `@supabase/supabase-js` để gọi hàm `signInWithOAuth({ provider: 'google' })`.
   - Lắng nghe callback, xử lý lưu access_token và thông tin user vào Global State/Local Storage, sau đó redirect về trang chủ.
 
@@ -93,3 +93,40 @@
 1. **@Backend Agent**: Tiến hành cập nhật Schema DB và hoàn thành API `forgot-password` (Tiếp tục với file `mailer.ts` đang mở để chuẩn bị hàm gửi mail OTP).
 2. **@Frontend Agent**: Bắt tay vào thiết kế khung UI cho 3 màn hình của luồng Forgot Password (nếu mockups đã sẵn sàng).
 3. **@QA Agent**: Cập nhật đầy đủ input testing vào file `auth.http` theo như các Edge Cases đã đề cập.
+
+---
+
+## 🚀 5. Kế hoạch Refactor Hệ Thống: Chuyển Source of Truth về `public.account`
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-09: Thực thi Refactor (Đã hoàn thành bởi Antigravity)**
+  - Chuyển source of truth từ `auth.users` (user_metadata) về `public.account`.
+  - Cập nhật Auth Middleware: Lấy thông tin user từ `public.account`.
+  - Gỡ bỏ hoàn toàn logic mã tự động (`account_code`) ở mọi module.
+  - Cập nhật Account Module: Thay thế `auth.admin` APIs bằng truy vấn DB nội bộ. Hỗ trợ search và filter trực tiếp qua DB.
+  - Cập nhật Learner Module: Xóa 2 chiều và thêm record mới đảm bảo đồng bộ với `public.account`.
+  - Fix và chạy lại toàn bộ Unit Test.
+- `[x]` **BE-10: Review code & Kiểm tra tổng thể**
+  - Rà soát lại toàn bộ mã nguồn xem còn bất kỳ endpoint/dependency nào đang dựa dẫm vào trường `account_code` không.
+  - Kiểm tra xem Supabase RLS (Row Level Security) trên `public.account` đã được cấu hình chặt chẽ chưa.
+
+### 🎨 Frontend Agent
+- `[ ]` **FE-07: Cập nhật giao diện Admin Dashboard (Quản lý Account)**
+  - Cập nhật UI/UX ở danh sách tài khoản: Gỡ bỏ hiển thị cột "Account Code".
+  - Cập nhật lại data binding cho bảng, lấy dữ liệu từ property `data` và phân trang với property `total` từ API response mới.
+- `[ ]` **FE-08: Cập nhật luồng tạo/chỉnh sửa Account**
+  - Xóa bỏ field `account_code` khỏi tất cả các form Tạo mới / Cập nhật tài khoản.
+  - Cập nhật cách truyền trạng thái Ban/Unban (API hiện tại yêu cầu payload `{ is_active: false }` thay vì truyền `status` như trước đây).
+- `[ ]` **FE-10: Tích hợp API mới vào Axios/Redux/React Query**
+  - Cập nhật các service gọi API của Account và Learner module để match chính xác với cấu trúc JSON Response mới của Backend (`{ success: true, data: ..., total: ... }`).
+- `[ ]` **FE-09: Cập nhật màn hình Hồ sơ (Profile)**
+  - Đảm bảo màn hình hiển thị hồ sơ cá nhân của người dùng không còn render thuộc tính `account_code` bị lỗi `undefined`.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-07: Kiểm thử luồng CRUD Account trên Admin Dashboard**
+  - Đảm bảo Admin có thể lấy danh sách, tạo mới, cập nhật, và đổi status người dùng bình thường với cơ chế DB mới.
+  - Kiểm tra các chức năng Filter, Search và Pagination của bảng Account có hoạt động đúng không.
+- `[x]` **QA-08: Kiểm thử luồng Auth/Learner với Source of Truth mới**
+  - Kịch bản 1: Đăng ký một Learner mới (Kỳ vọng: Tự động phát sinh 1 record trong bảng `auth.users` VÀ 1 record trong `public.account` với role `LEARNER`).
+  - Kịch bản 2: Đăng nhập và kiểm tra access token. Chắc chắn middleware `verifyToken` đã parse đúng role từ database.
+  - Kịch bản 3: Xóa một Learner (Kỳ vọng: Bản ghi biến mất đồng thời ở cả `auth.users` và `public.account`).

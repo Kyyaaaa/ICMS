@@ -1,0 +1,58 @@
+@baseUrl = http://localhost:5000/api
+# Thay đổi access token sau khi login
+@accessToken = YOUR_ADMIN_ACCESS_TOKEN_HERE
+@accountId = SOME_ACCOUNT_ID_HERE
+
+### ------------------------------------------------------------------------
+### ACCOUNT MODULE ENDPOINTS
+### ------------------------------------------------------------------------
+
+# @name loginRequest
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "password123"
+}
+
+### Lưu token vào biến accessToken để tự động dùng ở dưới
+@accessToken = {{loginRequest.response.body.data.access_token}}
+### 1. Lấy danh sách tài khoản (Yêu cầu quyền ADMIN/STAFF)
+GET {{baseUrl}}/accounts
+Authorization: Bearer {{accessToken}}
+
+### 2. Lấy thông tin chi tiết một tài khoản
+GET {{baseUrl}}/accounts/5a932173-e397-4779-80ce-01c7f4929d24
+Authorization: Bearer {{accessToken}}
+
+### 3. Tạo tài khoản mới (Yêu cầu quyền ADMIN/STAFF)
+POST {{baseUrl}}/accounts
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "email": "newuser@example.com",
+  "password": "Password@123",
+  "full_name": "New User",
+  "role": "LEARNER"
+}
+
+### 4. Cập nhật thông tin tài khoản (Tên, mật khẩu, SĐT)
+PATCH {{baseUrl}}/accounts/8f024054-fb8e-4e50-85f1-7ae3f8e2aa5e
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "full_name": "Kayami AKi",
+  "phone_number": "0987654321"
+}
+
+### 5. Cập nhật trạng thái tài khoản (Ban/Active) (Yêu cầu quyền ADMIN/STAFF)
+PATCH {{baseUrl}}/accounts/8f024054-fb8e-4e50-85f1-7ae3f8e2aa5e/status
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "status": "BANNED"
+}

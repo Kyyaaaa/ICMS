@@ -32,7 +32,7 @@ export class LearnerService {
     const { email, password, full_name, phone_number } = learnerData;
     
     // Gọi Supabase Admin để tạo tài khoản, bypass phần gửi email
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -43,8 +43,21 @@ export class LearnerService {
       }
     });
     
-    if (error) throw error;
-    return data.user;
+    if (authError) throw authError;
+
+    // Fetch from public.account
+    const { data: accountData, error: accountError } = await supabaseAdmin
+      .from('account')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single();
+
+    if (accountError) {
+      await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+      throw accountError;
+    }
+
+    return accountData;
   }
 
   /**
@@ -77,7 +90,10 @@ export class LearnerService {
    * Xóa học viên
    */
   static async delete(id: string) {
-    // Xóa user từ Supabase Auth sẽ tự động xóa bản ghi trong bảng account và learner
+    // Xóa khỏi bảng account trước (nếu database chưa setup ON DELETE CASCADE)
+    await supabaseAdmin.from('account').delete().eq('id', id);
+
+    // Xóa user từ Supabase Auth
     const { data, error } = await supabaseAdmin.auth.admin.deleteUser(id);
     if (error) throw error;
     return data;
