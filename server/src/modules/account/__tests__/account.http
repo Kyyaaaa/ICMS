@@ -23,7 +23,7 @@ GET {{baseUrl}}/accounts
 Authorization: Bearer {{accessToken}}
 
 ### 2. Lấy thông tin chi tiết một tài khoản
-GET {{baseUrl}}/accounts/5a932173-e397-4779-80ce-01c7f4929d24
+GET {{baseUrl}}/accounts/8f024054-fb8e-4e50-85f1-7ae3f8e2aa5e
 Authorization: Bearer {{accessToken}}
 
 ### 3. Tạo tài khoản mới (Yêu cầu quyền ADMIN/STAFF)
@@ -32,20 +32,21 @@ Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "email": "newuser@example.com",
-  "password": "Password@123",
-  "full_name": "New User",
-  "role": "LEARNER"
+  "email": "testuser3@gmail.com",
+  "password": "password@123",
+  "full_name": "Test User 3",
+  "role": "LEARNERRR"
 }
 
 ### 4. Cập nhật thông tin tài khoản (Tên, mật khẩu, SĐT)
-PATCH {{baseUrl}}/accounts/8f024054-fb8e-4e50-85f1-7ae3f8e2aa5e
+PATCH {{baseUrl}}/accounts/b3053366-a42a-4bc3-b6ff-690e1bfb8eff
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
   "full_name": "Kayami AKi",
-  "phone_number": "0987654321"
+  "phone_number": "0987654321",
+  "role": "LEARNER"
 }
 
 ### 5. Cập nhật trạng thái tài khoản (Ban/Active) (Yêu cầu quyền ADMIN/STAFF)
@@ -54,5 +55,5 @@ Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "status": "BANNED"
+  "status": "ACTIVE"
 }

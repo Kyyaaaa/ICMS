@@ -79,7 +79,7 @@ export class AccountService {
     return await AccountRepository.updateUser(targetId, payload);
   }
 
-  static async setAccountStatus(callerRole: string, targetId: string, isActive: boolean) {
+  static async setAccountStatus(callerRole: string, targetId: string, status: string) {
     const user = await AccountRepository.getUserById(targetId);
     
     // Check RBAC for Staff
@@ -89,7 +89,7 @@ export class AccountService {
       }
     }
 
-    const payload = { status: isActive ? 'ACTIVE' : 'BANNED' };
+    const payload = { status };
     return await AccountRepository.updateUser(targetId, payload);
   }
 }

@@ -116,7 +116,7 @@
   - Cập nhật lại data binding cho bảng, lấy dữ liệu từ property `data` và phân trang với property `total` từ API response mới.
 - `[ ]` **FE-08: Cập nhật luồng tạo/chỉnh sửa Account**
   - Xóa bỏ field `account_code` khỏi tất cả các form Tạo mới / Cập nhật tài khoản.
-  - Cập nhật cách truyền trạng thái Ban/Unban (API hiện tại yêu cầu payload `{ is_active: false }` thay vì truyền `status` như trước đây).
+  - Cập nhật cách truyền trạng thái Ban/Unban (API yêu cầu payload `{ status: 'ACTIVE' | 'BANNED' }`).
 - `[ ]` **FE-10: Tích hợp API mới vào Axios/Redux/React Query**
   - Cập nhật các service gọi API của Account và Learner module để match chính xác với cấu trúc JSON Response mới của Backend (`{ success: true, data: ..., total: ... }`).
 - `[ ]` **FE-09: Cập nhật màn hình Hồ sơ (Profile)**

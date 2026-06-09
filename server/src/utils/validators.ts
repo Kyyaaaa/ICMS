@@ -19,3 +19,8 @@ export const validateFullName = (fullName: string) => {
   const regex = /^[\p{L}\s]{2,50}$/u;
   return regex.test(fullName);
 };
+
+export const validateRole = (role: string) => {
+  const allowedRoles = ['ADMIN', 'STAFF', 'TUTOR', 'LEARNER'];
+  return allowedRoles.includes(role.toUpperCase());
+};

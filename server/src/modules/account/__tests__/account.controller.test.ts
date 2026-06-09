@@ -108,7 +108,7 @@ describe('AccountController API Tests', () => {
 
       const response = await request(app)
         .patch('/api/accounts/1/status')
-        .send({ is_active: false });
+        .send({ status: 'BANNED' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);

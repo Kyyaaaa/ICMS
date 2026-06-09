@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { AccountService } from './account.service';
 import { AuthService } from '../auth/auth.service';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
-import { validatePassword, validatePhoneNumber, validateFullName } from '../../utils/validators';
+import { validateEmail, validatePassword, validatePhoneNumber, validateFullName, validateRole } from '../../utils/validators';
 
 export class AccountController {
   
@@ -67,6 +67,41 @@ export class AccountController {
         return res.status(400).json({
           success: false,
           message: 'Missing required fields: email, password, role, full_name'
+        });
+      }
+
+      if (!validateRole(role)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid role. Allowed roles are: ADMIN, STAFF, TUTOR, LEARNER'
+        });
+      }
+
+      if (!validateEmail(email)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+      }
+
+      if (!validatePassword(password)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character'
+        });
+      }
+
+      if (!validateFullName(full_name)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid full name. Only letters and spaces allowed, 2-50 characters.'
+        });
+      }
+
+      if (phone_number && !validatePhoneNumber(phone_number)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid phone number. Must be 10 digits starting with 03, 05, 07, 08, or 09.'
         });
       }
 
@@ -178,21 +213,21 @@ export class AccountController {
       const callerRole = req.user.role as string;
       const { id } = req.params;
       const targetId = id as string;
-      const { is_active } = req.body;
+      const { status } = req.body;
 
-      if (is_active === undefined) {
+      if (status !== 'ACTIVE' && status !== 'BANNED') {
         return res.status(400).json({
           success: false,
-          message: 'Missing required field: is_active (boolean)'
+          message: 'Missing or invalid required field: status (ACTIVE or BANNED)'
         });
       }
 
-      const updatedAccount = await AccountService.setAccountStatus(callerRole, targetId, is_active);
+      const updatedAccount = await AccountService.setAccountStatus(callerRole, targetId, status);
 
       return res.status(200).json({
         success: true,
         data: updatedAccount,
-        message: `Account status updated to ${is_active ? 'Active' : 'Banned'}`
+        message: `Account status updated to ${status}`
       });
     } catch (error: any) {
       if (error.message.includes('Forbidden')) {

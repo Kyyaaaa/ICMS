@@ -8,8 +8,7 @@ export interface AccountResponse {
   gender?: string | null; 
   avatar_url?: string | null;
   created_at: string;
-  last_sign_in_at?: string;
-  is_active: boolean; // false means Banned (Soft Deleted)
+  status: 'ACTIVE' | 'BANNED'; 
 }
 
 export interface CreateAccountDTO {
