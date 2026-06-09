@@ -23,8 +23,11 @@ const StaffProfile = () => {
         gender: '',
         email: '',
         role: '',
-        created_at: ''
+        created_at: '',
+        avatar_url: ''
     });
+
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
     const [passwords, setPasswords] = useState({
         oldPassword: '',
@@ -53,7 +56,8 @@ const StaffProfile = () => {
                         gender: data.data.gender || '',
                         email: data.data.email,
                         role: data.data.role,
-                        created_at: data.data.created_at || ''
+                        created_at: data.data.created_at || '',
+                        avatar_url: data.data.avatar_url || ''
                     });
                 }
             } catch (error) {
@@ -129,6 +133,57 @@ const StaffProfile = () => {
     };
 
 
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploadingAvatar(true);
+        try {
+            const token = Cookies.get('access_token');
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('folder', 'avatar');
+
+            const uploadRes = await fetch('http://localhost:5000/api/upload/image', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            const uploadData = await uploadRes.json();
+            
+            if (uploadData.success) {
+                const newAvatarUrl = uploadData.url;
+                const saveRes = await fetch(`http://localhost:5000/api/accounts/${account.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ avatar_url: newAvatarUrl })
+                });
+                const saveData = await saveRes.json();
+                
+                if (saveData.success) {
+                    setAccount({ ...account, avatar_url: newAvatarUrl });
+                    
+                    const userInfoStr = Cookies.get('user_info');
+                    if (userInfoStr) {
+                        const userInfo = JSON.parse(userInfoStr);
+                        userInfo.avatar_url = newAvatarUrl;
+                        Cookies.set('user_info', JSON.stringify(userInfo), { path: '/' });
+                        window.location.reload();
+                    }
+                } else {
+                    alert('Failed to save avatar to profile.');
+                }
+            } else {
+                alert('Upload failed: ' + uploadData.message);
+            }
+        } catch (error) {
+            console.error('Avatar upload error:', error);
+            alert('An error occurred during upload.');
+        } finally {
+            setIsUploadingAvatar(false);
+        }
+    };
+
     const handleSavePassword = async (e: React.FormEvent) => {
         e.preventDefault();
         if (passwords.newPassword !== passwords.confirmPassword) {
@@ -203,12 +258,21 @@ const StaffProfile = () => {
                 {/* Left Column: Avatar & Basic Info */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
-                        <div className="relative w-32 h-32 rounded-full bg-[#edf4fb] flex items-center justify-center text-[#0061a5] font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
-                            <span>{initials}</span>
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Camera className="w-8 h-8 text-white" />
+                        <label className="relative w-32 h-32 rounded-full bg-[#edf4fb] flex items-center justify-center text-[#0061a5] font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
+                            {account.avatar_url ? (
+                                <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                <span>{initials}</span>
+                            )}
+                            <div className={`absolute inset-0 bg-black/50 flex flex-col items-center justify-center transition-opacity ${isUploadingAvatar ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                {isUploadingAvatar ? (
+                                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    <Camera className="w-8 h-8 text-white" />
+                                )}
                             </div>
-                        </div>
+                            <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} disabled={isUploadingAvatar} />
+                        </label>
                         <h2 className="text-[20px] font-bold text-[#002045]">{account.full_name || ''}</h2>
                         <div className="mt-2">
                             <span className="px-3 py-1 bg-[#eadef7] text-[#4a0080] text-[12px] font-bold rounded-md uppercase tracking-wide">{account.role}</span>

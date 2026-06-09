@@ -75,6 +75,7 @@ export class AccountService {
     if (updates.phone_number !== undefined) payload.phone_number = updates.phone_number;
     if (updates.date_of_birth !== undefined) payload.date_of_birth = updates.date_of_birth;
     if (updates.gender !== undefined) payload.gender = updates.gender;
+    if (updates.avatar_url !== undefined) payload.avatar_url = updates.avatar_url;
 
     return await AccountRepository.updateUser(targetId, payload);
   }

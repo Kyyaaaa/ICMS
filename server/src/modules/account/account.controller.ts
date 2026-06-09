@@ -96,7 +96,7 @@ export class AccountController {
         return res.status(403).json({ success: false, message: 'Forbidden: You can only update your own account' });
       }
 
-      const { full_name, phone_number, password, old_password, date_of_birth, gender } = req.body;
+      const { full_name, phone_number, password, old_password, date_of_birth, gender, avatar_url } = req.body;
 
       // --- Validate full name format ---
       if (full_name !== undefined && full_name !== '' && !validateFullName(full_name)) {
@@ -156,7 +156,8 @@ export class AccountController {
         phone_number,
         password,
         date_of_birth,
-        gender
+        gender,
+        avatar_url
       });
 
       return res.status(200).json({

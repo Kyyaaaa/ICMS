@@ -13,10 +13,10 @@ const SHIFTS = [
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 const MOCK_TUTORS = [
-    { id: 'T001', name: 'John Doe', status: 'submitted', slots: ['Monday-E1', 'Wednesday-E1', 'Friday-E1', 'Saturday-M1', 'Saturday-M2'] },
-    { id: 'T002', name: 'Jane Smith', status: 'draft', slots: ['Tuesday-A1', 'Thursday-A1'] },
-    { id: 'T003', name: 'Emily Chen', status: 'submitted', slots: ['Monday-M1', 'Wednesday-M1', 'Friday-M1'] },
-    { id: 'T004', name: 'Michael Brown', status: 'submitted', slots: ['Saturday-E1', 'Saturday-E2', 'Sunday-E1', 'Sunday-E2'] },
+    { id: 'T001', name: 'John Doe', status: 'submitted', slots: ['Monday-E1', 'Wednesday-E1', 'Friday-E1', 'Saturday-M1', 'Saturday-M2'], avatar_url: '' },
+    { id: 'T002', name: 'Jane Smith', status: 'draft', slots: ['Tuesday-A1', 'Thursday-A1'], avatar_url: '' },
+    { id: 'T003', name: 'Emily Chen', status: 'submitted', slots: ['Monday-M1', 'Wednesday-M1', 'Friday-M1'], avatar_url: '' },
+    { id: 'T004', name: 'Michael Brown', status: 'submitted', slots: ['Saturday-E1', 'Saturday-E2', 'Sunday-E1', 'Sunday-E2'], avatar_url: '' },
 ];
 
 const StaffTutorAvailability = () => {
@@ -120,9 +120,13 @@ const StaffTutorAvailability = () => {
                     >
                         {selectedTutor ? (
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-full bg-[#e3f2fd] text-[#0061a5] flex items-center justify-center font-bold text-[13px]">
-                                    {selectedTutor.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
-                                </div>
+                                {selectedTutor.avatar_url ? (
+                                    <img src={selectedTutor.avatar_url} alt={selectedTutor.name} className="w-9 h-9 rounded-full object-cover shrink-0" />
+                                ) : (
+                                    <div className="w-9 h-9 rounded-full bg-[#e3f2fd] text-[#0061a5] flex items-center justify-center font-bold text-[13px] shrink-0">
+                                        {selectedTutor.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
+                                    </div>
+                                )}
                                 <div>
                                     <div className="font-bold text-[14px] text-[#002045] leading-none mb-1">{selectedTutor.name}</div>
                                     <div className="flex items-center gap-1.5">
@@ -182,9 +186,13 @@ const StaffTutorAvailability = () => {
                                                     className={`w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-[#f0f4f8] transition-colors ${selectedTutorId === tutor.id ? 'bg-[#e6f0fa]' : ''}`}
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] ${selectedTutorId === tutor.id ? 'bg-[#0061a5] text-white' : 'bg-[#e0e3e5] text-[#43474e]'}`}>
-                                                            {initials}
-                                                        </div>
+                                                        {tutor.avatar_url ? (
+                                                            <img src={tutor.avatar_url} alt={tutor.name} className="w-8 h-8 rounded-full object-cover shrink-0" />
+                                                        ) : (
+                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] shrink-0 ${selectedTutorId === tutor.id ? 'bg-[#0061a5] text-white' : 'bg-[#e0e3e5] text-[#43474e]'}`}>
+                                                                {initials}
+                                                            </div>
+                                                        )}
                                                         <div className="text-left">
                                                             <div className={`font-bold text-[13px] leading-none mb-1 ${selectedTutorId === tutor.id ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>
                                                                 {tutor.name}

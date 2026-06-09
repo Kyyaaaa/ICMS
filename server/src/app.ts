@@ -5,6 +5,7 @@ import { swaggerSpec } from './configs/swagger';
 import authRoutes from './modules/auth/auth.routes';
 import learnerRoutes from './modules/learner/learner.routes';
 import accountRoutes from './modules/account/account.routes';
+import uploadRoutes from './modules/upload/upload.routes';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json()); // Cho phép Server đọc dữ liệu JSON gửi lên 
 app.use('/api/auth', authRoutes);
 app.use('/api/learners', learnerRoutes);
 app.use('/api/accounts', accountRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

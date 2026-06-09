@@ -26,7 +26,8 @@ const AdminAccountDetail = () => {
         is_active: true,
         created_at: '',
         password: '',
-        confirm_password: ''
+        confirm_password: '',
+        avatar_url: ''
     });
 
     useEffect(() => {
@@ -48,7 +49,8 @@ const AdminAccountDetail = () => {
                         gender: data.data.gender || '',
                         role: data.data.role,
                         is_active: data.data.status === 'ACTIVE',
-                        created_at: new Date(data.data.created_at).toLocaleDateString()
+                        created_at: new Date(data.data.created_at).toLocaleDateString(),
+                        avatar_url: data.data.avatar_url || ''
                     }));
                 } else {
                     alert(data.message || 'Failed to fetch account details');
@@ -175,8 +177,12 @@ const AdminAccountDetail = () => {
                 {/* Left Column: Avatar & Basic Info */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
-                        <div className="relative w-32 h-32 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm mb-4">
-                            {account.full_name ? account.full_name.charAt(0).toUpperCase() : 'U'}
+                        <div className="relative w-32 h-32 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm mb-4 overflow-hidden">
+                            {account.avatar_url ? (
+                                <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                account.full_name ? account.full_name.charAt(0).toUpperCase() : 'U'
+                            )}
                         </div>
                         <h2 className="text-[20px] font-bold text-[#002045]">{account.full_name || ''}</h2>
                         <div className="flex flex-col items-center gap-2 mt-2">
