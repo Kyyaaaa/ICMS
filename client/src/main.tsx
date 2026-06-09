@@ -83,17 +83,20 @@ import { NotificationsPage } from './views/shared/notifications.tsx'
 import PublicNotifications from './views/public-notifications.tsx'
 
 import { ProtectedRoute } from './components/auth/ProtectedRoute.tsx'
+import { GuestRoute } from './components/auth/GuestRoute.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/verify-otp" element={<VerifyOTP />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route element={<GuestRoute />}>
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Route>
         <Route path="/homepage" element={<Homepage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/courses" element={<Courses />} />

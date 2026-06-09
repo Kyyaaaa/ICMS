@@ -113,6 +113,7 @@ const StaffProfile = () => {
                     const userInfo = JSON.parse(userInfoStr);
                     userInfo.full_name = account.full_name;
                     Cookies.set('user_info', JSON.stringify(userInfo), { path: '/' });
+                    window.dispatchEvent(new Event('profileUpdated'));
                 }
                 
                 setIsProfileSuccess(true);
