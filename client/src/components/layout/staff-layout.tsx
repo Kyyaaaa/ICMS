@@ -123,6 +123,7 @@ const StaffLayout = () => {
     const fullName = userInfo?.full_name;
     const roleText = userInfo?.role;
     const initials = fullName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+    const avatarUrl = userInfo?.avatar_url;
 
     return (
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
@@ -238,8 +239,12 @@ const StaffLayout = () => {
                                 <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
                                 <span className="text-[12px] text-[#74777f] leading-tight">{roleText}</span>
                             </div>
-                            <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all">
-                                {initials}
+                            <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
+                                {avatarUrl ? (
+                                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    initials
+                                )}
                             </div>
                         </Link>
                     </div>

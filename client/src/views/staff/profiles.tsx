@@ -48,8 +48,8 @@ const ProfileList = () => {
                     <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead className="bg-[#f8f9fa] border-b border-[#e0e3e5] text-[#43474e] text-sm">
                             <tr>
-                                <th className="p-4 font-semibold">Tutor Name</th>
-                                <th className="p-4 font-semibold">Subject Expetise</th>
+                                <th className="p-4 font-semibold">Tutor</th>
+                                <th className="p-4 font-semibold">Subject Expertise</th>
                                 <th className="p-4 font-semibold">Submitted On</th>
                                 <th className="p-4 font-semibold">Verification Status</th>
                                 <th className="p-4 font-semibold text-right">Action</th>
@@ -57,12 +57,23 @@ const ProfileList = () => {
                         </thead>
                         <tbody className="text-sm">
                             {[
-                                { name: 'Dr. Sarah Connor', subject: 'IELTS / TOEFL', date: '24-10-2026', status: 'Pending' },
-                                { name: 'Mr. James Bond', subject: 'Advanced Communication', date: '23-10-2026', status: 'Verified' },
-                                { name: 'Ms. Emily Blunt', subject: 'Basic English', date: '20-10-2026', status: 'Pending' },
+                                { name: 'Dr. Sarah Connor', subject: 'IELTS / TOEFL', date: '24-10-2026', status: 'Pending', avatar_url: '' },
+                                { name: 'Mr. James Bond', subject: 'Advanced Communication', date: '23-10-2026', status: 'Verified', avatar_url: '' },
+                                { name: 'Ms. Emily Blunt', subject: 'Basic English', date: '20-10-2026', status: 'Pending', avatar_url: '' },
                             ].map((tutor, i) => (
                                 <tr key={i} className="border-b border-[#e0e3e5] hover:bg-[#f0f7ff]/50 transition-colors">
-                                    <td className="p-4 font-bold text-[#002045]">{tutor.name}</td>
+                                    <td className="p-4 font-bold text-[#002045]">
+                                        <div className="flex items-center gap-3">
+                                            {tutor.avatar_url ? (
+                                                <img src={tutor.avatar_url} alt={tutor.name} className="w-8 h-8 rounded-full object-cover shrink-0" />
+                                            ) : (
+                                                <div className="w-8 h-8 rounded-full bg-[#e3f2fd] text-[#0061a5] flex items-center justify-center font-bold text-[12px] shrink-0">
+                                                    {tutor.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
+                                                </div>
+                                            )}
+                                            {tutor.name}
+                                        </div>
+                                    </td>
                                     <td className="p-4 text-[#43474e]">{tutor.subject}</td>
                                     <td className="p-4 text-[#74777f]">{tutor.date}</td>
                                     <td className="p-4">

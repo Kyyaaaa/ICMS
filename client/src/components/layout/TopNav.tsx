@@ -128,8 +128,12 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
                         {isLoggedIn ? (
                             <div className="relative">
                                 <div className="flex items-center gap-[12px] cursor-pointer hover:bg-[#f1f4f6] py-1.5 px-3 rounded-full transition-colors" onClick={() => setShowProfileMenu(!showProfileMenu)} title="Profile Menu">
-                                    <div className="w-[40px] h-[40px] bg-[#0061a5] rounded-full flex items-center justify-center text-white font-bold shadow-sm border-2 border-white">
-                                        {typeof userInfo?.full_name === 'string' ? userInfo.full_name.charAt(0).toUpperCase() : ''}
+                                    <div className="w-[40px] h-[40px] bg-[#0061a5] rounded-full flex items-center justify-center text-white font-bold shadow-sm border-2 border-white overflow-hidden">
+                                        {typeof userInfo?.avatar_url === 'string' && userInfo.avatar_url ? (
+                                            <img src={userInfo.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                                        ) : typeof userInfo?.full_name === 'string' ? (
+                                            userInfo.full_name.charAt(0).toUpperCase()
+                                        ) : ''}
                                     </div>
                                     <div className="hidden md:flex flex-col text-left">
                                         <span className="text-[14px] font-bold text-[#002045] leading-tight">{typeof userInfo?.full_name === 'string' ? userInfo.full_name : ''}</span>
