@@ -3,8 +3,6 @@ import { BookOpen, Mail, Lock, Eye, EyeOff, Star, AlertCircle, LineChart, ArrowL
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
-import { supabase } from '../lib/supabase';
-
 const Login = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [showError, setShowError] = useState(false);
@@ -18,19 +16,9 @@ const Login = () => {
         setPasswordVisible(!passwordVisible);
     };
 
-    const handleGoogleLogin = async () => {
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
-                },
-            });
-            if (error) throw error;
-        } catch (error: any) {
-            setShowError(true);
-            setErrorMsg(error.message || 'Failed to login with Google.');
-        }
+    const handleGoogleLogin = () => {
+        // Chuyển hướng trình duyệt sang Backend để Backend gọi Google OAuth
+        window.location.href = 'http://localhost:5000/api/auth/google';
     };
 
     const handleLogin = async (e: React.FormEvent) => {

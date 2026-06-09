@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, BookOpen, CheckCircle2, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
-
 const Register = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -17,18 +15,8 @@ const Register = () => {
         setPasswordVisible(!passwordVisible);
     };
 
-    const handleGoogleLogin = async () => {
-        try {
-            const { error: authError } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
-                },
-            });
-            if (authError) throw authError;
-        } catch (err: any) {
-            setError(err.message || 'Failed to sign up with Google.');
-        }
+    const handleGoogleLogin = () => {
+        window.location.href = 'http://localhost:5000/api/auth/google';
     };
 
     const handleRegister = async (e: React.FormEvent) => {

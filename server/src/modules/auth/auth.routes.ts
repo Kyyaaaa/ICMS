@@ -201,6 +201,18 @@ router.post('/reset-password', AuthController.resetPassword);
 
 /**
  * @swagger
+ * /api/auth/google:
+ *   get:
+ *     summary: Initiate Google OAuth login
+ *     tags: [Authentication]
+ *     responses:
+ *       302:
+ *         description: Redirects to Google login page
+ */
+router.get('/google', AuthController.googleLogin);
+
+/**
+ * @swagger
  * /api/auth/google-sync:
  *   post:
  *     summary: Sync Google user with internal DB
@@ -217,6 +229,9 @@ router.post('/reset-password', AuthController.resetPassword);
  *               access_token:
  *                 type: string
  *                 description: Supabase access token obtained after Google login
+ *               refresh_token:
+ *                 type: string
+ *                 description: Supabase refresh token
  *     responses:
  *       200:
  *         description: Sync successful, returns standardized user data

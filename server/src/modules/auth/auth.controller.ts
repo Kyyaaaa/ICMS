@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { validateEmail, validatePassword, validateFullName, validatePhoneNumber } from '../../utils/validators';
+import { supabaseAdmin } from '../../configs/supabase';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -192,21 +193,47 @@ export class AuthController {
     }
   }
 
+  static async googleLogin(req: Request, res: Response) {
+    try {
+      const { data, error } = await supabaseAdmin.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          // Trỏ về trang auth-callback của Frontend React để hứng Token
+          redirectTo: 'http://localhost:5173/auth/callback'
+        }
+      });
+
+      if (error) throw error;
+      
+      // Chuyển hướng trình duyệt đến trang đăng nhập của Google
+      if (data.url) {
+        return res.redirect(data.url);
+      } else {
+        return res.status(400).json({ success: false, message: 'Could not generate Google Login URL' });
+      }
+    } catch (error: any) {
+      console.error('Error generating Google OAuth URL:', error);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
+  }
+
+  // Xử lý bước cuối cùng: Nhận Token từ Frontend, lưu DB và trả dữ liệu về Frontend
   static async syncGoogle(req: Request, res: Response) {
     try {
-      const { access_token } = req.body;
+      const { access_token, refresh_token } = req.body;
 
       if (!access_token) {
-        return res.status(400).json({ success: false, message: 'Please provide access_token' });
+        return res.status(400).json({ success: false, message: 'Missing access token' });
       }
 
       const result = await AuthService.syncGoogleUser(access_token);
-
+      
       return res.status(200).json({
         success: true,
         message: 'Google login synced successfully',
         data: {
           access_token: access_token,
+          refresh_token: refresh_token || null,
           user: {
             id: result.user.id,
             email: result.user.email,
@@ -217,11 +244,8 @@ export class AuthController {
         }
       });
     } catch (error: any) {
-      console.error('Error during Google sync:', error);
-      return res.status(401).json({
-        success: false,
-        message: error.message || 'Failed to sync Google account'
-      });
+      console.error('Google Auth Sync Error:', error);
+      return res.status(500).json({ success: false, message: 'Failed to sync Google user', error: error.message });
     }
   }
 }
