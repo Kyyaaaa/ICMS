@@ -20,6 +20,55 @@ router.use(fileUpload({
   }
 }));
 
+/**
+ * @swagger
+ * /api/upload/image:
+ *   post:
+ *     summary: Upload an image file to Supabase Storage
+ *     tags: [Upload]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: The image file to upload (Max 5MB)
+ *               folder:
+ *                 type: string
+ *                 description: Optional subfolder path (e.g., 'avatars', 'courses')
+ *     responses:
+ *       200:
+ *         description: File uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: File uploaded successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     publicUrl:
+ *                       type: string
+ *                       example: https://xyz.supabase.co/storage/v1/object/public/uploads/avatars/123.png
+ *       400:
+ *         description: No file uploaded or unsupported file format
+ *       413:
+ *         description: File size limit exceeded (5MB max)
+ *       401:
+ *         description: Unauthorized
+ */
 // expects form-data with a field named "file" (and optionally "folder")
 router.post('/image', UploadController.uploadImage);
 
