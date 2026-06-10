@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, Clock } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { AuthService } from '../services/auth.service';
 
 export const LoginForm = () => {
+    const location = useLocation();
+    const sessionExpired = (location.state as { sessionExpired?: boolean })?.sessionExpired;
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [showError, setShowError] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
@@ -62,6 +64,13 @@ export const LoginForm = () => {
 
     return (
         <div className="w-full max-w-[440px] mx-auto">
+            {/* Session Expired Banner */}
+            {sessionExpired && (
+                <div className="mb-[24px] flex items-center gap-3 bg-[#fff4ce] border border-[#e5c200] text-[#4a3800] px-4 py-3 rounded-xl animate-fade-in-up">
+                    <Clock className="w-5 h-5 flex-shrink-0 text-[#855e00]" />
+                    <p className="text-[14px] font-medium">Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.</p>
+                </div>
+            )}
             <div className="mb-[40px] animate-fade-in-up">
                 <h1 className="text-[48px] leading-[56px] font-bold tracking-[-0.02em] text-[#002045] mb-[8px]">Welcome Back</h1>
                 <p className="text-[18px] leading-[28px] text-[#43474e]">Log in to the IELTS Center Management System to continue managing your institution.</p>

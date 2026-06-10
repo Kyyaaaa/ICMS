@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
+import { verifyToken } from '../../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -141,6 +142,24 @@ router.post('/login', AuthController.login);
  *         description: Invalid or expired refresh token
  */
 router.post('/refresh', AuthController.refreshToken);
+
+/**
+ * @swagger
+ * /api/auth/verify:
+ *   get:
+ *     summary: Verify if current access token is still valid
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token is valid
+ *       401:
+ *         description: Token is invalid or expired
+ */
+router.get('/verify', verifyToken, (_req: any, res: any) => {
+    return res.status(200).json({ success: true, message: 'Token is valid' });
+});
 
 /**
  * @swagger

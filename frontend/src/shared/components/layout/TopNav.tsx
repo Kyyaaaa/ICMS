@@ -160,7 +160,9 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
                                                 Cookies.remove('access_token', { path: '/' });
                                                 Cookies.remove('refresh_token', { path: '/' });
                                                 Cookies.remove('user_info', { path: '/' });
-                                                window.location.href = '/homepage';
+                                                Cookies.remove('user_role', { path: '/' });
+                                                Cookies.remove('user_email', { path: '/' });
+                                                window.location.href = '/login';
                                             }}
                                         >
                                             Logout
