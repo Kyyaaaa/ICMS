@@ -71,11 +71,8 @@ const AdminAccounts = () => {
                 const responseData = (data as { data: { data: Account[]; total: number } | Account[] }).data;
                 const accountsData = Array.isArray(responseData) ? responseData : responseData.data || [];
                 const total = !Array.isArray(responseData) ? responseData.total : accountsData.length;
-                const sortedData = accountsData.sort((a: Account, b: Account) => {
-                    const roleOrder: Record<Role, number> = { 'ADMIN': 1, 'STAFF': 2, 'TUTOR': 3, 'LEARNER': 4 };
-                    return (roleOrder[a.role] || 99) - (roleOrder[b.role] || 99);
-                });
-                setAccounts(sortedData);
+                
+                setAccounts(accountsData);
                 setTotalAccounts(total);
             } else {
                 setError((data as { message?: string }).message || 'Failed to fetch accounts');

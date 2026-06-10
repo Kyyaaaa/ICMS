@@ -5,13 +5,13 @@ import { supabaseAdmin } from '../../configs/supabase';
 export class AccountService {
   static async listAccounts(callerRole: string, filterRole?: string, search?: string, page: number = 1, limit: number = 50) {
     const from = (page - 1) * limit;
-    const to = from + limit - 1;
+    const to = from + limit; // for slice
 
+    // Always use inner join for roles so that filtering by role works correctly
+    // and so that we always get the role name.
     let query = supabaseAdmin
       .from('account')
-      .select('*, roles(name)', { count: 'exact' })
-      .range(from, to)
-      .order('created_at', { ascending: false });
+      .select('*, roles!inner(name)');
 
     // Apply Staff restriction: Can only see Learner and Tutor
     if (callerRole === 'STAFF') {
@@ -28,19 +28,31 @@ export class AccountService {
       query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`);
     }
 
-    const { data, error, count } = await query;
+    const { data, error } = await query;
     if (error) throw error;
 
-    // Map role name from joined roles table for backward compatibility
-    if (data) {
-      data.forEach((item: any) => {
-        if (item.roles && item.roles.name) {
-          item.role = item.roles.name;
-        }
-      });
-    }
+    let formattedData = data || [];
 
-    return { data, total: count || 0 };
+    // Map role name from joined roles table
+    formattedData.forEach((item: any) => {
+      if (item.roles && item.roles.name) {
+        item.role = item.roles.name;
+      }
+    });
+
+    // Sort by Role Priority, then Oldest First
+    formattedData.sort((a: any, b: any) => {
+      const roleOrder: Record<string, number> = { 'ADMIN': 1, 'STAFF': 2, 'TUTOR': 3, 'LEARNER': 4 };
+      const roleDiff = (roleOrder[a.role] || 99) - (roleOrder[b.role] || 99);
+      if (roleDiff !== 0) return roleDiff;
+      // Sort by who registered first (ascending created_at)
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    });
+
+    const total = formattedData.length;
+    const paginatedData = formattedData.slice(from, to);
+
+    return { data: paginatedData, total };
   }
 
   static async getAccount(callerRole: string, callerId: string, targetId: string) {
