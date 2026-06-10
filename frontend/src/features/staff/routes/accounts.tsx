@@ -32,11 +32,23 @@ const ManageAccounts = () => {
     const [isSaving, setIsSaving] = useState(false);
 
     const generatePassword = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+        const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowers = 'abcdefghijklmnopqrstuvwxyz';
+        const numbers = '0123456789';
+        const specials = '!@#$%^&*';
+        
         let pass = '';
-        for (let i = 0; i < 8; i++) {
-            pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        pass += uppers[Math.floor(Math.random() * uppers.length)];
+        pass += lowers[Math.floor(Math.random() * lowers.length)];
+        pass += numbers[Math.floor(Math.random() * numbers.length)];
+        pass += specials[Math.floor(Math.random() * specials.length)];
+        
+        const allChars = uppers + lowers + numbers + specials;
+        for (let i = 0; i < 6; i++) {
+            pass += allChars[Math.floor(Math.random() * allChars.length)];
         }
+        
+        pass = pass.split('').sort(() => 0.5 - Math.random()).join('');
         setFormData({ ...formData, password: pass });
         setShowPassword(true);
     };
