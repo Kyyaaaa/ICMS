@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, UserPlus, Edit, Ban, CheckCircle2, ShieldAlert, X, RefreshCw, EyeOff, Eye, Unlock } from 'lucide-react';
 import Cookies from 'js-cookie';
+import { validateFullName, validatePassword } from '@/lib/utils';
 
 type Role = 'ADMIN' | 'STAFF' | 'TUTOR' | 'LEARNER';
 
@@ -31,11 +32,23 @@ const ManageAccounts = () => {
     const [isSaving, setIsSaving] = useState(false);
 
     const generatePassword = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+        const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowers = 'abcdefghijklmnopqrstuvwxyz';
+        const numbers = '0123456789';
+        const specials = '!@#$%^&*';
+        
         let pass = '';
-        for (let i = 0; i < 8; i++) {
-            pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        pass += uppers[Math.floor(Math.random() * uppers.length)];
+        pass += lowers[Math.floor(Math.random() * lowers.length)];
+        pass += numbers[Math.floor(Math.random() * numbers.length)];
+        pass += specials[Math.floor(Math.random() * specials.length)];
+        
+        const allChars = uppers + lowers + numbers + specials;
+        for (let i = 0; i < 6; i++) {
+            pass += allChars[Math.floor(Math.random() * allChars.length)];
         }
+        
+        pass = pass.split('').sort(() => 0.5 - Math.random()).join('');
         setFormData({ ...formData, password: pass });
         setShowPassword(true);
     };
@@ -95,6 +108,17 @@ const ManageAccounts = () => {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (formData.full_name && !validateFullName(formData.full_name)) {
+            alert('Invalid full name. Must be 2-50 characters and contain only letters and spaces.');
+            return;
+        }
+
+        if (formData.password && !validatePassword(formData.password)) {
+            alert('Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character.');
+            return;
+        }
+
         setIsSaving(true);
         try {
             const token = Cookies.get('access_token');

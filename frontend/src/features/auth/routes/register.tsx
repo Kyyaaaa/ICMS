@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, BookOpen, CheckCircle2, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { validateFullName, validatePhoneNumber } from '@/lib/utils';
 const Register = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -22,6 +23,17 @@ const Register = () => {
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isValid) return;
+
+        if (!validateFullName(fullName)) {
+            setError('Invalid full name. Must be 2-50 characters and contain only letters and spaces.');
+            return;
+        }
+
+        if (phone && !validatePhoneNumber(phone)) {
+            setError('Invalid phone number. Must be a valid Vietnamese 10-digit phone number starting with 0.');
+            return;
+        }
+
         setLoading(true);
         setError('');
         try {

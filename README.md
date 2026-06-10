@@ -1,6 +1,6 @@
-# Interactive Course Management System (ICMS)
+# IELTS Course Management System (ICMS)
 
-Hệ thống quản lý khóa học tương tác (ICMS) gồm hai phần chính: **Frontend** (React + Vite) và **Backend** (Node.js + Express + Supabase PostgreSQL).
+Hệ thống quản lý trung tâm IELTS (ICMS) gồm hai phần chính: **Frontend** (React + Vite) và **Backend** (Node.js + Express + Supabase PostgreSQL).
 
 ## 🚀 Hướng dẫn Cài đặt & Khởi chạy (Setup & Run)
 
