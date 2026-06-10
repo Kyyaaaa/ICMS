@@ -42,3 +42,7 @@ export const validateOtp = (otp: string) => {
   const regex = /^\d{6}$/;
   return regex.test(otp);
 };
+
+export const validateUUID = (uuid: string) => {
+  return validator.isUUID(uuid);
+};

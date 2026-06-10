@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { validateEmail, validatePassword, validateFullName, validatePhoneNumber, validateOtp } from '../../utils/validators';
+import { validateEmail, validatePassword, validateFullName, validatePhoneNumber, validateOtp, validateUUID } from '../../utils/validators';
 import { supabaseAdmin } from '../../configs/supabase';
 
 export class AuthController {
@@ -190,6 +190,10 @@ export class AuthController {
 
       if (!reset_token || !new_password) {
         return res.status(400).json({ success: false, message: 'Please provide reset_token and new_password' });
+      }
+
+      if (!validateUUID(reset_token)) {
+        return res.status(400).json({ success: false, message: 'Invalid reset_token format. Must be a valid UUID.' });
       }
 
       // We can reuse the validatePassword function here if it's imported. Wait, I should import it.

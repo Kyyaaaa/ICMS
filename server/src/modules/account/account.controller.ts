@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { AccountService } from './account.service';
 import { AuthService } from '../auth/auth.service';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
-import { validateEmail, validatePassword, validatePhoneNumber, validateFullName, validateRole, validateDateOfBirth, validateGender, validateAvatarUrl } from '../../utils/validators';
+import { validateEmail, validatePassword, validatePhoneNumber, validateFullName, validateRole, validateDateOfBirth, validateGender, validateAvatarUrl, validateUUID } from '../../utils/validators';
 
 export class AccountController {
   
@@ -11,8 +11,20 @@ export class AccountController {
       const callerRole = req.user.role;
       const { role, search, page, limit } = req.query;
 
+      if (role && !validateRole(role as string)) {
+        return res.status(400).json({ success: false, message: 'Invalid role filter. Allowed roles are: ADMIN, STAFF, TUTOR, LEARNER' });
+      }
+
       const p = page ? parseInt(page as string) : 1;
       const l = limit ? parseInt(limit as string) : 50;
+
+      if (isNaN(p) || p < 1) {
+        return res.status(400).json({ success: false, message: 'Invalid page number. Must be >= 1' });
+      }
+
+      if (isNaN(l) || l < 1 || l > 100) {
+        return res.status(400).json({ success: false, message: 'Invalid limit number. Must be between 1 and 100' });
+      }
 
       const accounts = await AccountService.listAccounts(
         callerRole, 
@@ -38,6 +50,10 @@ export class AccountController {
       const callerId = req.user.id;
       const { id } = req.params;
       const targetId = id as string;
+
+      if (!validateUUID(targetId)) {
+        return res.status(400).json({ success: false, message: 'Invalid account ID format. Must be a valid UUID.' });
+      }
 
       if (callerRole !== 'ADMIN' && callerRole !== 'STAFF' && callerId !== targetId) {
         return res.status(403).json({ success: false, message: 'Forbidden: You can only access your own account' });
@@ -126,6 +142,10 @@ export class AccountController {
       const callerId = req.user.id;
       const { id } = req.params;
       const targetId = id as string;
+
+      if (!validateUUID(targetId)) {
+        return res.status(400).json({ success: false, message: 'Invalid account ID format. Must be a valid UUID.' });
+      }
 
       if (callerRole !== 'ADMIN' && callerRole !== 'STAFF' && callerId !== targetId) {
         return res.status(403).json({ success: false, message: 'Forbidden: You can only update your own account' });
@@ -265,6 +285,11 @@ export class AccountController {
       const callerRole = req.user.role as string;
       const { id } = req.params;
       const targetId = id as string;
+
+      if (!validateUUID(targetId)) {
+        return res.status(400).json({ success: false, message: 'Invalid account ID format. Must be a valid UUID.' });
+      }
+
       const { status } = req.body;
 
       if (status !== 'ACTIVE' && status !== 'BANNED') {
