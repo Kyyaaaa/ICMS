@@ -6,7 +6,7 @@ export class AccountService {
   static async listAccounts(callerRole: string, filterRole?: string, search?: string, page: number = 1, limit: number = 50) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
-    
+
     let query = supabaseAdmin
       .from('account')
       .select('*', { count: 'exact' })
@@ -35,7 +35,7 @@ export class AccountService {
 
   static async getAccount(callerRole: string, callerId: string, targetId: string) {
     const user = await AccountRepository.getUserById(targetId);
-    
+
     // Check RBAC for Staff
     if (callerRole === 'STAFF' && callerId !== targetId) {
       if (user.role !== 'LEARNER' && user.role !== 'TUTOR') {
@@ -61,7 +61,7 @@ export class AccountService {
 
   static async updateAccount(callerRole: string, callerId: string, targetId: string, updates: UpdateAccountDTO) {
     const user = await AccountRepository.getUserById(targetId);
-    
+
     // Check RBAC for Staff
     if (callerRole === 'STAFF' && callerId !== targetId) {
       if (user.role !== 'LEARNER' && user.role !== 'TUTOR') {
@@ -77,12 +77,22 @@ export class AccountService {
     if (updates.gender !== undefined) payload.gender = updates.gender;
     if (updates.avatar_url !== undefined) payload.avatar_url = updates.avatar_url;
 
+    if (updates.role !== undefined) {
+      const roleUpper = updates.role.toUpperCase();
+      // Check RBAC for Staff
+      if (callerRole === 'STAFF' && roleUpper !== 'LEARNER' && roleUpper !== 'TUTOR') {
+        throw new Error('Forbidden: Staff can only assign Learner or Tutor roles');
+      }
+      payload.role = roleUpper;
+    }
+    if (updates.avatar_url !== undefined) payload.avatar_url = updates.avatar_url;
+
     return await AccountRepository.updateUser(targetId, payload);
   }
 
   static async setAccountStatus(callerRole: string, targetId: string, status: string) {
     const user = await AccountRepository.getUserById(targetId);
-    
+
     // Check RBAC for Staff
     if (callerRole === 'STAFF') {
       if (user.role !== 'LEARNER' && user.role !== 'TUTOR') {

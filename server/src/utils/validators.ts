@@ -24,3 +24,16 @@ export const validateRole = (role: string) => {
   const allowedRoles = ['ADMIN', 'STAFF', 'TUTOR', 'LEARNER'];
   return allowedRoles.includes(role.toUpperCase());
 };
+
+export const validateDateOfBirth = (dob: string) => {
+  return validator.isISO8601(dob, { strict: true, strictSeparator: true });
+};
+
+export const validateGender = (gender: string) => {
+  const allowed = ['MALE', 'FEMALE', 'OTHER'];
+  return allowed.includes(gender.toUpperCase());
+};
+
+export const validateAvatarUrl = (url: string) => {
+  return validator.isURL(url, { require_protocol: true });
+};

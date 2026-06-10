@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { AccountService } from './account.service';
 import { AuthService } from '../auth/auth.service';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
-import { validateEmail, validatePassword, validatePhoneNumber, validateFullName, validateRole } from '../../utils/validators';
+import { validateEmail, validatePassword, validatePhoneNumber, validateFullName, validateRole, validateDateOfBirth, validateGender, validateAvatarUrl } from '../../utils/validators';
 
 export class AccountController {
   
@@ -131,22 +131,72 @@ export class AccountController {
         return res.status(403).json({ success: false, message: 'Forbidden: You can only update your own account' });
       }
 
-      const { full_name, phone_number, password, old_password, date_of_birth, gender, avatar_url } = req.body;
+      const { full_name, phone_number, password, old_password, date_of_birth, gender, role, avatar_url } = req.body;
+
+      // --- Validate role ---
+      if (role !== undefined) {
+        if (callerRole !== 'ADMIN' && callerRole !== 'STAFF') {
+          return res.status(403).json({
+            success: false,
+            message: 'Forbidden: You do not have permission to change account roles'
+          });
+        }
+        if (!validateRole(role)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid role. Allowed roles are: ADMIN, STAFF, TUTOR, LEARNER'
+          });
+        }
+      }
 
       // --- Validate full name format ---
-      if (full_name !== undefined && full_name !== '' && !validateFullName(full_name)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid full name. Only letters and spaces allowed, 2-50 characters.'
-        });
+      if (full_name !== undefined) {
+        if (!validateFullName(full_name)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid full name. Only letters and spaces allowed, 2-50 characters.'
+          });
+        }
       }
 
       // --- Validate phone number format ---
-      if (phone_number !== undefined && phone_number !== '' && !validatePhoneNumber(phone_number)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid phone number. Must be 10 digits starting with 03, 05, 07, 08, or 09.'
-        });
+      if (phone_number !== undefined && phone_number !== null) {
+        if (!validatePhoneNumber(phone_number)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid phone number. Must be 10 digits starting with 03, 05, 07, 08, or 09.'
+          });
+        }
+      }
+
+      // --- Validate date of birth ---
+      if (date_of_birth !== undefined && date_of_birth !== null) {
+        if (!validateDateOfBirth(date_of_birth)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid date_of_birth. Must be a valid ISO 8601 date (e.g. YYYY-MM-DD).'
+          });
+        }
+      }
+
+      // --- Validate gender ---
+      if (gender !== undefined && gender !== null) {
+        if (!validateGender(gender)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid gender. Allowed values: MALE, FEMALE, OTHER.'
+          });
+        }
+      }
+
+      // --- Validate avatar URL ---
+      if (avatar_url !== undefined && avatar_url !== null) {
+        if (!validateAvatarUrl(avatar_url)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid avatar_url. Must be a valid URL.'
+          });
+        }
       }
 
       // --- Validate new password ---
@@ -192,6 +242,7 @@ export class AccountController {
         password,
         date_of_birth,
         gender,
+        role,
         avatar_url
       });
 

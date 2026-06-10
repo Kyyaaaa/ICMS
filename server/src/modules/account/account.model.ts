@@ -23,6 +23,7 @@ export interface CreateAccountDTO {
 
 export interface UpdateAccountDTO {
   password?: string;
+  role?: string;
   full_name?: string;
   phone_number?: string;
   date_of_birth?: string;

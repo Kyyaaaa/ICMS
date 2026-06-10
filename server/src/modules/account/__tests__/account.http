@@ -12,7 +12,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "admin@gmail.com",
+  "email": "staff@gmail.com",
   "password": "password123"
 }
 
@@ -33,9 +33,9 @@ Content-Type: application/json
 
 {
   "email": "testuser3@gmail.com",
-  "password": "password@123",
-  "full_name": "Test User 3",
-  "role": "LEARNERRR"
+  "password": "Password@123",
+  "full_name": "dasad",
+  "role": "LEARNER"
 }
 
 ### 4. Cập nhật thông tin tài khoản (Tên, mật khẩu, SĐT)
@@ -44,9 +44,17 @@ Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "full_name": "Kayami AKi",
-  "phone_number": "0987654321",
-  "role": "LEARNER"
+   "id": "b3053366-a42a-4bc3-b6ff-690e1bfb8eff-(hihi)",
+    "email": "testuser3@gmail.com",
+    "phone_number": "0987654321",
+    "role": "LEARNER",
+    "status": "ACTIVE",
+    "created_at": "2026-06-09T15:57:01.278736+00:00",
+    "updated_at": "2026-06-09T15:57:01.278736+00:00",
+    "full_name": "",
+    "avatar_url": null,
+    "date_of_birth": null,
+    "gender": null
 }
 
 ### 5. Cập nhật trạng thái tài khoản (Ban/Active) (Yêu cầu quyền ADMIN/STAFF)
