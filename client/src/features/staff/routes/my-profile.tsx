@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users } from 'lucide-react';
+import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users, } from 'lucide-react';
 import Cookies from 'js-cookie';
-import { validatePassword, validatePhoneNumber } from '../../lib/utils';
+import { validatePassword, validatePhoneNumber } from '@/lib/utils';
 
-const TutorProfile = () => {
+const StaffProfile = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [isProfileSuccess, setIsProfileSuccess] = useState(false);
@@ -236,7 +236,7 @@ const TutorProfile = () => {
     }
 
     const getInitials = (name: string) => {
-        if (!name) return 'JD';
+        if (!name) return 'AS';
         const parts = name.trim().split(' ');
         if (parts.length >= 2) {
             return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
@@ -248,12 +248,11 @@ const TutorProfile = () => {
     
     const isPasswordMatch = passwords.confirmPassword.length > 0 && passwords.newPassword === passwords.confirmPassword;
     const isPasswordMismatch = passwords.confirmPassword.length > 0 && passwords.newPassword !== passwords.confirmPassword;
-
     return (
         <div className="max-w-4xl space-y-6 animate-fade-in-up">
             <div>
                 <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">My Profile</h1>
-                <p className="text-[#74777f] text-[14px] mt-1">Manage your personal information and contact details.</p>
+                <p className="text-[#74777f] text-[14px] mt-1">Manage your personal information and staff settings.</p>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -341,7 +340,7 @@ const TutorProfile = () => {
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                     <input type="email" value={account.email} disabled className="w-full pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-[14px] text-[#74777f] cursor-not-allowed" />
                                 </div>
-                                <p className="text-[12px] text-[#74777f] mt-1">Institutional email address cannot be changed.</p>
+                                <p className="text-[12px] text-[#74777f] mt-1">Staff email address cannot be changed.</p>
                             </div>
 
                             <div className="flex items-center justify-end gap-4 pt-4 border-t border-[#e0e3e5]">
@@ -404,4 +403,4 @@ const TutorProfile = () => {
     );
 };
 
-export default TutorProfile;
+export default StaffProfile;

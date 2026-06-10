@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { TopNav } from '../components/layout/TopNav.tsx';
-import { NotificationsPage } from './shared/notifications.tsx';
+import { TopNav } from '@/components/layout/TopNav.tsx';
+import { NotificationsPage } from '@/components/shared/notifications.tsx';
 
 const PublicNotifications = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);

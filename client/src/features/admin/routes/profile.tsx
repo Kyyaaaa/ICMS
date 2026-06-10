@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users, } from 'lucide-react';
+import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users } from 'lucide-react';
 import Cookies from 'js-cookie';
-import { validatePassword, validatePhoneNumber } from '../../lib/utils';
+import { validatePassword, validatePhoneNumber } from '@/lib/utils';
 
-const StaffProfile = () => {
+const AdminProfile = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [isProfileSuccess, setIsProfileSuccess] = useState(false);
@@ -133,7 +133,6 @@ const StaffProfile = () => {
         }
     };
 
-
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -236,7 +235,7 @@ const StaffProfile = () => {
     }
 
     const getInitials = (name: string) => {
-        if (!name) return 'AS';
+        if (!name) return 'AD';
         const parts = name.trim().split(' ');
         if (parts.length >= 2) {
             return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
@@ -245,14 +244,15 @@ const StaffProfile = () => {
     };
 
     const initials = getInitials(account.full_name);
-    
+
     const isPasswordMatch = passwords.confirmPassword.length > 0 && passwords.newPassword === passwords.confirmPassword;
     const isPasswordMismatch = passwords.confirmPassword.length > 0 && passwords.newPassword !== passwords.confirmPassword;
+
     return (
         <div className="max-w-4xl space-y-6 animate-fade-in-up">
             <div>
                 <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">My Profile</h1>
-                <p className="text-[#74777f] text-[14px] mt-1">Manage your personal information and staff settings.</p>
+                <p className="text-[#74777f] text-[14px] mt-1">Manage your admin account settings and security preferences.</p>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -334,13 +334,13 @@ const StaffProfile = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-2 mb-5">
+                            <div className="space-y-2 mb-6">
                                 <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                     <input type="email" value={account.email} disabled className="w-full pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-[14px] text-[#74777f] cursor-not-allowed" />
                                 </div>
-                                <p className="text-[12px] text-[#74777f] mt-1">Staff email address cannot be changed.</p>
+                                <p className="text-[12px] text-[#74777f] mt-1">Admin email address cannot be changed.</p>
                             </div>
 
                             <div className="flex items-center justify-end gap-4 pt-4 border-t border-[#e0e3e5]">
@@ -403,4 +403,4 @@ const StaffProfile = () => {
     );
 };
 
-export default StaffProfile;
+export default AdminProfile;

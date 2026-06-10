@@ -5,7 +5,7 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "email": "testuser5@gmail.com",
+  "email": "testuser6@gmail.com",
   "password": "Password@123",
   "full_name": "Test Learner",
   "phone_number": "0999888777"
@@ -17,7 +17,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "testuser5@gmail.com",
+  "email": "testuser6@gmail.com",
   "password": "Password@123"
 }
 
@@ -37,7 +37,7 @@ Content-Type: application/json
 
 {
   "email": "hoanglbp3300@gmail.com",
-  "otp": "772067" 
+  "otp": "947265" 
 }
 # Thay otp bằng code thực tế nhận được trong email
 

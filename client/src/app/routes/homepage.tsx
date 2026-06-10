@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, Clock, Headset, Trophy, Star, BookOpen, Compass, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { TopNav } from '../components/layout/TopNav';
+import { TopNav } from '@/components/layout/TopNav';
 import Cookies from 'js-cookie';
 
 interface UserInfo {

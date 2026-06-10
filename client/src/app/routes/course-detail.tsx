@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {  BookOpen, Headset, Compass, ArrowRight, Star, CheckCircle2, ChevronRight, Clock, MapPin, Globe, Users, ShieldCheck, Ticket, X } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { TopNav } from '../components/layout/TopNav';
+import { TopNav } from '@/components/layout/TopNav';
 
 const CourseDetail = () => {
     useEffect(() => {
@@ -24,8 +24,30 @@ const CourseDetail = () => {
         { id: 103, name: 'Class 3', schedule: 'Sat, Sun 09:00 - 11:00', room: 'Room 204', currentStudents: 8, maxStudents: 15 },
     ];
 
+    interface CourseModule {
+        title: string;
+        sessions: string;
+        description: string;
+        topics: string[];
+    }
+
+    interface Course {
+        id: number;
+        title: string;
+        band: string;
+        duration: string;
+        sessions: number;
+        format: string;
+        type: string;
+        price: string;
+        originalPrice: string;
+        description: string;
+        nextCohort: string;
+        modules?: CourseModule[];
+    }
+
     // Mock data for the specific courses
-    const mockCourses: Record<string, Record<string, unknown>> = {
+    const mockCourses: Record<string, Course> = {
         '1': {
             id: 1, title: 'IELTS Intensive Mastery', band: '7.5 - 8.0', duration: '12 Weeks', sessions: 48, format: 'Offline', type: 'Masterclass', price: '899,000 đ', originalPrice: '1,200,000 đ', description: 'A comprehensive, high-intensity preparation course designed to elevate your IELTS band score across all four modules. Ideal for students aiming for Band 7.5+.', nextCohort: '15-10-2024',
             modules: [
@@ -175,7 +197,7 @@ const CourseDetail = () => {
                                 
                                 {/* Dynamic Syllabus Content */}
                                 <div className="space-y-[16px]">
-                                    {course.modules?.map((module: { title: string, sessions: string, description: string, topics: string[] }, index: number) => (
+                                    {course.modules?.map((module, index) => (
                                         <div key={index} className="bg-white border border-[#e0e3e5] rounded-2xl p-[24px] shadow-sm hover:shadow-md transition-shadow">
                                             <div className="flex flex-col md:flex-row md:items-center justify-between mb-[16px] gap-[12px]">
                                                 <h3 className="text-[20px] font-bold text-[#002045] flex items-center gap-3">
@@ -192,7 +214,7 @@ const CourseDetail = () => {
                                                 {module.description}
                                             </p>
                                             <ul className="grid grid-cols-1 md:grid-cols-2 gap-[12px]">
-                                                {module.topics?.map((topic: string, tIndex: number) => (
+                                                {module.topics?.map((topic, tIndex) => (
                                                     <li key={tIndex} className="flex items-start gap-2">
                                                         <CheckCircle2 className="w-5 h-5 text-[#0061a5] shrink-0 mt-0.5" />
                                                         <span className="text-[#43474e]">{topic}</span>
