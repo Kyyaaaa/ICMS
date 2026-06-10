@@ -1,18 +1,10 @@
-import { useState, useRef } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, MapPin, User, Clock, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { CalendarDays, ChevronLeft, ChevronRight, MapPin, User, Clock } from 'lucide-react';
+import type { ScheduleSession } from '../types/schedule';
+import { ScheduleService } from '../services/schedule.service';
+import { EditScheduleModal } from '../components/EditScheduleModal';
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-const MOCK_SCHEDULE = [
-    { id: 1, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', dayIndex: 0, startTime: '08:00', endTime: '10:00', color: 'bg-blue-100 border-blue-300' },
-    { id: 2, class: 'TOEIC-B12', tutor: 'Mr. John Doe', room: 'Room 202', dayIndex: 0, startTime: '14:00', endTime: '16:00', color: 'bg-emerald-100 border-emerald-300' },
-    { id: 3, class: 'COM202', tutor: 'Ms. Emily Chen', room: 'Room 205', dayIndex: 1, startTime: '09:00', endTime: '11:00', color: 'bg-purple-100 border-purple-300' },
-    { id: 4, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', dayIndex: 2, startTime: '08:00', endTime: '10:00', color: 'bg-blue-100 border-blue-300' },
-    { id: 5, class: 'TOEIC-B12', tutor: 'Mr. John Doe', room: 'Room 202', dayIndex: 2, startTime: '14:00', endTime: '16:00', color: 'bg-emerald-100 border-emerald-300' },
-    { id: 6, class: 'ENG401', tutor: 'Mr. Alan Wake', room: 'Room 402', dayIndex: 3, startTime: '18:00', endTime: '20:00', color: 'bg-amber-100 border-amber-300' },
-    { id: 7, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', dayIndex: 4, startTime: '08:00', endTime: '10:00', color: 'bg-blue-100 border-blue-300' },
-    { id: 8, class: 'COM202', tutor: 'Ms. Emily Chen', room: 'Room 205', dayIndex: 5, startTime: '09:00', endTime: '11:00', color: 'bg-purple-100 border-purple-300' },
-];
 
 const getMonday = (d: Date) => {
     const date = new Date(d);
@@ -32,8 +24,25 @@ const formatDate = (d: Date) => {
 
 const MasterSchedule = () => {
     const [currentMonday, setCurrentMonday] = useState(() => getMonday(new Date()));
-    const [selectedSession, setSelectedSession] = useState<Record<string, unknown> | null>(null);
+    const [schedule, setSchedule] = useState<ScheduleSession[]>([]);
+    const [selectedSession, setSelectedSession] = useState<ScheduleSession | null>(null);
     const dateInputRef = useRef<HTMLInputElement>(null);
+
+    const weekDates = DAY_NAMES.map((_, i) => {
+        const d = new Date(currentMonday);
+        d.setDate(d.getDate() + i);
+        return d;
+    });
+
+    const sundayDate = weekDates[6];
+
+    useEffect(() => {
+        const loadSchedule = async () => {
+            const data = await ScheduleService.getSchedule(currentMonday, sundayDate);
+            setSchedule(data);
+        };
+        loadSchedule();
+    }, [currentMonday, sundayDate]);
 
     const goToPrevWeek = () => {
         setCurrentMonday(prev => {
@@ -58,13 +67,12 @@ const MasterSchedule = () => {
         }
     };
 
-    const weekDates = DAY_NAMES.map((_, i) => {
-        const d = new Date(currentMonday);
-        d.setDate(d.getDate() + i);
-        return d;
-    });
+    const handleSaveSession = async (updatedSession: ScheduleSession) => {
+        await ScheduleService.updateSession(updatedSession);
+        setSchedule(schedule.map(s => s.id === updatedSession.id ? updatedSession : s));
+        setSelectedSession(null);
+    };
 
-    const sundayDate = weekDates[6];
     const weekLabel = `${formatDate(currentMonday)} to ${formatDate(sundayDate)}`;
 
     return (
@@ -114,7 +122,7 @@ const MasterSchedule = () => {
                 <div className="grid grid-cols-7 flex-1 min-h-[600px] overflow-y-auto">
                     {DAY_NAMES.map((_, dayIdx) => (
                         <div key={dayIdx} className="border-r last:border-r-0 border-[#e0e3e5] p-2 space-y-3 bg-gray-50/30">
-                            {MOCK_SCHEDULE.filter(s => s.dayIndex === dayIdx).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(session => (
+                            {schedule.filter(s => s.dayIndex === dayIdx).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(session => (
                                 <div 
                                     key={session.id} 
                                     onClick={() => setSelectedSession(session)}
@@ -142,55 +150,12 @@ const MasterSchedule = () => {
                 </div>
             </div>
 
-            {/* Edit Session Modal */}
             {selectedSession && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-scale-in">
-                        <div className={`p-6 ${selectedSession.color} border-b flex justify-between items-center`}>
-                            <h2 className="text-[20px] font-bold text-[#002045]">Class Schedule: {selectedSession.class}</h2>
-                            <button onClick={() => setSelectedSession(null)} className="text-[#002045] hover:bg-black/10 p-1.5 rounded-full transition-colors">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-[#74777f] text-[13px] font-bold mb-1">Tutor</label>
-                                <select className="w-full border border-[#c4c6cf] rounded-lg p-2.5 font-semibold text-[#181c1e] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none transition-all">
-                                    <option>{selectedSession.tutor}</option>
-                                    <option>Mr. John Doe</option>
-                                    <option>Ms. Emily Chen</option>
-                                    <option>Mr. Alan Wake</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-[#74777f] text-[13px] font-bold mb-1">Date</label>
-                                <input type="date" className="w-full border border-[#c4c6cf] rounded-lg p-2.5 font-semibold text-[#181c1e] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none transition-all" defaultValue="2026-10-26" />
-                            </div>
-                            <div>
-                                <label className="block text-[#74777f] text-[13px] font-bold mb-1">Available Rooms</label>
-                                <select className="w-full border border-[#c4c6cf] rounded-lg p-2.5 font-semibold text-[#181c1e] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none transition-all" defaultValue={selectedSession.room}>
-                                    <option value="Room 202">Room 202</option>
-                                    <option value="Room 205">Room 205</option>
-                                    <option value="Room 301">Room 301</option>
-                                    <option value="Room 402">Room 402</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-[#74777f] text-[13px] font-bold mb-1">Available Time Slots</label>
-                                <select className="w-full border border-[#c4c6cf] rounded-lg p-2.5 font-semibold text-[#181c1e] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none transition-all" defaultValue={`${selectedSession.startTime} - ${selectedSession.endTime}`}>
-                                    <option value="08:00 - 10:00">08:00 - 10:00 (Available)</option>
-                                    <option value="10:30 - 12:30">10:30 - 12:30 (Available)</option>
-                                    <option value="14:00 - 16:00">14:00 - 16:00 (Available)</option>
-                                    <option value="18:00 - 20:00" disabled className="text-gray-400">18:00 - 20:00 (Booked)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="p-5 bg-gray-50 border-t border-[#e0e3e5] flex justify-end gap-3">
-                            <button onClick={() => setSelectedSession(null)} className="px-5 py-2.5 text-[#43474e] font-bold hover:bg-[#e0e3e5] rounded-xl transition-colors">Cancel</button>
-                            <button onClick={() => setSelectedSession(null)} className="px-5 py-2.5 bg-[#0061a5] text-white font-bold rounded-xl hover:bg-[#004d80] transition-colors shadow-sm">Save Changes</button>
-                        </div>
-                    </div>
-                </div>
+                <EditScheduleModal 
+                    session={selectedSession} 
+                    onClose={() => setSelectedSession(null)} 
+                    onSave={handleSaveSession} 
+                />
             )}
         </div>
     );

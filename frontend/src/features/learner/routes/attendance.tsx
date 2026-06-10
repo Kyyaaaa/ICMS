@@ -1,17 +1,24 @@
-
+import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
+import type { AttendanceSession } from '../types/attendance';
+import { LearnerAttendanceService } from '../services/attendance.service';
 
 const AttendanceProgress = () => {
     const { id } = useParams();
+    const [sessions, setSessions] = useState<AttendanceSession[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const sessions = [
-        { id: 1, date: '01-10-2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'present' },
-        { id: 2, date: '03-10-2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'present' },
-        { id: 3, date: '08-10-2024', time: '18:00 - 20:00', tutor: 'John Doe (Sub)', room: 'Room 302', status: 'absent' },
-        { id: 4, date: '10-10-2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'absent' },
-        { id: 5, date: '15-10-2024', time: '18:00 - 20:00', tutor: 'Sarah Jenkins', room: 'Room 302', status: 'upcoming' },
-    ];
+    useEffect(() => {
+        const fetchAttendance = async () => {
+            if (id) {
+                const data = await LearnerAttendanceService.getAttendanceByClassId(id);
+                setSessions(data);
+            }
+            setLoading(false);
+        };
+        fetchAttendance();
+    }, [id]);
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -29,6 +36,15 @@ const AttendanceProgress = () => {
         }
     };
 
+    if (loading) {
+        return <div className="text-center py-10">Loading attendance...</div>;
+    }
+
+    const totalSessions = 24; // Hardcoded for mockup
+    const presentCount = sessions.filter(s => s.status === 'present').length;
+    const absentCount = sessions.filter(s => s.status === 'absent').length;
+    const remainingCount = totalSessions - presentCount - absentCount;
+
     return (
         <div className="max-w-4xl space-y-[24px] animate-fade-in-up">
             <div className="flex items-center gap-[16px]">
@@ -40,19 +56,19 @@ const AttendanceProgress = () => {
             {/* Summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-[16px]">
                 <div className="bg-white p-[16px] rounded-[12px] border border-[#e0e3e5] text-center shadow-sm">
-                    <p className="text-[24px] font-bold text-[#181c1e]">24</p>
+                    <p className="text-[24px] font-bold text-[#181c1e]">{totalSessions}</p>
                     <p className="text-[12px] text-[#74777f] uppercase font-bold tracking-wider">Total Sessions</p>
                 </div>
                 <div className="bg-white p-[16px] rounded-[12px] border border-[#e0e3e5] text-center shadow-sm">
-                    <p className="text-[24px] font-bold text-[#0061a5]">2</p>
+                    <p className="text-[24px] font-bold text-[#0061a5]">{presentCount}</p>
                     <p className="text-[12px] text-[#74777f] uppercase font-bold tracking-wider">Present</p>
                 </div>
                 <div className="bg-white p-[16px] rounded-[12px] border border-[#e0e3e5] text-center shadow-sm">
-                    <p className="text-[24px] font-bold text-[#ba1a1a]">2</p>
+                    <p className="text-[24px] font-bold text-[#ba1a1a]">{absentCount}</p>
                     <p className="text-[12px] text-[#74777f] uppercase font-bold tracking-wider">Absent</p>
                 </div>
                 <div className="bg-white p-[16px] rounded-[12px] border border-[#e0e3e5] text-center shadow-sm">
-                    <p className="text-[24px] font-bold text-[#c9a82c]">20</p>
+                    <p className="text-[24px] font-bold text-[#c9a82c]">{remainingCount}</p>
                     <p className="text-[12px] text-[#74777f] uppercase font-bold tracking-wider">Remaining</p>
                 </div>
             </div>

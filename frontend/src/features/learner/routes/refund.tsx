@@ -1,21 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileWarning, Send, CheckCircle2 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
+import type { PaymentInvoice } from '../types/payment';
+import { LearnerPaymentsService } from '../services/payments.service';
 
 const RefundRequest = () => {
     const { id } = useParams();
+    const [invoice, setInvoice] = useState<PaymentInvoice | null>(null);
+    const [loading, setLoading] = useState(true);
+
     const [reason, setReason] = useState('');
+    const [details, setDetails] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    useEffect(() => {
+        const fetchInvoice = async () => {
+            if (id) {
+                const data = await LearnerPaymentsService.getInvoiceById(id);
+                if (data) setInvoice(data);
+            }
+            setLoading(false);
+        };
+        fetchInvoice();
+    }, [id]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!id) return;
+
         setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
+        const success = await LearnerPaymentsService.requestRefund(id, reason, details);
+        if (success) {
             setIsSuccess(true);
-        }, 1500);
+        }
+        setIsSubmitting(false);
     };
+
+    if (loading || !invoice) {
+        return <div className="text-center py-10">Loading refund details...</div>;
+    }
 
     if (isSuccess) {
         return (
@@ -54,11 +78,11 @@ const RefundRequest = () => {
                     <h3 className="text-[14px] font-bold text-[#181c1e] mb-[8px]">Invoice Details</h3>
                     <div className="grid grid-cols-2 gap-[8px] text-[14px] text-[#43474e]">
                         <span>Invoice ID:</span>
-                        <span className="font-semibold text-[#181c1e]">{id}</span>
+                        <span className="font-semibold text-[#181c1e]">{invoice.id}</span>
                         <span>Amount Paid:</span>
-                        <span className="font-semibold text-[#181c1e]">450,000 đ</span>
+                        <span className="font-semibold text-[#181c1e]">{invoice.amount.toLocaleString()} đ</span>
                         <span>Course:</span>
-                        <span className="font-semibold text-[#181c1e]">IELTS Academic - Reading</span>
+                        <span className="font-semibold text-[#181c1e]">{invoice.course}</span>
                     </div>
                 </div>
 
@@ -82,6 +106,8 @@ const RefundRequest = () => {
                     <label className="text-[14px] font-semibold text-[#181c1e]">Additional Details (Optional)</label>
                     <textarea 
                         rows={4} 
+                        value={details}
+                        onChange={(e) => setDetails(e.target.value)}
                         className="w-full px-[16px] py-[10px] bg-white border border-[#c4c6cf] rounded-[8px] text-[16px] focus:outline-none focus:border-[#ba1a1a] focus:ring-[3px] focus:ring-[#ba1a1a]/20 resize-none"
                         placeholder="Please provide any extra information that might help us process your request..."
                     ></textarea>

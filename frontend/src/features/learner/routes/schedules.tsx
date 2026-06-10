@@ -1,13 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Clock, MapPin, ChevronLeft, ChevronRight, User, CheckCircle, XCircle, AlertCircle, CalendarDays } from 'lucide-react';
-
-const MOCK_LEARNER_SCHEDULE = [
-    { id: 1, class: 'IELTS Mastery', session: 'Session 4', tutor: 'Dr. Sarah Smith', room: 'Room 302', dayIndex: 1, startTime: '18:00', endTime: '20:00', attendance: 'present' },
-    { id: 2, class: 'IELTS Mastery', session: 'Session 5', tutor: 'Dr. Sarah Smith', room: 'Room 302', dayIndex: 3, startTime: '18:00', endTime: '20:00', attendance: 'upcoming' },
-    { id: 3, class: 'TOEIC Prep', session: 'Session 12', tutor: 'Mr. John Doe', room: 'Room 305', dayIndex: 0, startTime: '19:00', endTime: '21:00', attendance: 'present' },
-    { id: 4, class: 'TOEIC Prep', session: 'Session 13', tutor: 'Mr. John Doe', room: 'Room 305', dayIndex: 2, startTime: '19:00', endTime: '21:00', attendance: 'absent' },
-    { id: 5, class: 'Communication Skills', session: 'Session 1', tutor: 'Ms. Emily Chen', room: 'Room 201', dayIndex: 5, startTime: '09:00', endTime: '11:00', attendance: 'upcoming' },
-];
+import type { LearnerSession } from '../types/schedule';
+import { LearnerSchedulesService } from '../services/schedules.service';
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -56,7 +50,19 @@ const attendanceBadge = (status: string) => {
 
 const LearnerSchedules = () => {
     const [currentMonday, setCurrentMonday] = useState(() => getMonday(new Date()));
+    const [schedule, setSchedule] = useState<LearnerSession[]>([]);
+    const [loading, setLoading] = useState(false);
     const dateInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const fetchSchedule = async () => {
+            setLoading(true);
+            const data = await LearnerSchedulesService.getWeeklySchedule(currentMonday);
+            setSchedule(data);
+            setLoading(false);
+        };
+        fetchSchedule();
+    }, [currentMonday]);
 
     const goToPrevWeek = () => {
         setCurrentMonday(prev => {
@@ -118,7 +124,12 @@ const LearnerSchedules = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden overflow-x-auto">
+            <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden overflow-x-auto relative">
+                {loading && (
+                    <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-10">
+                        <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                )}
                 <div className="min-w-[900px]">
                     {/* Header */}
                     <div className="grid grid-cols-7 border-b border-[#e0e3e5] bg-[#f7fafc]">
@@ -138,7 +149,7 @@ const LearnerSchedules = () => {
                     <div className="grid grid-cols-7 min-h-[400px]">
                         {DAY_NAMES.map((_, dayIdx) => (
                             <div key={dayIdx} className="border-r border-[#e0e3e5] last:border-0 p-2 space-y-3 bg-gray-50/30">
-                                {MOCK_LEARNER_SCHEDULE.filter(s => s.dayIndex === dayIdx).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(session => (
+                                {schedule.filter(s => s.dayIndex === dayIdx).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(session => (
                                     <div 
                                         key={session.id} 
                                         className="p-3 bg-white rounded-xl border border-[#e0e3e5] shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:-translate-y-0.5 transform duration-200"
@@ -174,3 +185,4 @@ const LearnerSchedules = () => {
 };
 
 export default LearnerSchedules;
+

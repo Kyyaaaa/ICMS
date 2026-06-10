@@ -1,67 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Eye, DollarSign, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import type { Invoice } from '../types/invoice';
+import { InvoicesService } from '../services/invoices.service';
 
 const InvoiceList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
+    const [invoices, setInvoices] = useState<Invoice[]>([]);
 
-    const [invoices] = useState([
-        {
-            id: 'INV-10024',
-            learner: 'Alex Johnson',
-            course: 'IELTS Intensive Mastery',
-            paymentMethod: 'Full',
-            progress: '1/1',
-            totalAmount: '500 đ',
-            paidAmount: '500 đ',
-            date: '24-10-2026',
-            status: 'Paid',
-            installments: [
-                { id: '1', term: 'Full Payment', dueDate: '24-10-2026', status: 'Paid', method: 'Credit Card (*4421)', paidDate: '24-10-2026', amount: 500.00 }
-            ],
-            rawPaid: 500,
-            rawTotal: 500,
-            rawRemaining: 0
-        },
-        {
-            id: 'INV-10025',
-            learner: 'Sarah Connor',
-            course: 'TOEIC Target 700+',
-            paymentMethod: 'Installment',
-            progress: '2/3',
-            totalAmount: '300 đ',
-            paidAmount: '200 đ',
-            date: '22-10-2026',
-            status: 'Partial',
-            installments: [
-                { id: '1', term: '1st Installment (Deposit)', dueDate: '01-10-2026', status: 'Paid', method: 'Credit Card (*4421)', paidDate: '01-10-2026', amount: 100.00 },
-                { id: '2', term: '2nd Installment', dueDate: '01-11-2026', status: 'Paid', method: 'Bank Transfer', paidDate: '22-10-2026', amount: 100.00 },
-                { id: '3', term: '3rd Installment (Final)', dueDate: '01-12-2026', status: 'Pending', method: '', paidDate: '', amount: 100.00 }
-            ],
-            rawPaid: 200,
-            rawTotal: 300,
-            rawRemaining: 100
-        },
-        {
-            id: 'INV-10026',
-            learner: 'Michael Smith',
-            course: 'Basic Communication',
-            paymentMethod: 'Installment',
-            progress: '1/2',
-            totalAmount: '200 đ',
-            paidAmount: '100 đ',
-            date: '10-09-2026',
-            status: 'Overdue',
-            installments: [
-                { id: '1', term: '1st Installment (Deposit)', dueDate: '01-09-2026', status: 'Paid', method: 'Bank Transfer', paidDate: '10-09-2026', amount: 100.00 },
-                { id: '2', term: '2nd Installment', dueDate: '01-10-2026', status: 'Overdue', method: '', paidDate: '', amount: 100.00 }
-            ],
-            rawPaid: 100,
-            rawTotal: 200,
-            rawRemaining: 100
-        }
-    ]);
+    useEffect(() => {
+        const loadInvoices = async () => {
+            const data = await InvoicesService.getInvoices();
+            setInvoices(data);
+        };
+        loadInvoices();
+    }, []);
 
     const filteredInvoices = invoices.filter(inv => {
         const matchesSearch = inv.learner.toLowerCase().includes(searchTerm.toLowerCase()) || inv.id.toLowerCase().includes(searchTerm.toLowerCase());

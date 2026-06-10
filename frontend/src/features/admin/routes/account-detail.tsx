@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
-import { validatePassword, validatePhoneNumber, validateFullName } from '@/lib/utils';
+import { validatePassword, validatePhoneNumber, validateFullName } from '@/shared/lib/utils';
 
 const AdminAccountDetail = () => {
     const { id } = useParams();

@@ -1,73 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Ticket, Search, MessageSquare, ChevronRight, Send, Paperclip } from 'lucide-react';
-
-interface TicketMessage {
-    id: number;
-    sender: 'user' | 'support';
-    text: string;
-    time: string;
-}
-
-interface SupportTicket {
-    id: string;
-    title: string;
-    status: 'Open' | 'In Progress' | 'Resolved';
-    category: string;
-    updatedAt: string;
-    userName: string;
-    userRole: 'Learner' | 'Tutor';
-    messages: TicketMessage[];
-}
-const mockTickets: SupportTicket[] = [
-    {
-        id: 'TCK-1042',
-        title: 'Cannot access material for Writing Task 2',
-        status: 'Open',
-        category: 'Technical Issue',
-        updatedAt: '10 mins ago',
-        userName: 'Alex Johnson',
-        userRole: 'Learner',
-        messages: [
-            { id: 1, sender: 'user', text: 'Hi, I am enrolled in the IELTS Intensive Mastery but I cannot download the PDF for week 3 Writing Task 2. It shows an error 404.', time: '10:30 AM' }
-        ]
-    },
-    {
-        id: 'TCK-0981',
-        title: 'Request to change class schedule',
-        status: 'In Progress',
-        category: 'Course Management',
-        updatedAt: 'Yesterday',
-        userName: 'Dr. Sarah Connor',
-        userRole: 'Tutor',
-        messages: [
-            { id: 1, sender: 'user', text: 'I would like to move from Class 1 to Class 2 if possible.', time: 'Oct 24, 09:00 AM' },
-            { id: 2, sender: 'support', text: 'Hello! Let me check the availability for Class 2. I will get back to you shortly.', time: 'Oct 24, 10:15 AM' }
-        ]
-    },
-    {
-        id: 'TCK-0855',
-        title: 'Payment receipt not received',
-        status: 'Resolved',
-        category: 'Billing',
-        updatedAt: 'Oct 20',
-        userName: 'Michael Smith',
-        userRole: 'Learner',
-        messages: [
-            { id: 1, sender: 'user', text: 'I paid for the course but haven\'t received the email receipt.', time: 'Oct 19, 02:00 PM' },
-            { id: 2, sender: 'support', text: 'We apologize for the delay. The receipt has been resent to your registered email.', time: 'Oct 20, 09:00 AM' },
-            { id: 3, sender: 'user', text: 'Got it, thanks!', time: 'Oct 20, 09:15 AM' }
-        ]
-    }
-];
+import type { SupportTicket } from '../types/support-ticket';
+import { SupportTicketsService } from '../services/support-tickets.service';
 
 export const StaffSupportTickets = () => {
-    const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(mockTickets[0]);
+    const [tickets, setTickets] = useState<SupportTicket[]>([]);
+    const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [replyText, setReplyText] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [roleFilter, setRoleFilter] = useState('All');
 
-    const filteredTickets = mockTickets.filter(t => {
+    useEffect(() => {
+        const loadTickets = async () => {
+            const data = await SupportTicketsService.getTickets();
+            setTickets(data);
+            if (data.length > 0) {
+                setSelectedTicket(data[0]);
+            }
+        };
+        loadTickets();
+    }, []);
+
+    const filteredTickets = tickets.filter(t => {
         const matchesSearch = t.title.toLowerCase().includes(searchTerm.toLowerCase()) || t.id.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'All' || t.status === statusFilter;
         const matchesRole = roleFilter === 'All' || t.userRole === roleFilter;
@@ -81,6 +36,29 @@ export const StaffSupportTickets = () => {
             case 'Resolved': return 'bg-[#e8f5e9] text-[#2e7d32] border-[#c8e6c9]';
             default: return 'bg-gray-100 text-gray-800';
         }
+    };
+
+    const handleSendReply = async () => {
+        if (!replyText.trim() || !selectedTicket) return;
+        const newMessage = {
+            id: selectedTicket.messages.length + 1,
+            sender: 'support' as const,
+            text: replyText,
+            time: 'Just now'
+        };
+        const updatedTicket = { ...selectedTicket, messages: [...selectedTicket.messages, newMessage] };
+        await SupportTicketsService.updateTicket(updatedTicket);
+        setTickets(tickets.map(t => t.id === updatedTicket.id ? updatedTicket : t));
+        setSelectedTicket(updatedTicket);
+        setReplyText('');
+    };
+
+    const handleMarkResolved = async () => {
+        if (!selectedTicket) return;
+        const updatedTicket = { ...selectedTicket, status: 'Resolved' as const };
+        await SupportTicketsService.updateTicket(updatedTicket);
+        setTickets(tickets.map(t => t.id === updatedTicket.id ? updatedTicket : t));
+        setSelectedTicket(updatedTicket);
     };
 
     return (
@@ -178,7 +156,7 @@ export const StaffSupportTickets = () => {
                                 </div>
                             </div>
                             {selectedTicket.status !== 'Resolved' && (
-                                <button className="px-4 py-2 bg-[#f1f4f6] text-[#002045] font-bold text-[13px] rounded-lg hover:bg-[#e0e3e5] transition-colors whitespace-nowrap border border-[#c4c6cf]">
+                                <button onClick={handleMarkResolved} className="px-4 py-2 bg-[#f1f4f6] text-[#002045] font-bold text-[13px] rounded-lg hover:bg-[#e0e3e5] transition-colors whitespace-nowrap border border-[#c4c6cf]">
                                     Mark as Resolved
                                 </button>
                             )}
@@ -219,11 +197,12 @@ export const StaffSupportTickets = () => {
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                 e.preventDefault();
-                                                if(replyText.trim() !== '') setReplyText('');
+                                                handleSendReply();
                                             }
                                         }}
                                     />
                                     <button 
+                                        onClick={handleSendReply}
                                         className={`p-2.5 rounded-xl transition-all mb-1 flex items-center justify-center shrink-0
                                             ${replyText.trim() ? 'bg-[#0061a5] text-white shadow-md hover:bg-[#004a80]' : 'bg-[#e0e3e5] text-[#a1a4ad] cursor-not-allowed'}`}
                                     >

@@ -1,43 +1,24 @@
-
+import { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle2, Clock, AlertCircle, DollarSign, User, BookOpen, Calendar } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
+import type { DetailedInvoice } from '../types/invoice';
+import { InvoicesService } from '../services/invoices.service';
 
 const InvoiceDetail = () => {
     const { id } = useParams();
-    
-    // Mock data for a detailed invoice (simulating an installment payment)
-    const invoice = {
-        id: id || 'INV-10025',
-        status: 'Partial',
-        issueDate: '01-10-2026',
-        dueDate: '01-12-2026',
-        
-        learner: {
-            name: 'Sarah Connor',
-            email: 'sarah.c@example.com',
-            phone: '+1 987 654 321',
-            id: 'L-8842'
-        },
-        
-        course: {
-            name: 'TOEIC Target 700+',
-            code: 'TOEIC-B01',
-            duration: '16 Weeks',
-            startDate: '15-10-2026'
-        },
-        
-        payment: {
-            method: 'Installment (3 Terms)',
-            totalAmount: 300.00,
-            paidAmount: 200.00,
-            remainingAmount: 100.00,
-            installments: [
-                { id: 1, term: '1st Installment (Deposit)', amount: 100.00, dueDate: '01-10-2026', paidDate: '01-10-2026', status: 'Paid', method: 'Credit Card (*4421)' },
-                { id: 2, term: '2nd Installment', amount: 100.00, dueDate: '01-11-2026', paidDate: '22-10-2026', status: 'Paid', method: 'Bank Transfer' },
-                { id: 3, term: '3rd Installment (Final)', amount: 100.00, dueDate: '01-12-2026', paidDate: null, status: 'Pending', method: '-' },
-            ]
-        }
-    };
+    const [invoice, setInvoice] = useState<DetailedInvoice | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadInvoice = async () => {
+            if (id) {
+                const data = await InvoicesService.getInvoiceById(id);
+                if (data) setInvoice(data);
+            }
+            setLoading(false);
+        };
+        loadInvoice();
+    }, [id]);
 
     const getStatusStyle = (status: string) => {
         switch (status) {
@@ -58,6 +39,14 @@ const InvoiceDetail = () => {
             default: return null;
         }
     };
+
+    if (loading) {
+        return <div className="text-center py-10">Loading invoice details...</div>;
+    }
+
+    if (!invoice) {
+        return <div className="text-center py-10">Invoice not found.</div>;
+    }
 
     return (
         <div className="space-y-6 animate-fade-in-up max-w-[1000px] mx-auto pb-12">

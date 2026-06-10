@@ -1,40 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BookOpen, ArrowLeft, Clock, Calendar, ShieldCheck, CheckCircle2, MapPin, CalendarDays } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import type { PaymentCourseInfo, PaymentClassInfo } from '../types/payment';
+import { LearnerPaymentsService } from '../services/payments.service';
 
 const PaymentCheckout = () => {
-    // Mock course and class info
-    const course = {
-        title: 'IELTS Intensive Mastery',
-        duration: '12 Weeks',
-        sessions: 48,
-        price: 900,
-        format: 'Offline',
-        band: '7.5 - 8.0'
-    };
-    
-    const selectedClass = {
-        name: 'Class IELTS-A01',
-        schedule: 'Mon, Wed 18:00 - 20:00',
-        room: 'Room 302',
-        currentStudents: 12,
-        maxStudents: 15
-    };
+    const { id } = useParams(); // Using invoice id or course id based on route
+
+    const [course, setCourse] = useState<PaymentCourseInfo | null>(null);
+    const [selectedClass, setSelectedClass] = useState<PaymentClassInfo | null>(null);
+    const [loading, setLoading] = useState(true);
 
     const [paymentPlan, setPaymentPlan] = useState<'full' | 'installment'>('full');
     const [isProcessing, setIsProcessing] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
+    useEffect(() => {
+        const fetchDetails = async () => {
+            const [courseData, classData] = await Promise.all([
+                LearnerPaymentsService.getCourseInfo(),
+                LearnerPaymentsService.getClassInfo()
+            ]);
+            setCourse(courseData);
+            setSelectedClass(classData);
+            setLoading(false);
+        };
+        fetchDetails();
+    }, [id]);
+
+    if (loading || !course || !selectedClass) {
+        return <div className="text-center py-10">Loading checkout details...</div>;
+    }
+
     const priceValue = course.price;
     const initialPayment = paymentPlan === 'full' ? priceValue : priceValue / 3;
 
-    const handlePay = (e: React.FormEvent) => {
+    const handlePay = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsProcessing(true);
-        setTimeout(() => {
-            setIsProcessing(false);
+        const success = await LearnerPaymentsService.processPayment(id || '', initialPayment);
+        if (success) {
             setIsSuccess(true);
-        }, 2000);
+        }
+        setIsProcessing(false);
     };
 
     if (isSuccess) {
@@ -49,7 +57,7 @@ const PaymentCheckout = () => {
                     {paymentPlan === 'installment' && " The next installment will be automatically billed next month."}
                 </p>
                 <div className="bg-[#f7fafc] border border-[#e0e3e5] rounded-2xl p-6 mb-[40px] text-left max-w-md mx-auto">
-                    <div className="flex justify-between mb-3 text-[15px]"><span className="text-[#74777f]">Invoice ID:</span> <span className="font-bold text-[#002045]">INV-10025</span></div>
+                    <div className="flex justify-between mb-3 text-[15px]"><span className="text-[#74777f]">Invoice ID:</span> <span className="font-bold text-[#002045]">{id || 'INV-10025'}</span></div>
                     <div className="flex justify-between mb-3 text-[15px]"><span className="text-[#74777f]">Payment Method:</span> <span className="font-bold text-[#002045]">Credit Card</span></div>
                     <div className="flex justify-between text-[15px]"><span className="text-[#74777f]">Date:</span> <span className="font-bold text-[#002045]">{new Date().toLocaleDateString()}</span></div>
                 </div>

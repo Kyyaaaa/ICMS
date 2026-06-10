@@ -1,100 +1,50 @@
-
-import { BookOpen, Calendar, DollarSign, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { LearnerDashboardService } from '../services/dashboard.service';
+import type { LearnerDashboardStats, LearnerUpcomingClass, LearnerAnnouncement } from '../types/dashboard';
+import { DashboardStats } from '../components/DashboardStats';
+import { DashboardUpcomingClasses } from '../components/DashboardUpcomingClasses';
+import { DashboardAnnouncements } from '../components/DashboardAnnouncements';
 
 const LearnerDashboard = () => {
+    const [stats, setStats] = useState<LearnerDashboardStats | null>(null);
+    const [classes, setClasses] = useState<LearnerUpcomingClass[]>([]);
+    const [announcements, setAnnouncements] = useState<LearnerAnnouncement[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            setLoading(true);
+            const [statsData, classesData, announcementsData] = await Promise.all([
+                LearnerDashboardService.getStats(),
+                LearnerDashboardService.getUpcomingClasses(),
+                LearnerDashboardService.getAnnouncements()
+            ]);
+            setStats(statsData);
+            setClasses(classesData);
+            setAnnouncements(announcementsData);
+            setLoading(false);
+        };
+        fetchDashboardData();
+    }, []);
+
     return (
-        <div className="space-y-[24px] animate-fade-in-up">
+        <div className="space-y-[24px] animate-fade-in-up pb-8">
             <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Dashboard</h1>
             
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px]">
-                <div className="bg-white p-[24px] rounded-[12px] shadow-sm border border-[#e0e3e5] flex items-center gap-[16px]">
-                    <div className="w-12 h-12 rounded-full bg-[#d2e4ff] flex items-center justify-center text-[#0061a5]">
-                        <BookOpen className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <p className="text-[14px] text-[#43474e] font-medium">Active Classes</p>
-                        <p className="text-[24px] font-bold text-[#181c1e]">2</p>
-                    </div>
+            {loading || !stats ? (
+                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm">
+                    <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                 </div>
-                <div className="bg-white p-[24px] rounded-[12px] shadow-sm border border-[#e0e3e5] flex items-center gap-[16px]">
-                    <div className="w-12 h-12 rounded-full bg-[#ffdad6] flex items-center justify-center text-[#ba1a1a]">
-                        <DollarSign className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <p className="text-[14px] text-[#43474e] font-medium">Unpaid Invoices</p>
-                        <p className="text-[24px] font-bold text-[#ba1a1a]">1</p>
-                    </div>
-                </div>
-                <div className="bg-white p-[24px] rounded-[12px] shadow-sm border border-[#e0e3e5] flex items-center gap-[16px]">
-                    <div className="w-12 h-12 rounded-full bg-[#e5e9eb] flex items-center justify-center text-[#43474e]">
-                        <Calendar className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <p className="text-[14px] text-[#43474e] font-medium">Upcoming Sessions</p>
-                        <p className="text-[24px] font-bold text-[#181c1e]">4 this week</p>
-                    </div>
-                </div>
-            </div>
+            ) : (
+                <>
+                    <DashboardStats stats={stats} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px]">
-                {/* Upcoming Schedule */}
-                <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px]">
-                    <div className="flex justify-between items-center mb-[16px]">
-                        <h2 className="text-[18px] font-semibold text-[#181c1e]">Next Classes</h2>
-                        <Link to="/learner/schedules" className="text-[#0061a5] text-[14px] font-medium hover:underline flex items-center gap-1">
-                            View all <ArrowRight className="w-4 h-4" />
-                        </Link>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px]">
+                        <DashboardUpcomingClasses classes={classes} />
+                        <DashboardAnnouncements announcements={announcements} />
                     </div>
-                    <div className="space-y-[16px]">
-                        <div className="flex gap-[16px] p-[12px] border border-[#e0e3e5] rounded-[8px] hover:bg-[#f7fafc] transition-colors">
-                            <div className="flex flex-col items-center justify-center w-16 h-16 bg-[#d2e4ff] text-[#0061a5] rounded-[8px]">
-                                <span className="text-[12px] font-semibold uppercase">Oct</span>
-                                <span className="text-[20px] font-bold">12</span>
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-[#181c1e]">IELTS Academic - Reading</h3>
-                                <p className="text-[14px] text-[#43474e] mt-1">18:00 - 20:00 • Room 302</p>
-                                <p className="text-[12px] text-[#74777f] mt-1">Tutor: Sarah Jenkins</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Latest Announcements */}
-                <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px]">
-                    <div className="flex justify-between items-center mb-[16px]">
-                        <h2 className="text-[18px] font-semibold text-[#181c1e]">Recent Announcements</h2>
-                        <Link to="/learner/notifications" className="text-[#0061a5] text-[14px] font-medium hover:underline flex items-center gap-1">
-                            View all <ArrowRight className="w-4 h-4" />
-                        </Link>
-                    </div>
-                    <div className="space-y-[16px]">
-                        <div className="border-b border-[#e0e3e5] pb-[12px]">
-                            <div className="flex justify-between items-start mb-1">
-                                <h3 className="font-bold text-[#002045] hover:text-[#0061a5] cursor-pointer transition-colors">Class Reminder</h3>
-                                <span className="w-2 h-2 bg-[#0061a5] rounded-full mt-1.5 shrink-0"></span>
-                            </div>
-                            <p className="text-[14px] text-[#43474e] mt-1 line-clamp-2">Your Intensive Reading class starts in 1 hour.</p>
-                            <span className="text-[12px] text-[#74777f] mt-2 block">10 mins ago</span>
-                        </div>
-                        <div className="border-b border-[#e0e3e5] pb-[12px]">
-                            <div className="flex justify-between items-start mb-1">
-                                <h3 className="font-bold text-[#002045] hover:text-[#0061a5] cursor-pointer transition-colors">Assignment Graded</h3>
-                                <span className="w-2 h-2 bg-[#0061a5] rounded-full mt-1.5 shrink-0"></span>
-                            </div>
-                            <p className="text-[14px] text-[#43474e] mt-1 line-clamp-2">Your Writing Task 2 has been graded. Score: 7.5</p>
-                            <span className="text-[12px] text-[#74777f] mt-2 block">2 hours ago</span>
-                        </div>
-                        <div className="pb-[4px]">
-                            <h3 className="font-semibold text-[#43474e] hover:text-[#0061a5] cursor-pointer transition-colors">System Maintenance</h3>
-                            <p className="text-[14px] text-[#43474e] mt-1 line-clamp-2">ICMS platform will be down for maintenance this Sunday at 2 AM.</p>
-                            <span className="text-[12px] text-[#74777f] mt-2 block">1 day ago</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                </>
+            )}
         </div>
     );
 };

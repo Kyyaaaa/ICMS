@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, Clock, Headset, Trophy, Star, BookOpen, Compass, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { TopNav } from '@/components/layout/TopNav';
+import { TopNav } from '@/shared/components/layout/TopNav';
 import Cookies from 'js-cookie';
 
 interface UserInfo {
@@ -59,7 +59,7 @@ const Homepage = () => {
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-[16px] leading-[24px] font-sans min-h-screen flex flex-col">
             <style>{marqueeStyles}</style>
-            <TopNav isLoggedIn={isLoggedIn} userRole={userRole} userInfo={userInfo} />
+            <TopNav isLoggedIn={isLoggedIn} userRole={userRole} userInfo={userInfo || undefined} />
 
             <main className="flex-grow">
                 {/* Hero Section */}

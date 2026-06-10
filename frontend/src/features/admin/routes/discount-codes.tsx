@@ -1,24 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tags, Search, Plus, Trash2, Edit, X } from 'lucide-react';
-
-export interface DiscountCode {
-    id: string;
-    code: string;
-    value: number;
-    usageCount: number;
-    validFrom: string;
-    validUntil: string;
-    status: 'Active' | 'Expired' | 'Disabled';
-}
+import type { DiscountCode } from '../types/discount-code';
+import { AdminDiscountCodesService } from '../services/discount-codes.service';
 
 const AdminDiscountCodes = () => {
-    const [codes, setCodes] = useState<DiscountCode[]>([
-        { id: '1', code: 'SUMMER26', value: 150000, usageCount: 45, validFrom: '2026-06-01T00:00', validUntil: '2026-06-30T23:59', status: 'Active' },
-        { id: '2', code: 'EARLYBIRD', value: 50000, usageCount: 10, validFrom: '2026-05-15T08:00', validUntil: '2026-05-20T12:00', status: 'Active' },
-        { id: '3', code: 'WELCOME10', value: 100000, usageCount: 120, validFrom: '2026-01-01T00:00', validUntil: '2026-12-31T23:59', status: 'Active' },
-        { id: '4', code: 'FLASHSALE', value: 300000, usageCount: 200, validFrom: '2026-05-10T10:00', validUntil: '2026-05-10T14:00', status: 'Expired' },
-        { id: '5', code: 'STAFFONLY', value: 500000, usageCount: 5, validFrom: '2026-01-01T00:00', validUntil: '2026-12-31T23:59', status: 'Disabled' },
-    ]);
+    const [codes, setCodes] = useState<DiscountCode[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState<string | null>(null);
     
@@ -34,6 +20,14 @@ const AdminDiscountCodes = () => {
         endDate: '',
         endTime: ''
     });
+
+    useEffect(() => {
+        const fetchCodes = async () => {
+            const data = await AdminDiscountCodesService.getDiscountCodes();
+            setCodes(data);
+        };
+        fetchCodes();
+    }, []);
 
     const filteredCodes = codes.filter(c => c.code.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -62,7 +56,7 @@ const AdminDiscountCodes = () => {
         setIsModalOpen(false);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         setError(null);
 
         if (!formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime) {
@@ -82,24 +76,24 @@ const AdminDiscountCodes = () => {
         }
 
         if (editingId) {
-            setCodes(codes.map(c => c.id === editingId ? { ...c, ...formData, validFrom, validUntil } as DiscountCode : c));
+            const updated = await AdminDiscountCodesService.updateDiscountCode(editingId, { ...formData, validFrom, validUntil });
+            setCodes(codes.map(c => c.id === editingId ? updated : c));
         } else {
-            const newCode: DiscountCode = {
-                id: Date.now().toString(),
+            const newCode = await AdminDiscountCodesService.createDiscountCode({
                 code: formData.code?.toUpperCase() || 'NEWCODE',
                 value: formData.value || 0,
-                usageCount: 0,
                 validFrom,
                 validUntil,
                 status: formData.status as 'Active' | 'Expired' | 'Disabled' || 'Active'
-            };
+            });
             setCodes([...codes, newCode]);
         }
         setIsModalOpen(false);
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this discount code?')) {
+            await AdminDiscountCodesService.deleteDiscountCode(id);
             setCodes(codes.filter(c => c.id !== id));
         }
     };

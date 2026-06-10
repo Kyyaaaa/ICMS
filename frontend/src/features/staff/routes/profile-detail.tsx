@@ -1,13 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Calendar, Award, CheckCircle2, XCircle, ChevronLeft } from 'lucide-react';
+import type { TutorProfile } from '../types/profile';
+import { ProfilesService } from '../services/profiles.service';
 
 const ProfileDetail = () => {
-    useParams();
+    const { id } = useParams();
+    const [profile, setProfile] = useState<TutorProfile | null>(null);
     const [status, setStatus] = useState<'Pending' | 'Verified' | 'Rejected'>('Pending');
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            if (id) {
+                const data = await ProfilesService.getProfileById(Number(id));
+                if (data) {
+                    setProfile(data);
+                    setStatus(data.status as 'Pending' | 'Verified');
+                }
+            }
+            setLoading(false);
+        };
+        loadProfile();
+    }, [id]);
 
     const handleApprove = () => setStatus('Verified');
     const handleReject = () => setStatus('Rejected');
+
+    if (loading) {
+        return <div className="text-center py-10">Loading profile details...</div>;
+    }
+
+    if (!profile) {
+        return <div className="text-center py-10">Profile not found.</div>;
+    }
 
     return (
         <div className="space-y-[24px] animate-fade-in-up pb-[40px] max-w-5xl mx-auto">
@@ -45,17 +71,17 @@ const ProfileDetail = () => {
                 <div className="lg:col-span-1 space-y-[24px]">
                     <div className="bg-white p-[24px] rounded-3xl shadow-sm border border-[#e0e3e5] text-center">
                         <div className="w-32 h-32 mx-auto rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold text-[48px] mb-4">
-                            EM
+                            {profile.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                         </div>
-                        <h2 className="text-[22px] font-extrabold text-[#002045]">Elena Martinez</h2>
-                        <p className="text-[#43474e] font-medium mt-1 mb-6">Applied for: IELTS & English Tutor</p>
+                        <h2 className="text-[22px] font-extrabold text-[#002045]">{profile.name}</h2>
+                        <p className="text-[#43474e] font-medium mt-1 mb-6">Applied for: {profile.subject}</p>
 
                         <div className="space-y-4 text-left border-t border-[#e0e3e5] pt-6">
                             <div className="flex items-start gap-3">
                                 <Mail className="w-5 h-5 text-[#74777f] mt-0.5 shrink-0" />
                                 <div>
                                     <div className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider">Email Address</div>
-                                    <div className="text-[15px] font-medium text-[#181c1e]">elena.martinez@example.com</div>
+                                    <div className="text-[15px] font-medium text-[#181c1e]">contact@example.com</div>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">

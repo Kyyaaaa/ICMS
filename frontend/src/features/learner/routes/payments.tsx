@@ -1,13 +1,21 @@
-
+import { useState, useEffect } from 'react';
 import { Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import type { PaymentInvoice } from '../types/payment';
+import { LearnerPaymentsService } from '../services/payments.service';
 
 const PaymentHistory = () => {
-    const invoices = [
-        { id: 'INV-2024-001', course: 'IELTS Academic - Reading', date: '01-10-2024', amount: 450, status: 'paid' },
-        { id: 'INV-2024-002', course: 'IELTS Academic - Writing', date: '15-10-2024', amount: 450, status: 'pending' },
-        { id: 'INV-2024-003', course: 'IELTS General - Speaking', date: '10-09-2024', amount: 350, status: 'refunded' },
-    ];
+    const [invoices, setInvoices] = useState<PaymentInvoice[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchInvoices = async () => {
+            const data = await LearnerPaymentsService.getInvoices();
+            setInvoices(data);
+            setLoading(false);
+        };
+        fetchInvoices();
+    }, []);
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -26,6 +34,10 @@ const PaymentHistory = () => {
             default: return null;
         }
     };
+
+    if (loading) {
+        return <div className="text-center py-10">Loading payments...</div>;
+    }
 
     return (
         <div className="space-y-[24px] max-w-6xl animate-fade-in-up">

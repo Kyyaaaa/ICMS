@@ -58,7 +58,7 @@ const ResetPassword = () => {
             }
 
             setIsSuccess(true);
-        } catch (err) {
+        } catch {
             setErrorMsg('Network error. Please try again later.');
         } finally {
             setIsSubmitting(false);

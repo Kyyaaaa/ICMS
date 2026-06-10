@@ -1,8 +1,31 @@
-
+import { useState, useEffect } from 'react';
 import { Search, ShieldCheck, Eye, ShieldAlert } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import type { TutorProfile } from '../types/profile';
+import { ProfilesService } from '../services/profiles.service';
 
 const ProfileList = () => {
+    const [profiles, setProfiles] = useState<TutorProfile[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
+
+    useEffect(() => {
+        const loadProfiles = async () => {
+            const data = await ProfilesService.getProfiles();
+            setProfiles(data);
+        };
+        loadProfiles();
+    }, []);
+
+    const pendingCount = profiles.filter(p => p.status === 'Pending').length;
+    const verifiedCount = profiles.filter(p => p.status === 'Verified').length;
+
+    const filteredProfiles = profiles.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.subject.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = statusFilter ? p.status.toLowerCase() === statusFilter.toLowerCase() : true;
+        return matchesSearch && matchesStatus;
+    });
+
     return (
         <div className="space-y-6 animate-fade-in-up">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -17,14 +40,14 @@ const ProfileList = () => {
                     <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center"><ShieldAlert className="w-6 h-6"/></div>
                     <div>
                         <p className="text-sm font-semibold text-gray-500">Pending Verification</p>
-                        <p className="text-2xl font-bold text-[#002045]">12</p>
+                        <p className="text-2xl font-bold text-[#002045]">{pendingCount}</p>
                     </div>
                 </div>
                 <div className="bg-white p-4 rounded-xl border border-green-200 shadow-sm flex items-center gap-4">
                     <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center"><ShieldCheck className="w-6 h-6"/></div>
                     <div>
                         <p className="text-sm font-semibold text-gray-500">Verified Profiles</p>
-                        <p className="text-2xl font-bold text-[#002045]">145</p>
+                        <p className="text-2xl font-bold text-[#002045]">{verifiedCount}</p>
                     </div>
                 </div>
             </div>
@@ -33,10 +56,20 @@ const ProfileList = () => {
                 <div className="p-4 border-b border-[#e0e3e5] flex items-center justify-between bg-[#f8f9fa]">
                     <div className="relative w-full max-w-sm">
                         <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input type="text" placeholder="Search tutors by name or subject..." className="w-full pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg text-sm focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
+                        <input 
+                            type="text" 
+                            placeholder="Search tutors by name or subject..." 
+                            className="w-full pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg text-sm focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
                     <div className="flex gap-2">
-                        <select className="px-3 py-2 border border-[#c4c6cf] rounded-lg text-sm focus:outline-none focus:border-[#0061a5]">
+                        <select 
+                            className="px-3 py-2 border border-[#c4c6cf] rounded-lg text-sm focus:outline-none focus:border-[#0061a5]"
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                        >
                             <option value="">Status: All</option>
                             <option value="pending">Pending</option>
                             <option value="verified">Verified</option>
@@ -56,12 +89,8 @@ const ProfileList = () => {
                             </tr>
                         </thead>
                         <tbody className="text-sm">
-                            {[
-                                { name: 'Dr. Sarah Connor', subject: 'IELTS / TOEFL', date: '24-10-2026', status: 'Pending', avatar_url: '' },
-                                { name: 'Mr. James Bond', subject: 'Advanced Communication', date: '23-10-2026', status: 'Verified', avatar_url: '' },
-                                { name: 'Ms. Emily Blunt', subject: 'Basic English', date: '20-10-2026', status: 'Pending', avatar_url: '' },
-                            ].map((tutor, i) => (
-                                <tr key={i} className="border-b border-[#e0e3e5] hover:bg-[#f0f7ff]/50 transition-colors">
+                            {filteredProfiles.map((tutor) => (
+                                <tr key={tutor.id} className="border-b border-[#e0e3e5] hover:bg-[#f0f7ff]/50 transition-colors">
                                     <td className="p-4 font-bold text-[#002045]">
                                         <div className="flex items-center gap-3">
                                             {tutor.avatar_url ? (
@@ -82,7 +111,7 @@ const ProfileList = () => {
                                         </span>
                                     </td>
                                     <td className="p-4 text-right">
-                                        <Link to={`/staff/profiles/${i}`} className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-[#0061a5] hover:bg-blue-100 rounded-lg font-semibold transition-colors">
+                                        <Link to={`/staff/profiles/${tutor.id}`} className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-[#0061a5] hover:bg-blue-100 rounded-lg font-semibold transition-colors">
                                             <Eye className="w-4 h-4"/> Review
                                         </Link>
                                     </td>

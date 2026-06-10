@@ -106,7 +106,7 @@ const VerifyOTP = () => {
             setTimeLeft(300); // Reset timer to 5 minutes
             setResendSuccess(true);
             setTimeout(() => setResendSuccess(false), 5000);
-        } catch (err) {
+        } catch {
             setError(true);
             setErrorMsg('Network error. Please try again later.');
         } finally {
@@ -152,7 +152,7 @@ const VerifyOTP = () => {
             }
 
             navigate('/reset-password', { state: { reset_token: token } });
-        } catch (err) {
+        } catch {
             setError(true);
             setErrorMsg('Network error. Please try again later.');
         } finally {

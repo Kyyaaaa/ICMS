@@ -1,95 +1,32 @@
-import { useState } from 'react';
-import { Eye, Search, X, CheckCircle, XCircle, Calendar, Users } from 'lucide-react';
-
-interface ChangeRequest {
-    id: number;
-    tutor: string;
-    className: string;
-    session: number;
-    type: string;
-    originalTime: string;
-    proposedTime: string | null;
-    reason: string;
-    status: string;
-    submittedAt: string;
-    finalTime?: string;
-    staffNote?: string;
-}
+import { useState, useEffect } from 'react';
+import { Eye, Search, Calendar, Users } from 'lucide-react';
+import type { ChangeRequest } from '../types/change-request';
+import { ChangeRequestsService } from '../services/change-requests.service';
+import { ChangeRequestModal } from '../components/ChangeRequestModal';
 
 const ChangeRequests = () => {
-    const [requests, setRequests] = useState<ChangeRequest[]>([
-        { 
-            id: 1, 
-            tutor: 'Dr. Sarah Connor', 
-            className: 'IELTS-A01', 
-            session: 5,
-            type: 'Reschedule', 
-            originalTime: '10-10-2026 (18:00 - 20:00)', 
-            proposedTime: '11-10-2026 (18:00 - 20:00)', 
-            reason: 'Personal emergency, need to move the class to the next day.',
-            status: 'Pending', 
-            submittedAt: '05-10-2026' 
-        },
-        { 
-            id: 2, 
-            tutor: 'Mr. James Bond', 
-            className: 'TOEIC-B01', 
-            session: 2,
-            type: 'Substitute', 
-            originalTime: '12-10-2026 (19:00 - 21:00)', 
-            proposedTime: null, 
-            reason: 'Attending a conference, please find a substitute for this session.',
-            status: 'Pending', 
-            submittedAt: '06-10-2026' 
-        },
-        { 
-            id: 3, 
-            tutor: 'Ms. Emily Blunt', 
-            className: 'IELTS-A02', 
-            session: 8,
-            type: 'Reschedule', 
-            originalTime: '15-10-2026 (18:00 - 20:00)', 
-            proposedTime: '16-10-2026 (18:00 - 20:00)', 
-            reason: 'Conflict with another schedule.',
-            status: 'Approved', 
-            submittedAt: '01-10-2026' 
-        },
-        { 
-            id: 4, 
-            tutor: 'Dr. Sarah Connor', 
-            className: 'IELTS-A01', 
-            session: 12,
-            type: 'Reschedule', 
-            originalTime: '20-10-2026 (18:00 - 20:00)', 
-            proposedTime: null, 
-            reason: 'I am sick, please reschedule this session for me but I am not sure when I can teach yet.',
-            status: 'Pending', 
-            submittedAt: '18-10-2026' 
-        },
-    ]);
-
+    const [requests, setRequests] = useState<ChangeRequest[]>([]);
     const [selectedRequest, setSelectedRequest] = useState<ChangeRequest | null>(null);
-    const [selectedNewDate, setSelectedNewDate] = useState('');
-    const [selectedNewTime, setSelectedNewTime] = useState('');
-    const [selectedNewRoom, setSelectedNewRoom] = useState('');
-    const [staffNote, setStaffNote] = useState('');
 
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [typeFilter, setTypeFilter] = useState('All');
 
-    const handleStatusUpdate = (id: number, newStatus: string) => {
-        let finalArranged = '';
-        if (newStatus === 'Approved' && selectedRequest?.type === 'Reschedule') {
-            finalArranged = `${selectedNewDate} (${selectedNewTime}) • ${selectedNewRoom}`;
-        }
+    useEffect(() => {
+        const loadRequests = async () => {
+            const data = await ChangeRequestsService.getRequests();
+            setRequests(data);
+        };
+        loadRequests();
+    }, []);
 
-        setRequests(requests.map(r => {
-            if (r.id === id) {
-                return { ...r, status: newStatus, finalTime: finalArranged || r.finalTime, staffNote: staffNote };
-            }
-            return r;
-        }));
+    const handleStatusUpdate = async (id: number, newStatus: string, finalTime?: string, staffNote?: string) => {
+        const request = requests.find(r => r.id === id);
+        if (request) {
+            const updatedRequest = { ...request, status: newStatus, finalTime: finalTime || request.finalTime, staffNote: staffNote };
+            await ChangeRequestsService.updateRequest(updatedRequest);
+            setRequests(requests.map(r => r.id === id ? updatedRequest : r));
+        }
         setSelectedRequest(null);
     };
 
@@ -174,13 +111,7 @@ const ChangeRequests = () => {
                                 </td>
                                 <td className="p-4 text-right">
                                     <button 
-                                        onClick={() => {
-                                            setSelectedRequest(item);
-                                            setSelectedNewDate('');
-                                            setSelectedNewTime('');
-                                            setSelectedNewRoom('');
-                                            setStaffNote(item.staffNote || '');
-                                        }}
+                                        onClick={() => setSelectedRequest(item)}
                                         className="text-[#0061a5] hover:bg-[#f0f7ff] px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-end gap-1 ml-auto"
                                     >
                                         <Eye className="w-4 h-4"/> View Detail
@@ -194,168 +125,11 @@ const ChangeRequests = () => {
 
             {/* View Detail Modal */}
             {selectedRequest && (
-                <div className="fixed inset-0 bg-[#002045]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden animate-fade-in-up">
-                        <div className="flex items-center justify-between p-6 border-b border-[#e0e3e5] bg-[#f8f9fa] flex-shrink-0">
-                            <h3 className="text-[20px] font-bold text-[#002045]">
-                                Request Details
-                            </h3>
-                            <button 
-                                onClick={() => setSelectedRequest(null)}
-                                className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        
-                        <div className="p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
-                            <div className="grid grid-cols-2 gap-6">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500 mb-1">Tutor</p>
-                                    <p className="font-bold text-[#002045] text-lg">{selectedRequest.tutor}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500 mb-1">Class & Session</p>
-                                    <p className="font-semibold text-[#43474e]">{selectedRequest.className} - Session {selectedRequest.session}</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-6 p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5]">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500 mb-1">Original Schedule</p>
-                                    <p className="font-semibold text-[#e11d48]">{selectedRequest.originalTime}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500 mb-1">
-                                        {selectedRequest.type === 'Reschedule' ? 'Proposed by Tutor' : 'Requested Action'}
-                                    </p>
-                                    <p className={`font-semibold ${selectedRequest.type === 'Reschedule' ? 'text-[#16a34a]' : 'text-[#7c3aed]'}`}>
-                                        {selectedRequest.type === 'Reschedule' 
-                                            ? (selectedRequest.proposedTime || 'TBD (None provided)') 
-                                            : 'Needs Substitute Tutor'}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {selectedRequest.type === 'Reschedule' && selectedRequest.status === 'Pending' && (
-                                <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl space-y-4">
-                                    <p className="text-sm font-bold text-[#002045]">Assign Final Reschedule</p>
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Select Date <span className="text-red-500">*</span></label>
-                                            <input 
-                                                type="date" 
-                                                className="w-full px-3 py-2 bg-white border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] text-sm font-medium"
-                                                value={selectedNewDate}
-                                                onChange={(e) => {
-                                                    setSelectedNewDate(e.target.value);
-                                                    setSelectedNewTime('');
-                                                    setSelectedNewRoom('');
-                                                }}
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Time Slot <span className="text-red-500">*</span></label>
-                                            <select 
-                                                className="w-full px-3 py-2 bg-white border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] text-sm font-medium disabled:bg-gray-100 disabled:text-gray-400"
-                                                value={selectedNewTime}
-                                                onChange={(e) => {
-                                                    setSelectedNewTime(e.target.value);
-                                                    setSelectedNewRoom('');
-                                                }}
-                                                disabled={!selectedNewDate}
-                                            >
-                                                <option value="">-- Select Time --</option>
-                                                <option value="08:00 - 10:00">08:00 - 10:00</option>
-                                                <option value="13:00 - 15:00">13:00 - 15:00</option>
-                                                <option value="18:00 - 20:00">18:00 - 20:00</option>
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Room <span className="text-red-500">*</span></label>
-                                            <select 
-                                                className="w-full px-3 py-2 bg-white border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] text-sm font-medium disabled:bg-gray-100 disabled:text-gray-400"
-                                                value={selectedNewRoom}
-                                                onChange={(e) => setSelectedNewRoom(e.target.value)}
-                                                disabled={!selectedNewTime}
-                                            >
-                                                <option value="">-- Select Room --</option>
-                                                <option value="Room 102">Room 102 (Cap: 30)</option>
-                                                <option value="Room 205">Room 205 (Cap: 25)</option>
-                                                <option value="Lab 1">Lab 1 (Cap: 20)</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-gray-500">You must check available time slots and rooms on the selected date before approving.</p>
-                                </div>
-                            )}
-
-                            {selectedRequest.type === 'Reschedule' && selectedRequest.status !== 'Pending' && selectedRequest.finalTime && (
-                                <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
-                                    <p className="text-sm font-semibold text-green-700 mb-1">Final Arranged Schedule</p>
-                                    <p className="font-bold text-green-800">{selectedRequest.finalTime}</p>
-                                </div>
-                            )}
-
-                            <div>
-                                <p className="text-sm font-semibold text-gray-500 mb-2">Tutor's Reason</p>
-                                <div className="p-4 bg-[#f0f7ff] rounded-xl text-[#002045] leading-relaxed border border-blue-100 font-medium">
-                                    "{selectedRequest.reason}"
-                                </div>
-                            </div>
-
-                            {selectedRequest.status === 'Pending' ? (
-                                <div>
-                                    <p className="text-sm font-semibold text-[#181c1e] mb-2">Staff Feedback / Note</p>
-                                    <textarea 
-                                        rows={2}
-                                        className="w-full px-4 py-3 bg-white border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 font-medium resize-none"
-                                        placeholder="Add a message for the tutor (e.g. why it was rejected, or special instructions)..."
-                                        value={staffNote}
-                                        onChange={(e) => setStaffNote(e.target.value)}
-                                    ></textarea>
-                                </div>
-                            ) : selectedRequest.staffNote && (
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500 mb-2">Staff Feedback</p>
-                                    <div className="p-4 bg-gray-50 rounded-xl text-[#43474e] leading-relaxed border border-[#c4c6cf] font-medium">
-                                        {selectedRequest.staffNote}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {selectedRequest.status === 'Pending' ? (
-                            <div className="p-6 border-t border-[#e0e3e5] bg-[#f8f9fa] flex justify-end gap-3 flex-shrink-0">
-                                <button 
-                                    onClick={() => handleStatusUpdate(selectedRequest.id, 'Rejected')}
-                                    className="px-6 py-2.5 font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors flex items-center gap-2"
-                                >
-                                    <XCircle className="w-5 h-5" /> Reject
-                                </button>
-                                <button 
-                                    onClick={() => handleStatusUpdate(selectedRequest.id, 'Approved')}
-                                    disabled={selectedRequest.type === 'Reschedule' && (!selectedNewDate || !selectedNewTime || !selectedNewRoom)}
-                                    className="px-6 py-2.5 font-semibold text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <CheckCircle className="w-5 h-5" /> Approve
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="p-6 border-t border-[#e0e3e5] bg-[#f8f9fa] flex justify-end flex-shrink-0">
-                                <button 
-                                    onClick={() => setSelectedRequest(null)}
-                                    className="px-6 py-2.5 font-semibold text-[#43474e] border border-[#c4c6cf] rounded-xl hover:bg-white transition-colors"
-                                >
-                                    Close
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <ChangeRequestModal 
+                    request={selectedRequest} 
+                    onClose={() => setSelectedRequest(null)} 
+                    onUpdateStatus={handleStatusUpdate} 
+                />
             )}
         </div>
     );

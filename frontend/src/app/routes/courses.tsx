@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {  BookOpen, Headset, Compass, ArrowRight, Filter, Star, Clock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { TopNav } from '@/components/layout/TopNav';
+import { TopNav } from '@/shared/components/layout/TopNav';
 
 const Courses = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);

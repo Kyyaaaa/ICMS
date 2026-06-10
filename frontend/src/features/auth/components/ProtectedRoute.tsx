@@ -15,16 +15,12 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    let userRole = '';
+    let userRole: string;
     try {
         const userInfo = JSON.parse(userInfoStr);
-        userRole = userInfo.role;
+        userRole = userInfo.role ? String(userInfo.role).toUpperCase() : '';
     } catch {
         return <Navigate to="/login" replace />;
-    }
-
-    if (userRole) {
-        userRole = userRole.toUpperCase();
     }
 
     const upperAllowedRoles = allowedRoles.map(r => r.toUpperCase());

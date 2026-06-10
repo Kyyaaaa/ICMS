@@ -1,88 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Eye, CheckCircle2, XCircle, RefreshCcw, Landmark, Clock, FileText, X } from 'lucide-react';
-import {} from 'react-router-dom';
-
-export interface RefundRequest {
-    id: string; // REF-xxxx
-    invoiceId: string; // INV-xxxx
-    installment: string; 
-    studentName: string;
-    studentEmail: string;
-    courseName: string;
-    totalPaid: number;
-    refundAmount: number;
-    reason: string;
-    bankName: string;
-    bankAccountName: string;
-    bankAccountNumber: string;
-    requestedDate: string;
-    processedDate?: string;
-    status: 'Pending' | 'Approved' | 'Completed' | 'Rejected';
-    notes?: string;
-}
+import type { RefundRequest } from '../types/refund';
+import { AdminRefundsService } from '../services/refunds.service';
 
 const AdminRefunds = () => {
-    const [refunds, setRefunds] = useState<RefundRequest[]>([
-        {
-            id: 'REF-1002',
-            invoiceId: 'INV-2024-001',
-            installment: 'Installment 2',
-            studentName: 'Alex Smith',
-            studentEmail: 'alex@example.com',
-            courseName: 'IELTS Intensive Mastery',
-            totalPaid: 6000000,
-            refundAmount: 3000000,
-            reason: 'Scheduling conflict due to new job, cannot attend evening sessions anymore.',
-            bankName: 'Vietcombank',
-            bankAccountName: 'ALEX SMITH',
-            bankAccountNumber: '0123456789',
-            requestedDate: '2026-05-30T10:00',
-            status: 'Pending'
-        },
-        {
-            id: 'REF-1003',
-            invoiceId: 'INV-2024-055',
-            installment: 'Full Payment',
-            studentName: 'Maria Garcia',
-            studentEmail: 'maria.g@example.com',
-            courseName: 'Basic English Communication',
-            totalPaid: 2000000,
-            refundAmount: 2000000,
-            reason: 'Health issues, requesting full refund before course starts.',
-            bankName: 'Techcombank',
-            bankAccountName: 'MARIA GARCIA',
-            bankAccountNumber: '1903456789',
-            requestedDate: '2026-05-28T14:30',
-            processedDate: '2026-05-29T09:00',
-            status: 'Completed',
-            notes: 'Approved and transferred.'
-        },
-        {
-            id: 'REF-1004',
-            invoiceId: 'INV-2024-089',
-            installment: 'Installment 1',
-            studentName: 'David Lee',
-            studentEmail: 'david.l@example.com',
-            courseName: 'Advanced IELTS Writing',
-            totalPaid: 4000000,
-            refundAmount: 4000000,
-            reason: 'Changed mind, requested refund after 3 sessions (not eligible).',
-            bankName: 'MB Bank',
-            bankAccountName: 'DAVID LEE',
-            bankAccountNumber: '0987654321',
-            requestedDate: '2026-05-25T11:15',
-            processedDate: '2026-05-26T16:20',
-            status: 'Rejected',
-            notes: 'Refund policy states no refunds after 2nd session.'
-        }
-    ]);
-
+    const [refunds, setRefunds] = useState<RefundRequest[]>([]);
+    
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('All');
 
     // For Modal processing/viewing in-page (keeps state synced)
     const [selectedRefund, setSelectedRefund] = useState<RefundRequest | null>(null);
     const [processNote, setProcessNote] = useState('');
+
+    useEffect(() => {
+        const fetchRefunds = async () => {
+            const data = await AdminRefundsService.getRefunds();
+            setRefunds(data);
+        };
+        fetchRefunds();
+    }, []);
 
     const filteredRefunds = refunds.filter(r => {
         const matchesSearch = r.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -92,15 +29,9 @@ const AdminRefunds = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const handleProcess = (id: string, newStatus: 'Approved' | 'Completed' | 'Rejected') => {
-        setRefunds(refunds.map(r => 
-            r.id === id ? { 
-                ...r, 
-                status: newStatus, 
-                processedDate: new Date().toISOString().slice(0, 16),
-                notes: processNote 
-            } : r
-        ));
+    const handleProcess = async (id: string, newStatus: 'Approved' | 'Completed' | 'Rejected') => {
+        const updated = await AdminRefundsService.processRefund(id, newStatus, processNote);
+        setRefunds(refunds.map(r => r.id === id ? updated : r));
         setSelectedRefund(null);
         setProcessNote('');
     };

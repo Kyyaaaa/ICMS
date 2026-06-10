@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, BookOpen, CheckCircle2, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { validateFullName, validatePhoneNumber } from '@/lib/utils';
+import { validateFullName, validatePhoneNumber } from '@/shared/lib/utils';
 const Register = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [agreedToTerms, setAgreedToTerms] = useState(false);

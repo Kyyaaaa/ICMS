@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom';
-import App from '../App.tsx';
 
 // Auth Routes
 import Register from '@/features/auth/routes/register.tsx';
@@ -16,7 +15,7 @@ import CourseDetail from '@/app/routes/course-detail.tsx';
 import PublicNotifications from '@/app/routes/public-notifications.tsx';
 
 // Learner Views
-import LearnerLayout from '@/components/layout/learner-layout.tsx';
+import LearnerLayout from '@/shared/components/layout/LearnerLayout.tsx';
 import LearnerDashboard from '@/features/learner/routes/dashboard.tsx';
 import LearnerProfile from '@/features/learner/routes/profile.tsx';
 import LearnerClasses from '@/features/learner/routes/classes.tsx';
@@ -30,7 +29,7 @@ import PaymentCheckout from '@/features/learner/routes/checkout.tsx';
 import RefundRequest from '@/features/learner/routes/refund.tsx';
 
 // Staff Views
-import StaffLayout from '@/components/layout/staff-layout.tsx';
+import StaffLayout from '@/shared/components/layout/StaffLayout.tsx';
 import StaffDashboard from '@/features/staff/routes/dashboard.tsx';
 import ConsultationList from '@/features/staff/routes/consultations.tsx';
 import ProfileList from '@/features/staff/routes/profiles.tsx';
@@ -49,7 +48,7 @@ import SalaryHistory from '@/features/staff/routes/salary.tsx';
 import { StaffSupportTickets } from '@/features/staff/routes/support-tickets.tsx';
 
 // Admin Views
-import { AdminLayout } from '@/components/layout/admin-layout.tsx';
+import { AdminLayout } from '@/shared/components/layout/AdminLayout.tsx';
 import AdminDashboard from '@/features/admin/routes/dashboard.tsx';
 import AdminCourses from '@/features/admin/routes/courses.tsx';
 import AdminCourseDetail from '@/features/admin/routes/course-detail.tsx';
@@ -67,7 +66,7 @@ import AdminProfile from '@/features/admin/routes/profile.tsx';
 import AdminFinance from '@/features/admin/routes/finance.tsx';
 
 // Tutor Views
-import TutorLayout from '@/components/layout/tutor-layout.tsx';
+import TutorLayout from '@/shared/components/layout/TutorLayout.tsx';
 import TutorDashboard from '@/features/tutor/routes/dashboard.tsx';
 import TutorProfile from '@/features/tutor/routes/profile.tsx';
 import TutorQualifications from '@/features/tutor/routes/qualifications.tsx';
@@ -79,8 +78,8 @@ import TutorSalaryHistory from '@/features/tutor/routes/salary.tsx';
 import { TutorSupportTickets } from '@/features/tutor/routes/support-tickets.tsx';
 
 // Shared Views
-import { NotificationsPage } from '@/components/shared/notifications.tsx';
-import { SupportTickets } from '@/components/shared/support-tickets.tsx';
+import { NotificationsPage } from '@/shared/components/common/NotificationsPage.tsx';
+import { SupportTickets } from '@/shared/components/common/SupportTickets.tsx';
 
 // Auth Components
 import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute.tsx';
@@ -89,7 +88,7 @@ import { GuestRoute } from '@/features/auth/components/GuestRoute.tsx';
 export const AppRouter = () => {
   return (
     <Routes>
-      <Route path="/" element={<App />} />
+      <Route path="/" element={<Homepage />} />
       <Route element={<GuestRoute />}>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {  BookOpen, Headset, Compass, ArrowRight, Star, CheckCircle2, ChevronRight, Clock, MapPin, Globe, Users, ShieldCheck, Ticket, X } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { TopNav } from '@/components/layout/TopNav';
+import { TopNav } from '@/shared/components/layout/TopNav';
 
 const CourseDetail = () => {
     useEffect(() => {

@@ -1,20 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BookOpen, MapPin, Calendar, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
+import type { RegistrationClassOption, RegistrationInvoicePreview } from '../types/registration';
+import { LearnerRegistrationService } from '../services/registration.service';
 
 const ClassRegistration = () => {
     const { courseId } = useParams();
+    const [classOptions, setClassOptions] = useState<RegistrationClassOption[]>([]);
     const [selectedClass, setSelectedClass] = useState<number | null>(null);
+    const [invoicePreview, setInvoicePreview] = useState<RegistrationInvoicePreview | null>(null);
+    const [loading, setLoading] = useState(true);
+    
     const [isConfirming, setIsConfirming] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
-    const handleConfirm = () => {
+    useEffect(() => {
+        const fetchClasses = async () => {
+            if (courseId) {
+                const data = await LearnerRegistrationService.getAvailableClasses(courseId);
+                setClassOptions(data);
+            }
+            setLoading(false);
+        };
+        fetchClasses();
+    }, [courseId]);
+
+    useEffect(() => {
+        const fetchInvoice = async () => {
+            if (courseId && selectedClass) {
+                const preview = await LearnerRegistrationService.getInvoicePreview(courseId, selectedClass);
+                setInvoicePreview(preview);
+            } else {
+                setInvoicePreview(null);
+            }
+        };
+        fetchInvoice();
+    }, [courseId, selectedClass]);
+
+    const handleConfirm = async () => {
+        if (!courseId || !selectedClass) return;
         setIsConfirming(true);
-        setTimeout(() => {
-            setIsConfirming(false);
+        const success = await LearnerRegistrationService.confirmRegistration(courseId, selectedClass);
+        if (success) {
             setIsSuccess(true);
-        }, 1500);
+        }
+        setIsConfirming(false);
     };
+
+    if (loading) {
+        return <div className="text-center py-10">Loading available classes...</div>;
+    }
 
     if (isSuccess) {
         return (
@@ -49,67 +84,51 @@ const ClassRegistration = () => {
             <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Class Registration</h1>
             
             <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px] md:p-[32px]">
-                <h2 className="text-[18px] font-bold text-[#181c1e] mb-[16px]">Available Classes for IELTS Academic</h2>
+                <h2 className="text-[18px] font-bold text-[#181c1e] mb-[16px]">Available Classes</h2>
                 
                 <div className="space-y-[16px] mb-[32px]">
-                    {/* Class Option 1 */}
-                    <label className={`block border ${selectedClass === 1 ? 'border-[#0061a5] bg-[#f7fafc]' : 'border-[#e0e3e5]'} rounded-[8px] p-[16px] cursor-pointer hover:border-[#0061a5] transition-colors`}>
-                        <div className="flex items-start gap-[16px]">
-                            <input type="radio" name="class" className="mt-1" checked={selectedClass === 1} onChange={() => setSelectedClass(1)} />
-                            <div className="flex-1">
-                                <div className="flex justify-between">
-                                    <h3 className="font-bold text-[#181c1e]">Class A - Evening</h3>
-                                    <span className="text-[#0061a5] font-semibold text-[14px]">10 seats left</span>
-                                </div>
-                                <div className="grid grid-cols-2 gap-[8px] mt-[12px] text-[14px] text-[#43474e]">
-                                    <span className="flex items-center gap-2"><Calendar className="w-4 h-4"/> Mon, Wed</span>
-                                    <span className="flex items-center gap-2"><Clock className="w-4 h-4"/> 19:00 - 21:00</span>
-                                    <span className="flex items-center gap-2"><MapPin className="w-4 h-4"/> Room 305</span>
-                                    <span className="flex items-center gap-2"><BookOpen className="w-4 h-4"/> 24 Sessions</span>
-                                </div>
-                            </div>
-                        </div>
-                    </label>
-
-                    {/* Class Option 2 */}
-                    <label className={`block border ${selectedClass === 2 ? 'border-[#0061a5] bg-[#f7fafc]' : 'border-[#e0e3e5]'} rounded-[8px] p-[16px] cursor-pointer hover:border-[#0061a5] transition-colors`}>
-                        <div className="flex items-start gap-[16px]">
-                            <input type="radio" name="class" className="mt-1" checked={selectedClass === 2} onChange={() => setSelectedClass(2)} />
-                            <div className="flex-1">
-                                <div className="flex justify-between">
-                                    <h3 className="font-bold text-[#181c1e]">Class B - Weekend</h3>
-                                    <span className="text-[#0061a5] font-semibold text-[14px]">2 seats left</span>
-                                </div>
-                                <div className="grid grid-cols-2 gap-[8px] mt-[12px] text-[14px] text-[#43474e]">
-                                    <span className="flex items-center gap-2"><Calendar className="w-4 h-4"/> Sat, Sun</span>
-                                    <span className="flex items-center gap-2"><Clock className="w-4 h-4"/> 09:00 - 11:00</span>
-                                    <span className="flex items-center gap-2"><MapPin className="w-4 h-4"/> Room 102</span>
-                                    <span className="flex items-center gap-2"><BookOpen className="w-4 h-4"/> 24 Sessions</span>
+                    {classOptions.map((opt) => (
+                        <label key={opt.id} className={`block border ${selectedClass === opt.id ? 'border-[#0061a5] bg-[#f7fafc]' : 'border-[#e0e3e5]'} rounded-[8px] p-[16px] cursor-pointer hover:border-[#0061a5] transition-colors`}>
+                            <div className="flex items-start gap-[16px]">
+                                <input type="radio" name="class" className="mt-1" checked={selectedClass === opt.id} onChange={() => setSelectedClass(opt.id)} />
+                                <div className="flex-1">
+                                    <div className="flex justify-between">
+                                        <h3 className="font-bold text-[#181c1e]">{opt.name}</h3>
+                                        <span className="text-[#0061a5] font-semibold text-[14px]">{opt.availableSeats} seats left</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-[8px] mt-[12px] text-[14px] text-[#43474e]">
+                                        <span className="flex items-center gap-2"><Calendar className="w-4 h-4"/> {opt.schedule}</span>
+                                        <span className="flex items-center gap-2"><Clock className="w-4 h-4"/> {opt.time}</span>
+                                        <span className="flex items-center gap-2"><MapPin className="w-4 h-4"/> {opt.room}</span>
+                                        <span className="flex items-center gap-2"><BookOpen className="w-4 h-4"/> {opt.sessions} Sessions</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </label>
+                        </label>
+                    ))}
                 </div>
 
                 {/* Invoice Preview */}
-                <div className="border-t border-[#e0e3e5] pt-[24px]">
-                    <h2 className="text-[18px] font-bold text-[#181c1e] mb-[16px]">Invoice Summary</h2>
-                    <div className="bg-[#f7fafc] rounded-[8px] p-[16px] space-y-[12px]">
-                        <div className="flex justify-between text-[14px] text-[#43474e]">
-                            <span>Course Tuition Fee</span>
-                            <span>450,000 đ</span>
-                        </div>
-                        <div className="flex justify-between text-[14px] text-[#43474e]">
-                            <span>Discount</span>
-                            <span>-0 đ</span>
-                        </div>
-                        <div className="border-t border-[#e0e3e5] my-[8px]"></div>
-                        <div className="flex justify-between text-[18px] font-bold text-[#181c1e]">
-                            <span>Total Due</span>
-                            <span>450,000 đ</span>
+                {invoicePreview && (
+                    <div className="border-t border-[#e0e3e5] pt-[24px]">
+                        <h2 className="text-[18px] font-bold text-[#181c1e] mb-[16px]">Invoice Summary</h2>
+                        <div className="bg-[#f7fafc] rounded-[8px] p-[16px] space-y-[12px]">
+                            <div className="flex justify-between text-[14px] text-[#43474e]">
+                                <span>Course Tuition Fee</span>
+                                <span>{invoicePreview.courseFee.toLocaleString()} đ</span>
+                            </div>
+                            <div className="flex justify-between text-[14px] text-[#43474e]">
+                                <span>Discount</span>
+                                <span>-{invoicePreview.discount.toLocaleString()} đ</span>
+                            </div>
+                            <div className="border-t border-[#e0e3e5] my-[8px]"></div>
+                            <div className="flex justify-between text-[18px] font-bold text-[#181c1e]">
+                                <span>Total Due</span>
+                                <span>{invoicePreview.totalDue.toLocaleString()} đ</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 <div className="mt-[32px] flex justify-end">
                     <button 

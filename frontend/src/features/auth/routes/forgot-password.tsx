@@ -36,7 +36,7 @@ const ForgotPassword = () => {
 
             // Success: navigate to verify-otp and pass the email
             navigate('/verify-otp', { state: { email } });
-        } catch (err) {
+        } catch {
             setError('Network error. Please try again later.');
         } finally {
             setLoading(false);

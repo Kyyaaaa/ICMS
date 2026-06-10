@@ -1,32 +1,24 @@
-import { useState } from 'react';
-import { Wallet, CalendarDays, TrendingUp, Eye, CheckCircle2, ChevronDown, Search, Filter, X, Building, Receipt } from 'lucide-react';
-
-type SalaryRecord = {
-    id: string;
-    period: string;
-    baseSalary: number;
-    bonuses: number;
-    deductions: number;
-    netPay: number;
-    payDate: string;
-    status: string;
-};
+import { useState, useEffect } from 'react';
+import { Wallet, CalendarDays, TrendingUp, Eye, ChevronDown, Search, Filter } from 'lucide-react';
+import type { SalaryRecord } from '../types/salary';
+import { SalaryService } from '../services/salary.service';
+import { PayslipModal } from '../components/PayslipModal';
 
 const SalaryHistory = () => {
     const [selectedYear] = useState('2026');
+    const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>([]);
     const [selectedRecord, setSelectedRecord] = useState<SalaryRecord | null>(null);
 
-    // Mock data for salary records (Admin Confirmed)
-    const salaryRecords: SalaryRecord[] = [
-        { id: 'PAY-1004', period: '10-2026', baseSalary: 12000000, bonuses: 1500000, deductions: 0, netPay: 13500000, payDate: '05-11-2026', status: 'Paid' },
-        { id: 'PAY-1003', period: '09-2026', baseSalary: 12000000, bonuses: 2000000, deductions: 500000, netPay: 13500000, payDate: '05-10-2026', status: 'Paid' },
-        { id: 'PAY-1002', period: '08-2026', baseSalary: 12000000, bonuses: 1000000, deductions: 0, netPay: 13000000, payDate: '05-09-2026', status: 'Paid' },
-        { id: 'PAY-1001', period: '07-2026', baseSalary: 12000000, bonuses: 500000, deductions: 0, netPay: 12500000, payDate: '05-08-2026', status: 'Paid' },
-        { id: 'PAY-1000', period: '06-2026', baseSalary: 12000000, bonuses: 3000000, deductions: 200000, netPay: 14800000, payDate: '05-07-2026', status: 'Paid' },
-    ];
+    useEffect(() => {
+        const loadSalary = async () => {
+            const data = await SalaryService.getSalaryHistory();
+            setSalaryRecords(data);
+        };
+        loadSalary();
+    }, []);
 
     const totalYTD = salaryRecords.reduce((acc, curr) => acc + curr.netPay, 0);
-    const lastPayout = salaryRecords[0];
+    const lastPayout = salaryRecords[0] || { period: 'N/A', netPay: 0, payDate: 'N/A' };
 
     return (
         <div className="space-y-[24px] animate-fade-in-up pb-[40px]">
@@ -132,130 +124,8 @@ const SalaryHistory = () => {
                 </div>
             </div>
 
-            {/* Payslip Detail Modal */}
             {selectedRecord && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-[#f8f9fa] rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                        {/* Modal Header */}
-                        <div className="flex items-center justify-between px-6 py-4 bg-[#002045] text-white shrink-0">
-                            <h2 className="text-[20px] font-bold flex items-center gap-2">
-                                <Receipt className="w-6 h-6 text-[#adc7f7]" /> Payslip Details
-                            </h2>
-                            <button 
-                                onClick={() => setSelectedRecord(null)}
-                                className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        
-                        {/* Modal Content */}
-                        <div className="p-6 overflow-y-auto bg-white flex-1 relative">
-                            {/* Watermark */}
-                            <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.03]">
-                                <Building className="w-[500px] h-[500px]" />
-                            </div>
-
-                            <div className="relative z-10">
-                                {/* Payslip Header */}
-                                <div className="flex justify-between items-start border-b border-[#e0e3e5] pb-4 mb-6">
-                                    <div>
-                                        <h3 className="text-[24px] font-extrabold text-[#002045]">ICMS Education Platform</h3>
-                                        <p className="text-[#74777f] text-[14px]">123 University Ave, Ho Chi Minh City</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-[20px] font-bold text-[#002045]">Payslip</div>
-                                        <p className="text-[#74777f] font-medium mt-1">{selectedRecord.period}</p>
-                                        <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2.5 py-1 rounded-md text-[12px] font-bold mt-2">
-                                            <CheckCircle2 className="w-3.5 h-3.5" /> Confirmed
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    {/* Left Column: Employee Info */}
-                                    <div className="space-y-6">
-                                        <div className="bg-[#f8f9fa] p-5 rounded-xl border border-[#e0e3e5]">
-                                            <h4 className="font-bold text-[#002045] border-b border-[#e0e3e5] pb-2 mb-4">Employee Information</h4>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <div className="text-[12px] font-bold text-[#74777f] uppercase">Employee Name</div>
-                                                    <div className="font-bold text-[#181c1e] text-[14px]">Admin Staff</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-[12px] font-bold text-[#74777f] uppercase">Employee ID</div>
-                                                    <div className="font-bold text-[#181c1e] text-[14px]">STF-2026-001</div>
-                                                </div>
-                                                <div className="col-span-2">
-                                                    <div className="text-[12px] font-bold text-[#74777f] uppercase">Role</div>
-                                                    <div className="font-bold text-[#181c1e] text-[14px]">Staff</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-[#f8f9fa] p-5 rounded-xl border border-[#e0e3e5]">
-                                            <h4 className="font-bold text-[#002045] border-b border-[#e0e3e5] pb-2 mb-4">Payment Details</h4>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <div className="text-[12px] font-bold text-[#74777f] uppercase">Payment Date</div>
-                                                    <div className="font-bold text-[#181c1e] text-[14px]">{selectedRecord.payDate}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-[12px] font-bold text-[#74777f] uppercase">Transaction ID</div>
-                                                    <div className="font-bold text-[#181c1e] text-[14px]">{selectedRecord.id}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Right Column: Earnings Breakdown */}
-                                    <div className="bg-white border border-[#0061a5]/20 p-5 rounded-xl shadow-sm">
-                                        <h4 className="font-bold text-[#002045] border-b border-[#e0e3e5] pb-2 mb-4">Earnings Breakdown</h4>
-                                        
-                                        <div className="space-y-3">
-                                            {/* Base Salary */}
-                                            <div className="flex justify-between items-center text-[14px]">
-                                                <span className="text-[#43474e] font-medium">Base Salary (160h x 75,000 đ/h)</span>
-                                                <span className="font-bold text-[#181c1e]">{selectedRecord.baseSalary.toLocaleString()} đ</span>
-                                            </div>
-                                            
-                                            {/* Allowances */}
-                                            <div className="flex justify-between items-center text-[14px]">
-                                                <span className="text-[#43474e] font-medium">Internet & Equipment Allowance</span>
-                                                <span className="font-bold text-[#181c1e]">500,000 đ</span>
-                                            </div>
-
-                                            {/* Bonus */}
-                                            <div className="flex justify-between items-center text-[14px]">
-                                                <span className="text-green-600 font-medium">Performance Bonus</span>
-                                                <span className="font-bold text-green-600">+{Math.max(0, selectedRecord.bonuses - 500000).toLocaleString()} đ</span>
-                                            </div>
-
-                                            {/* Deductions */}
-                                            <div className="pt-3 border-t border-dashed border-[#e0e3e5]">
-                                                <div className="flex justify-between items-center text-[14px]">
-                                                    <span className="text-red-600 font-medium">Tax Deduction (5%)</span>
-                                                    <span className="font-bold text-red-600">-{selectedRecord.deductions.toLocaleString()} đ</span>
-                                                </div>
-                                            </div>
-                                            
-                                            {/* Total */}
-                                            <div className="pt-4 mt-2 border-t border-[#c4c6cf]">
-                                                <div className="flex justify-between items-center bg-[#e6f0fa] p-4 rounded-xl border border-[#bbdefb]">
-                                                    <span className="font-extrabold text-[#002045] text-[16px]">Total Net Pay</span>
-                                                    <span className="font-extrabold text-[#0061a5] text-[28px]">{selectedRecord.netPay.toLocaleString()} đ</span>
-                                                </div>
-                                                <p className="text-center text-[12px] text-[#74777f] mt-3 italic">
-                                                    *All amounts are represented in đ.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <PayslipModal record={selectedRecord} onClose={() => setSelectedRecord(null)} />
             )}
         </div>
     );
