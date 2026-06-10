@@ -12,7 +12,7 @@ export class AuthService {
    * @param phoneNumber Số điện thoại
    */
   static async registerLearner(email: string, password: string, fullName: string, phoneNumber: string | null) {
-    
+
     // Đóng gói dữ liệu metadata
     const metadata: UserMetadata = {
       full_name: fullName,
@@ -41,7 +41,7 @@ export class AuthService {
 
     // Lấy thông tin user từ DB nội bộ thay vì từ Supabase Auth
     const { data: account, error: accError } = await AuthRepository.getAccountByEmail(email);
-    
+
     if (accError || !account) {
       throw new Error('User not found in internal database');
     }
@@ -53,12 +53,29 @@ export class AuthService {
 
     // Map role back to string for frontend compatibility
     if (account.roles && account.roles.name) {
-        account.role = account.roles.name;
+      account.role = account.roles.name;
     }
 
     return {
       session: data.session,
       user: account,
+    };
+  }
+
+  /**
+   * Đổi token mới bằng refresh token
+   * @param refreshToken Refresh token cũ
+   */
+  static async refreshToken(refreshToken: string) {
+    const { data, error } = await AuthRepository.refreshSession(refreshToken);
+
+    if (error || !data.session) {
+      throw new Error('Refresh token invalid or expired. Please login again.');
+    }
+
+    return {
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token
     };
   }
 
@@ -173,7 +190,7 @@ export class AuthService {
 
     // 2. Đồng bộ vào DB nội bộ (Merge hoặc Tạo mới)
     const { data: account, error: syncError } = await AuthRepository.syncGoogleAccount(user.id, email, fullName, avatarUrl);
-    
+
     if (syncError) {
       throw syncError;
     }

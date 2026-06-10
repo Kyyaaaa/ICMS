@@ -114,6 +114,30 @@ export class AuthController {
     }
   }
 
+  static async refreshToken(req: Request, res: Response) {
+    try {
+      const { refresh_token } = req.body;
+
+      if (!refresh_token) {
+        return res.status(400).json({ success: false, message: 'Missing refresh_token' });
+      }
+
+      const result = await AuthService.refreshToken(refresh_token);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Token refreshed successfully',
+        data: result
+      });
+    } catch (error: any) {
+      console.error('Error during token refresh:', error);
+      return res.status(401).json({
+        success: false,
+        message: error.message || 'Invalid refresh token'
+      });
+    }
+  }
+
   static async forgotPassword(req: Request, res: Response) {
     try {
       const { email } = req.body;

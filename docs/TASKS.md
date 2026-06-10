@@ -111,15 +111,15 @@
   - Kiểm tra xem Supabase RLS (Row Level Security) trên `public.account` đã được cấu hình chặt chẽ chưa.
 
 ### 🎨 Frontend Agent
-- `[ ]` **FE-07: Cập nhật giao diện Admin Dashboard (Quản lý Account)**
+- `[x]` **FE-07: Cập nhật giao diện Admin Dashboard (Quản lý Account)**
   - Cập nhật UI/UX ở danh sách tài khoản: Gỡ bỏ hiển thị cột "Account Code".
   - Cập nhật lại data binding cho bảng, lấy dữ liệu từ property `data` và phân trang với property `total` từ API response mới.
-- `[ ]` **FE-08: Cập nhật luồng tạo/chỉnh sửa Account**
+- `[x]` **FE-08: Cập nhật luồng tạo/chỉnh sửa Account**
   - Xóa bỏ field `account_code` khỏi tất cả các form Tạo mới / Cập nhật tài khoản.
   - Cập nhật cách truyền trạng thái Ban/Unban (API yêu cầu payload `{ status: 'ACTIVE' | 'BANNED' }`).
-- `[ ]` **FE-10: Tích hợp API mới vào Axios/Redux/React Query**
+- `[x]` **FE-10: Tích hợp API mới vào Axios/Redux/React Query**
   - Cập nhật các service gọi API của Account và Learner module để match chính xác với cấu trúc JSON Response mới của Backend (`{ success: true, data: ..., total: ... }`).
-- `[ ]` **FE-09: Cập nhật màn hình Hồ sơ (Profile)**
+- `[x]` **FE-09: Cập nhật màn hình Hồ sơ (Profile)**
   - Đảm bảo màn hình hiển thị hồ sơ cá nhân của người dùng không còn render thuộc tính `account_code` bị lỗi `undefined`.
 
 ### 🕵️‍♂️ QA Agent
@@ -130,3 +130,132 @@
   - Kịch bản 1: Đăng ký một Learner mới (Kỳ vọng: Tự động phát sinh 1 record trong bảng `auth.users` VÀ 1 record trong `public.account` với role `LEARNER`).
   - Kịch bản 2: Đăng nhập và kiểm tra access token. Chắc chắn middleware `verifyToken` đã parse đúng role từ database.
   - Kịch bản 3: Xóa một Learner (Kỳ vọng: Bản ghi biến mất đồng thời ở cả `auth.users` và `public.account`).
+
+---
+
+## 🔄 6. Kế hoạch Token Auto-Refresh
+
+### 🎯 Mục tiêu
+Khi `access_token` hết hạn, hệ thống tự động dùng `refresh_token` để lấy token mới mà không yêu cầu người dùng đăng nhập lại. Nếu refresh thất bại, tự động logout và redirect về `/login`.
+
+### 🧑‍💻 Backend Agent
+
+- `[x]` **BK-01: Kiểm tra & hoàn thiện `auth.repository.ts`**
+  - Đảm bảo có method `refreshSession(refreshToken: string)` gọi `supabase.auth.refreshSession({ refresh_token: refreshToken })`.
+
+- `[x]` **BK-02: Kiểm tra & hoàn thiện `auth.service.ts`**
+  - Đảm bảo có method `refreshToken(refreshToken: string)`:
+    - Gọi `AuthRepository.refreshSession(refreshToken)`.
+    - Nếu lỗi hoặc không có session → throw `Error('Refresh token invalid or expired. Please login again.')`.
+    - Trả về `{ access_token, refresh_token }` mới.
+
+- `[x]` **BK-03: Kiểm tra & hoàn thiện `auth.controller.ts`**
+  - Đảm bảo có method `refreshToken(req, res)`:
+    - Input: `{ refresh_token: string }` trong `req.body`.
+    - Validation: Trả `400` nếu thiếu `refresh_token`.
+    - Success: `200` với `{ success: true, data: { access_token, refresh_token } }`.
+    - Failure: `401` với `{ success: false, message: "..." }`.
+
+- `[x]` **BK-04: Kiểm tra & hoàn thiện `auth.routes.ts`**
+  - Đảm bảo đã đăng ký route: `router.post('/refresh', AuthController.refreshToken)`.
+  - Kiểm tra route không bị bảo vệ bởi auth middleware (endpoint này phải public).
+
+- `[x]` **BK-05: Kiểm tra tính tương thích**
+  - Đảm bảo endpoint mới không xung đột với các middleware hiện có.
+
+### 🎨 Frontend Agent
+
+- `[x]` **FE-11: Kiểm tra & hoàn thiện `src/lib/api.ts`**
+  - File đã được tạo sẵn, agent cần verify các logic sau đúng và đủ:
+    1. `isTokenExpired(token)`: Decode JWT, coi là hết hạn nếu còn dưới **30 giây**.
+    2. `doRefresh()`: Gọi `POST /api/auth/refresh`, cập nhật cookie nếu thành công, trả `false` nếu thất bại.
+    3. `logout()`: Xóa 3 cookie (`access_token`, `refresh_token`, `user_info`) và redirect `/login`.
+    4. `apiFetch(path, options)`: Wrapper tự động gắn `Authorization` header, **Proactive refresh** nếu token sắp hết hạn, **Reactive refresh** nếu server trả `401` và retry.
+
+- `[x]` **FE-12: Áp dụng `apiFetch` cho toàn bộ trang authenticated**
+  - Thay thế tất cả `fetch('http://localhost:5000/api/...')` (kèm `Authorization` header) bằng `apiFetch('/...')`.
+  - **KHÔNG** thay các trang public (login, register, forgot-password, verify-otp, reset-password, auth-callback).
+  - Danh sách files cần xử lý:
+
+  **Learner:**
+  - `[x]` `features/learner/routes/profile.tsx` *(đã áp dụng, cần verify)*
+  - `[x]` `features/learner/routes/dashboard.tsx`
+  - `[x]` `features/learner/routes/classes.tsx`
+  - `[x]` `features/learner/routes/class-detail.tsx`
+  - `[x]` `features/learner/routes/payments.tsx`
+  - `[x]` `features/learner/routes/checkout.tsx`
+  - `[x]` `features/learner/routes/schedules.tsx`
+  - `[x]` `features/learner/routes/attendance.tsx`
+  - `[x]` `features/learner/routes/refund.tsx`
+  - `[x]` `features/learner/routes/registration.tsx`
+
+  **Staff:**
+  - `[x]` `features/staff/routes/accounts.tsx`
+  - `[x]` `features/staff/routes/my-profile.tsx`
+  - `[x]` `features/staff/routes/consultations.tsx`
+  - `[x]` `features/staff/routes/classes.tsx`
+  - `[x]` `features/staff/routes/class-detail.tsx`
+  - `[x]` `features/staff/routes/create-class.tsx`
+  - `[x]` `features/staff/routes/invoices.tsx`
+  - `[x]` `features/staff/routes/invoice-detail.tsx`
+  - `[x]` `features/staff/routes/master-schedule.tsx`
+  - `[x]` `features/staff/routes/profiles.tsx`
+  - `[x]` `features/staff/routes/profile-detail.tsx`
+  - `[x]` `features/staff/routes/salary.tsx`
+  - `[x]` `features/staff/routes/change-requests.tsx`
+  - `[x]` `features/staff/routes/tutor-availability.tsx`
+  - `[x]` `features/staff/routes/support-tickets.tsx`
+  - `[x]` `features/staff/routes/dashboard.tsx`
+
+  **Admin:**
+  - `[x]` `features/admin/routes/accounts.tsx`
+  - `[x]` `features/admin/routes/account-detail.tsx`
+  - `[x]` `features/admin/routes/profile.tsx`
+  - `[x]` `features/admin/routes/courses.tsx`
+  - `[x]` `features/admin/routes/course-detail.tsx`
+  - `[x]` `features/admin/routes/classrooms.tsx`
+  - `[x]` `features/admin/routes/discount-codes.tsx`
+  - `[x]` `features/admin/routes/payroll.tsx`
+  - `[x]` `features/admin/routes/payroll-detail.tsx`
+  - `[x]` `features/admin/routes/refunds.tsx`
+  - `[x]` `features/admin/routes/refund-detail.tsx`
+  - `[x]` `features/admin/routes/finance.tsx`
+  - `[x]` `features/admin/routes/announcements.tsx`
+  - `[x]` `features/admin/routes/audit-logs.tsx`
+  - `[x]` `features/admin/routes/dashboard.tsx`
+
+  **Tutor:**
+  - `[x]` `features/tutor/routes/profile.tsx`
+  - `[x]` `features/tutor/routes/dashboard.tsx`
+  - `[x]` `features/tutor/routes/attendance.tsx`
+  - `[x]` `features/tutor/routes/availability.tsx`
+  - `[x]` `features/tutor/routes/change-requests.tsx`
+  - `[x]` `features/tutor/routes/qualifications.tsx`
+  - `[x]` `features/tutor/routes/salary.tsx`
+  - `[x]` `features/tutor/routes/schedule.tsx`
+  - `[x]` `features/tutor/routes/support-tickets.tsx`
+
+  **Shared:**
+  - `[x]` `components/shared/notifications.tsx`
+  - `[x]` `components/shared/support-tickets.tsx`
+
+- `[x]` **FE-13: Cải thiện `ProtectedRoute.tsx`**
+  - Decode JWT, nếu token đã hết hạn VÀ không có `refresh_token` → redirect `/login` ngay lập tức.
+
+### 🕵️‍♂️ QA Agent
+
+- `[ ]` **QA-09: Viết unit test cho `POST /api/auth/refresh`**
+  - Bổ sung vào `auth.controller.test.ts` block `describe('POST /api/auth/refresh', ...)`:
+    - TC1: Refresh thành công → `200`, `{ success: true, data: { access_token, refresh_token } }`
+    - TC2: Thiếu `refresh_token` → `400`, message `"Please provide refresh_token"`
+    - TC3: Refresh token không hợp lệ → `401`, `{ success: false }`
+    - TC4: Refresh token đã hết hạn → `401`, `{ success: false }`
+
+- `[ ]` **QA-10: Thêm request mẫu vào `auth.http`**
+  - Thêm section `### Refresh Token` với payload `{ "refresh_token": "..." }` để manual test endpoint.
+
+- `[ ]` **QA-11: Test edge cases**
+  - Token bị thay đổi 1 ký tự → phải trả `401`.
+  - Gọi refresh 2 lần với cùng 1 refresh token (rotation) → lần 2 phải `401`.
+  - Body rỗng `{}` → phải trả `400`.
+

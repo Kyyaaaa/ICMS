@@ -12,7 +12,7 @@ export class AuthRepository {
       email_confirm: true,
       user_metadata: metadata
     });
-    
+
     if (authError) throw authError;
 
     // Fetch the account that was auto-created by the DB trigger
@@ -21,7 +21,7 @@ export class AuthRepository {
       .select('*, roles(name)')
       .eq('id', authData.user.id)
       .single();
-    
+
     if (accountError) {
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
       throw accountError;
@@ -43,6 +43,13 @@ export class AuthRepository {
       email,
       password,
     });
+  }
+
+  /**
+   * Xin cấp lại Access Token bằng Refresh Token
+   */
+  static async refreshSession(refreshToken: string) {
+    return await supabase.auth.refreshSession({ refresh_token: refreshToken });
   }
 
   /**
@@ -155,7 +162,7 @@ export class AuthRepository {
       .select('*, roles(name)')
       .eq('email', email)
       .maybeSingle();
-      
+
     if (existingAcc) {
       // Merge account: update avatar nếu có thay đổi
       await supabaseAdmin
