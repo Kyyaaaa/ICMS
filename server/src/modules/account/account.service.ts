@@ -9,18 +9,18 @@ export class AccountService {
 
     let query = supabaseAdmin
       .from('account')
-      .select('*', { count: 'exact' })
+      .select('*, roles(name)', { count: 'exact' })
       .range(from, to)
       .order('created_at', { ascending: false });
 
     // Apply Staff restriction: Can only see Learner and Tutor
     if (callerRole === 'STAFF') {
-      query = query.in('role', ['LEARNER', 'TUTOR']);
+      query = query.in('roles.name', ['LEARNER', 'TUTOR']);
     }
 
     // Apply explicit role filter if provided
     if (filterRole) {
-      query = query.eq('role', filterRole.toUpperCase());
+      query = query.eq('roles.name', filterRole.toUpperCase());
     }
 
     // Apply search filter (name, email)
@@ -30,6 +30,16 @@ export class AccountService {
 
     const { data, error, count } = await query;
     if (error) throw error;
+
+    // Map role name from joined roles table for backward compatibility
+    if (data) {
+      data.forEach((item: any) => {
+        if (item.roles && item.roles.name) {
+          item.role = item.roles.name;
+        }
+      });
+    }
+
     return { data, total: count || 0 };
   }
 
@@ -83,7 +93,18 @@ export class AccountService {
       if (callerRole === 'STAFF' && roleUpper !== 'LEARNER' && roleUpper !== 'TUTOR') {
         throw new Error('Forbidden: Staff can only assign Learner or Tutor roles');
       }
-      payload.role = roleUpper;
+      
+      const { data: roleData, error: roleError } = await supabaseAdmin
+        .from('roles')
+        .select('id')
+        .eq('name', roleUpper)
+        .single();
+        
+      if (roleError || !roleData) {
+        throw new Error('Invalid role specified');
+      }
+      
+      payload.role_id = roleData.id;
     }
     if (updates.avatar_url !== undefined) payload.avatar_url = updates.avatar_url;
 

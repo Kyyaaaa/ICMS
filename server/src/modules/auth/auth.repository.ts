@@ -18,13 +18,18 @@ export class AuthRepository {
     // Fetch the account that was auto-created by the DB trigger
     const { data: accountData, error: accountError } = await supabaseAdmin
       .from('account')
-      .select('*')
+      .select('*, roles(name)')
       .eq('id', authData.user.id)
       .single();
     
     if (accountError) {
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
       throw accountError;
+    }
+
+    // Map role name for backward compatibility
+    if (accountData.roles && (accountData.roles as any).name) {
+      accountData.role = (accountData.roles as any).name;
     }
 
     return { user: accountData };
@@ -53,7 +58,7 @@ export class AuthRepository {
   static async getAccountByEmail(email: string) {
     return await supabaseAdmin
       .from('account')
-      .select('*')
+      .select('*, roles(name)')
       .eq('email', email)
       .maybeSingle();
   }
@@ -147,31 +152,45 @@ export class AuthRepository {
   static async syncGoogleAccount(userId: string, email: string, fullName: string, avatarUrl: string) {
     const { data: existingAcc } = await supabaseAdmin
       .from('account')
-      .select('*')
+      .select('*, roles(name)')
       .eq('email', email)
       .maybeSingle();
       
     if (existingAcc) {
       // Merge account: update avatar nếu có thay đổi
-      return await supabaseAdmin
+      await supabaseAdmin
         .from('account')
         .update({ avatar_url: avatarUrl || existingAcc.avatar_url })
+        .eq('id', existingAcc.id);
+
+      // Re-fetch with roles join
+      return await supabaseAdmin
+        .from('account')
+        .select('*, roles(name)')
         .eq('id', existingAcc.id)
-        .select()
         .single();
     } else {
+      // Look up LEARNER role_id
+      const { data: roleData } = await supabaseAdmin
+        .from('roles')
+        .select('id')
+        .eq('name', 'LEARNER')
+        .single();
+
       // Nếu chưa có, tạo mới
-      return await supabaseAdmin
+      const { data, error } = await supabaseAdmin
         .from('account')
         .insert({
           id: userId,
           email: email,
           full_name: fullName,
           avatar_url: avatarUrl,
-          role: 'LEARNER'
+          role_id: roleData?.id
         })
-        .select()
+        .select('*, roles(name)')
         .single();
+
+      return { data, error };
     }
   }
 }

@@ -7,7 +7,7 @@ export class LearnerService {
   static async getAll() {
     const { data, error } = await supabaseAdmin
       .from('learner')
-      .select('*, account(email, phone_number, status, role)');
+      .select('*, account(email, phone_number, status, role_id, roles(name))');
     if (error) throw error;
     return data;
   }
@@ -18,7 +18,7 @@ export class LearnerService {
   static async getById(id: string) {
     const { data, error } = await supabaseAdmin
       .from('learner')
-      .select('*, account(email, phone_number, status, role)')
+      .select('*, account(email, phone_number, status, role_id, roles(name))')
       .eq('account_id', id)
       .single();
     if (error) throw error;
@@ -48,13 +48,18 @@ export class LearnerService {
     // Fetch from public.account
     const { data: accountData, error: accountError } = await supabaseAdmin
       .from('account')
-      .select('*')
+      .select('*, roles(name)')
       .eq('id', authData.user.id)
       .single();
 
     if (accountError) {
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
       throw accountError;
+    }
+
+    // Map role name for backward compatibility
+    if (accountData.roles && (accountData.roles as any).name) {
+      (accountData as any).role = (accountData.roles as any).name;
     }
 
     return accountData;

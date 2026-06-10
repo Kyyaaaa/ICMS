@@ -46,6 +46,11 @@ export class AuthService {
       throw new Error('User not found in internal database');
     }
 
+    // Map role back to string for frontend compatibility
+    if (account.roles && account.roles.name) {
+        account.role = account.roles.name;
+    }
+
     return {
       session: data.session,
       user: account,
@@ -166,6 +171,11 @@ export class AuthService {
     
     if (syncError) {
       throw syncError;
+    }
+
+    // Map role back to string for frontend compatibility
+    if (account.roles && account.roles.name) {
+      account.role = account.roles.name;
     }
 
     // 3. Trả về Account record chuẩn

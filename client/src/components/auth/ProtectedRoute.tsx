@@ -23,7 +23,13 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
         return <Navigate to="/login" replace />;
     }
 
-    if (!allowedRoles.includes(userRole)) {
+    if (userRole) {
+        userRole = userRole.toUpperCase();
+    }
+
+    const upperAllowedRoles = allowedRoles.map(r => r.toUpperCase());
+
+    if (!upperAllowedRoles.includes(userRole)) {
         // Logged in but unauthorized for this specific role route.
         // Redirect to their corresponding dashboard.
         switch (userRole) {

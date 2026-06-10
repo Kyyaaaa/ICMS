@@ -17,7 +17,8 @@ function parseUserFromCookies(): { loggedIn: boolean; role: 'learner' | 'tutor' 
     if (token && userStr) {
         try {
             const user = JSON.parse(userStr) as UserInfo;
-            return { loggedIn: true, role: user.role ?? 'learner', info: user };
+            const role = (user.role ?? 'learner').toLowerCase() as 'learner' | 'tutor' | 'staff' | 'admin';
+            return { loggedIn: true, role, info: user };
         } catch {
             // invalid JSON in cookie
         }

@@ -10,11 +10,20 @@ export class AccountRepository {
     
     const { data, error, count } = await supabaseAdmin
       .from('account')
-      .select('*', { count: 'exact' })
+      .select('*, roles(name)', { count: 'exact' })
       .range(from, to)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
+
+    if (data) {
+      data.forEach(item => {
+        if (item.roles && (item.roles as any).name) {
+          item.role = (item.roles as any).name;
+        }
+      });
+    }
+
     return { data, total: count || 0 };
   }
 
@@ -24,12 +33,17 @@ export class AccountRepository {
   static async getUserById(userId: string) {
     const { data, error } = await supabaseAdmin
       .from('account')
-      .select('*')
+      .select('*, roles(name)')
       .eq('id', userId)
       .maybeSingle();
-      
+
     if (error) throw error;
     if (!data) throw new Error('Account not found');
+
+    if (data.roles && (data.roles as any).name) {
+      data.role = (data.roles as any).name;
+    }
+
     return data;
   }
 
@@ -53,13 +67,18 @@ export class AccountRepository {
     // 2. Fetch from public.account
     const { data: accountData, error: accountError } = await supabaseAdmin
       .from('account')
-      .select('*')
+      .select('*, roles(name)')
       .eq('id', authData.user.id)
       .single();
 
     if (accountError) {
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
       throw accountError;
+    }
+
+    // Map role name for backward compatibility
+    if (accountData.roles && (accountData.roles as any).name) {
+      accountData.role = (accountData.roles as any).name;
     }
 
     return accountData;
@@ -80,14 +99,13 @@ export class AccountRepository {
       return await this.getUserById(userId);
     }
 
-    const { data, error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from('account')
       .update(updates)
       .eq('id', userId)
-      .select()
       .single();
       
     if (error) throw error;
-    return data;
+    return await this.getUserById(userId);
   }
 }

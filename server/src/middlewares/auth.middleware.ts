@@ -31,23 +31,28 @@ export const verifyToken = async (req: AuthenticatedRequest, res: Response, next
       });
     }
 
-    // Query bảng public.account để lấy thông tin nghiệp vụ
-    // Dùng supabaseAdmin để bypass RLS (vì middleware Node không gắn token vào instance supabase)
-    const { data: accountInfo, error: accountError } = await supabaseAdmin
+    // Fetch user from custom 'account' table with joined roles table
+    const { data: user, error: userError } = await supabaseAdmin
       .from('account')
-      .select('*')
+      .select('*, roles(name)')
       .eq('id', authUser.id)
-      .maybeSingle();
+      .single();
 
-    if (accountError || !accountInfo) {
-      return res.status(401).json({
-        success: false,
-        message: 'User account data not found in system'
-      });
+    if (userError || !user) {
+      return res.status(401).json({ success: false, message: 'User account not found' });
+    }
+
+    if (user.status !== 'ACTIVE') {
+      return res.status(403).json({ success: false, message: 'Account is deactivated' });
+    }
+
+    // Map the role name back to user.role to maintain compatibility with existing code
+    if (user.roles && (user.roles as any).name) {
+      user.role = (user.roles as any).name;
     }
 
     // Gắn thông tin account vào request để các route/controller sau có thể sử dụng
-    req.user = accountInfo;
+    req.user = user;
     next();
   } catch (error) {
     console.error('Lỗi khi xác thực token:', error);
