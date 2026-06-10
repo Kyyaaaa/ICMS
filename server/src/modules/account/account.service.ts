@@ -121,6 +121,19 @@ export class AccountService {
       }
     }
 
+    // Sync ban status with Supabase Auth so that login is also blocked/unblocked
+    if (status === 'BANNED') {
+      // Set banned_until to a far future date (effectively permanent ban)
+      await supabaseAdmin.auth.admin.updateUserById(targetId, {
+        ban_duration: '876000h' // 100 years
+      });
+    } else if (status === 'ACTIVE') {
+      // Unban in Supabase Auth
+      await supabaseAdmin.auth.admin.updateUserById(targetId, {
+        ban_duration: 'none'
+      });
+    }
+
     const payload = { status };
     return await AccountRepository.updateUser(targetId, payload);
   }

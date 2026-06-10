@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { validateEmail, validatePassword, validateFullName, validatePhoneNumber } from '../../utils/validators';
+import { validateEmail, validatePassword, validateFullName, validatePhoneNumber, validateOtp } from '../../utils/validators';
 import { supabaseAdmin } from '../../configs/supabase';
 
 export class AuthController {
@@ -81,6 +81,13 @@ export class AuthController {
         });
       }
 
+      if (!validatePassword(password)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid password. Must be 8-15 characters, including uppercase, lowercase, digit, and special character.'
+        });
+      }
+
       const result = await AuthService.login(email, password);
 
       return res.status(200).json({
@@ -115,6 +122,13 @@ export class AuthController {
         return res.status(400).json({ success: false, message: 'Please provide email' });
       }
 
+      if (!validateEmail(email)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+      }
+
       await AuthService.forgotPassword(email);
 
       return res.status(200).json({
@@ -138,8 +152,18 @@ export class AuthController {
         return res.status(400).json({ success: false, message: 'Please provide email and otp' });
       }
 
-      if (otp.length !== 6) {
-        return res.status(400).json({ success: false, message: 'OTP must be 6 digits' });
+      if (!validateEmail(email)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+      }
+
+      if (!validateOtp(otp)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid OTP. Must be 6 digits.'
+        });
       }
 
       const result = await AuthService.verifyOtp(email, otp);
@@ -204,7 +228,7 @@ export class AuthController {
       });
 
       if (error) throw error;
-      
+
       // Chuyển hướng trình duyệt đến trang đăng nhập của Google
       if (data.url) {
         return res.redirect(data.url);
@@ -227,7 +251,7 @@ export class AuthController {
       }
 
       const result = await AuthService.syncGoogleUser(access_token);
-      
+
       return res.status(200).json({
         success: true,
         message: 'Google login synced successfully',

@@ -46,6 +46,11 @@ export class AuthService {
       throw new Error('User not found in internal database');
     }
 
+    // Check ban status from internal DB
+    if (account.status === 'BANNED') {
+      throw new Error('User is banned');
+    }
+
     // Map role back to string for frontend compatibility
     if (account.roles && account.roles.name) {
         account.role = account.roles.name;

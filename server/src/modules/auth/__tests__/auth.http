@@ -17,8 +17,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "testuser6@gmail.com",
-  "password": "Password@123"
+  "email": "hoanglbp3300@gmail.com",
+  "password": "123123123@As"
 }
 
 ### 3. Gửi OTP Quên mật khẩu

@@ -37,3 +37,8 @@ export const validateGender = (gender: string) => {
 export const validateAvatarUrl = (url: string) => {
   return validator.isURL(url, { require_protocol: true });
 };
+
+export const validateOtp = (otp: string) => {
+  const regex = /^\d{6}$/;
+  return regex.test(otp);
+};
