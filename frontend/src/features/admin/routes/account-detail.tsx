@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
-import { validatePassword, validatePhoneNumber } from '@/lib/utils';
+import { validatePassword, validatePhoneNumber, validateFullName } from '@/lib/utils';
 
 const AdminAccountDetail = () => {
     const { id } = useParams();
@@ -67,6 +67,11 @@ const AdminAccountDetail = () => {
 
     const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (account.full_name && !validateFullName(account.full_name)) {
+            alert('Invalid full name. Must be 2-50 characters and contain only letters and spaces.');
+            return;
+        }
         // Validate phone number format before submitting
         if (account.phone_number && !validatePhoneNumber(account.phone_number)) {
             alert('Invalid phone number. Must be a valid 10-digit Vietnamese phone number starting with 03, 05, 07, 08, or 09.');

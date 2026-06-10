@@ -16,3 +16,9 @@ export function validatePhoneNumber(phone: string): boolean {
   const regex = /^0[35789]\d{8}$/;
   return regex.test(phone);
 }
+
+// Kiểm tra họ tên: 2-50 ký tự, chỉ chứa chữ cái và dấu cách
+export function validateFullName(fullName: string): boolean {
+  const regex = /^[\p{L}\s]{2,50}$/u;
+  return regex.test(fullName);
+}

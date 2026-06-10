@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, Eye, Ban, CheckCircle2, Lock, X, RefreshCw, EyeOff, Edit } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { validateFullName, validatePassword } from '@/lib/utils';
 
 type Role = 'ADMIN' | 'STAFF' | 'TUTOR' | 'LEARNER';
 
@@ -121,6 +122,17 @@ const AdminAccounts = () => {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (formData.full_name && !validateFullName(formData.full_name)) {
+            alert('Invalid full name. Must be 2-50 characters and contain only letters and spaces.');
+            return;
+        }
+
+        if (formData.password && !validatePassword(formData.password)) {
+            alert('Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character.');
+            return;
+        }
+
         setIsSaving(true);
         try {
             const token = Cookies.get('access_token');
