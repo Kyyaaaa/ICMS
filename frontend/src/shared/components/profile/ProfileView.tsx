@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { validatePassword, validatePhoneNumber, validateFullName } from '@/shared/lib/utils';
@@ -17,16 +16,6 @@ export const ProfileView = ({
     description = "Manage your personal information and account security.",
     emailHint = "Email address cannot be changed once registered."
 }: ProfileViewProps) => {
-    const location = useLocation();
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-        if (location.state?.requireProfileUpdate) {
-            alert('Bạn phải điền đầy đủ thông tin cá nhân (Số điện thoại, Ngày sinh, Giới tính) trước khi có thể chuyển sang trang khác.');
-            navigate(location.pathname, { replace: true, state: {} });
-        }
-    }, [location.state, location.pathname, navigate]);
-
     const [isLoading, setIsLoading] = useState(true);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [isProfileSuccess, setIsProfileSuccess] = useState(false);

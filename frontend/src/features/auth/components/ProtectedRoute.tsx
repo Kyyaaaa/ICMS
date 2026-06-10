@@ -134,7 +134,9 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
         try {
             const currentUserInfo = JSON.parse(userInfoStr);
             isProfileComplete = !!(currentUserInfo.phone_number && currentUserInfo.date_of_birth && currentUserInfo.gender);
-        } catch (e) {}
+        } catch (_e) {
+            // Ignore parse error
+        }
     }
 
     // Force redirect to profile page if incomplete
