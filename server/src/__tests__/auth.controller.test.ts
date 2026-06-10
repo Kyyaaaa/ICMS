@@ -181,7 +181,8 @@ describe('Auth Controller - POST /api/auth/login', () => {
         user: {
           id: 'mock-uuid',
           email: 'test@example.com',
-          user_metadata: { role: 'LEARNER', full_name: 'John Doe' }
+          role: 'LEARNER',
+          full_name: 'John Doe'
         }
       });
 

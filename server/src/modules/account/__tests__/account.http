@@ -12,7 +12,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "staff@gmail.com",
+  "email": "admin@gmail.com",
   "password": "password123"
 }
 
@@ -51,14 +51,14 @@ Content-Type: application/json
     "status": "ACTIVE",
     "created_at": "2026-06-09T15:57:01.278736+00:00",
     "updated_at": "2026-06-09T15:57:01.278736+00:00",
-    "full_name": "",
+    "full_name": "abc",
     "avatar_url": null,
     "date_of_birth": null,
     "gender": null
 }
 
 ### 5. Cập nhật trạng thái tài khoản (Ban/Active) (Yêu cầu quyền ADMIN/STAFF)
-PATCH {{baseUrl}}/accounts/8f024054-fb8e-4e50-85f1-7ae3f8e2aa5e/status
+PATCH {{baseUrl}}/accounts/b3053366-a42a-4bc3-b6ff-690e1bfb8eff/status
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
