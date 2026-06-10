@@ -6,6 +6,7 @@ import { AccountsService } from '../services/accounts.service';
 import { AccountsFilters } from '../components/AccountsFilters';
 import { AccountsTable } from '../components/AccountsTable';
 import { AccountFormModal } from '../components/AccountFormModal';
+import Cookies from 'js-cookie';
 
 const AdminAccounts = () => {
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -97,11 +98,14 @@ const AdminAccounts = () => {
             const data = await AccountsService.toggleBan(id, !currentStatus);
             if (data && typeof data === 'object' && 'success' in data && data.success) {
                 setAccounts(accounts.map(acc => acc.id === id ? { ...acc, status: currentStatus ? 'BANNED' : 'ACTIVE' } : acc));
+                alert(`Account successfully ${currentStatus ? 'banned' : 'unbanned'}.`);
             } else {
                 alert((data as { message?: string })?.message || 'Failed to update status');
             }
-        } catch {
-            alert('An error occurred while updating status');
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } }; message?: string };
+            const errorMessage = err?.response?.data?.message || err?.message || 'An error occurred while updating status';
+            alert(`Failed to update status: ${errorMessage}`);
         }
     };
 
@@ -125,21 +129,58 @@ const AdminAccounts = () => {
                 if (data && typeof data === 'object' && 'success' in data && data.success) {
                     setIsModalOpen(false);
                     fetchAccounts();
+                    alert('Account created successfully!');
                 } else {
                     alert((data as { message?: string })?.message || 'Failed to create account');
                 }
             } else {
                 if (!formData.id) return;
-                const data = await AccountsService.updateAccount(formData.id, formData);
+                const updatePayload: Record<string, unknown> = {
+                    full_name: formData.full_name,
+                    email: formData.email,
+                    role: formData.role,
+                    status: formData.status
+                };
+                if (formData.password) {
+                    updatePayload.password = formData.password;
+                }
+                const data = await AccountsService.updateAccount(formData.id, updatePayload);
                 if (data && typeof data === 'object' && 'success' in data && data.success) {
                     setIsModalOpen(false);
                     fetchAccounts();
+                    
+                    const userInfoStr = Cookies.get('user_info');
+                    if (userInfoStr) {
+                        try {
+                            const userInfo = JSON.parse(userInfoStr);
+                            if (userInfo.id === formData.id) {
+                                const updatedUserInfo = {
+                                    ...userInfo,
+                                    full_name: formData.full_name,
+                                    email: formData.email,
+                                    role: formData.role
+                                };
+                                Cookies.set('user_info', JSON.stringify(updatedUserInfo), { path: '/' });
+                                window.dispatchEvent(new Event('profileUpdated'));
+                            }
+                        } catch (e) {
+                            console.error('Error parsing user_info cookie', e);
+                        }
+                    }
+                    
+                    // Use setTimeout so the UI can update before the alert blocks the thread
+                    setTimeout(() => {
+                        alert('Account updated successfully!');
+                    }, 100);
                 } else {
                     alert((data as { message?: string })?.message || 'Failed to update account');
                 }
             }
-        } catch {
-            alert('An error occurred while saving account');
+        } catch (error: unknown) {
+            console.error('Save account error:', error);
+            const err = error as { response?: { data?: { message?: string } }; message?: string };
+            const errorMessage = err?.response?.data?.message || err?.message || 'An error occurred while saving account';
+            alert(`An error occurred while saving account: ${errorMessage}`);
         } finally {
             setIsSaving(false);
         }

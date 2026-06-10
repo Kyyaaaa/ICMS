@@ -44,6 +44,7 @@ import InvoiceDetail from '@/features/staff/routes/invoice-detail.tsx';
 import StaffProfile from '@/features/staff/routes/my-profile.tsx';
 import StaffTutorAvailability from '@/features/staff/routes/tutor-availability.tsx';
 import ManageAccounts from '@/features/staff/routes/accounts.tsx';
+import StaffAccountDetail from '@/features/staff/routes/account-detail.tsx';
 import SalaryHistory from '@/features/staff/routes/salary.tsx';
 import { StaffSupportTickets } from '@/features/staff/routes/support-tickets.tsx';
 
@@ -150,6 +151,7 @@ export const AppRouter = () => {
               <Route path="/staff/invoices/:id" element={<InvoiceDetail />} />
               
               <Route path="/staff/accounts" element={<ManageAccounts />} />
+              <Route path="/staff/accounts/:id" element={<StaffAccountDetail />} />
               <Route path="/staff/salary" element={<SalaryHistory />} />
               
               <Route path="/staff/support" element={<StaffSupportTickets />} />

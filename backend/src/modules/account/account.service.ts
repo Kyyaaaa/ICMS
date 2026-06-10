@@ -11,7 +11,8 @@ export class AccountService {
     // and so that we always get the role name.
     let query = supabaseAdmin
       .from('account')
-      .select('*, roles!inner(name)');
+      .select('*, roles!inner(name)')
+      .neq('email', 'admin@icms.edu.vn');
 
     // Apply Staff restriction: Can only see Learner and Tutor
     if (callerRole === 'STAFF') {
@@ -92,6 +93,12 @@ export class AccountService {
     }
 
     const payload: any = {};
+    if (updates.email !== undefined) {
+      const { error: emailError } = await supabaseAdmin.auth.admin.updateUserById(targetId, { email: updates.email, email_confirm: true });
+      if (emailError) throw emailError;
+      // Also update email in public.account to keep it in sync, if there's an email column.
+      payload.email = updates.email;
+    }
     if (updates.password) payload.password = updates.password;
     if (updates.full_name !== undefined) payload.full_name = updates.full_name;
     if (updates.phone_number !== undefined) payload.phone_number = updates.phone_number;

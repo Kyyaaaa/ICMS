@@ -151,7 +151,33 @@ export class AccountController {
         return res.status(403).json({ success: false, message: 'Forbidden: You can only update your own account' });
       }
 
-      const { full_name, phone_number, password, old_password, date_of_birth, gender, role, avatar_url } = req.body;
+      const { full_name, email, phone_number, password, old_password, date_of_birth, gender, role, avatar_url, status } = req.body;
+
+      // --- Validate email format if provided ---
+      if (email !== undefined) {
+        if (!validateEmail(email)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid email format'
+          });
+        }
+      }
+
+      // --- Validate status ---
+      if (status !== undefined) {
+        if (callerRole !== 'ADMIN' && callerRole !== 'STAFF') {
+          return res.status(403).json({
+            success: false,
+            message: 'Forbidden: You do not have permission to change account status'
+          });
+        }
+        if (status !== 'ACTIVE' && status !== 'BANNED') {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid status. Allowed values are: ACTIVE, BANNED'
+          });
+        }
+      }
 
       // --- Validate role ---
       if (role !== undefined) {
@@ -256,8 +282,9 @@ export class AccountController {
         }
       }
 
-      const updatedAccount = await AccountService.updateAccount(callerRole, callerId, targetId, {
+      let updatedAccount = await AccountService.updateAccount(callerRole, callerId, targetId, {
         full_name,
+        email,
         phone_number,
         password,
         date_of_birth,
@@ -265,6 +292,10 @@ export class AccountController {
         role,
         avatar_url
       });
+
+      if (status !== undefined && status !== updatedAccount.status) {
+        updatedAccount = await AccountService.setAccountStatus(callerRole, targetId, status);
+      }
 
       return res.status(200).json({
         success: true,

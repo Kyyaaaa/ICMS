@@ -13,7 +13,8 @@ export const AccountsService = {
     },
 
     toggleBan: async (id: string, is_active: boolean) => {
-        return axiosClient.patch(`/accounts/${id}/status`, { is_active });
+        const status = is_active ? 'ACTIVE' : 'BANNED';
+        return axiosClient.patch(`/accounts/${id}/status`, { status });
     },
 
     createAccount: async (data: Partial<Account> & { password?: string }) => {
@@ -22,5 +23,9 @@ export const AccountsService = {
 
     updateAccount: async (id: string, data: Partial<Account> & { password?: string }) => {
         return axiosClient.patch(`/accounts/${id}`, data);
+    },
+
+    getAccountById: async (id: string) => {
+        return axiosClient.get(`/accounts/${id}`);
     }
 };

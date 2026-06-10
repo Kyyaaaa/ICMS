@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { validatePassword, validatePhoneNumber, validateFullName } from '@/shared/lib/utils';
@@ -16,6 +17,16 @@ export const ProfileView = ({
     description = "Manage your personal information and account security.",
     emailHint = "Email address cannot be changed once registered."
 }: ProfileViewProps) => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+        if (location.state?.requireProfileUpdate) {
+            alert('Bạn phải điền đầy đủ thông tin cá nhân (Số điện thoại, Ngày sinh, Giới tính) trước khi có thể chuyển sang trang khác.');
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location.state, location.pathname, navigate]);
+
     const [isLoading, setIsLoading] = useState(true);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [isProfileSuccess, setIsProfileSuccess] = useState(false);
@@ -61,7 +72,7 @@ export const ProfileView = ({
                             full_name: responseData.full_name || '',
                             phone_number: responseData.phone_number || '',
                             date_of_birth: responseData.date_of_birth || '',
-                            gender: responseData.gender || '',
+                            gender: responseData.gender ? responseData.gender.toLowerCase() : '',
                             email: responseData.email,
                             role: responseData.role,
                             created_at: responseData.created_at || '',
@@ -123,6 +134,9 @@ export const ProfileView = ({
                 if (userInfoStr) {
                     const userInfo = JSON.parse(userInfoStr);
                     userInfo.full_name = account.full_name;
+                    userInfo.phone_number = account.phone_number;
+                    userInfo.date_of_birth = account.date_of_birth;
+                    userInfo.gender = account.gender;
                     Cookies.set('user_info', JSON.stringify(userInfo), { path: '/' });
                     window.dispatchEvent(new Event('profileUpdated'));
                 }
@@ -232,6 +246,8 @@ export const ProfileView = ({
     const initials = getInitials(account.full_name);
     const isPasswordMatch = passwords.confirmPassword.length > 0 && passwords.newPassword === passwords.confirmPassword;
     const isPasswordMismatch = passwords.confirmPassword.length > 0 && passwords.newPassword !== passwords.confirmPassword;
+    
+    const isProfileIncomplete = !account.phone_number || !account.date_of_birth || !account.gender;
 
     return (
         <div className="max-w-4xl space-y-6 animate-fade-in-up pb-8">
@@ -239,6 +255,16 @@ export const ProfileView = ({
                 <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">{title}</h1>
                 <p className="text-[#74777f] text-[14px] mt-1">{description}</p>
             </div>
+            
+            {isProfileIncomplete && (
+                <div className="bg-[#fef7e0] border border-[#fbbc04] text-[#b06000] px-4 py-3 rounded-xl flex items-start gap-3">
+                    <div className="mt-0.5">⚠️</div>
+                    <div>
+                        <h3 className="font-bold text-[14px]">Action Required: Complete Your Profile</h3>
+                        <p className="text-[13px] mt-1">Please provide your Phone Number, Date of Birth, and Gender to continue using the system. You will not be able to navigate to other pages until your profile is complete.</p>
+                    </div>
+                </div>
+            )}
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-6">
@@ -290,7 +316,7 @@ export const ProfileView = ({
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Phone Number</label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="tel" value={account.phone_number} onChange={e => setAccount({...account, phone_number: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" />
+                                        <input type="tel" value={account.phone_number} onChange={e => setAccount({...account, phone_number: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
                                     </div>
                                 </div>
                             </div>
@@ -300,14 +326,14 @@ export const ProfileView = ({
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
                                     <div className="relative">
                                         <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="date" value={account.date_of_birth} onChange={e => setAccount({...account, date_of_birth: e.target.value})} max={new Date().toISOString().split('T')[0]} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" />
+                                        <input type="date" value={account.date_of_birth} onChange={e => setAccount({...account, date_of_birth: e.target.value})} max={new Date().toISOString().split('T')[0]} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" required />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Gender</label>
                                     <div className="relative">
                                         <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <select value={account.gender} onChange={e => setAccount({...account, gender: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e] appearance-none">
+                                        <select value={account.gender} onChange={e => setAccount({...account, gender: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e] appearance-none" required>
                                             <option value="">Select gender</option>
                                             <option value="male">Male</option>
                                             <option value="female">Female</option>

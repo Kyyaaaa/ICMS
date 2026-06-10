@@ -127,5 +127,23 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
         }
     }
 
+    // Yêu cầu cập nhật profile nếu chưa đầy đủ thông tin
+    let isProfileComplete = true;
+    const userInfoStr = Cookies.get('user_info');
+    if (userInfoStr && authState === 'authenticated') {
+        try {
+            const currentUserInfo = JSON.parse(userInfoStr);
+            isProfileComplete = !!(currentUserInfo.phone_number && currentUserInfo.date_of_birth && currentUserInfo.gender);
+        } catch (e) {}
+    }
+
+    // Force redirect to profile page if incomplete
+    if (authState === 'authenticated' && !isProfileComplete) {
+        const profilePath = `/${userRole.toLowerCase()}/profile`;
+        if (location.pathname !== profilePath) {
+            return <Navigate to={profilePath} replace state={{ requireProfileUpdate: true }} />;
+        }
+    }
+
     return <Outlet />;
 };

@@ -48,7 +48,8 @@ export const LoginForm = () => {
             }
         } catch (error: unknown) {
             setShowError(true);
-            let displayMsg = (error as { message?: string })?.message || 'Invalid credentials';
+            const err = error as { response?: { data?: { message?: string } }; message?: string };
+            let displayMsg = err?.response?.data?.message || err?.message || 'Invalid credentials';
             if (displayMsg === 'Invalid login credentials') {
                 displayMsg = 'Incorrect email address or password.';
             }

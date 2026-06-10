@@ -22,6 +22,7 @@ export interface CreateAccountDTO {
 }
 
 export interface UpdateAccountDTO {
+  email?: string;
   password?: string;
   role?: string;
   full_name?: string;

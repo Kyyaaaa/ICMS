@@ -32,23 +32,25 @@ export class AuthService {
    * @param password Mật khẩu
    */
   static async login(email: string, password: string) {
-    // Ra lệnh cho Repository xác thực
+    // 1. Lấy thông tin user từ DB nội bộ trước để kiểm tra trạng thái ban
+    const { data: account, error: accError } = await AuthRepository.getAccountByEmail(email);
+
+    if (!accError && account) {
+      // Check ban status from internal DB
+      if (account.status === 'BANNED') {
+        throw new Error('This account has been banned. Please contact the administrator.');
+      }
+    }
+
+    // 2. Ra lệnh cho Repository xác thực
     const { data, error } = await AuthRepository.signIn(email, password);
 
     if (error) {
       throw error;
     }
 
-    // Lấy thông tin user từ DB nội bộ thay vì từ Supabase Auth
-    const { data: account, error: accError } = await AuthRepository.getAccountByEmail(email);
-
     if (accError || !account) {
       throw new Error('User not found in internal database');
-    }
-
-    // Check ban status from internal DB
-    if (account.status === 'BANNED') {
-      throw new Error('User is banned');
     }
 
     // Map role back to string for frontend compatibility

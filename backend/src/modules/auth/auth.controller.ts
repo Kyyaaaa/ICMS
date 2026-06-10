@@ -101,6 +101,9 @@ export class AuthController {
             email: result.user.email,
             role: result.user.role,
             full_name: result.user.full_name,
+            phone_number: result.user.phone_number,
+            date_of_birth: result.user.date_of_birth,
+            gender: result.user.gender,
             avatar_url: result.user.avatar_url,
           }
         }
@@ -291,6 +294,9 @@ export class AuthController {
             email: result.user.email,
             role: result.user.role,
             full_name: result.user.full_name,
+            phone_number: result.user.phone_number,
+            date_of_birth: result.user.date_of_birth,
+            gender: result.user.gender,
             avatar_url: result.user.avatar_url
           }
         }

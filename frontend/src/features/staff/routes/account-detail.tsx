@@ -3,9 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { validatePassword, validatePhoneNumber, validateFullName } from '@/shared/lib/utils';
-import { AccountsService } from '../services/accounts.service';
 
-const AdminAccountDetail = () => {
+const StaffAccountDetail = () => {
     const { id } = useParams();
     
     const [isLoading, setIsLoading] = useState(true);
@@ -35,9 +34,12 @@ const AdminAccountDetail = () => {
         const fetchAccount = async () => {
             setIsLoading(true);
             try {
-                if (!id) return;
-                const data = await AccountsService.getAccountById(id);
-                if (data && typeof data === 'object' && 'success' in data && data.success) {
+                const token = Cookies.get('access_token');
+                const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
                     setAccount(prev => ({
                         ...prev,
                         full_name: data.data.full_name || '',
@@ -51,7 +53,7 @@ const AdminAccountDetail = () => {
                         avatar_url: data.data.avatar_url || ''
                     }));
                 } else {
-                    alert((data as { message?: string })?.message || 'Failed to fetch account details');
+                    alert(data.message || 'Failed to fetch account details');
                 }
             } catch (error) {
                 console.error('Error fetching account:', error);
@@ -97,36 +99,23 @@ const AdminAccountDetail = () => {
         }
         setIsSaving(true);
         try {
-            if (!id) return;
-            const data = await AccountsService.updateAccount(id, {
-                full_name: account.full_name,
-                phone_number: account.phone_number,
-                date_of_birth: account.date_of_birth,
-                gender: account.gender
+            const token = Cookies.get('access_token');
+            const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    full_name: account.full_name,
+                    phone_number: account.phone_number,
+                    date_of_birth: account.date_of_birth,
+                    gender: account.gender
+                })
             });
-            
-            if (data && typeof data === 'object' && 'success' in data && data.success) {
-                const userInfoStr = Cookies.get('user_info');
-                if (userInfoStr && id) {
-                    try {
-                        const userInfo = JSON.parse(userInfoStr);
-                        if (userInfo.id === id) {
-                            const updatedUserInfo = {
-                                ...userInfo,
-                                full_name: account.full_name,
-                            };
-                            Cookies.set('user_info', JSON.stringify(updatedUserInfo), { path: '/' });
-                            window.dispatchEvent(new Event('profileUpdated'));
-                        }
-                    } catch (e) {
-                        console.error('Error parsing user_info cookie', e);
-                    }
-                }
-
+            const data = await res.json();
+            if (data.success) {
                 setIsSaved(true);
                 setTimeout(() => setIsSaved(false), 3000);
             } else {
-                alert((data as { message?: string })?.message || 'Failed to save profile.');
+                alert(data.message || 'Failed to save profile.');
             }
         } catch {
             alert('An error occurred. Please try again.');
@@ -148,17 +137,22 @@ const AdminAccountDetail = () => {
 
         setIsSavingPassword(true);
         try {
-            if (!id) return;
-            const data = await AccountsService.updateAccount(id, {
-                password: account.password
+            const token = Cookies.get('access_token');
+            const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    password: account.password
+                    // Không cần old_password vì đây là Staff đặt lại mật khẩu cho người dùng khác
+                })
             });
-            
-            if (data && typeof data === 'object' && 'success' in data && data.success) {
+            const data = await res.json();
+            if (data.success) {
                 setAccount({ ...account, password: '', confirm_password: '' });
                 setIsPasswordSaved(true);
                 setTimeout(() => setIsPasswordSaved(false), 3000);
             } else {
-                alert((data as { message?: string })?.message || 'Failed to update password.');
+                alert(data.message || 'Failed to update password.');
             }
         } catch {
             alert('An error occurred. Please try again.');
@@ -178,24 +172,24 @@ const AdminAccountDetail = () => {
     return (
         <div className="space-y-6 animate-fade-in-up pb-8">
             <div className="flex items-center gap-4">
-                <Link to="/admin/accounts" className="p-2 rounded-full hover:bg-[#e0e3e5] text-[#43474e] transition-colors">
+                <Link to="/staff/accounts" className="p-2 rounded-full hover:bg-[#e0e3e5] text-[#43474e] transition-colors">
                     <ArrowLeft size={24} />
                 </Link>
-                <h1 className="text-2xl md:text-4xl font-bold text-[#002045]">Account Detail</h1>
+                <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Account Detail</h1>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column: Avatar & Basic Info */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
-                        <div className="relative w-32 h-32 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold text-5xl border-4 border-[#e6f0fa] shadow-sm mb-4 overflow-hidden">
+                        <div className="relative w-32 h-32 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm mb-4 overflow-hidden">
                             {account.avatar_url ? (
                                 <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
                                 account.full_name ? account.full_name.charAt(0).toUpperCase() : 'U'
                             )}
                         </div>
-                        <h2 className="text-xl font-bold text-[#002045]">{account.full_name || ''}</h2>
+                        <h2 className="text-[20px] font-bold text-[#002045]">{account.full_name || ''}</h2>
                         <div className="flex flex-col items-center gap-2 mt-2">
                             <span className="px-3 py-1 bg-[#e8def8] text-[#6750a4] text-[13px] font-bold rounded uppercase">{account.role}</span>
                             {account.is_active ? (
@@ -320,7 +314,7 @@ const AdminAccountDetail = () => {
                         </div>
                         <form onSubmit={handleSavePassword} className="p-6">
                             <p className="text-[14px] text-[#74777f] mb-6">
-                                As an administrator, you can reset the password for this user without needing their current password. 
+                                As a staff member, you can reset the password for this user without needing their current password. 
                                 Make sure to communicate the new password securely to the user.
                             </p>
                             
@@ -370,4 +364,4 @@ const AdminAccountDetail = () => {
     );
 };
 
-export default AdminAccountDetail;
+export default StaffAccountDetail;
