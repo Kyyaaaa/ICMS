@@ -351,4 +351,57 @@ describe('AuthController API Tests', () => {
       expect(response.body.error).toBe('Invalid Google Token');
     });
   });
+
+  describe('POST /api/auth/refresh', () => {
+    it('should refresh token successfully', async () => {
+      const mockRefreshResult = {
+        access_token: 'new-access-token',
+        refresh_token: 'new-refresh-token'
+      };
+      (AuthService.refreshToken as jest.Mock).mockResolvedValue(mockRefreshResult);
+
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refresh_token: 'old-refresh-token' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual(mockRefreshResult);
+      expect(AuthService.refreshToken).toHaveBeenCalledWith('old-refresh-token');
+    });
+
+    it('should return 400 if missing refresh_token', async () => {
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('Missing refresh_token');
+    });
+
+    it('should return 401 if refresh token is invalid', async () => {
+      (AuthService.refreshToken as jest.Mock).mockRejectedValue(new Error('Invalid refresh token'));
+
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refresh_token: 'invalid-token' });
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toContain('Invalid refresh token');
+    });
+
+    it('should return 401 if refresh token is expired', async () => {
+      (AuthService.refreshToken as jest.Mock).mockRejectedValue(new Error('Refresh token invalid or expired'));
+
+      const response = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refresh_token: 'expired-token' });
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toContain('Refresh token invalid or expired');
+    });
+  });
 });

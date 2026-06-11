@@ -16,6 +16,7 @@ const AdminAccountDetail = () => {
     const [isPasswordSaved, setIsPasswordSaved] = useState(false);
     
     const [showNewPassword, setShowNewPassword] = useState(false);
+    const [currentUser, setCurrentUser] = useState<{ id: string; role: string } | null>(null);
 
     const [account, setAccount] = useState({
         full_name: '',
@@ -33,6 +34,15 @@ const AdminAccountDetail = () => {
 
     useEffect(() => {
         const fetchAccount = async () => {
+            const userInfoStr = Cookies.get('user_info');
+            if (userInfoStr) {
+                try {
+                    setCurrentUser(JSON.parse(userInfoStr));
+                } catch (e) {
+                    console.error('Error parsing user_info cookie', e);
+                }
+            }
+
             setIsLoading(true);
             try {
                 if (!id) return;
@@ -175,6 +185,10 @@ const AdminAccountDetail = () => {
         );
     }
 
+    const isSelf = currentUser?.id === id;
+    const isSameRoleButDifferentId = currentUser?.role === account.role && !isSelf;
+    const canEdit = !isSameRoleButDifferentId;
+
     return (
         <div className="space-y-6 animate-fade-in-up pb-8">
             <div className="flex items-center gap-4">
@@ -228,6 +242,12 @@ const AdminAccountDetail = () => {
                                 Profile Information
                             </h2>
                         </div>
+                        {!canEdit && (
+                            <div className="mx-6 mt-4 p-3 bg-[#ffdad6] text-[#ba1a1a] rounded-xl text-[13px] font-bold flex items-center gap-2 border border-[#ba1a1a]/20">
+                                <ShieldAlert size={18} />
+                                You cannot edit the profile of an account with the same role as yours.
+                            </div>
+                        )}
                         <form onSubmit={handleSaveProfile} className="p-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                 <div className="space-y-2">
@@ -236,8 +256,9 @@ const AdminAccountDetail = () => {
                                         type="text" 
                                         value={account.full_name}
                                         onChange={e => setAccount({...account, full_name: e.target.value})}
-                                        className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                        className={`w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
                                         required 
+                                        disabled={!canEdit}
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -248,7 +269,8 @@ const AdminAccountDetail = () => {
                                             type="tel" 
                                             value={account.phone_number}
                                             onChange={e => setAccount({...account, phone_number: e.target.value})}
-                                            className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                            className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
+                                            disabled={!canEdit}
                                         />
                                     </div>
                                 </div>
@@ -264,7 +286,8 @@ const AdminAccountDetail = () => {
                                             value={account.date_of_birth}
                                             onChange={e => setAccount({...account, date_of_birth: e.target.value})}
                                             max={new Date().toISOString().split('T')[0]}
-                                            className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                            className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
+                                            disabled={!canEdit}
                                         />
                                     </div>
                                 </div>
@@ -275,7 +298,8 @@ const AdminAccountDetail = () => {
                                         <select 
                                             value={account.gender}
                                             onChange={e => setAccount({...account, gender: e.target.value})}
-                                            className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors appearance-none cursor-pointer"
+                                            className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors appearance-none ${!canEdit ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                                            disabled={!canEdit}
                                         >
                                             <option value="">Select Gender</option>
                                             <option value="Male">Male</option>
@@ -302,7 +326,7 @@ const AdminAccountDetail = () => {
 
                             <div className="flex items-center justify-end gap-4 pt-4 border-t border-[#e0e3e5]">
                                 {isSaved && <span className="text-[13px] text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Saved changes</span>}
-                                <button type="submit" disabled={isSaving} className="bg-[#0061a5] text-white px-5 py-2.5 rounded-xl text-[14px] font-bold flex items-center gap-2 hover:bg-[#004d80] transition-colors disabled:opacity-70">
+                                <button type="submit" disabled={isSaving || !canEdit} className="bg-[#0061a5] text-white px-5 py-2.5 rounded-xl text-[14px] font-bold flex items-center gap-2 hover:bg-[#004d80] transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
                                     <Save size={18} />
                                     {isSaving ? 'Saving...' : 'Save Profile'}
                                 </button>
@@ -318,6 +342,12 @@ const AdminAccountDetail = () => {
                                 Reset Account Password
                             </h2>
                         </div>
+                        {!canEdit && (
+                            <div className="mx-6 mt-4 p-3 bg-[#ffdad6] text-[#ba1a1a] rounded-xl text-[13px] font-bold flex items-center gap-2 border border-[#ba1a1a]/20">
+                                <ShieldAlert size={18} />
+                                You cannot reset the password of an account with the same role as yours.
+                            </div>
+                        )}
                         <form onSubmit={handleSavePassword} className="p-6">
                             <p className="text-[14px] text-[#74777f] mb-6">
                                 As an administrator, you can reset the password for this user without needing their current password. 
@@ -332,9 +362,10 @@ const AdminAccountDetail = () => {
                                             type={showNewPassword ? "text" : "password"} 
                                             value={account.password}
                                             onChange={e => setAccount({...account, password: e.target.value})}
-                                            className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                            className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
                                             required 
                                             minLength={8} 
+                                            disabled={!canEdit}
                                         />
                                         <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045]">
                                             {showNewPassword ? <Eye className="w-5 h-5"/> : <EyeOff className="w-5 h-5"/>}
@@ -348,9 +379,10 @@ const AdminAccountDetail = () => {
                                             type={showNewPassword ? "text" : "password"} 
                                             value={account.confirm_password}
                                             onChange={e => setAccount({...account, confirm_password: e.target.value})}
-                                            className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border ${account.confirm_password.length > 0 && account.password === account.confirm_password ? 'border-green-500 shadow-[0_0_0_1px_#22c55e]' : account.confirm_password.length > 0 && account.password !== account.confirm_password ? 'border-red-500 shadow-[0_0_0_1px_#ef4444]' : 'border-[#c4c6cf]'} rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors`}
+                                            className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border ${account.confirm_password.length > 0 && account.password === account.confirm_password ? 'border-green-500 shadow-[0_0_0_1px_#22c55e]' : account.confirm_password.length > 0 && account.password !== account.confirm_password ? 'border-red-500 shadow-[0_0_0_1px_#ef4444]' : 'border-[#c4c6cf]'} rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`}
                                             required 
                                             minLength={8} 
+                                            disabled={!canEdit}
                                         />
                                     </div>
                                 </div>
@@ -358,7 +390,7 @@ const AdminAccountDetail = () => {
                             
                             <div className="flex items-center justify-end gap-4">
                                 {isPasswordSaved && <span className="text-[13px] text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Password Updated</span>}
-                                <button type="submit" disabled={isSavingPassword} className="bg-white border-2 border-[#0061a5] text-[#0061a5] px-6 py-2.5 rounded-xl text-[15px] font-bold hover:bg-[#e6f0fa] transition-colors disabled:opacity-70">
+                                <button type="submit" disabled={isSavingPassword || !canEdit} className="bg-white border-2 border-[#0061a5] text-[#0061a5] px-6 py-2.5 rounded-xl text-[15px] font-bold hover:bg-[#e6f0fa] transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
                                     {isSavingPassword ? 'Updating...' : 'Set New Password'}
                                 </button>
                             </div>

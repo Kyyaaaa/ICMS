@@ -175,6 +175,26 @@ describe('AccountController API Tests', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
+
+    it('should return 403 when ADMIN tries to update another ADMIN (same role)', async () => {
+      // Mock service to throw forbidden error like it does in account.service.ts
+      (AccountService.updateAccount as jest.Mock).mockRejectedValue(new Error('Forbidden: You cannot update accounts with the same role'));
+
+      // Use `otherUUID` to simulate updating someone else
+      const response = await request(app).patch(`/api/accounts/${otherUUID}`).send({ full_name: 'Hack Admin' });
+      expect(response.status).toBe(403);
+      expect(response.body.message).toContain('Forbidden: You cannot update accounts with the same role');
+    });
+
+    it('should allow ADMIN to update themselves', async () => {
+      (AccountService.updateAccount as jest.Mock).mockResolvedValue({ id: validUUID, full_name: 'My New Name' });
+
+      // Use `validUUID` because req.user.id is mocked as validUUID
+      const response = await request(app).patch(`/api/accounts/${validUUID}`).send({ full_name: 'My New Name' });
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.full_name).toBe('My New Name');
+    });
   });
 
   describe('PATCH /api/accounts/:id/status', () => {
@@ -191,11 +211,29 @@ describe('AccountController API Tests', () => {
     });
 
     it('should update status successfully', async () => {
-      (AccountService.setAccountStatus as jest.Mock).mockResolvedValue({ id: validUUID, status: 'BANNED' });
+      (AccountService.setAccountStatus as jest.Mock).mockResolvedValue({ id: otherUUID, status: 'BANNED' });
 
-      const response = await request(app).patch(`/api/accounts/${validUUID}/status`).send({ status: 'BANNED' });
+      const response = await request(app).patch(`/api/accounts/${otherUUID}/status`).send({ status: 'BANNED' });
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
+      // Ensure callerId is passed
+      expect(AccountService.setAccountStatus).toHaveBeenCalledWith('ADMIN', validUUID, otherUUID, 'BANNED');
+    });
+
+    it('should return 403 when ADMIN tries to ban themselves', async () => {
+      (AccountService.setAccountStatus as jest.Mock).mockRejectedValue(new Error('Forbidden: You cannot change your own status'));
+
+      const response = await request(app).patch(`/api/accounts/${validUUID}/status`).send({ status: 'BANNED' });
+      expect(response.status).toBe(403);
+      expect(response.body.message).toContain('Forbidden: You cannot change your own status');
+    });
+
+    it('should return 403 when ADMIN tries to ban another ADMIN (same role)', async () => {
+      (AccountService.setAccountStatus as jest.Mock).mockRejectedValue(new Error('Forbidden: You cannot change the status of accounts with the same role'));
+
+      const response = await request(app).patch(`/api/accounts/${otherUUID}/status`).send({ status: 'BANNED' });
+      expect(response.status).toBe(403);
+      expect(response.body.message).toContain('Forbidden: You cannot change the status of accounts with the same role');
     });
   });
 });

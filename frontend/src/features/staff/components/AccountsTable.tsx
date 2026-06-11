@@ -12,6 +12,7 @@ interface AccountsTableProps {
     setCurrentPage: (page: number | ((prev: number) => number)) => void;
     handleOpenModal: (mode: 'create' | 'edit', account?: Account) => void;
     handleToggleBan: (id: string, currentStatus: boolean) => void;
+    currentUser: { id: string; role: string } | null;
 }
 
 export const AccountsTable = ({
@@ -23,7 +24,8 @@ export const AccountsTable = ({
     limit,
     setCurrentPage,
     handleOpenModal,
-    handleToggleBan
+    handleToggleBan,
+    currentUser
 }: AccountsTableProps) => {
 
     const getRoleColor = (role: string) => {
@@ -129,16 +131,38 @@ export const AccountsTable = ({
                                             <Link to={`/staff/accounts/${acc.id}`} className="p-2 text-[#0061a5] hover:bg-[#e6f0fa] rounded-lg transition-colors tooltip-trigger" title="View Details">
                                                 <Eye size={18} />
                                             </Link>
-                                            <button onClick={() => handleOpenModal('edit', acc)} className="p-2 text-[#0061a5] hover:bg-[#e6f0fa] rounded-lg transition-colors tooltip-trigger" title="Edit Account">
-                                                <Edit size={18} />
-                                            </button>
-                                            <button 
-                                                onClick={() => handleToggleBan(acc.id, acc.status === 'ACTIVE')}
-                                                className={`p-2 rounded-lg transition-colors tooltip-trigger ${acc.status === 'ACTIVE' ? 'text-[#ba1a1a] hover:bg-[#ffdad6]' : 'text-[#137333] hover:bg-[#e6f4ea]'}`} 
-                                                title={acc.status === 'ACTIVE' ? "Ban Account" : "Unban Account"}
-                                            >
-                                                {acc.status === 'ACTIVE' ? <Ban size={18} /> : <Lock size={18} />}
-                                            </button>
+                                            
+                                            {(() => {
+                                                const isSelf = currentUser?.id === acc.id;
+                                                const isSameRoleButDifferentId = currentUser?.role === acc.role && !isSelf;
+                                                
+                                                const canEdit = !isSameRoleButDifferentId;
+                                                const canBan = !isSelf && !isSameRoleButDifferentId;
+                                                
+                                                const editTitle = isSameRoleButDifferentId ? "You cannot edit accounts with the same role." : "Edit Account";
+                                                const banTitle = isSelf ? "You cannot ban your own account." : isSameRoleButDifferentId ? "You cannot ban accounts with the same role." : (acc.status === 'ACTIVE' ? "Ban Account" : "Unban Account");
+                                                
+                                                return (
+                                                    <>
+                                                        <button 
+                                                            onClick={() => handleOpenModal('edit', acc)} 
+                                                            className={`p-2 rounded-lg transition-colors tooltip-trigger ${canEdit ? 'text-[#0061a5] hover:bg-[#e6f0fa]' : 'text-[#c4c6cf] cursor-not-allowed'}`} 
+                                                            title={editTitle}
+                                                            disabled={!canEdit}
+                                                        >
+                                                            <Edit size={18} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleToggleBan(acc.id, acc.status === 'ACTIVE')}
+                                                            className={`p-2 rounded-lg transition-colors tooltip-trigger ${!canBan ? 'text-[#c4c6cf] cursor-not-allowed' : acc.status === 'ACTIVE' ? 'text-[#ba1a1a] hover:bg-[#ffdad6]' : 'text-[#137333] hover:bg-[#e6f4ea]'}`} 
+                                                            title={banTitle}
+                                                            disabled={!canBan}
+                                                        >
+                                                            {acc.status === 'ACTIVE' ? <Ban size={18} /> : <Lock size={18} />}
+                                                        </button>
+                                                    </>
+                                                );
+                                            })()}
                                         </div>
                                     </td>
                                 </tr>

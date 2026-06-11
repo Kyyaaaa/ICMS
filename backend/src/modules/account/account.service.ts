@@ -92,6 +92,11 @@ export class AccountService {
       }
     }
 
+    // Check same-level modification
+    if (callerId !== targetId && callerRole === user.role) {
+      throw new Error('Forbidden: You cannot update accounts with the same role');
+    }
+
     const payload: any = {};
     if (updates.email !== undefined) {
       const { error: emailError } = await supabaseAdmin.auth.admin.updateUserById(targetId, { email: updates.email, email_confirm: true });
@@ -130,8 +135,16 @@ export class AccountService {
     return await AccountRepository.updateUser(targetId, payload);
   }
 
-  static async setAccountStatus(callerRole: string, targetId: string, status: string) {
+  static async setAccountStatus(callerRole: string, callerId: string, targetId: string, status: string) {
     const user = await AccountRepository.getUserById(targetId);
+
+    if (callerId === targetId) {
+      throw new Error('Forbidden: You cannot change your own status');
+    }
+
+    if (callerRole === user.role) {
+      throw new Error('Forbidden: You cannot change the status of accounts with the same role');
+    }
 
     // Check RBAC for Staff
     if (callerRole === 'STAFF') {

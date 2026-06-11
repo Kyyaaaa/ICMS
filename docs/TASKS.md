@@ -244,18 +244,52 @@ Khi `access_token` hết hạn, hệ thống tự động dùng `refresh_token` 
 
 ### 🕵️‍♂️ QA Agent
 
-- `[ ]` **QA-09: Viết unit test cho `POST /api/auth/refresh`**
+- `[x]` **QA-09: Viết unit test cho `POST /api/auth/refresh`**
   - Bổ sung vào `auth.controller.test.ts` block `describe('POST /api/auth/refresh', ...)`:
     - TC1: Refresh thành công → `200`, `{ success: true, data: { access_token, refresh_token } }`
     - TC2: Thiếu `refresh_token` → `400`, message `"Please provide refresh_token"`
     - TC3: Refresh token không hợp lệ → `401`, `{ success: false }`
     - TC4: Refresh token đã hết hạn → `401`, `{ success: false }`
 
-- `[ ]` **QA-10: Thêm request mẫu vào `auth.http`**
+- `[x]` **QA-10: Thêm request mẫu vào `auth.http`**
   - Thêm section `### Refresh Token` với payload `{ "refresh_token": "..." }` để manual test endpoint.
 
-- `[ ]` **QA-11: Test edge cases**
+- `[x]` **QA-11: Test edge cases**
   - Token bị thay đổi 1 ký tự → phải trả `401`.
   - Gọi refresh 2 lần với cùng 1 refresh token (rotation) → lần 2 phải `401`.
   - Body rỗng `{}` → phải trả `400`.
+
+---
+
+## 🛡️ 7. Kế hoạch ngăn chặn can thiệp tài khoản cùng cấp (Khóa, Sửa thông tin)
+
+### 🎯 Mục tiêu
+Đảm bảo tính an toàn của hệ thống bằng cách ngăn chặn người dùng tự khóa tài khoản của chính mình, và đặc biệt là **ngăn chặn việc can thiệp (sửa thông tin, đổi role, khóa/mở khóa)** vào các tài khoản của người có cùng vai trò (Ví dụ: ADMIN không được quyền sửa profile hay khóa một ADMIN khác).
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-11: Cập nhật hàm `setAccountStatus` trong `account.service.ts`**
+  - Cập nhật tham số của hàm thành: `setAccountStatus(callerRole: string, callerId: string, targetId: string, status: string)`.
+  - Thêm logic kiểm tra (RBAC Check) ngay sau khi lấy thông tin `user` mục tiêu:
+    - Kiểm tra tự khóa: `if (callerId === targetId) throw new Error('Forbidden: You cannot change your own status');`
+    - Kiểm tra cùng cấp: `if (callerRole === user.role) throw new Error('Forbidden: You cannot change the status of accounts with the same role');`
+- `[x]` **BE-12: Cập nhật hàm `updateAccount` trong `account.service.ts`**
+  - Bổ sung logic kiểm tra chặn can thiệp người cùng cấp: `if (callerId !== targetId && callerRole === user.role) throw new Error('Forbidden: You cannot update accounts with the same role');`. Lưu ý: Vẫn cho phép cập nhật thông tin của CHÍNH MÌNH (`callerId === targetId`).
+- `[x]` **BE-13: Cập nhật `account.controller.ts`**
+  - Tại hàm `updateAccountStatus`: Lấy thêm `callerId = req.user.id` và truyền vào `AccountService.setAccountStatus(...)`.
+  - Tại hàm `updateAccount`: Cập nhật tham số truyền vào hàm `setAccountStatus`.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-14: Cập nhật UI Admin/Staff Dashboard**
+  - Ở màn hình Danh sách tài khoản (`accounts.tsx`) và Chi tiết tài khoản (`account-detail.tsx`), vô hiệu hóa (disabled) nút Ban/Active hoặc ẩn đi nếu tài khoản đó là chính mình (`userInfo.id === target.id`).
+  - Vô hiệu hóa **toàn bộ chức năng chỉnh sửa (Edit, Ban/Active, Đổi Role)** nếu tài khoản mục tiêu đó có cùng `role` với mình nhưng khác ID.
+  - Cập nhật thông báo trực quan (Tooltip hoặc Alert) giải thích lý do không thể khóa/chỉnh sửa.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-12: Cập nhật Unit Tests**
+  - Cập nhật các mock implementation của `AccountService.setAccountStatus` trong file `account.controller.test.ts` để khớp với signature mới.
+  - Viết test case: ADMIN gọi API sửa thông tin ADMIN khác (kỳ vọng 403).
+  - Viết test case: ADMIN gọi API sửa thông tin chính mình (kỳ vọng thành công).
+- `[x]` **QA-13: Cập nhật API Request File**
+  - Bổ sung các kịch bản test thủ công vào file `account.http` để minh họa việc cố tình ban/sửa thông tin người cùng cấp sẽ bị chặn lại.
+
 

@@ -23,6 +23,18 @@ const ManageAccounts = () => {
     const [formData, setFormData] = useState<Partial<Account> & { password?: string }>({ full_name: '', email: '', role: 'LEARNER', status: 'ACTIVE', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [currentUser, setCurrentUser] = useState<{ id: string; role: string } | null>(null);
+
+    useEffect(() => {
+        const userInfoStr = Cookies.get('user_info');
+        if (userInfoStr) {
+            try {
+                setCurrentUser(JSON.parse(userInfoStr));
+            } catch (e) {
+                console.error('Error parsing user_info cookie', e);
+            }
+        }
+    }, []);
 
     const generatePassword = () => {
         const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -217,6 +229,7 @@ const ManageAccounts = () => {
                 setCurrentPage={setCurrentPage}
                 handleOpenModal={handleOpenModal}
                 handleToggleBan={handleToggleBan}
+                currentUser={currentUser}
             />
 
             <AccountFormModal 

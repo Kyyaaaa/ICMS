@@ -294,7 +294,7 @@ export class AccountController {
       });
 
       if (status !== undefined && status !== updatedAccount.status) {
-        updatedAccount = await AccountService.setAccountStatus(callerRole, targetId, status);
+        updatedAccount = await AccountService.setAccountStatus(callerRole, callerId, targetId, status);
       }
 
       return res.status(200).json({
@@ -314,6 +314,7 @@ export class AccountController {
   static async updateAccountStatus(req: AuthenticatedRequest, res: Response) {
     try {
       const callerRole = req.user.role as string;
+      const callerId = req.user.id;
       const { id } = req.params;
       const targetId = id as string;
 
@@ -330,7 +331,7 @@ export class AccountController {
         });
       }
 
-      const updatedAccount = await AccountService.setAccountStatus(callerRole, targetId, status);
+      const updatedAccount = await AccountService.setAccountStatus(callerRole, callerId, targetId, status);
 
       return res.status(200).json({
         success: true,
