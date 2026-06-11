@@ -97,7 +97,9 @@ export const AccountsTable = ({
                                                 <p className={`font-bold ${acc.status !== 'ACTIVE' ? 'text-[#ba1a1a]' : 'text-[#002045]'}`}>
                                                     {acc.full_name || ''}
                                                 </p>
-                                                <p className="text-[13px] text-[#74777f]">{acc.email}</p>
+                                                <p className="text-[13px] text-[#74777f]">
+                                                    {acc.email}
+                                                </p>
                                             </div>
                                         </div>
                                     </td>

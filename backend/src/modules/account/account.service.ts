@@ -111,26 +111,7 @@ export class AccountService {
     if (updates.gender !== undefined) payload.gender = updates.gender;
     if (updates.avatar_url !== undefined) payload.avatar_url = updates.avatar_url;
 
-    if (updates.role !== undefined) {
-      const roleUpper = updates.role.toUpperCase();
-      // Check RBAC for Staff
-      if (callerRole === 'STAFF' && roleUpper !== 'LEARNER' && roleUpper !== 'TUTOR') {
-        throw new Error('Forbidden: Staff can only assign Learner or Tutor roles');
-      }
-      
-      const { data: roleData, error: roleError } = await supabaseAdmin
-        .from('roles')
-        .select('id')
-        .eq('name', roleUpper)
-        .single();
-        
-      if (roleError || !roleData) {
-        throw new Error('Invalid role specified');
-      }
-      
-      payload.role_id = roleData.id;
-    }
-    if (updates.avatar_url !== undefined) payload.avatar_url = updates.avatar_url;
+
 
     return await AccountRepository.updateUser(targetId, payload);
   }

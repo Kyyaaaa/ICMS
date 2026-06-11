@@ -120,7 +120,7 @@ const StaffLayout = () => {
         window.addEventListener('profileUpdated', handleProfileUpdate);
         return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
     }, []);
-    const fullName = userInfo?.full_name;
+    const fullName = userInfo?.full_name || 'Staff User';
     const roleText = userInfo?.role;
     const initials = fullName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
     const avatarUrl = userInfo?.avatar_url;

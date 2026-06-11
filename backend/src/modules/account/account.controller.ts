@@ -151,7 +151,7 @@ export class AccountController {
         return res.status(403).json({ success: false, message: 'Forbidden: You can only update your own account' });
       }
 
-      const { full_name, email, phone_number, password, old_password, date_of_birth, gender, role, avatar_url, status } = req.body;
+      const { full_name, email, phone_number, password, old_password, date_of_birth, gender, avatar_url, status } = req.body;
 
       // --- Validate email format if provided ---
       if (email !== undefined) {
@@ -175,22 +175,6 @@ export class AccountController {
           return res.status(400).json({
             success: false,
             message: 'Invalid status. Allowed values are: ACTIVE, BANNED'
-          });
-        }
-      }
-
-      // --- Validate role ---
-      if (role !== undefined) {
-        if (callerRole !== 'ADMIN' && callerRole !== 'STAFF') {
-          return res.status(403).json({
-            success: false,
-            message: 'Forbidden: You do not have permission to change account roles'
-          });
-        }
-        if (!validateRole(role)) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid role. Allowed roles are: ADMIN, STAFF, TUTOR, LEARNER'
           });
         }
       }
@@ -289,7 +273,6 @@ export class AccountController {
         password,
         date_of_birth,
         gender,
-        role,
         avatar_url
       });
 

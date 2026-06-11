@@ -5,6 +5,7 @@ export interface Account {
     full_name: string;
     email: string;
     role: Role;
+    account_code: string;
     status: 'ACTIVE' | 'BANNED';
     created_at: string;
     avatar_url?: string;

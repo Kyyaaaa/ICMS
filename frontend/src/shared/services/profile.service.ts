@@ -8,6 +8,7 @@ export interface ProfileData {
     gender: string;
     email: string;
     role: string;
+    account_code: string;
     created_at: string;
     avatar_url: string;
 }

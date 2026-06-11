@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, User, Users, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
-import { validatePassword, validatePhoneNumber, validateFullName } from '@/shared/lib/utils';
+import { validatePassword, validatePhoneNumber, validateFullName, formatAccountID } from '@/shared/lib/utils';
 import { AccountsService } from '../services/accounts.service';
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
 
@@ -20,6 +20,7 @@ const AdminAccountDetail = () => {
     const [currentUser, setCurrentUser] = useState<{ id: string; role: string } | null>(null);
 
     const [account, setAccount] = useState({
+        account_code: '',
         full_name: '',
         email: '',
         phone_number: '',
@@ -57,8 +58,9 @@ const AdminAccountDetail = () => {
                         date_of_birth: data.data.date_of_birth || '',
                         gender: data.data.gender || '',
                         role: data.data.role,
+                        account_code: data.data.account_code || '',
                         is_active: data.data.status === 'ACTIVE',
-                        created_at: new Date(data.data.created_at).toLocaleDateString(),
+                        created_at: new Date(data.data.created_at).toLocaleDateString('en-GB'),
                         avatar_url: data.data.avatar_url || ''
                     }));
                 } else {
@@ -240,6 +242,10 @@ const AdminAccountDetail = () => {
                         
                         <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-3">
                             <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
+                                <Users className="w-5 h-5 text-[#74777f] shrink-0" />
+                                <span>ID: {formatAccountID(account.account_code || id || '', account.role)}</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
                                 <Calendar className="w-5 h-5 text-[#74777f] shrink-0" />
                                 <span>Joined {account.created_at}</span>
                             </div>
@@ -311,15 +317,15 @@ const AdminAccountDetail = () => {
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                         <select 
-                                            value={account.gender}
+                                            value={account.gender?.toUpperCase() || ''}
                                             onChange={e => setAccount({...account, gender: e.target.value})}
                                             className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors appearance-none ${!canEdit ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                                             disabled={!canEdit}
                                         >
-                                            <option value="">Select Gender</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                            <option value="Other">Other</option>
+                                            <option value="" disabled hidden>Select Gender</option>
+                                            <option value="MALE">Male</option>
+                                            <option value="FEMALE">Female</option>
+                                            <option value="OTHER">Other</option>
                                         </select>
                                     </div>
                                 </div>

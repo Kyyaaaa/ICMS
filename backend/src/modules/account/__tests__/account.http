@@ -74,3 +74,13 @@ Content-Type: application/json
 {
   "status": "BANNED"
 }
+
+### 8. [SECURITY] Cố tình nhồi payload role để đổi Role (Kỳ vọng: Update thành công thông tin khác nhưng Role giữ nguyên)
+PATCH {{baseUrl}}/accounts/SOME_LEARNER_ID_HERE
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "full_name": "Learner Edited",
+  "role": "ADMIN"
+}

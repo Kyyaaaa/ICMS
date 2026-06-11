@@ -140,7 +140,6 @@ const ManageAccounts = () => {
                 const updatePayload: Record<string, unknown> = {
                     full_name: formData.full_name,
                     email: formData.email,
-                    role: formData.role,
                     status: formData.status
                 };
                 if (formData.password) {

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users } from 'lucide-react';
 import Cookies from 'js-cookie';
-import { validatePassword, validatePhoneNumber, validateFullName } from '@/shared/lib/utils';
+import { validatePassword, validatePhoneNumber, validateFullName, formatAccountID } from '@/shared/lib/utils';
 import { ProfileService } from '@/shared/services/profile.service';
 import type { ProfileData } from '@/shared/services/profile.service';
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
@@ -17,6 +18,7 @@ export const ProfileView = ({
     description = "Manage your personal information and account security.",
     emailHint = "Email address cannot be changed once registered."
 }: ProfileViewProps) => {
+    const location = useLocation();
     const [isLoading, setIsLoading] = useState(true);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [isProfileSuccess, setIsProfileSuccess] = useState(false);
@@ -36,6 +38,7 @@ export const ProfileView = ({
         gender: '',
         email: '',
         role: '',
+        account_code: '',
         created_at: '',
         avatar_url: ''
     });
@@ -65,6 +68,7 @@ export const ProfileView = ({
                             gender: responseData.gender ? responseData.gender.toLowerCase() : '',
                             email: responseData.email,
                             role: responseData.role,
+                            account_code: responseData.account_code || '',
                             created_at: responseData.created_at || '',
                             avatar_url: responseData.avatar_url || ''
                         });
@@ -78,6 +82,14 @@ export const ProfileView = ({
         };
         fetchProfile();
     }, []);
+
+    useEffect(() => {
+        if (location.state?.requireProfileUpdate) {
+            showAlertModal('Action Required', 'Please complete your profile (Phone Number, Date of Birth, Gender) before navigating to other pages.', 'warning');
+            // Xóa state để không hiện lại nếu người dùng ấn F5
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
     const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -128,11 +140,15 @@ export const ProfileView = ({
                 const userInfoStr = Cookies.get('user_info');
                 if (userInfoStr) {
                     const userInfo = JSON.parse(userInfoStr);
-                    userInfo.full_name = account.full_name;
-                    userInfo.phone_number = account.phone_number;
-                    userInfo.date_of_birth = account.date_of_birth;
-                    userInfo.gender = account.gender;
-                    Cookies.set('user_info', JSON.stringify(userInfo), { path: '/' });
+                    const updatedInfo = {
+                        ...userInfo,
+                        full_name: account.full_name,
+                        phone_number: account.phone_number,
+                        date_of_birth: account.date_of_birth,
+                        gender: account.gender
+                    };
+                    Cookies.set('user_info', JSON.stringify(updatedInfo), { path: '/' });
+                    // Gửi sự kiện để TopNav/Layout cập nhật ngay lập tức
                     window.dispatchEvent(new Event('profileUpdated'));
                 }
                 
@@ -175,7 +191,7 @@ export const ProfileView = ({
                         const userInfo = JSON.parse(userInfoStr);
                         userInfo.avatar_url = newAvatarUrl;
                         Cookies.set('user_info', JSON.stringify(userInfo), { path: '/' });
-                        window.location.reload();
+                        window.dispatchEvent(new Event('profileUpdated'));
                     }
                 } else {
                     showAlertModal('Error', 'Failed to save avatar to profile.', 'error');
@@ -297,6 +313,10 @@ export const ProfileView = ({
                         
                         <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-4">
                             <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
+                                <Users className="w-5 h-5 text-[#74777f] shrink-0" />
+                                <span>ID: {formatAccountID(account.account_code || account.id, account.role)}</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
                                 <CalendarDays className="w-5 h-5 text-[#74777f] shrink-0" />
                                 <span>Joined {account.created_at ? new Date(account.created_at).toLocaleDateString('en-GB') : ''}</span>
                             </div>
@@ -339,11 +359,11 @@ export const ProfileView = ({
                                     <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Gender</label>
                                     <div className="relative">
                                         <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <select value={account.gender} onChange={e => setAccount({...account, gender: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e] appearance-none" required>
-                                            <option value="">Select gender</option>
-                                            <option value="male">Male</option>
-                                            <option value="female">Female</option>
-                                            <option value="other">Other</option>
+                                        <select value={account.gender?.toUpperCase() || ''} onChange={e => setAccount({...account, gender: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e] appearance-none" required>
+                                            <option value="" disabled hidden>Select Gender</option>
+                                            <option value="MALE">Male</option>
+                                            <option value="FEMALE">Female</option>
+                                            <option value="OTHER">Other</option>
                                         </select>
                                     </div>
                                 </div>

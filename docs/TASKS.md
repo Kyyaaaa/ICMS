@@ -353,4 +353,31 @@ Khi `access_token` hết hạn, hệ thống tự động dùng `refresh_token` 
   - Kịch bản 2: Bấm nút khóa (ban) một tài khoản -> Bật Confirm Modal hỏi xác nhận. Bấm "Hủy" -> Không có API nào được gọi. Bấm "Đồng ý" -> API khóa được gọi thành công, sau đó bật Alert Modal báo thành công.
   - Kịch bản 3: Luồng bị kick ra khi tài khoản dính Ban -> Trình duyệt phải bật Alert Modal "Tài khoản bị khóa" UI chuẩn trước khi redirect về `/login`.
 
+---
 
+## 🔒 10. Kế hoạch Khóa Logic Đổi Role (Immutable Role) để bảo toàn ID Tuần Tự
+
+### 🎯 Mục tiêu
+Hệ thống sử dụng ID tuần tự dựa trên Role (VD: `AD000001`, `ST000002`). Nếu cho phép đổi Role sau khi tạo, ID sẽ mất tính đồng bộ với Role hiện tại. Do đó, cần loại bỏ hoàn toàn khả năng thay đổi Role từ cả Frontend lẫn Backend. Sinh ra là Role gì thì sống chết với Role đó.
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-16: Loại bỏ Role khỏi Model & DTO**
+  - Xóa trường `role?: string;` khỏi `UpdateAccountDTO` trong `account.model.ts` để ngăn chặn việc truyền dữ liệu role khi gọi hàm update.
+- `[x]` **BE-17: Dọn dẹp Account Controller**
+  - Trong `account.controller.ts` (hàm `updateAccount`): Xóa bỏ việc extract `role` từ `req.body`, gỡ bỏ hoàn toàn khối lệnh `if (role !== undefined) {...}` dùng để validate role.
+  - Xóa `role` khỏi object payload truyền vào `AccountService.updateAccount`.
+- `[x]` **BE-18: Gỡ bỏ logic Mapping Role trong Account Service**
+  - Trong `account.service.ts` (hàm `updateAccount`): Xóa bỏ toàn bộ đoạn truy vấn DB lấy `role_id` từ bảng `roles` và chặn việc gán `payload.role_id = roleData.id`. 
+
+### 🎨 Frontend Agent
+- `[x]` **FE-19: Khóa giao diện chọn Role trong Modal Update**
+  - Cập nhật file `AccountFormModal.tsx` của Admin và Staff.
+  - Chuyển trường chọn Role (`<select>`) sang dạng `<input disabled>` chỉ đọc (Read-only) khi ở chế độ Edit. Người dùng chỉ có thể xem Role chứ không thể tương tác thay đổi.
+- `[x]` **FE-20: Cắt bỏ payload truyền Role**
+  - Trong file `accounts.tsx` của Admin và Staff, xóa thuộc tính `role: formData.role` khỏi biến `updatePayload` trước khi gửi Request xuống API.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-16: Manual Test & Verify Security**
+  - Cố tình gửi API Request Update Account (dùng Postman/HTTP file) có nhồi thêm payload `"role": "ADMIN"` vào body đối với tài khoản Learner.
+  - Kỳ vọng: Backend bỏ qua (ignore) trường role, chỉ cập nhật các thông tin cá nhân (tên, ngày sinh...) và Role trong DB vẫn giữ nguyên là Learner.
+  - Trên giao diện Frontend: Bật Modal chỉnh sửa tài khoản bất kỳ, đảm bảo field Role bị làm mờ (disabled), không thể thay đổi giá trị thông qua Inspect Element.
