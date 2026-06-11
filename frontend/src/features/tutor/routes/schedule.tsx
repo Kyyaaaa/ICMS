@@ -71,33 +71,37 @@ const TeachingSchedule = () => {
     const weekLabel = `${formatDate(currentMonday)} to ${formatDate(sundayDate)}`;
 
     return (
-        <div className="space-y-[24px] animate-fade-in-up pb-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-[16px]">
+        <div className="space-y-6 animate-fade-in-up pb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Teaching Schedule</h1>
                     <p className="text-[#43474e] text-[14px]">View your assigned classes and attendance status.</p>
                 </div>
                 
-                <div className="flex items-center bg-white rounded-lg border border-[#c4c6cf] overflow-hidden shadow-sm">
-                    <button onClick={goToPrevWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-r border-[#c4c6cf]">
-                        <ChevronLeft className="w-5 h-5 text-[#43474e]" />
-                    </button>
-                    <button 
-                        onClick={() => dateInputRef.current?.showPicker()}
-                        className="px-4 py-2 font-bold text-[#181c1e] flex items-center gap-2 hover:bg-[#f8f9fa] transition-colors cursor-pointer"
-                    >
-                        <CalendarDays className="w-4 h-4 text-[#74777f]" />
-                        {weekLabel}
-                    </button>
-                    <input 
-                        ref={dateInputRef}
-                        type="date" 
-                        className="absolute opacity-0 w-0 h-0 pointer-events-none" 
-                        onChange={handleDatePick}
-                    />
-                    <button onClick={goToNextWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-l border-[#c4c6cf]">
-                        <ChevronRight className="w-5 h-5 text-[#43474e]" />
-                    </button>
+                <div className="flex flex-wrap items-center gap-4">
+
+
+                    <div className="flex items-center bg-white rounded-lg border border-[#c4c6cf] overflow-hidden shadow-sm">
+                        <button onClick={goToPrevWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-r border-[#c4c6cf]">
+                            <ChevronLeft className="w-5 h-5 text-[#43474e]" />
+                        </button>
+                        <button 
+                            onClick={() => dateInputRef.current?.showPicker()}
+                            className="px-4 py-2 font-bold text-[#181c1e] flex items-center gap-2 hover:bg-[#f8f9fa] transition-colors cursor-pointer"
+                        >
+                            <CalendarDays className="w-4 h-4 text-[#74777f]" />
+                            {weekLabel}
+                        </button>
+                        <input 
+                            ref={dateInputRef}
+                            type="date" 
+                            className="absolute opacity-0 w-0 h-0 pointer-events-none" 
+                            onChange={handleDatePick}
+                        />
+                        <button onClick={goToNextWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-l border-[#c4c6cf]">
+                            <ChevronRight className="w-5 h-5 text-[#43474e]" />
+                        </button>
+                    </div>
                 </div>
             </div>
 

@@ -1,9 +1,9 @@
 import type { PaymentInvoice, PaymentCourseInfo, PaymentClassInfo } from '../types/payment';
 
 const MOCK_INVOICES: PaymentInvoice[] = [
-    { id: 'INV-2024-001', course: 'IELTS Academic - Reading', date: '01-10-2024', amount: 450000, status: 'paid' },
-    { id: 'INV-2024-002', course: 'IELTS Academic - Writing', date: '15-10-2024', amount: 450000, status: 'pending' },
-    { id: 'INV-2024-003', course: 'IELTS General - Speaking', date: '10-09-2024', amount: 350000, status: 'refunded' },
+    { id: 'INV-2024-001', course: 'IELTS Intensive 6.5+ (Reading)', date: '01-10-2024', amount: 4500000, status: 'paid' },
+    { id: 'INV-2024-002', course: 'IELTS Intensive 6.5+ (Writing)', date: '15-10-2024', amount: 4500000, status: 'pending' },
+    { id: 'INV-2024-003', course: 'IELTS Foundation 5.0+ (Speaking)', date: '10-09-2024', amount: 3500000, status: 'refunded' },
 ];
 
 export const LearnerPaymentsService = {

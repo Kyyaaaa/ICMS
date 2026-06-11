@@ -31,47 +31,47 @@ const ClassDetail = () => {
     const isCompleted = classData.status === 'Completed';
 
     return (
-        <div className="space-y-[24px] max-w-5xl animate-fade-in-up">
-            <div className="flex items-center gap-[16px]">
+        <div className="space-y-6 max-w-5xl animate-fade-in-up">
+            <div className="flex items-center gap-4">
                 <Link to="/learner/classes" className="text-[#0061a5] hover:underline font-medium text-[14px]">← Back to Classes</Link>
             </div>
             
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-[16px]">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">{classData.courseName}</h1>
-                <span className={`px-[12px] py-[4px] text-[14px] font-bold rounded uppercase tracking-wide ${isCompleted ? 'bg-[#d3e3fd] text-[#004a77]' : 'bg-[#d2e4ff] text-[#0061a5]'}`}>{classData.status}</span>
+                <span className={`px-3 py-1 text-[14px] font-bold rounded uppercase tracking-wide ${isCompleted ? 'bg-[#d3e3fd] text-[#004a77]' : 'bg-[#d2e4ff] text-[#0061a5]'}`}>{classData.status}</span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-[24px]">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Info */}
-                <div className="lg:col-span-2 space-y-[24px]">
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px]">
-                        <h2 className="text-[18px] font-semibold text-[#181c1e] mb-[16px]">Course Information</h2>
-                        <p className="text-[14px] text-[#43474e] leading-relaxed mb-[24px]">
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6">
+                        <h2 className="text-[18px] font-semibold text-[#181c1e] mb-4">Course Information</h2>
+                        <p className="text-[14px] text-[#43474e] leading-relaxed mb-6">
                             {classData.description}
                         </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px]">
-                            <div className="flex items-start gap-[12px]">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="flex items-start gap-3">
                                 <Calendar className="w-5 h-5 text-[#74777f] mt-1" />
                                 <div>
                                     <p className="text-[12px] text-[#74777f] font-medium">Schedule</p>
                                     <p className="text-[14px] text-[#181c1e] font-medium">{classData.schedule}</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-[12px]">
+                            <div className="flex items-start gap-3">
                                 <Clock className="w-5 h-5 text-[#74777f] mt-1" />
                                 <div>
                                     <p className="text-[12px] text-[#74777f] font-medium">Time</p>
                                     <p className="text-[14px] text-[#181c1e] font-medium">{classData.time}</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-[12px]">
+                            <div className="flex items-start gap-3">
                                 <MapPin className="w-5 h-5 text-[#74777f] mt-1" />
                                 <div>
                                     <p className="text-[12px] text-[#74777f] font-medium">Classroom</p>
                                     <p className="text-[14px] text-[#181c1e] font-medium">{classData.classroom}</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-[12px]">
+                            <div className="flex items-start gap-3">
                                 <BookOpen className="w-5 h-5 text-[#74777f] mt-1" />
                                 <div>
                                     <p className="text-[12px] text-[#74777f] font-medium">Total Sessions</p>
@@ -82,60 +82,101 @@ const ClassDetail = () => {
                     </div>
 
                     {/* Curriculum Outline */}
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px]">
-                        <h2 className="text-[18px] font-semibold text-[#181c1e] mb-[16px]">Curriculum Outline</h2>
-                        <div className="space-y-[16px]">
-                            {classData.curriculum.map((session, index) => (
-                                <div className="flex gap-[16px]" key={session.sessionNumber}>
-                                    <div className="flex flex-col items-center">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[14px] ${session.status === 'upcoming' ? 'bg-[#e0e3e5] text-[#74777f]' : 'bg-[#0061a5] text-white'}`}>{session.sessionNumber}</div>
-                                        {index < classData.curriculum.length - 1 && <div className={`w-[2px] h-full mt-[8px] ${session.status === 'upcoming' ? 'bg-transparent' : 'bg-[#e0e3e5]'}`}></div>}
+                    <div className="bg-white rounded-2xl shadow-sm border border-[#e2e2e9] p-6 md:p-8">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-xl font-extrabold text-[#002045]">Curriculum Outline</h2>
+                            <span className="text-[14px] font-semibold text-[#74777f] bg-[#f8f9fc] px-3 py-1 rounded-full">{classData.totalSessions} Sessions</span>
+                        </div>
+                        <div className="space-y-0">
+                            {classData.curriculum.map((session, index) => {
+                                const isCompleted = session.status === 'completed';
+                                const isOngoing = session.status === 'ongoing';
+                                const isUpcoming = session.status === 'upcoming';
+                                
+                                return (
+                                    <div className="flex gap-6 group" key={session.sessionNumber}>
+                                        {/* Timeline Column */}
+                                        <div className="flex flex-col items-center">
+                                            <div className={`w-10 h-10 rounded-full flex shrink-0 items-center justify-center font-bold text-[15px] transition-all duration-300
+                                                ${isCompleted ? 'bg-[#e6f4ea] text-[#137333] border border-[#137333]/20' : 
+                                                  isOngoing ? 'bg-[#0061a5] text-white shadow-md ring-4 ring-[#e3f2fd]' : 
+                                                  'bg-[#f8f9fc] text-[#c4c6cf] border border-[#e2e2e9] group-hover:border-[#c4c6cf]'}
+                                            `}>
+                                                {session.sessionNumber}
+                                            </div>
+                                            {/* Connector Line */}
+                                            {index < classData.curriculum.length - 1 && (
+                                                <div className={`w-0.5 h-full my-2 rounded-full transition-colors duration-300
+                                                    ${isCompleted ? 'bg-[#137333]/30' : 'bg-[#f1f4f6]'}
+                                                `}></div>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Content Column */}
+                                        <div className={`pb-10 pt-2 w-full ${index === classData.curriculum.length - 1 ? 'pb-2' : ''}`}>
+                                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1.5">
+                                                <h3 className={`font-bold text-[17px] transition-colors duration-300
+                                                    ${isCompleted ? 'text-[#002045]' : 
+                                                      isOngoing ? 'text-[#0061a5]' : 
+                                                      'text-[#74777f]'}
+                                                `}>
+                                                    {session.title}
+                                                </h3>
+                                                {isOngoing && (
+                                                    <span className="inline-flex shrink-0 px-2.5 py-1 bg-[#e3f2fd] text-[#0061a5] text-[11px] font-black rounded-md uppercase tracking-widest animate-pulse">
+                                                        Current Session
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className={`text-[15px] leading-relaxed
+                                                ${isCompleted ? 'text-[#43474e]' : 
+                                                  isOngoing ? 'text-[#181c1e] font-medium' : 
+                                                  'text-[#c4c6cf]'}
+                                            `}>
+                                                {session.description}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="pb-[16px]">
-                                        <h3 className={`font-bold text-[16px] ${session.status === 'upcoming' ? 'text-[#74777f]' : 'text-[#181c1e]'}`}>{session.title}</h3>
-                                        <p className={`text-[14px] mt-1 ${session.status === 'upcoming' ? 'text-[#74777f]' : 'text-[#43474e]'}`}>{session.description}</p>
-                                        {session.status === 'upcoming' && <span className="inline-block mt-2 px-2 py-1 bg-[#f8f9fa] text-[#43474e] text-[12px] font-bold rounded">Upcoming</span>}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
 
                 {/* Sidebar Info */}
-                <div className="space-y-[24px]">
+                <div className="space-y-6">
                     {/* Tutor Profile */}
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px] text-center">
-                        <div className="w-20 h-20 mx-auto rounded-full bg-[#d2e4ff] text-[#0061a5] flex items-center justify-center font-bold text-[24px] mb-[16px]">
+                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 text-center">
+                        <div className="w-20 h-20 mx-auto rounded-full bg-[#d2e4ff] text-[#0061a5] flex items-center justify-center font-bold text-[24px] mb-4">
                             {classData.tutor.initials}
                         </div>
                         <h2 className="text-[18px] font-bold text-[#181c1e]">{classData.tutor.name}</h2>
-                        <p className="text-[14px] text-[#74777f] mb-[16px]">{classData.tutor.title}</p>
-                        <div className="flex items-center justify-center gap-[4px] text-[#c9a82c] mb-[16px]">
+                        <p className="text-[14px] text-[#74777f] mb-4">{classData.tutor.title}</p>
+                        <div className="flex items-center justify-center gap-1 text-[#c9a82c] mb-4">
                             ★ ★ ★ ★ ★ <span className="text-[12px] text-[#74777f] ml-1">({classData.tutor.rating})</span>
                         </div>
                         {isCompleted ? (
-                            <Link to={`/learner/classes/${id}/feedback`} className="block w-full py-[8px] bg-[#002045] text-white rounded-[8px] text-[14px] font-semibold hover:bg-[#0061a5] transition-colors">
+                            <Link to={`/learner/classes/${id}/feedback`} className="block w-full py-2 bg-[#002045] text-white rounded-[8px] text-[14px] font-semibold hover:bg-[#0061a5] transition-colors">
                                 Leave Feedback
                             </Link>
                         ) : (
-                            <div className="w-full py-[8px] bg-[#f8f9fa] text-[#74777f] rounded-[8px] text-[14px] font-semibold cursor-not-allowed border border-[#e0e3e5]" title="Feedback will be available after completing all sessions">
+                            <div className="w-full py-2 bg-[#f8f9fa] text-[#74777f] rounded-[8px] text-[14px] font-semibold cursor-not-allowed border border-[#e0e3e5]" title="Feedback will be available after completing all sessions">
                                 Leave Feedback
                             </div>
                         )}
                     </div>
 
                     {/* Progress */}
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px]">
-                        <h2 className="text-[16px] font-semibold text-[#181c1e] mb-[16px]">Attendance Progress</h2>
-                        <div className="flex justify-between text-[14px] mb-[8px]">
+                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6">
+                        <h2 className="text-[16px] font-semibold text-[#181c1e] mb-4">Attendance Progress</h2>
+                        <div className="flex justify-between text-[14px] mb-2">
                             <span className="text-[#43474e]">{classData.progress.completed} / {classData.totalSessions} Sessions</span>
                             <span className="font-bold text-[#0061a5]">{classData.progress.percentage}%</span>
                         </div>
                         <div className="w-full h-2 bg-[#e0e3e5] rounded-full overflow-hidden">
                             <div className="h-full bg-[#0061a5]" style={{ width: `${classData.progress.percentage}%` }}></div>
                         </div>
-                        <Link to={`/learner/classes/${id}/attendance`} className="block text-center mt-[16px] text-[14px] text-[#0061a5] font-medium hover:underline">
+                        <Link to={`/learner/classes/${id}/attendance`} className="block text-center mt-4 text-[14px] text-[#0061a5] font-medium hover:underline">
                             View Attendance Log
                         </Link>
                     </div>

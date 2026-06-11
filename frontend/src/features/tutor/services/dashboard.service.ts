@@ -8,7 +8,7 @@ const MOCK_STATS: TutorDashboardStats = {
 };
 
 const MOCK_TASKS: TutorPendingTask[] = [
-    { title: 'Mark Attendance for IE1601', type: 'Class IE1601', time: '1 hour ago', iconType: 'CheckSquare', bg: 'bg-blue-50', color: 'text-blue-600', link: '/tutor/attendance' },
+    { title: 'Mark Attendance for IE1601', type: 'Class IE1601', time: '1 hour ago', iconType: 'CheckSquare', bg: 'bg-blue-50', color: 'text-blue-600', link: '/tutor/classes/c1/attendance' },
     { title: 'Complete Session Report', type: 'Class TOEIC-B12', time: '3 hours ago', iconType: 'FileText', bg: 'bg-purple-50', color: 'text-purple-600', link: '/tutor/dashboard' },
     { title: 'Confirm Rescheduled Session', type: 'Class ENG401', time: '1 day ago', iconType: 'Calendar', bg: 'bg-amber-50', color: 'text-amber-600', link: '/tutor/change-requests' },
 ];

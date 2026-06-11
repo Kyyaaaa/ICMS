@@ -5,7 +5,7 @@ import { ClassroomsService } from '../services/classrooms.service';
 import { ClassroomFilters } from '../components/ClassroomFilters';
 import { ClassroomsTable } from '../components/ClassroomsTable';
 import { ClassroomFormModal } from '../components/ClassroomFormModal';
-
+import { showConfirmModal } from '@/utils/modal';
 const AdminClassrooms = () => {
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);

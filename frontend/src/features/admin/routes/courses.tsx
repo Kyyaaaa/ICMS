@@ -5,7 +5,7 @@ import type { Course } from '../types/course';
 import { CoursesService } from '../services/courses.service';
 import { CoursesFilters } from '../components/CoursesFilters';
 import { CoursesTable } from '../components/CoursesTable';
-
+import { showConfirmModal } from '@/utils/modal';
 const AdminCourses = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');

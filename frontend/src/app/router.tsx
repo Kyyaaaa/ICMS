@@ -27,7 +27,7 @@ import ClassRegistration from '@/features/learner/routes/registration.tsx';
 import PaymentHistory from '@/features/learner/routes/payments.tsx';
 import PaymentCheckout from '@/features/learner/routes/checkout.tsx';
 import RefundRequest from '@/features/learner/routes/refund.tsx';
-
+import LearnerGrades from '@/features/learner/routes/grades.tsx';
 // Staff Views
 import StaffLayout from '@/shared/components/layout/StaffLayout.tsx';
 import StaffDashboard from '@/features/staff/routes/dashboard.tsx';
@@ -73,11 +73,13 @@ import TutorProfile from '@/features/tutor/routes/profile.tsx';
 import TutorQualifications from '@/features/tutor/routes/qualifications.tsx';
 import AvailabilityRegistration from '@/features/tutor/routes/availability.tsx';
 import TeachingSchedule from '@/features/tutor/routes/schedule.tsx';
-import ClassAttendance from '@/features/tutor/routes/attendance.tsx';
 import TutorChangeRequests from '@/features/tutor/routes/change-requests.tsx';
 import TutorSalaryHistory from '@/features/tutor/routes/salary.tsx';
 import { TutorSupportTickets } from '@/features/tutor/routes/support-tickets.tsx';
-
+import TutorClasses from '@/features/tutor/routes/classes';
+import TutorClassDetail from '@/features/tutor/routes/class-detail';
+import TutorAttendance from '@/features/tutor/routes/attendance.tsx';
+import TutorGradebook from '@/features/tutor/routes/gradebook.tsx';
 // Shared Views
 import { NotificationsPage } from '@/shared/components/common/NotificationsPage.tsx';
 import { SupportTickets } from '@/shared/components/common/SupportTickets.tsx';
@@ -114,6 +116,8 @@ export const AppRouter = () => {
               <Route path="/learner/classes/:id" element={<ClassDetail />} />
               <Route path="/learner/classes/:id/feedback" element={<ClassFeedback />} />
               <Route path="/learner/classes/:id/attendance" element={<AttendanceProgress />} />
+              
+              <Route path="/learner/grades" element={<LearnerGrades />} />
               
               <Route path="/learner/schedules" element={<LearnerSchedules />} />
               
@@ -186,7 +190,11 @@ export const AppRouter = () => {
               <Route path="/tutor/qualifications" element={<TutorQualifications />} />
               <Route path="/tutor/availability" element={<AvailabilityRegistration />} />
               <Route path="/tutor/schedule" element={<TeachingSchedule />} />
-              <Route path="/tutor/attendance" element={<ClassAttendance />} />
+              <Route path="/tutor/classes" element={<TutorClasses />} />
+              <Route path="/tutor/classes/:id" element={<TutorClassDetail />}>
+                  <Route path="attendance" element={<TutorAttendance />} />
+                  <Route path="grades" element={<TutorGradebook />} />
+              </Route>
               <Route path="/tutor/change-requests" element={<TutorChangeRequests />} />
               <Route path="/tutor/support-tickets" element={<TutorSupportTickets />} />
               <Route path="/tutor/salary" element={<TutorSalaryHistory />} />

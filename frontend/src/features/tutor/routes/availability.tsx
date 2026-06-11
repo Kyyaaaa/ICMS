@@ -3,7 +3,7 @@ import { CalendarClock, Info, Lock, Send } from 'lucide-react';
 import { AvailabilityService, SHIFTS, DAYS } from '../services/availability.service';
 import type { AvailabilityStatus } from '../types/availability';
 import { AvailabilityGrid } from '../components/AvailabilityGrid';
-
+import { showConfirmModal } from '@/utils/modal';
 const AvailabilityRegistration = () => {
     const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
     const [status, setStatus] = useState<AvailabilityStatus>('draft');
@@ -50,14 +50,14 @@ const AvailabilityRegistration = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm mt-8 mx-auto max-w-[1400px]">
+            <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm mt-8 mx-auto max-w-350">
                 <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
 
     return (
-        <div className="p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in-up space-y-[24px] pb-8">
+        <div className="p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in-up space-y-6 pb-8">
             {/* Header Area */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex items-center gap-3">

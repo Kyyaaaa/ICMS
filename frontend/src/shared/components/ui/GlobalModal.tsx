@@ -62,62 +62,63 @@ const GlobalModal = () => {
     const getIcon = () => {
         switch (config.type) {
             case 'success':
-                return <CheckCircle2 className="w-6 h-6 text-green-500" />;
+                return <CheckCircle2 className="w-6 h-6 text-[#137333]" />;
             case 'error':
-                return <AlertCircle className="w-6 h-6 text-red-500" />;
+                return <AlertCircle className="w-6 h-6 text-[#ba1a1a]" />;
             case 'warning':
-                return <AlertTriangle className="w-6 h-6 text-yellow-500" />;
+                return <AlertTriangle className="w-6 h-6 text-[#855e00]" />;
             default:
-                return <Info className="w-6 h-6 text-blue-500" />;
+                return <Info className="w-6 h-6 text-[#0061a5]" />;
         }
     };
 
     const getIconBg = () => {
         switch (config.type) {
             case 'success':
-                return 'bg-green-100';
+                return 'bg-[#e6f4ea]';
             case 'error':
-                return 'bg-red-100';
+                return 'bg-[#ffdad6]';
             case 'warning':
-                return 'bg-yellow-100';
+                return 'bg-[#fff4ce]';
             default:
-                return 'bg-blue-100';
+                return 'bg-[#e3f2fd]';
         }
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-                <div className="flex items-start p-6">
-                    <div className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full ${getIconBg()} mr-4`}>
+        <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-[#002045]/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="flex items-start p-6 md:p-8">
+                    <div className={`shrink-0 flex items-center justify-center w-12 h-12 rounded-full ${getIconBg()} mr-5`}>
                         {getIcon()}
                     </div>
-                    <div className="flex-1 w-0">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">{config.title}</h3>
-                        <p className="text-sm text-gray-600 whitespace-pre-wrap">{config.message}</p>
+                    <div className="flex-1 w-0 pt-1">
+                        <h3 className="text-xl font-extrabold text-[#002045] mb-2">{config.title}</h3>
+                        <p className="text-[15px] text-[#43474e] whitespace-pre-wrap leading-relaxed">{config.message}</p>
                     </div>
-                    <button onClick={handleCancel} className="ml-4 text-gray-400 hover:text-gray-500 transition-colors">
+                    <button onClick={handleCancel} className="ml-4 p-1.5 text-[#74777f] hover:bg-[#f1f4f6] rounded-full transition-colors">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
                 
-                <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
+                <div className="bg-[#f8f9fc] px-6 py-5 flex justify-end gap-3 border-t border-[#e2e2e9]">
                     {config.mode === 'confirm' && (
                         <button
                             onClick={handleCancel}
-                            className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="px-5 py-2.5 text-[14px] font-bold text-[#43474e] bg-white border border-[#c4c6cf] rounded-xl hover:bg-[#f1f4f6] transition-colors"
                         >
-                            {config.cancelText}
+                            {config.cancelText || 'Cancel'}
                         </button>
                     )}
                     <button
                         onClick={handleConfirm}
-                        className={`px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors shadow-sm
-                            ${config.type === 'error' ? 'bg-red-600 hover:bg-red-700' 
-                            : config.type === 'warning' ? 'bg-yellow-600 hover:bg-yellow-700'
-                            : 'bg-blue-600 hover:bg-blue-700'}`}
+                        className={`px-6 py-2.5 text-[14px] font-bold text-white rounded-xl transition-all shadow-md hover:shadow-lg
+                            ${config.type === 'error' ? 'bg-[#ba1a1a] hover:bg-[#93000a]' 
+                            : config.type === 'warning' ? 'bg-[#855e00] hover:bg-[#604400]'
+                            : config.type === 'success' ? 'bg-[#137333] hover:bg-[#0d5023]'
+                            : 'bg-[#0061a5] hover:bg-[#004a80]'}`}
                     >
-                        {config.confirmText}
+                        {config.confirmText || (config.mode === 'alert' ? 'OK' : 'Confirm')}
                     </button>
                 </div>
             </div>

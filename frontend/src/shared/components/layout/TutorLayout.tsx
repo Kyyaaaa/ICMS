@@ -42,7 +42,7 @@ const TutorLayout = () => {
         { name: 'Dashboard', path: '/tutor/dashboard', icon: LayoutDashboard },
         { name: 'My Profile & Info', path: '/tutor/profile', icon: UserCog, activePaths: ['/tutor/profile', '/tutor/qualifications'] },
         { name: 'Teaching & Schedule', path: '/tutor/schedule', icon: Calendar, activePaths: ['/tutor/schedule', '/tutor/availability'] },
-        { name: 'Class Management', path: '/tutor/attendance', icon: ClipboardCheck },
+        { name: 'Class Management', path: '/tutor/classes', icon: ClipboardCheck, activePaths: ['/tutor/classes'] },
         { name: 'Requests', path: '/tutor/change-requests', icon: FileEdit, activePaths: ['/tutor/change-requests', '/tutor/support-tickets'] },
         { name: 'Finance', path: '/tutor/salary', icon: Wallet },
     ];
@@ -77,7 +77,7 @@ const TutorLayout = () => {
         if (tabs.length === 0) return null;
 
         return (
-            <div className="bg-white border-b border-[#e0e3e5] px-6 flex items-center gap-6 overflow-x-auto scrollbar-none sticky top-[72px] z-30">
+            <div className="bg-white border-b border-[#e0e3e5] px-6 flex items-center gap-6 overflow-x-auto scrollbar-none sticky top-18 z-30">
                 {tabs.map(tab => {
                     const active = isActivePath(tab.path);
                     return (
@@ -118,8 +118,8 @@ const TutorLayout = () => {
     return (
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
             {/* Sidebar Desktop */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:sticky md:top-0 md:h-screen md:translate-x-0 flex flex-col`}>
-                <div className="flex items-center justify-between h-[72px] px-6 border-b border-[#e0e3e5] shrink-0">
+            <aside className={`fixed inset-y-0 left-0 z-50 w-65 bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:sticky md:top-0 md:h-screen md:translate-x-0 flex flex-col`}>
+                <div className="flex items-center justify-between h-18 px-6 border-b border-[#e0e3e5] shrink-0">
                     <Link to="/tutor/dashboard" className="text-[24px] font-extrabold text-[#002045] flex items-center gap-2">
                         <BookOpen className="w-7 h-7 text-[#0061a5]" />
                         ICMS <span className="text-[#0061a5] font-semibold text-[18px]">Tutor</span>
@@ -169,7 +169,7 @@ const TutorLayout = () => {
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
                 {/* Header */}
-                <header className="sticky top-0 h-[72px] bg-white/80 backdrop-blur-md border-b border-[#e0e3e5] flex items-center justify-between px-6 shrink-0 z-40">
+                <header className="sticky top-0 h-18 bg-white/80 backdrop-blur-md border-b border-[#e0e3e5] flex items-center justify-between px-6 shrink-0 z-40">
                     <div className="flex items-center gap-4">
                         <button className="md:hidden p-2 -ml-2 text-[#43474e] hover:bg-[#f1f4f6] rounded-xl transition-colors" onClick={() => setSidebarOpen(true)}>
                             <Menu className="w-6 h-6" />
@@ -197,7 +197,7 @@ const TutorLayout = () => {
                             {showNotifications && (
                                 <>
                                     <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)}></div>
-                                    <div className="absolute right-0 mt-2 w-[320px] md:w-[380px] bg-white rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] border border-[#e0e3e5] z-50 overflow-hidden animate-fade-in-down origin-top-right">
+                                    <div className="absolute right-0 mt-2 w-[320px] md:w-95 bg-white rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] border border-[#e0e3e5] z-50 overflow-hidden animate-fade-in-down origin-top-right">
                                         <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f7fafc]">
                                             <h3 className="font-bold text-[#181c1e]">Notifications</h3>
                                             {unreadCount > 0 && (
@@ -206,7 +206,7 @@ const TutorLayout = () => {
                                                 </button>
                                             )}
                                         </div>
-                                        <div className="max-h-[400px] overflow-y-auto scrollbar-none">
+                                        <div className="max-h-100 overflow-y-auto scrollbar-none">
                                             {notifications.map(notification => (
                                                 <div key={notification.id} className={`p-4 border-b border-[#e0e3e5] hover:bg-[#f7fafc] transition-colors cursor-pointer ${notification.unread ? 'bg-white' : 'bg-[#f7fafc]/50 opacity-70'}`}>
                                                     <div className="flex gap-3">
@@ -239,7 +239,7 @@ const TutorLayout = () => {
                         <Link to="/tutor/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
                                 <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
-                                <span className="text-[12px] text-[#74777f] leading-tight">{roleText}</span>
+                                <span className="text-[12px] text-[#74777f] leading-tight uppercase">{roleText ? roleText.toUpperCase() : ''}</span>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
                                 {avatarUrl ? (

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Tags, Search, Plus, Trash2, Edit, X } from 'lucide-react';
 import type { DiscountCode } from '../types/discount-code';
 import { AdminDiscountCodesService } from '../services/discount-codes.service';
-
+import { showConfirmModal } from '@/utils/modal';
 const AdminDiscountCodes = () => {
     const [codes, setCodes] = useState<DiscountCode[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -123,7 +123,7 @@ const AdminDiscountCodes = () => {
                     </div>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse min-w-[800px]">
+                    <table className="w-full text-left border-collapse min-w-200">
                         <thead>
                             <tr className="bg-[#f7fafc] border-b border-[#e0e3e5]">
                                 <th className="py-4 px-6 text-[14px] font-semibold text-[#43474e]">Code</th>
@@ -202,7 +202,7 @@ const AdminDiscountCodes = () => {
                             </div>
                             
                             <div className="flex flex-col sm:flex-row gap-4">
-                                        <div className="flex-[2]">
+                                        <div className="flex-2">
                                             <label className="block text-[13px] font-bold text-[#43474e] mb-1">Discount Amount (đ)</label>
                                             <input 
                                                 type="number" 
@@ -212,7 +212,7 @@ const AdminDiscountCodes = () => {
                                                 step="10000"
                                             />
                                         </div>
-                                        <div className="flex-[1]">
+                                        <div className="flex-1">
                                             <label className="block text-[13px] font-bold text-[#43474e] mb-1">Status</label>
                                             <select 
                                                 value={formData.status} 
@@ -231,7 +231,7 @@ const AdminDiscountCodes = () => {
                                             Start Time (Valid From)
                                         </h3>
                                         <div className="flex flex-col sm:flex-row gap-4">
-                                            <div className="flex-[3]">
+                                            <div className="flex-3">
                                                 <label className="block text-[12px] font-bold text-[#43474e] mb-1">Date</label>
                                                 <input 
                                                     type="date" 
@@ -240,7 +240,7 @@ const AdminDiscountCodes = () => {
                                                     className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] bg-white"
                                                 />
                                             </div>
-                                            <div className="flex-[2]">
+                                            <div className="flex-2">
                                                 <label className="block text-[12px] font-bold text-[#43474e] mb-1">Time</label>
                                                 <input 
                                                     type="time" 
@@ -258,7 +258,7 @@ const AdminDiscountCodes = () => {
                                             End Time (Valid Until)
                                         </h3>
                                         <div className="flex flex-col sm:flex-row gap-4">
-                                            <div className="flex-[3]">
+                                            <div className="flex-3">
                                                 <label className="block text-[12px] font-bold text-[#ba1a1a] mb-1">Date</label>
                                                 <input 
                                                     type="date" 
@@ -267,7 +267,7 @@ const AdminDiscountCodes = () => {
                                                     className="w-full px-3 py-2 text-[14px] border border-[#ffebed] rounded-lg focus:outline-none focus:border-[#ba1a1a] bg-white"
                                                 />
                                             </div>
-                                            <div className="flex-[2]">
+                                            <div className="flex-2">
                                                 <label className="block text-[12px] font-bold text-[#ba1a1a] mb-1">Time</label>
                                                 <input 
                                                     type="time" 

@@ -89,7 +89,7 @@ export const AdminLayout = () => {
         if (tabs.length === 0) return null;
 
         return (
-            <div className="bg-white border-b border-[#e0e3e5] px-6 flex items-center gap-6 overflow-x-auto scrollbar-none sticky top-[72px] z-20">
+            <div className="bg-white border-b border-[#e0e3e5] px-6 flex items-center gap-6 overflow-x-auto scrollbar-none sticky top-18 z-20">
                 {tabs.map(tab => {
                     const active = isActivePath(tab.path);
                     return (
@@ -138,8 +138,8 @@ export const AdminLayout = () => {
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:sticky md:top-0 md:h-screen md:translate-x-0 flex flex-col`}>
-                <div className="flex items-center justify-between h-[72px] px-6 border-b border-[#e0e3e5] shrink-0">
+            <aside className={`fixed inset-y-0 left-0 z-50 w-65 bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:sticky md:top-0 md:h-screen md:translate-x-0 flex flex-col`}>
+                <div className="flex items-center justify-between h-18 px-6 border-b border-[#e0e3e5] shrink-0">
                     <Link to="/admin/dashboard" className="text-[24px] font-extrabold text-[#002045] flex items-center gap-2">
                         <BookOpen className="w-7 h-7 text-[#0061a5]" />
                         ICMS <span className="text-[#0061a5] font-semibold text-[18px]">Admin</span>
@@ -196,7 +196,7 @@ export const AdminLayout = () => {
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header */}
-                <header className="sticky top-0 h-[72px] bg-white/80 backdrop-blur-md border-b border-[#e0e3e5] flex items-center justify-between px-6 shrink-0 z-30">
+                <header className="sticky top-0 h-18 bg-white/80 backdrop-blur-md border-b border-[#e0e3e5] flex items-center justify-between px-6 shrink-0 z-30">
                     <div className="flex items-center gap-4">
                         <button className="md:hidden p-2 -ml-2 text-[#43474e] hover:bg-[#f1f4f6] rounded-xl transition-colors" onClick={() => setSidebarOpen(true)}>
                             <Menu className="w-6 h-6" />
@@ -220,12 +220,12 @@ export const AdminLayout = () => {
                             {showNotifications && (
                                 <>
                                     <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)}></div>
-                                    <div className="absolute right-0 mt-3 w-[360px] bg-white rounded-2xl shadow-xl border border-[#e0e3e5] overflow-hidden z-50 animate-scale-in origin-top-right">
+                                    <div className="absolute right-0 mt-3 w-90 bg-white rounded-2xl shadow-xl border border-[#e0e3e5] overflow-hidden z-50 animate-scale-in origin-top-right">
                                         <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f8f9fa]">
                                             <h3 className="font-bold text-[#002045]">Notifications</h3>
                                             <button onClick={markAllAsRead} className="text-[12px] font-bold text-[#0061a5] hover:underline">Mark all as read</button>
                                         </div>
-                                        <div className="max-h-[400px] overflow-y-auto scrollbar-thin">
+                                        <div className="max-h-100 overflow-y-auto scrollbar-thin">
                                             {notifications.length > 0 ? notifications.map(notif => (
                                                 <div key={notif.id} className={`p-4 border-b border-[#e0e3e5] last:border-b-0 hover:bg-[#f8f9fa] transition-colors cursor-pointer ${notif.unread ? 'bg-blue-50/30' : ''}`}>
                                                     <div className="flex justify-between items-start mb-1">
@@ -254,7 +254,7 @@ export const AdminLayout = () => {
                         <Link to="/admin/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
                                 <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
-                                <span className="text-[12px] text-[#74777f] leading-tight">{roleText}</span>
+                                <span className="text-[12px] text-[#74777f] leading-tight uppercase">{roleText ? roleText.toUpperCase() : ''}</span>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
                                 {avatarUrl ? (
@@ -270,7 +270,7 @@ export const AdminLayout = () => {
                 {renderSubTabs()}
 
                 <main className="flex-1 p-6 lg:p-8 bg-[#f8f9fa]">
-                    <div className="max-w-[1600px] mx-auto w-full h-full">
+                    <div className="max-w-400 mx-auto w-full h-full">
                         <Outlet />
                     </div>
                 </main>

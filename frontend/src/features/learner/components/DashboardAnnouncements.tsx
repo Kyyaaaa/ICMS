@@ -8,24 +8,32 @@ interface DashboardAnnouncementsProps {
 
 export const DashboardAnnouncements = ({ announcements }: DashboardAnnouncementsProps) => {
     return (
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px]">
-            <div className="flex justify-between items-center mb-[16px]">
-                <h2 className="text-[18px] font-semibold text-[#181c1e]">Recent Announcements</h2>
-                <Link to="/learner/notifications" className="text-[#0061a5] text-[14px] font-medium hover:underline flex items-center gap-1">
+        <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#eef0f4] p-8">
+            <div className="flex justify-between items-end mb-6">
+                <div>
+                    <h2 className="text-xl font-extrabold text-[#002045]">Announcements</h2>
+                    <p className="text-sm text-slate-500 mt-1">Updates from your center</p>
+                </div>
+                <Link to="/learner/notifications" className="text-[#0061a5] text-sm font-bold hover:underline flex items-center gap-1.5 transition-colors">
                     View all <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>
-            <div className="space-y-[16px]">
+            <div className="space-y-4">
                 {announcements.map((ann, idx) => (
-                    <div key={ann.id} className={`${idx < announcements.length - 1 ? 'border-b border-[#e0e3e5] pb-[12px]' : 'pb-[4px]'}`}>
-                        <div className="flex justify-between items-start mb-1">
-                            <h3 className={`font-bold hover:text-[#0061a5] cursor-pointer transition-colors ${ann.isUnread ? 'text-[#002045]' : 'text-[#43474e]'}`}>
+                    <div key={ann.id} className={`group cursor-pointer p-4 rounded-2xl hover:bg-[#f8f9fc] transition-colors ${ann.isUnread ? 'bg-[#fcfdfd]' : ''} ${idx < announcements.length - 1 ? 'border-b border-[#eef0f4]' : ''}`}>
+                        <div className="flex justify-between items-start mb-1.5">
+                            <h3 className={`font-bold text-[15px] group-hover:text-[#0061a5] transition-colors ${ann.isUnread ? 'text-[#002045]' : 'text-slate-600'}`}>
                                 {ann.title}
                             </h3>
-                            {ann.isUnread && <span className="w-2 h-2 bg-[#0061a5] rounded-full mt-1.5 shrink-0"></span>}
+                            {ann.isUnread && (
+                                <span className="relative flex h-2.5 w-2.5 shrink-0 mt-1.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0061a5] opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0061a5]"></span>
+                                </span>
+                            )}
                         </div>
-                        <p className="text-[14px] text-[#43474e] mt-1 line-clamp-2">{ann.content}</p>
-                        <span className="text-[12px] text-[#74777f] mt-2 block">{ann.timeAgo}</span>
+                        <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed">{ann.content}</p>
+                        <span className="text-[11px] font-bold text-slate-400 mt-3 block uppercase tracking-widest">{ann.timeAgo}</span>
                     </div>
                 ))}
             </div>

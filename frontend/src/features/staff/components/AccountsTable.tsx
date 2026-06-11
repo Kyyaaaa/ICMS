@@ -62,9 +62,9 @@ export const AccountsTable = ({
     };
 
     return (
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden relative min-h-[300px]">
+        <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden relative min-h-75">
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[800px]">
+                <table className="w-full text-left border-collapse min-w-200">
                     <thead>
                         <tr className="bg-[#f7fafc] border-b border-[#e0e3e5]">
                             <th className="py-4 px-6 text-[13px] font-bold text-[#43474e] uppercase tracking-wider">User Info</th>
@@ -206,7 +206,7 @@ export const AccountsTable = ({
                                 <button
                                     key={`page-${pageNum}`}
                                     onClick={() => setCurrentPage(pageNum as number)}
-                                    className={`min-w-[32px] h-[32px] px-2 flex items-center justify-center rounded-lg text-[13px] font-bold transition-colors ${
+                                    className={`min-w-8 h-8 px-2 flex items-center justify-center rounded-lg text-[13px] font-bold transition-colors ${
                                         currentPage === pageNum 
                                             ? 'bg-[#0061a5] text-white border border-[#0061a5]' 
                                             : 'border border-[#c4c6cf] text-[#43474e] bg-white hover:bg-[#f1f4f6]'

@@ -108,10 +108,10 @@ const StaffTutorAvailability = () => {
     };
 
     return (
-        <div className="p-6 lg:p-8 max-w-[1600px] mx-auto animate-fade-in-up space-y-6">
+        <div className="p-6 lg:p-8 max-w-400 mx-auto animate-fade-in-up space-y-6">
             
             {/* Top Bar: Tutor List */}
-            <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-30">
+            <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
                 <TutorSelector 
                     tutors={tutors} 
                     selectedTutorId={selectedTutorId} 
@@ -122,7 +122,7 @@ const StaffTutorAvailability = () => {
                 <div className="hidden md:block w-px h-12 bg-[#e0e3e5]"></div>
 
                 {/* Progress Stats */}
-                <div className="flex-1 w-full max-w-[300px]">
+                <div className="flex-1 w-full max-w-75">
                     <div className="flex items-center justify-between text-[13px] mb-2">
                         <span className="text-[#43474e] font-medium flex items-center gap-2">
                             <Users className="w-4 h-4 text-[#74777f]" />

@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { ClipboardCheck } from 'lucide-react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { AttendanceService } from '../services/attendance.service';
 import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceRecordMap, AttendanceStatus } from '../types/attendance';
-import { AttendanceClassSelect } from '../components/AttendanceClassSelect';
 import { AttendanceSessionList } from '../components/AttendanceSessionList';
 import { AttendanceSheet } from '../components/AttendanceSheet';
-
+import { showConfirmModal } from '@/utils/modal';
 const ClassAttendance = () => {
+    const { id: classId } = useParams<{ id: string }>();
     const [searchParams] = useSearchParams();
     
     // Data states
@@ -17,10 +16,8 @@ const ClassAttendance = () => {
     const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecordMap>({});
     
     // UI states
-    const [selectedClassId, setSelectedClassId] = useState<string | null>(searchParams.get('classId') || null);
     const [selectedSessionId, setSelectedSessionId] = useState<string | null>(searchParams.get('sessionId') || null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -36,19 +33,13 @@ const ClassAttendance = () => {
             setSessions(sessionsData);
             setStudents(studentsData);
             setAttendanceRecords(recordsData);
-            setSelectedClassId(prev => {
-                if (!prev && classesData.length > 0) {
-                    return classesData[0].id;
-                }
-                return prev;
-            });
             setLoading(false);
         };
         loadData();
     }, []);
 
-    const selectedClass = classes.find(c => c.id === selectedClassId);
-    const classSessions = sessions.filter(s => s.classId === selectedClassId);
+    const selectedClass = classes.find(c => c.id === classId);
+    const classSessions = sessions.filter(s => s.classId === classId);
     const selectedSession = sessions.find(s => s.id === selectedSessionId);
     
     const currentRecords = selectedSessionId ? (attendanceRecords[selectedSessionId] || {}) : {};
@@ -92,38 +83,18 @@ const ClassAttendance = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm mt-8 mx-auto max-w-[1400px]">
+            <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm mt-8 mx-auto max-w-350">
                 <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
 
     return (
-        <div className="p-6 max-w-[1400px] mx-auto animate-fade-in">
-            <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 rounded-xl bg-[#e3f2fd] flex items-center justify-center text-[#0061a5]">
-                    <ClipboardCheck className="w-5 h-5" />
-                </div>
-                <div>
-                    <h1 className="text-[28px] font-bold text-[#181c1e] tracking-tight">Class Attendance</h1>
-                    <p className="text-[#43474e] text-[15px]">Select a class and session to manage and record attendance.</p>
-                </div>
-            </div>
-
+        <div className="animate-fade-in">
             <div className="flex flex-col gap-6 items-start">
-                <AttendanceClassSelect 
-                    classes={classes}
-                    selectedClass={selectedClass}
-                    isDropdownOpen={isDropdownOpen}
-                    setIsDropdownOpen={setIsDropdownOpen}
-                    onSelectClass={(id) => {
-                        setSelectedClassId(id);
-                        setSelectedSessionId(null);
-                        setIsDropdownOpen(false);
-                    }}
-                />
 
-                <div className="flex-1 w-full bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden flex flex-col min-h-[500px]">
+
+                <div className="flex-1 w-full bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden flex flex-col min-h-125">
                     {selectedSession && selectedClass ? (
                         <AttendanceSheet 
                             selectedClass={selectedClass}

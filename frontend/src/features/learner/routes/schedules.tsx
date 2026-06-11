@@ -1,9 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
-import { Clock, MapPin, ChevronLeft, ChevronRight, User, CheckCircle, XCircle, AlertCircle, CalendarDays } from 'lucide-react';
+import { MapPin, ChevronLeft, ChevronRight, User, CheckCircle, XCircle, AlertCircle, CalendarDays } from 'lucide-react';
 import type { LearnerSession } from '../types/schedule';
 import { LearnerSchedulesService } from '../services/schedules.service';
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const SHIFTS = [
+    { id: 'S1', label: 'Slot 1', time: '07:30 - 09:30', startTime: '07:30' },
+    { id: 'S2', label: 'Slot 2', time: '09:30 - 11:30', startTime: '09:30' },
+    { id: 'S3', label: 'Slot 3', time: '13:30 - 15:30', startTime: '13:30' },
+    { id: 'S4', label: 'Slot 4', time: '15:30 - 17:30', startTime: '15:30' },
+    { id: 'S5', label: 'Slot 5', time: '18:00 - 20:00', startTime: '18:00' },
+    { id: 'S6', label: 'Slot 6', time: '20:00 - 22:00', startTime: '20:00' },
+];
 
 const getMonday = (d: Date) => {
     const date = new Date(d);
@@ -25,28 +34,30 @@ const attendanceBadge = (status: string) => {
     switch (status) {
         case 'present':
             return (
-                <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-1.5 py-0.5 w-fit">
+                <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1 py-0.5 w-fit shrink-0">
                     <CheckCircle className="w-3 h-3" />
-                    Present
+                    <span>Present</span>
                 </div>
             );
         case 'absent':
             return (
-                <div className="flex items-center gap-1 text-[11px] font-bold text-[#ba1a1a] bg-red-50 border border-red-200 rounded-md px-1.5 py-0.5 w-fit">
+                <div className="flex items-center gap-1 text-[10px] font-bold text-[#ba1a1a] bg-red-50 border border-red-200 rounded px-1 py-0.5 w-fit shrink-0">
                     <XCircle className="w-3 h-3" />
-                    Absent
+                    <span>Absent</span>
                 </div>
             );
         case 'upcoming':
         default:
             return (
-                <div className="flex items-center gap-1 text-[11px] font-bold text-[#74777f] bg-gray-50 border border-gray-200 rounded-md px-1.5 py-0.5 w-fit">
+                <div className="flex items-center gap-1 text-[10px] font-bold text-[#74777f] bg-gray-50 border border-gray-200 rounded px-1 py-0.5 w-fit shrink-0">
                     <AlertCircle className="w-3 h-3" />
-                    Upcoming
+                    <span>Upcoming</span>
                 </div>
             );
     }
 };
+
+
 
 const LearnerSchedules = () => {
     const [currentMonday, setCurrentMonday] = useState(() => getMonday(new Date()));
@@ -97,30 +108,32 @@ const LearnerSchedules = () => {
     const weekLabel = `${formatDate(currentMonday)} to ${formatDate(sundayDate)}`;
 
     return (
-        <div className="space-y-[24px] animate-fade-in-up">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-[16px]">
+        <div className="space-y-6 animate-fade-in-up">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">My Schedules</h1>
                 
-                <div className="flex items-center bg-white rounded-lg border border-[#c4c6cf] overflow-hidden shadow-sm">
-                    <button onClick={goToPrevWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-r border-[#c4c6cf]">
-                        <ChevronLeft className="w-5 h-5 text-[#43474e]" />
-                    </button>
-                    <button 
-                        onClick={() => dateInputRef.current?.showPicker()}
-                        className="px-4 py-2 font-bold text-[#181c1e] flex items-center gap-2 hover:bg-[#f8f9fa] transition-colors cursor-pointer"
-                    >
-                        <CalendarDays className="w-4 h-4 text-[#74777f]" />
-                        {weekLabel}
-                    </button>
-                    <input 
-                        ref={dateInputRef}
-                        type="date" 
-                        className="absolute opacity-0 w-0 h-0 pointer-events-none" 
-                        onChange={handleDatePick}
-                    />
-                    <button onClick={goToNextWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-l border-[#c4c6cf]">
-                        <ChevronRight className="w-5 h-5 text-[#43474e]" />
-                    </button>
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center bg-white rounded-lg border border-[#c4c6cf] overflow-hidden shadow-sm">
+                        <button onClick={goToPrevWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-r border-[#c4c6cf]">
+                            <ChevronLeft className="w-5 h-5 text-[#43474e]" />
+                        </button>
+                        <button 
+                            onClick={() => dateInputRef.current?.showPicker()}
+                            className="px-4 py-2 font-bold text-[#181c1e] flex items-center gap-2 hover:bg-[#f8f9fa] transition-colors cursor-pointer"
+                        >
+                            <CalendarDays className="w-4 h-4 text-[#74777f]" />
+                            {weekLabel}
+                        </button>
+                        <input 
+                            ref={dateInputRef}
+                            type="date" 
+                            className="absolute opacity-0 w-0 h-0 pointer-events-none" 
+                            onChange={handleDatePick}
+                        />
+                        <button onClick={goToNextWeek} className="p-2 hover:bg-[#f8f9fa] transition-colors border-l border-[#c4c6cf]">
+                            <ChevronRight className="w-5 h-5 text-[#43474e]" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -130,54 +143,106 @@ const LearnerSchedules = () => {
                         <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                     </div>
                 )}
-                <div className="min-w-[900px]">
-                    {/* Header */}
-                    <div className="grid grid-cols-7 border-b border-[#e0e3e5] bg-[#f7fafc]">
-                        {DAY_NAMES.map((dayName, i) => {
-                            const d = weekDates[i];
-                            const isToday = new Date().toDateString() === d.toDateString();
+                <div className="min-h-100">
+                    {(() => {
+                        const daysWithSessions = weekDates.map((date, dayIndex) => {
+                            const sessionsForDay = schedule.filter(s => s.dayIndex === dayIndex).sort((a, b) => a.startTime.localeCompare(b.startTime));
+                            return { date, dayIndex, sessions: sessionsForDay };
+                        });
+
+                        if (daysWithSessions.length === 0 && !loading) {
                             return (
-                                <div key={dayName} className={`py-[12px] text-center border-r border-[#e0e3e5] last:border-0 ${isToday ? 'bg-[#e6f0fa]' : ''}`}>
-                                    <span className={`text-[12px] font-bold uppercase tracking-wider ${isToday ? 'text-[#0061a5]' : 'text-[#74777f]'}`}>{dayName}</span>
-                                    <span className={`block text-[20px] font-bold mt-1 ${isToday ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>{String(d.getDate()).padStart(2, '0')}</span>
+                                <div className="h-full flex flex-col items-center justify-center text-[#74777f] py-20">
+                                    <CalendarDays className="w-16 h-16 mb-4 opacity-20" />
+                                    <p className="font-bold text-[18px] text-[#181c1e]">No classes scheduled</p>
+                                    <p className="text-[14px] mt-1">Enjoy your free time!</p>
                                 </div>
                             );
-                        })}
-                    </div>
+                        }
 
-                    {/* Grid */}
-                    <div className="grid grid-cols-7 min-h-[400px]">
-                        {DAY_NAMES.map((_, dayIdx) => (
-                            <div key={dayIdx} className="border-r border-[#e0e3e5] last:border-0 p-2 space-y-3 bg-gray-50/30">
-                                {schedule.filter(s => s.dayIndex === dayIdx).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(session => (
-                                    <div 
-                                        key={session.id} 
-                                        className="p-3 bg-white rounded-xl border border-[#e0e3e5] shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:-translate-y-0.5 transform duration-200"
-                                    >
-                                        <h4 className="font-extrabold text-[#002045] text-[14px] leading-tight mb-0.5">{session.class}</h4>
-                                        <div className="text-[12px] font-semibold text-[#0061a5] mb-2">{session.session}</div>
-                                        
-                                        <div className="space-y-1 mb-2">
-                                            <div className="flex items-center gap-1.5 text-[12px] text-[#43474e]">
-                                                <Clock className="w-3.5 h-3.5 shrink-0" />
-                                                <span>{session.startTime} - {session.endTime}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-[12px] text-[#43474e]">
-                                                <MapPin className="w-3.5 h-3.5 shrink-0" />
-                                                <span className="truncate font-semibold">{session.room}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-[12px] text-[#43474e]">
-                                                <User className="w-3.5 h-3.5 shrink-0" />
-                                                <span className="truncate">{session.tutor}</span>
-                                            </div>
-                                        </div>
+                        return (
+                            <table className="w-full text-left border-collapse min-w-200">
+                                <thead>
+                                    <tr className="bg-[#f8f9fa] border-b border-[#e0e3e5]">
+                                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5] w-35">Date</th>
+                                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5] w-32.5">Time</th>
+                                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5]">Class</th>
+                                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5] w-40">Room</th>
+                                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5] w-45">Tutor</th>
+                                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider w-35">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#e0e3e5]">
+                                    {daysWithSessions.map(({ date, dayIndex, sessions }) => {
+                                        const isToday = new Date().toDateString() === date.toDateString();
+                                        const dayName = DAY_NAMES[dayIndex];
+                                        const dateStr = String(date.getDate()).padStart(2, '0') + '/' + String(date.getMonth() + 1).padStart(2, '0');
 
-                                        {attendanceBadge(session.attendance)}
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
+                                        if (sessions.length === 0) {
+                                            return (
+                                                <tr key={`empty-${dayIndex}`} className="bg-[#fafbfc]">
+                                    <td className="p-4 border-r border-[#e0e3e5] align-middle text-center w-35 bg-white">
+                                        <div className={`font-bold ${isToday ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>
+                                                            {dayName}
+                                                        </div>
+                                                        <div className={`text-[13px] ${isToday ? 'text-[#0061a5]' : 'text-[#74777f]'}`}>
+                                                            {dateStr}
+                                                        </div>
+                                                    </td>
+                                                    <td colSpan={5} className="p-4 align-middle text-center text-[#74777f] text-[13px]">
+                                                        No classes scheduled
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }
+
+                                        return sessions.map((session, sIndex) => {
+                                            const shift = SHIFTS.find(s => s.startTime === session.startTime);
+                                            return (
+                                                <tr key={session.id} className="hover:bg-[#f8f9fa] transition-colors">
+                                                    {sIndex === 0 && (
+                                                        <td rowSpan={sessions.length} className="p-4 border-r border-[#e0e3e5] align-middle text-center bg-white w-35">
+                                                            <div className={`font-bold ${isToday ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>
+                                                                {dayName}
+                                                            </div>
+                                                            <div className={`text-[13px] ${isToday ? 'text-[#0061a5]' : 'text-[#74777f]'}`}>
+                                                                {dateStr}
+                                                            </div>
+                                                        </td>
+                                                    )}
+                                                    <td className="p-4 border-r border-[#e0e3e5] align-middle w-32.5">
+                                                        <div className="font-bold text-[#002045] text-[13px]">{shift?.label}</div>
+                                                        <div className="text-[12px] text-[#74777f] mt-0.5">{shift?.time}</div>
+                                                    </td>
+                                                    <td className="p-4 border-r border-[#e0e3e5] align-middle">
+                                                        <div className="font-bold text-[#002045] text-[14px]">{session.class}</div>
+                                                        <div className="text-[11px] font-bold text-[#0061a5] bg-[#e6f0fa] px-1.5 py-0.5 rounded w-fit mt-1">
+                                                            {session.session}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 border-r border-[#e0e3e5] align-middle w-40">
+                                                        <div className="flex items-center gap-1.5 text-[13px] text-[#43474e]">
+                                                            <MapPin className="w-3.5 h-3.5 text-[#74777f]" />
+                                                            <span className="font-medium">{session.room}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 border-r border-[#e0e3e5] align-middle w-45">
+                                                        <div className="flex items-center gap-1.5 text-[13px] text-[#43474e]">
+                                                            <User className="w-3.5 h-3.5 text-[#74777f]" />
+                                                            <span className="truncate max-w-35">{session.tutor}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 align-middle w-35">
+                                                        {attendanceBadge(session.attendance)}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        });
+                                    })}
+                                </tbody>
+                            </table>
+                        );
+                    })()}
                 </div>
             </div>
         </div>

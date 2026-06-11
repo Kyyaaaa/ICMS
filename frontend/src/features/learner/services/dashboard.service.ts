@@ -1,9 +1,9 @@
-import type { LearnerDashboardStats, LearnerUpcomingClass, LearnerAnnouncement } from '../types/dashboard';
+import type { LearnerDashboardStats, LearnerUpcomingClass, LearnerAnnouncement, LearnerPendingTask } from '../types/dashboard';
 
 const MOCK_STATS: LearnerDashboardStats = {
     activeClasses: 2,
-    unpaidInvoices: 1,
-    upcomingSessions: 4
+    attendanceRate: 95,
+    averageScore: 8.5
 };
 
 const MOCK_CLASSES: LearnerUpcomingClass[] = [
@@ -16,6 +16,11 @@ const MOCK_ANNOUNCEMENTS: LearnerAnnouncement[] = [
     { id: '3', title: 'System Maintenance', content: 'ICMS platform will be down for maintenance this Sunday at 2 AM.', timeAgo: '1 day ago', isUnread: false },
 ];
 
+const MOCK_TASKS: LearnerPendingTask[] = [
+    { id: '1', title: 'Complete Homework 3', courseName: 'IELTS Academic - Reading', dueDate: 'Due tomorrow', iconType: 'FileText', bg: 'bg-blue-50', color: 'text-blue-600', link: '/learner/classes/1' },
+    { id: '2', title: 'Pay Tuition Fee', courseName: 'IELTS Academic - Reading', dueDate: 'Due in 3 days', iconType: 'CreditCard', bg: 'bg-amber-50', color: 'text-amber-600', link: '/learner/payments' },
+];
+
 export const LearnerDashboardService = {
     getStats: async (): Promise<LearnerDashboardStats> => {
         return new Promise((resolve) => setTimeout(() => resolve(MOCK_STATS), 200));
@@ -25,5 +30,8 @@ export const LearnerDashboardService = {
     },
     getAnnouncements: async (): Promise<LearnerAnnouncement[]> => {
         return new Promise((resolve) => setTimeout(() => resolve(MOCK_ANNOUNCEMENTS), 200));
+    },
+    getPendingTasks: async (): Promise<LearnerPendingTask[]> => {
+        return new Promise((resolve) => setTimeout(() => resolve(MOCK_TASKS), 200));
     }
 };

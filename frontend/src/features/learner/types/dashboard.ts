@@ -1,7 +1,7 @@
 export interface LearnerDashboardStats {
     activeClasses: number;
-    unpaidInvoices: number;
-    upcomingSessions: number;
+    attendanceRate: number;
+    averageScore: number;
 }
 
 export interface LearnerUpcomingClass {
@@ -20,4 +20,15 @@ export interface LearnerAnnouncement {
     content: string;
     timeAgo: string;
     isUnread: boolean;
+}
+
+export interface LearnerPendingTask {
+    id: string;
+    title: string;
+    courseName?: string;
+    dueDate: string;
+    iconType: 'FileText' | 'CreditCard' | 'AlertCircle';
+    bg: string;
+    color: string;
+    link: string;
 }

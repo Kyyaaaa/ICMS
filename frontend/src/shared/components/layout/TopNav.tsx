@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, BookOpen, ChevronDown, Bell } from 'lucide-react';
+import { Search, BookOpen, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
@@ -61,22 +61,22 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
     };
 
     return (
-        <header className="bg-white/80 backdrop-blur-md text-[#002045] sticky top-0 shadow-sm border-b border-[#c4c6cf] flex justify-between items-center w-full px-4 lg:px-[32px] max-w-full mx-auto h-[80px] z-50 transition-all">
-            <div className="max-w-[1440px] mx-auto w-full flex justify-between items-center">
-                <div className="flex items-center gap-[64px]">
-                    <Link to="/homepage" className="text-[28px] leading-[32px] font-extrabold text-[#002045] tracking-tight flex items-center gap-2">
+        <header className="bg-white/80 backdrop-blur-md text-[#002045] sticky top-0 shadow-sm border-b border-[#c4c6cf] flex justify-between items-center w-full px-4 lg:px-8 max-w-full mx-auto h-20 z-50 transition-all">
+            <div className="max-w-360 mx-auto w-full flex justify-between items-center">
+                <div className="flex items-center gap-16">
+                    <Link to="/homepage" className="text-[28px] leading-8 font-extrabold text-[#002045] tracking-tight flex items-center gap-2">
                         <BookOpen className="w-8 h-8 text-[#0061a5]" />
                         ICMS
                     </Link>
-                    <nav className="hidden md:flex gap-[40px]">
+                    <nav className="hidden md:flex gap-10">
                         <Link className="text-[16px] font-semibold text-[#43474e] hover:text-[#0061a5] transition-colors duration-200" to="/homepage">Home</Link>
                         <Link className="text-[16px] font-semibold text-[#43474e] hover:text-[#0061a5] transition-colors duration-200" to="/courses">Courses</Link>
                     </nav>
                 </div>
-                <div className="flex items-center gap-[16px] lg:gap-[24px]">
+                <div className="flex items-center gap-4 lg:gap-6">
                     <div className="relative hidden lg:block">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5" />
-                        <input className="pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#c4c6cf] rounded-full text-[14px] leading-[20px] focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 w-64 transition-all" placeholder="Search courses..." type="text" />
+                        <input className="pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#c4c6cf] rounded-full text-[14px] leading-5 focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 w-64 transition-all" placeholder="Search courses..." type="text" />
                     </div>
 
                     {/* Notification Bell */}
@@ -93,12 +93,12 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
 
                         {/* Notification Dropdown */}
                         {showNotifications && (
-                            <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-[#e0e3e5] overflow-hidden flex flex-col z-[100] animate-fade-in">
+                            <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-[#e0e3e5] overflow-hidden flex flex-col z-100 animate-fade-in">
                                 <div className="px-4 py-3 border-b border-[#e0e3e5] bg-[#f7fafc] flex justify-between items-center">
                                     <h4 className="font-bold text-[#002045]">Notifications</h4>
                                     <span className="text-[12px] text-[#0061a5] font-semibold cursor-pointer hover:underline" onClick={markAllAsRead}>Mark all as read</span>
                                 </div>
-                                <div className="max-h-[300px] overflow-y-auto">
+                                <div className="max-h-75 overflow-y-auto">
                                     {notifications.length > 0 ? notifications.map(notif => (
                                         <div key={notif.id} className={`px-4 py-3 border-b border-[#f1f4f6] hover:bg-[#f8f9fa] cursor-pointer transition-colors ${!notif.read ? 'bg-[#f0f7ff]' : ''}`}>
                                             <div className="flex justify-between items-start mb-1">
@@ -124,27 +124,26 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
                         )}
                     </div>
 
-                    <div className="flex gap-[16px] pl-[16px] lg:pl-[24px] border-l border-[#c4c6cf] items-center">
+                    <div className="flex gap-4 pl-4 lg:pl-6 border-l border-[#c4c6cf] items-center">
                         {isLoggedIn ? (
                             <div className="relative">
-                                <div className="flex items-center gap-[12px] cursor-pointer hover:bg-[#f1f4f6] py-1.5 px-3 rounded-full transition-colors" onClick={() => setShowProfileMenu(!showProfileMenu)} title="Profile Menu">
-                                    <div className="w-[40px] h-[40px] bg-[#0061a5] rounded-full flex items-center justify-center text-white font-bold shadow-sm border-2 border-white overflow-hidden">
+                                <div className="flex items-center gap-3 cursor-pointer hover:bg-[#f1f4f6] py-1.5 px-3 rounded-full transition-colors" onClick={() => setShowProfileMenu(!showProfileMenu)} title="Profile Menu">
+                                    <div className="hidden md:flex flex-col text-right">
+                                        <span className="text-[14px] font-bold text-[#002045] leading-tight">{typeof userInfo?.full_name === 'string' ? userInfo.full_name : ''}</span>
+                                        <span className="text-[12px] text-[#43474e] leading-tight uppercase">{userRole}</span>
+                                    </div>
+                                    <div className="w-10 h-10 bg-[#0061a5] rounded-full flex items-center justify-center text-white font-bold shadow-sm border-2 border-white overflow-hidden">
                                         {typeof userInfo?.avatar_url === 'string' && userInfo.avatar_url ? (
                                             <img src={userInfo.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                                         ) : typeof userInfo?.full_name === 'string' ? (
                                             userInfo.full_name.charAt(0).toUpperCase()
                                         ) : ''}
                                     </div>
-                                    <div className="hidden md:flex flex-col text-left">
-                                        <span className="text-[14px] font-bold text-[#002045] leading-tight">{typeof userInfo?.full_name === 'string' ? userInfo.full_name : ''}</span>
-                                        <span className="text-[12px] text-[#43474e] leading-tight capitalize">{userRole.toLowerCase()}</span>
-                                    </div>
-                                    <ChevronDown className={`w-4 h-4 text-[#74777f] ml-1 hidden md:block transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} />
                                 </div>
 
                                 {/* Profile Dropdown Menu */}
                                 {showProfileMenu && (
-                                    <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-xl border border-[#e0e3e5] overflow-hidden flex flex-col z-[100] animate-fade-in">
+                                    <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-xl border border-[#e0e3e5] overflow-hidden flex flex-col z-100 animate-fade-in">
                                         <Link 
                                             to={`/${userRole.toLowerCase()}/dashboard`} 
                                             className="px-4 py-3 text-[14px] font-semibold text-[#002045] hover:bg-[#f1f4f6] transition-colors border-b border-[#f1f4f6]"
