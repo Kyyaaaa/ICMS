@@ -1,3 +1,4 @@
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
 import { useState } from 'react';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, BookOpen, CheckCircle2, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -47,7 +48,7 @@ const Register = () => {
                 setError(data.message || 'Registration failed');
                 return;
             }
-            alert('Registration successful! Please login.');
+            showAlertModal('Success', 'Registration successful! Please login.', 'success');
             window.location.href = '/login';
         } catch {
             setError('System error. Please try again later.');

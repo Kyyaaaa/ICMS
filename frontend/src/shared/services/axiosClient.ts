@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { showAlertModal } from '@/utils/modal';
 
 const axiosClient = axios.create({
     baseURL: 'http://localhost:5000/api',
@@ -143,8 +144,9 @@ axiosClient.interceptors.response.use(
 
         // Bắt lỗi 403: Tài khoản bị khóa (Banned)
         if (error.response?.status === 403 && error.response?.data?.message === 'Account is deactivated') {
-            alert('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để biết thêm chi tiết.');
-            forceLogout();
+            showAlertModal('Account Locked', 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để biết thêm chi tiết.', 'error').then(() => {
+                forceLogout();
+            });
             return Promise.reject(error);
         }
 

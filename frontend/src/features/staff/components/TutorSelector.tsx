@@ -1,3 +1,4 @@
+import { showConfirmModal } from '@/utils/modal';
 import { useState } from 'react';
 import { Search, Lock, ChevronDown } from 'lucide-react';
 import type { TutorAvailabilityProfile } from '../types/tutor-availability';
@@ -16,9 +17,10 @@ export const TutorSelector = ({ tutors, selectedTutorId, hasUnsavedChanges, onSe
     const selectedTutor = tutors.find(t => t.id === selectedTutorId);
     const filteredTutors = tutors.filter(t => t.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const handleSelect = (tutorId: string) => {
+    const handleSelect = async (tutorId: string) => {
         if (hasUnsavedChanges) {
-            if (!window.confirm('You have unsaved changes. Are you sure you want to discard them and switch tutor?')) {
+            const isConfirmed = await showConfirmModal('Discard Changes', 'You have unsaved changes. Are you sure you want to discard them and switch tutor?', 'warning');
+            if (!isConfirmed) {
                 return;
             }
         }

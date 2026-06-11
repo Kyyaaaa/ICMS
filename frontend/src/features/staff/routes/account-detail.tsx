@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { validatePassword, validatePhoneNumber, validateFullName } from '@/shared/lib/utils';
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
 
 const StaffAccountDetail = () => {
     const { id } = useParams();
@@ -63,7 +64,7 @@ const StaffAccountDetail = () => {
                         avatar_url: data.data.avatar_url || ''
                     }));
                 } else {
-                    alert(data.message || 'Failed to fetch account details');
+                    showAlertModal('Error', data.message || 'Failed to fetch account details', 'error');
                 }
             } catch (error) {
                 console.error('Error fetching account:', error);
@@ -79,12 +80,12 @@ const StaffAccountDetail = () => {
         e.preventDefault();
         
         if (account.full_name && !validateFullName(account.full_name)) {
-            alert('Invalid full name. Must be 2-50 characters and contain only letters and spaces.');
+            showAlertModal('Error', 'Invalid full name. Must be 2-50 characters and contain only letters and spaces.', 'error');
             return;
         }
         // Validate phone number format before submitting
         if (account.phone_number && !validatePhoneNumber(account.phone_number)) {
-            alert('Invalid phone number. Must be a valid 10-digit Vietnamese phone number starting with 03, 05, 07, 08, or 09.');
+            showAlertModal('Error', 'Invalid phone number. Must be a valid 10-digit Vietnamese phone number starting with 03, 05, 07, 08, or 09.', 'error');
             return;
         }
         if (account.date_of_birth) {
@@ -92,23 +93,29 @@ const StaffAccountDetail = () => {
             const today = new Date();
             
             if (isNaN(dob.getTime())) {
-                alert('Invalid Date of Birth format. Please use a valid date.');
+                showAlertModal('Error', 'Invalid Date of Birth format. Please use a valid date.', 'error');
                 return;
             }
             
             const dateString = account.date_of_birth;
             if (dob.toISOString().split('T')[0] !== dateString) {
-                alert('Invalid Date of Birth. The date does not exist (e.g., February 30th).');
+                showAlertModal('Error', 'Invalid Date of Birth. The date does not exist (e.g., February 30th).', 'error');
                 return;
             }
 
             if (dob > today) {
-                alert('Invalid Date of Birth. Future dates are not allowed.');
+                showAlertModal('Error', 'Invalid Date of Birth. Future dates are not allowed.', 'error');
                 return;
             }
         }
         setIsSaving(true);
         try {
+            const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to save these profile changes?', 'warning');
+            if (!isConfirmed) {
+                setIsSaving(false);
+                return;
+            }
+
             const token = Cookies.get('access_token');
             const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
                 method: 'PATCH',
@@ -125,10 +132,10 @@ const StaffAccountDetail = () => {
                 setIsSaved(true);
                 setTimeout(() => setIsSaved(false), 3000);
             } else {
-                alert(data.message || 'Failed to save profile.');
+                showAlertModal('Error', data.message || 'Failed to save profile.', 'error');
             }
         } catch {
-            alert('An error occurred. Please try again.');
+            showAlertModal('Error', 'An error occurred. Please try again.', 'error');
         } finally {
             setIsSaving(false);
         }
@@ -137,16 +144,22 @@ const StaffAccountDetail = () => {
     const handleSavePassword = async (e: React.FormEvent) => {
         e.preventDefault();
         if (account.password !== account.confirm_password) {
-            alert('Passwords do not match!');
+            showAlertModal('Error', 'Passwords do not match!', 'error');
             return;
         }
         if (!validatePassword(account.password)) {
-            alert('Invalid password.\nRequirements: 8-15 characters, including at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.');
+            showAlertModal('Error', 'Invalid password.\nRequirements: 8-15 characters, including at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.', 'error');
             return;
         }
 
         setIsSavingPassword(true);
         try {
+            const isConfirmed = await showConfirmModal('Confirm Password Reset', 'Are you sure you want to reset the password for this account?', 'warning');
+            if (!isConfirmed) {
+                setIsSavingPassword(false);
+                return;
+            }
+
             const token = Cookies.get('access_token');
             const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
                 method: 'PATCH',
@@ -162,10 +175,10 @@ const StaffAccountDetail = () => {
                 setIsPasswordSaved(true);
                 setTimeout(() => setIsPasswordSaved(false), 3000);
             } else {
-                alert(data.message || 'Failed to update password.');
+                showAlertModal('Error', data.message || 'Failed to update password.', 'error');
             }
         } catch {
-            alert('An error occurred. Please try again.');
+            showAlertModal('Error', 'An error occurred. Please try again.', 'error');
         } finally {
             setIsSavingPassword(false);
         }

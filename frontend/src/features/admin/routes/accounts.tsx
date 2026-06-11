@@ -7,6 +7,7 @@ import { AccountsFilters } from '../components/AccountsFilters';
 import { AccountsTable } from '../components/AccountsTable';
 import { AccountFormModal } from '../components/AccountFormModal';
 import Cookies from 'js-cookie';
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
 
 const AdminAccounts = () => {
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -106,18 +107,22 @@ const AdminAccounts = () => {
     }, [searchQuery, filterRole, currentPage]);
 
     const handleToggleBan = async (id: string, currentStatus: boolean) => {
+        const actionText = currentStatus ? 'ban' : 'unban';
+        const isConfirmed = await showConfirmModal('Confirm Action', `Are you sure you want to ${actionText} this account?`, 'warning');
+        if (!isConfirmed) return;
+
         try {
             const data = await AccountsService.toggleBan(id, !currentStatus);
             if (data && typeof data === 'object' && 'success' in data && data.success) {
                 setAccounts(accounts.map(acc => acc.id === id ? { ...acc, status: currentStatus ? 'BANNED' : 'ACTIVE' } : acc));
-                alert(`Account successfully ${currentStatus ? 'banned' : 'unbanned'}.`);
+                showAlertModal('Success', `Account successfully ${currentStatus ? 'banned' : 'unbanned'}.`, 'success');
             } else {
-                alert((data as { message?: string })?.message || 'Failed to update status');
+                showAlertModal('Notification', (data as { message?: string })?.message || 'Failed to update status', 'info');
             }
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } }; message?: string };
             const errorMessage = err?.response?.data?.message || err?.message || 'An error occurred while updating status';
-            alert(`Failed to update status: ${errorMessage}`);
+            showAlertModal('Error', `Failed to update status: ${errorMessage}`, 'error');
         }
     };
 
@@ -125,12 +130,12 @@ const AdminAccounts = () => {
         e.preventDefault();
         
         if (formData.full_name && !validateFullName(formData.full_name)) {
-            alert('Invalid full name. Must be 2-50 characters and contain only letters and spaces.');
+            showAlertModal('Error', 'Invalid full name. Must be 2-50 characters and contain only letters and spaces.', 'error');
             return;
         }
 
         if (formData.password && !validatePassword(formData.password)) {
-            alert('Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character.');
+            showAlertModal('Notification', 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character.', 'info');
             return;
         }
 
@@ -141,12 +146,19 @@ const AdminAccounts = () => {
                 if (data && typeof data === 'object' && 'success' in data && data.success) {
                     setIsModalOpen(false);
                     fetchAccounts();
-                    alert('Account created successfully!');
+                    showAlertModal('Success', 'Account created successfully!', 'success');
                 } else {
-                    alert((data as { message?: string })?.message || 'Failed to create account');
+                    showAlertModal('Notification', (data as { message?: string })?.message || 'Failed to create account', 'info');
                 }
             } else {
                 if (!formData.id) return;
+
+                const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to save these changes?', 'warning');
+                if (!isConfirmed) {
+                    setIsSaving(false);
+                    return;
+                }
+
                 const updatePayload: Record<string, unknown> = {
                     full_name: formData.full_name,
                     email: formData.email,
@@ -182,17 +194,17 @@ const AdminAccounts = () => {
                     
                     // Use setTimeout so the UI can update before the alert blocks the thread
                     setTimeout(() => {
-                        alert('Account updated successfully!');
+                        showAlertModal('Success', 'Account updated successfully!', 'success');
                     }, 100);
                 } else {
-                    alert((data as { message?: string })?.message || 'Failed to update account');
+                    showAlertModal('Notification', (data as { message?: string })?.message || 'Failed to update account', 'info');
                 }
             }
         } catch (error: unknown) {
             console.error('Save account error:', error);
             const err = error as { response?: { data?: { message?: string } }; message?: string };
             const errorMessage = err?.response?.data?.message || err?.message || 'An error occurred while saving account';
-            alert(`An error occurred while saving account: ${errorMessage}`);
+            showAlertModal('Error', `An error occurred while saving account: ${errorMessage}`, 'error');
         } finally {
             setIsSaving(false);
         }

@@ -1,3 +1,4 @@
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
 import { useState, useEffect } from 'react';
 import { Megaphone, Plus, Filter, Search } from 'lucide-react';
 import type { Announcement, AudienceScope } from '../types/announcement';
@@ -41,8 +42,11 @@ const AdminAnnouncements = () => {
     };
 
     const handleActualSave = async (formData: Omit<Announcement, 'id' | 'date' | 'status'> & { publishMode: 'now' | 'schedule' }) => {
+        const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to save this announcement?', 'warning');
+        if (!isConfirmed) return;
+
         if (formData.publishMode === 'schedule' && !formData.scheduledFor) {
-            alert("Please select a date and time for the scheduled announcement.");
+            showAlertModal('Notification', "Please select a date and time for the scheduled announcement.", 'info');
             return;
         }
 
@@ -80,7 +84,8 @@ const AdminAnnouncements = () => {
     };
 
     const handleDelete = async (id: string) => {
-        if (window.confirm("Are you sure you want to delete this announcement?")) {
+        const isConfirmed = await showConfirmModal('Confirm Delete', 'Are you sure you want to delete this announcement?', 'warning');
+        if (isConfirmed) {
             await AnnouncementsService.deleteAnnouncement(id);
             setAnnouncements(announcements.filter(ann => ann.id !== id));
         }

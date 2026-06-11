@@ -23,7 +23,8 @@ const AdminCourses = () => {
     }, []);
 
     const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this course?')) {
+        const isConfirmed = await showConfirmModal('Confirm Delete', 'Are you sure you want to delete this course?', 'warning');
+        if (isConfirmed) {
             const success = await CoursesService.deleteCourse(id);
             if (success) {
                 setCourses(courses.filter(c => c.id !== id));

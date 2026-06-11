@@ -319,4 +319,38 @@ Khi `access_token` hết hạn, hệ thống tự động dùng `refresh_token` 
     3. Trình duyệt A: Người dùng click vào một chức năng bất kỳ trên giao diện có gọi API (VD: mở danh sách khóa học).
     4. **Kỳ vọng:** Trình duyệt A hiển thị cảnh báo "Tài khoản bị khóa" và tự động văng về màn hình `/login`. Không thể truy cập ngược lại vào Dashboard.
 
+---
+
+## 🖼️ 9. Kế hoạch Thay thế `alert()` bằng Global Modal & Bổ sung Confirm Modal
+
+### 🎯 Mục tiêu
+- Loại bỏ toàn bộ `alert()` thô sơ của trình duyệt ở hơn 40 vị trí trên frontend.
+- Cung cấp một UI Modal đồng bộ, thẩm mỹ (Alert Modal chỉ có nút Đóng) cho các thông báo thành công/thất bại chung.
+- Bổ sung thêm cơ chế **Confirm Modal** (Xác nhận Đồng ý / Hủy) trước khi thực hiện các hành động có tính thay đổi dữ liệu như: Sửa, Xóa thông tin (hoặc Ban tài khoản).
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-15: (Không cần thao tác)**
+  - Việc thay thế giao diện alert và luồng xác nhận hành vi hoàn toàn nằm ở khâu tương tác người dùng (Client-side), logic Backend và API không bị ảnh hưởng.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-16: Xây dựng Global Modal Component**
+  - Tạo file `src/shared/components/ui/GlobalModal.tsx` (dùng TailwindCSS).
+  - Hỗ trợ 2 chế độ: `alert` (1 nút) và `confirm` (2 nút Đồng ý / Hủy).
+  - Lắng nghe event `SHOW_GLOBAL_MODAL` (truyền thông số: title, message, mode, callback).
+  - Import và gắn `<GlobalModal />` vào root layout (`App.tsx`).
+- `[x]` **FE-17: Cung cấp Utility Functions**
+  - Tạo file `src/utils/modal.ts`.
+  - Viết hàm `showAlertModal(title, message)`.
+  - Viết hàm `showConfirmModal(title, message): Promise<boolean>` (Dùng Promise để dễ dàng `await` kết quả Yes/No trước khi gọi API).
+- `[x]` **FE-18: Triển khai thay thế thực tế**
+  - Search và xóa bỏ toàn bộ `alert(...)` trong mã nguồn frontend.
+  - Thay thế các đoạn hiển thị thông báo lỗi/thành công bằng `showAlertModal()`.
+  - Chèn thêm luồng `const isConfirmed = await showConfirmModal(...)` vào trước các đoạn mã gọi API sửa/xóa/ban tài khoản. Nếu `isConfirmed === false` thì `return` thoát hàm.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-15: Manual Test luồng hiển thị Modal**
+  - Kịch bản 1: Mở màn hình Profile, cố ý nhập sai định dạng số điện thoại -> Alert Modal thông báo lỗi bật lên đúng UI chuẩn.
+  - Kịch bản 2: Bấm nút khóa (ban) một tài khoản -> Bật Confirm Modal hỏi xác nhận. Bấm "Hủy" -> Không có API nào được gọi. Bấm "Đồng ý" -> API khóa được gọi thành công, sau đó bật Alert Modal báo thành công.
+  - Kịch bản 3: Luồng bị kick ra khi tài khoản dính Ban -> Trình duyệt phải bật Alert Modal "Tài khoản bị khóa" UI chuẩn trước khi redirect về `/login`.
+
 

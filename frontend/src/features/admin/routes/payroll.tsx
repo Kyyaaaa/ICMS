@@ -1,3 +1,4 @@
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
 import { useState, useMemo, useEffect } from 'react';
 import { Search, Calculator, Settings, FileText } from 'lucide-react';
 
@@ -89,6 +90,9 @@ const AdminPayroll = () => {
     };
 
     const handleSavePayroll = async () => {
+        const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to update this payroll record?', 'warning');
+        if (!isConfirmed) return;
+
         if (selectedRecord) {
             const updated = { ...selectedRecord, ...formData } as PayrollRecord;
             await PayrollService.updateRecord(updated);
@@ -103,6 +107,9 @@ const AdminPayroll = () => {
     };
 
     const handleSaveConfig = async () => {
+        const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to update this salary configuration?', 'warning');
+        if (!isConfirmed) return;
+
         if (selectedConfig) {
             const updated = { ...selectedConfig, ...configFormData } as EmployeeSalaryConfig;
             await PayrollService.updateConfig(updated);
@@ -112,11 +119,14 @@ const AdminPayroll = () => {
     };
 
     const handleGeneratePayroll = async () => {
+        const isConfirmed = await showConfirmModal('Confirm Generation', `Are you sure you want to generate payroll for ${selectedMonth}?`, 'warning');
+        if (!isConfirmed) return;
+
         const currentDate = new Date();
         const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
         
         if (selectedMonth >= currentYearMonth) {
-            alert(`Error: Cannot finalize payroll for ${selectedMonth}!\nYou can only generate payroll for past months.`);
+            showAlertModal('Error', `Error: Cannot finalize payroll for ${selectedMonth}!\nYou can only generate payroll for past months.`, 'error');
             return;
         }
 
@@ -146,9 +156,9 @@ const AdminPayroll = () => {
         if (newRecords.length > 0) {
             await PayrollService.createRecords(newRecords);
             setPayrolls([...payrolls, ...newRecords]);
-            alert(`Success! Generated ${newRecords.length} payslips for ${selectedMonth}.`);
+            showAlertModal('Success', `Success! Generated ${newRecords.length} payslips for ${selectedMonth}.`, 'success');
         } else {
-            alert(`All employees already have payslips for ${selectedMonth}.`);
+            showAlertModal('Notification', `All employees already have payslips for ${selectedMonth}.`, 'info');
         }
     };
 

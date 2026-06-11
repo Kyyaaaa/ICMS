@@ -92,7 +92,8 @@ const AdminDiscountCodes = () => {
     };
 
     const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this discount code?')) {
+        const isConfirmed = await showConfirmModal('Confirm Delete', 'Are you sure you want to delete this discount code?', 'warning');
+        if (isConfirmed) {
             await AdminDiscountCodesService.deleteDiscountCode(id);
             setCodes(codes.filter(c => c.id !== id));
         }

@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { validatePassword, validatePhoneNumber, validateFullName } from '@/shared/lib/utils';
 import { ProfileService } from '@/shared/services/profile.service';
 import type { ProfileData } from '@/shared/services/profile.service';
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
 
 interface ProfileViewProps {
     title?: string;
@@ -82,12 +83,12 @@ export const ProfileView = ({
         e.preventDefault();
 
         if (account.full_name && !validateFullName(account.full_name)) {
-            alert('Invalid full name. Must be 2-50 characters and contain only letters and spaces.');
+            showAlertModal('Error', 'Invalid full name. Must be 2-50 characters and contain only letters and spaces.', 'error');
             return;
         }
         
         if (account.phone_number && !validatePhoneNumber(account.phone_number)) {
-            alert('Invalid phone number. Must be a valid 10-digit Vietnamese phone number starting with 03, 05, 07, 08, or 09.');
+            showAlertModal('Error', 'Invalid phone number. Must be a valid 10-digit Vietnamese phone number starting with 03, 05, 07, 08, or 09.', 'error');
             return;
         }
         
@@ -95,22 +96,27 @@ export const ProfileView = ({
             const dob = new Date(account.date_of_birth);
             const today = new Date();
             if (isNaN(dob.getTime())) {
-                alert('Invalid Date of Birth format. Please use a valid date.');
+                showAlertModal('Error', 'Invalid Date of Birth format. Please use a valid date.', 'error');
                 return;
             }
             const dateString = account.date_of_birth;
             if (dob.toISOString().split('T')[0] !== dateString) {
-                alert('Invalid Date of Birth. The date does not exist (e.g., February 30th).');
+                showAlertModal('Error', 'Invalid Date of Birth. The date does not exist (e.g., February 30th).', 'error');
                 return;
             }
             if (dob > today) {
-                alert('Invalid Date of Birth. Future dates are not allowed.');
+                showAlertModal('Error', 'Invalid Date of Birth. Future dates are not allowed.', 'error');
                 return;
             }
         }
         
         setIsSavingProfile(true);
         try {
+            const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to save these profile changes?', 'warning');
+            if (!isConfirmed) {
+                setIsSavingProfile(false);
+                return;
+            }
             const data = await ProfileService.updateProfile(account.id, {
                 full_name: account.full_name,
                 phone_number: account.phone_number,
@@ -133,11 +139,11 @@ export const ProfileView = ({
                 setIsProfileSuccess(true);
                 setTimeout(() => setIsProfileSuccess(false), 3000);
             } else {
-                alert((data as { message?: string })?.message || 'Failed to save profile.');
+                showAlertModal('Notification', (data as { message?: string })?.message || 'Failed to save profile.', 'info');
             }
         } catch (error) {
             console.error('Error saving profile:', error);
-            alert('An error occurred. Please try again.');
+            showAlertModal('Error', 'An error occurred. Please try again.', 'error');
         } finally {
             setIsSavingProfile(false);
         }
@@ -146,6 +152,12 @@ export const ProfileView = ({
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        const isConfirmed = await showConfirmModal('Confirm Avatar', 'Are you sure you want to update your avatar?', 'warning');
+        if (!isConfirmed) {
+            e.target.value = '';
+            return;
+        }
 
         setIsUploadingAvatar(true);
         try {
@@ -166,14 +178,14 @@ export const ProfileView = ({
                         window.location.reload();
                     }
                 } else {
-                    alert('Failed to save avatar to profile.');
+                    showAlertModal('Error', 'Failed to save avatar to profile.', 'error');
                 }
             } else {
-                alert('Upload failed: ' + ((uploadData as { message?: string }).message || 'Unknown error'));
+                showAlertModal('Error', 'Upload failed: ' + ((uploadData as { message?: string })?.message || 'Unknown error'), 'error');
             }
         } catch (error) {
             console.error('Avatar upload error:', error);
-            alert('An error occurred during upload.');
+            showAlertModal('Error', 'An error occurred during upload.', 'error');
         } finally {
             setIsUploadingAvatar(false);
         }
@@ -182,15 +194,20 @@ export const ProfileView = ({
     const handleSavePassword = async (e: React.FormEvent) => {
         e.preventDefault();
         if (passwords.newPassword !== passwords.confirmPassword) {
-            alert('New passwords do not match!');
+            showAlertModal('Error', 'New passwords do not match!', 'error');
             return;
         }
         if (!validatePassword(passwords.newPassword)) {
-            alert('Invalid new password.\\nRequirements: 8-15 characters, including at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.');
+            showAlertModal('Error', 'Invalid new password.\\nRequirements: 8-15 characters, including at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.', 'error');
             return;
         }
         setIsSavingPassword(true);
         try {
+            const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to update your password? You will be logged out after a successful update.', 'warning');
+            if (!isConfirmed) {
+                setIsSavingPassword(false);
+                return;
+            }
             const data = await ProfileService.updatePassword(account.id, {
                 old_password: passwords.oldPassword,
                 password: passwords.newPassword
@@ -206,10 +223,10 @@ export const ProfileView = ({
                     window.location.href = '/homepage';
                 }, 2000);
             } else {
-                alert((data as { message?: string })?.message || 'Failed to update password.');
+                showAlertModal('Notification', (data as { message?: string })?.message || 'Failed to update password.', 'info');
             }
         } catch {
-            alert('An error occurred. Please try again.');
+            showAlertModal('Error', 'An error occurred. Please try again.', 'error');
         } finally {
             setIsSavingPassword(false);
         }

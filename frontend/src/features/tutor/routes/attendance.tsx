@@ -80,9 +80,10 @@ const ClassAttendance = () => {
         }));
     };
 
-    const handleSubmitAttendance = () => {
+    const handleSubmitAttendance = async () => {
         if (!selectedSession) return;
-        if (window.confirm('Are you sure you want to submit this attendance record? You will not be able to change it later without staff approval.')) {
+        const isConfirmed = await showConfirmModal('Confirm Submission', 'Are you sure you want to submit this attendance record? You will not be able to change it later without staff approval.', 'warning');
+        if (isConfirmed) {
             setSessions(prev => prev.map(s => 
                 s.id === selectedSession.id ? { ...s, status: 'submitted' } : s
             ));

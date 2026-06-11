@@ -38,7 +38,8 @@ const AvailabilityRegistration = () => {
     };
 
     const handleSubmit = async () => {
-        if (!window.confirm("Are you sure you want to submit? Once submitted, your schedule will be locked to prevent changes during the scheduling process.")) {
+        const isConfirmed = await showConfirmModal("Confirm Submission", "Are you sure you want to submit? Once submitted, your schedule will be locked to prevent changes during the scheduling process.", "warning");
+        if (!isConfirmed) {
             return;
         }
         setIsSubmitting(true);

@@ -59,7 +59,8 @@ const AdminClassrooms = () => {
     };
 
     const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this room?')) {
+        const isConfirmed = await showConfirmModal('Confirm Delete', 'Are you sure you want to delete this room?', 'warning');
+        if (isConfirmed) {
             const success = await ClassroomsService.deleteClassroom(id);
             if (success) {
                 setRooms(rooms.filter(r => r.id !== id));

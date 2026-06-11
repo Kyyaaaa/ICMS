@@ -6,6 +6,7 @@ import { ClassDetailService } from '../services/class-detail.service';
 import { ClassScheduleTab } from '../components/ClassScheduleTab';
 import { ClassStudentsTab } from '../components/ClassStudentsTab';
 import { EditSessionModal } from '../components/EditSessionModal';
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
 
 const StaffClassDetail = () => {
     const { id } = useParams();
@@ -43,6 +44,9 @@ const StaffClassDetail = () => {
     };
 
     const handleSaveSession = async (updatedSession: ClassSession) => {
+        const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to update this session schedule?', 'warning');
+        if (!isConfirmed) return;
+
         await ClassDetailService.updateSession(updatedSession);
         setScheduleData(scheduleData.map(s => s.session === updatedSession.session ? updatedSession : s));
         setIsEditModalOpen(false);
@@ -68,11 +72,12 @@ const StaffClassDetail = () => {
                         <Edit className="w-4 h-4" /> Edit Info
                     </Link>
                     <button 
-                            onClick={() => {
+                            onClick={async () => {
                                 if (enrolledStudents > 0) {
-                                    alert('Cannot delete this class because there are students enrolled. Please remove all students first.');
+                                    showAlertModal('Error', 'Cannot delete this class because there are students enrolled. Please remove all students first.', 'error');
                                 } else {
-                                    if (window.confirm('Are you sure you want to delete this class?')) {
+                                    const isConfirmed = await showConfirmModal('Confirm Delete', 'Are you sure you want to delete this class?', 'warning');
+                                    if (isConfirmed) {
                                         // Delete logic
                                     }
                                 }
