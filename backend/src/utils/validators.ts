@@ -16,6 +16,7 @@ export const validatePhoneNumber = (phone: string) => {
 };
 
 export const validateFullName = (fullName: string) => {
+  if (fullName.trim().length < 2) return false;
   const regex = /^[\p{L}\s]{2,50}$/u;
   return regex.test(fullName);
 };

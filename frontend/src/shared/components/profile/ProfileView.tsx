@@ -130,7 +130,7 @@ export const ProfileView = ({
                 return;
             }
             const data = await ProfileService.updateProfile(account.id, {
-                full_name: account.full_name,
+                full_name: account.full_name.trim(),
                 phone_number: account.phone_number,
                 date_of_birth: account.date_of_birth,
                 gender: account.gender
@@ -142,7 +142,7 @@ export const ProfileView = ({
                     const userInfo = JSON.parse(userInfoStr);
                     const updatedInfo = {
                         ...userInfo,
-                        full_name: account.full_name,
+                        full_name: account.full_name.trim(),
                         phone_number: account.phone_number,
                         date_of_birth: account.date_of_birth,
                         gender: account.gender
@@ -360,7 +360,7 @@ export const ProfileView = ({
                                     <div className="relative">
                                         <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                         <select value={account.gender?.toUpperCase() || ''} onChange={e => setAccount({...account, gender: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e] appearance-none" required>
-                                            <option value="" disabled hidden>Select Gender</option>
+                                            <option value="" disabled style={{ display: 'none' }}>Select Gender</option>
                                             <option value="MALE">Male</option>
                                             <option value="FEMALE">Female</option>
                                             <option value="OTHER">Other</option>

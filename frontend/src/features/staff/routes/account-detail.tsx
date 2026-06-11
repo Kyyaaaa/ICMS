@@ -121,7 +121,7 @@ const StaffAccountDetail = () => {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({
-                    full_name: account.full_name,
+                    full_name: account.full_name.trim(),
                     phone_number: account.phone_number,
                     date_of_birth: account.date_of_birth,
                     gender: account.gender
@@ -308,7 +308,7 @@ const StaffAccountDetail = () => {
                                             className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors appearance-none ${!canEdit ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                                             disabled={!canEdit}
                                         >
-                                            <option value="">Select Gender</option>
+                                            <option value="" disabled style={{ display: 'none' }}>Select Gender</option>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
                                             <option value="Other">Other</option>

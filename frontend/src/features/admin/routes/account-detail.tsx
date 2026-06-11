@@ -119,7 +119,7 @@ const AdminAccountDetail = () => {
             }
 
             const data = await AccountsService.updateAccount(id, {
-                full_name: account.full_name,
+                full_name: account.full_name.trim(),
                 phone_number: account.phone_number,
                 date_of_birth: account.date_of_birth,
                 gender: account.gender
@@ -133,7 +133,7 @@ const AdminAccountDetail = () => {
                         if (userInfo.id === id) {
                             const updatedUserInfo = {
                                 ...userInfo,
-                                full_name: account.full_name,
+                                full_name: account.full_name.trim(),
                             };
                             Cookies.set('user_info', JSON.stringify(updatedUserInfo), { path: '/' });
                             window.dispatchEvent(new Event('profileUpdated'));
@@ -322,7 +322,7 @@ const AdminAccountDetail = () => {
                                             className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors appearance-none ${!canEdit ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                                             disabled={!canEdit}
                                         >
-                                            <option value="" disabled hidden>Select Gender</option>
+                                            <option value="" disabled style={{ display: 'none' }}>Select Gender</option>
                                             <option value="MALE">Male</option>
                                             <option value="FEMALE">Female</option>
                                             <option value="OTHER">Other</option>
