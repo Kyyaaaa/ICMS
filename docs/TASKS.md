@@ -292,4 +292,31 @@ Khi `access_token` hết hạn, hệ thống tự động dùng `refresh_token` 
 - `[x]` **QA-13: Cập nhật API Request File**
   - Bổ sung các kịch bản test thủ công vào file `account.http` để minh họa việc cố tình ban/sửa thông tin người cùng cấp sẽ bị chặn lại.
 
+---
+
+## 🛑 8. Kế hoạch xử lý Force Logout cho Tài khoản bị Khóa (Banned)
+
+### 🎯 Mục tiêu
+Đảm bảo khi một tài khoản bị Admin (hoặc Staff) khóa (Ban), nếu tài khoản đó vẫn đang duy trì phiên đăng nhập ở một trình duyệt khác, họ sẽ lập tức bị văng ra ngoài (`/login`) ngay khi thực hiện bất kỳ thao tác nào gọi tới API (giống hệt hành vi khi hệ thống phát hiện phiên đăng nhập hết hạn).
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-14: (Không cần code thêm)**
+  - Hiện tại `auth.middleware.ts` đã chặn và trả về `403 Forbidden` cùng dòng thông báo `"Account is deactivated"` rất chuẩn xác. Phần này Backend đã hoàn thành.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-15: Cập nhật Axios Interceptor (`axiosClient.ts`)**
+  - Tại `axiosClient.interceptors.response.use`, bổ sung logic bắt lỗi `403`.
+  - Nếu điều kiện `error.response?.status === 403` và `error.response?.data?.message === 'Account is deactivated'` thỏa mãn:
+    - Bật thông báo cho người dùng (ví dụ: `alert('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để biết thêm chi tiết.')` hoặc hiển thị Modal cảnh báo).
+    - Lập tức gọi hàm `forceLogout()` để xóa trắng cookie và điều hướng người dùng về `/login`.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-14: Test End-to-End luồng Force Logout**
+  - Cần thực hiện kiểm thử thủ công với 2 phiên bản trình duyệt độc lập.
+  - **Kịch bản:**
+    1. Trình duyệt A: Đăng nhập bằng tài khoản Learner/Tutor (trạng thái ACTIVE).
+    2. Trình duyệt B: Đăng nhập bằng Admin, tiến hành đổi status của Learner/Tutor bên trên thành `BANNED`.
+    3. Trình duyệt A: Người dùng click vào một chức năng bất kỳ trên giao diện có gọi API (VD: mở danh sách khóa học).
+    4. **Kỳ vọng:** Trình duyệt A hiển thị cảnh báo "Tài khoản bị khóa" và tự động văng về màn hình `/login`. Không thể truy cập ngược lại vào Dashboard.
+
 

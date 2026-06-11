@@ -141,6 +141,13 @@ axiosClient.interceptors.response.use(
             }
         }
 
+        // Bắt lỗi 403: Tài khoản bị khóa (Banned)
+        if (error.response?.status === 403 && error.response?.data?.message === 'Account is deactivated') {
+            alert('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để biết thêm chi tiết.');
+            forceLogout();
+            return Promise.reject(error);
+        }
+
         // Các lỗi khác (400, 403, 500, ...) → trả về để nơi gọi tự xử lý
         return Promise.reject(error.response?.data || error);
     }
