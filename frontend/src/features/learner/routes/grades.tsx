@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookOpen, ChevronDown, ChevronUp, GraduationCap, Clock, MessageCircle, X, Info } from 'lucide-react';
+import { BookOpen, ChevronDown, GraduationCap, Clock, MessageCircle, X, Info } from 'lucide-react';
 
 // Mock Data để review UI
 const MOCK_COURSES = [

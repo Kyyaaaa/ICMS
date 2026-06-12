@@ -2,29 +2,33 @@ import { supabaseAdmin } from '../../configs/supabase';
 
 export class AccountRepository {
   /**
-   * Get all users from public.account
+   * Get all users from public.account with optional filtering
    */
-  static async getAllUsers(page: number = 1, limit: number = 50) {
+  static async listAccounts(callerRole: string, filterRole?: string, search?: string, page: number = 1, limit: number = 50) {
     const from = (page - 1) * limit;
-    const to = from + limit - 1;
-    
-    const { data, error, count } = await supabaseAdmin
+    const to = from + limit; // for slice later
+
+    let query = supabaseAdmin
       .from('account')
-      .select('*, roles(name)', { count: 'exact' })
-      .range(from, to)
-      .order('created_at', { ascending: false });
+      .select('*, roles!inner(name)')
+      .neq('email', 'admin@icms.edu.vn');
 
-    if (error) throw error;
-
-    if (data) {
-      data.forEach(item => {
-        if (item.roles && (item.roles as any).name) {
-          item.role = (item.roles as any).name;
-        }
-      });
+    if (callerRole === 'STAFF') {
+      query = query.in('roles.name', ['LEARNER', 'TUTOR']);
     }
 
-    return { data, total: count || 0 };
+    if (filterRole) {
+      query = query.eq('roles.name', filterRole.toUpperCase());
+    }
+
+    if (search) {
+      query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    
+    return data || [];
   }
 
   /**
@@ -51,7 +55,6 @@ export class AccountRepository {
    * Create a new user account (Admin/Staff only)
    */
   static async createUser(email: string, password: string, role: string, fullName: string, phoneNumber?: string) {
-    // 1. Create in Supabase Auth (DB trigger will automatically create the record in public.account)
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: email,
       password: password,
@@ -64,7 +67,6 @@ export class AccountRepository {
     });
     if (authError) throw authError;
 
-    // 2. Fetch from public.account
     const { data: accountData, error: accountError } = await supabaseAdmin
       .from('account')
       .select('*, roles(name)')
@@ -76,7 +78,6 @@ export class AccountRepository {
       throw accountError;
     }
 
-    // Map role name for backward compatibility
     if (accountData.roles && (accountData.roles as any).name) {
       accountData.role = (accountData.roles as any).name;
     }
@@ -85,16 +86,38 @@ export class AccountRepository {
   }
 
   /**
-   * Update an existing user's metadata/email
+   * Update auth fields (email, password)
    */
-  static async updateUser(userId: string, updates: any) {
-    // Nếu có update password thì phải dùng auth.admin
-    if (updates.password) {
-      const { error: passError } = await supabaseAdmin.auth.admin.updateUserById(userId, { password: updates.password });
-      if (passError) throw passError;
-      delete updates.password; // Không lưu pass vào public.account
+  static async updateAuthFields(userId: string, email?: string, password?: string) {
+    const authUpdates: any = {};
+    if (email) {
+      authUpdates.email = email;
+      authUpdates.email_confirm = true;
+    }
+    if (password) {
+      authUpdates.password = password;
     }
 
+    if (Object.keys(authUpdates).length > 0) {
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, authUpdates);
+      if (error) throw error;
+    }
+  }
+
+  /**
+   * Set ban duration in Supabase Auth
+   */
+  static async setBanDuration(userId: string, duration: string) {
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      ban_duration: duration
+    });
+    if (error) throw error;
+  }
+
+  /**
+   * Update an existing user's metadata in public.account
+   */
+  static async updateUser(userId: string, updates: any) {
     if (Object.keys(updates).length === 0) {
       return await this.getUserById(userId);
     }

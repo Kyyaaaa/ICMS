@@ -1,52 +1,25 @@
 import { AccountRepository } from './account.repository';
 import { UpdateAccountDTO } from './account.model';
-import { supabaseAdmin } from '../../configs/supabase';
 
 export class AccountService {
   static async listAccounts(callerRole: string, filterRole?: string, search?: string, page: number = 1, limit: number = 50) {
     const from = (page - 1) * limit;
     const to = from + limit; // for slice
 
-    // Always use inner join for roles so that filtering by role works correctly
-    // and so that we always get the role name.
-    let query = supabaseAdmin
-      .from('account')
-      .select('*, roles!inner(name)')
-      .neq('email', 'admin@icms.edu.vn');
-
-    // Apply Staff restriction: Can only see Learner and Tutor
-    if (callerRole === 'STAFF') {
-      query = query.in('roles.name', ['LEARNER', 'TUTOR']);
-    }
-
-    // Apply explicit role filter if provided
-    if (filterRole) {
-      query = query.eq('roles.name', filterRole.toUpperCase());
-    }
-
-    // Apply search filter (name, email)
-    if (search) {
-      query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`);
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
+    const data = await AccountRepository.listAccounts(callerRole, filterRole, search, page, limit);
 
     let formattedData = data || [];
 
-    // Map role name from joined roles table
     formattedData.forEach((item: any) => {
       if (item.roles && item.roles.name) {
         item.role = item.roles.name;
       }
     });
 
-    // Sort by Role Priority, then Oldest First
     formattedData.sort((a: any, b: any) => {
       const roleOrder: Record<string, number> = { 'ADMIN': 1, 'STAFF': 2, 'TUTOR': 3, 'LEARNER': 4 };
       const roleDiff = (roleOrder[a.role] || 99) - (roleOrder[b.role] || 99);
       if (roleDiff !== 0) return roleDiff;
-      // Sort by who registered first (ascending created_at)
       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
     });
 
@@ -59,7 +32,6 @@ export class AccountService {
   static async getAccount(callerRole: string, callerId: string, targetId: string) {
     const user = await AccountRepository.getUserById(targetId);
 
-    // Check RBAC for Staff
     if (callerRole === 'STAFF' && callerId !== targetId) {
       if (user.role !== 'LEARNER' && user.role !== 'TUTOR') {
         throw new Error('Forbidden: Staff can only access Learner or Tutor accounts');
@@ -72,7 +44,6 @@ export class AccountService {
   static async createAccount(callerRole: string, email: string, password: string, role: string, fullName: string, phoneNumber?: string) {
     const roleUpper = role.toUpperCase();
 
-    // Check RBAC for Staff
     if (callerRole === 'STAFF') {
       if (roleUpper !== 'LEARNER' && roleUpper !== 'TUTOR') {
         throw new Error('Forbidden: Staff can only create Learner or Tutor accounts');
@@ -85,33 +56,26 @@ export class AccountService {
   static async updateAccount(callerRole: string, callerId: string, targetId: string, updates: UpdateAccountDTO) {
     const user = await AccountRepository.getUserById(targetId);
 
-    // Check RBAC for Staff
     if (callerRole === 'STAFF' && callerId !== targetId) {
       if (user.role !== 'LEARNER' && user.role !== 'TUTOR') {
         throw new Error('Forbidden: Staff can only update Learner or Tutor accounts');
       }
     }
 
-    // Check same-level modification
     if (callerId !== targetId && callerRole === user.role) {
       throw new Error('Forbidden: You cannot update accounts with the same role');
     }
 
+    // Update Auth fields first
+    await AccountRepository.updateAuthFields(targetId, updates.email, updates.password);
+
     const payload: any = {};
-    if (updates.email !== undefined) {
-      const { error: emailError } = await supabaseAdmin.auth.admin.updateUserById(targetId, { email: updates.email, email_confirm: true });
-      if (emailError) throw emailError;
-      // Also update email in public.account to keep it in sync, if there's an email column.
-      payload.email = updates.email;
-    }
-    if (updates.password) payload.password = updates.password;
+    if (updates.email !== undefined) payload.email = updates.email;
     if (updates.full_name !== undefined) payload.full_name = updates.full_name;
     if (updates.phone_number !== undefined) payload.phone_number = updates.phone_number;
     if (updates.date_of_birth !== undefined) payload.date_of_birth = updates.date_of_birth;
     if (updates.gender !== undefined) payload.gender = updates.gender;
     if (updates.avatar_url !== undefined) payload.avatar_url = updates.avatar_url;
-
-
 
     return await AccountRepository.updateUser(targetId, payload);
   }
@@ -127,24 +91,16 @@ export class AccountService {
       throw new Error('Forbidden: You cannot change the status of accounts with the same role');
     }
 
-    // Check RBAC for Staff
     if (callerRole === 'STAFF') {
       if (user.role !== 'LEARNER' && user.role !== 'TUTOR') {
         throw new Error('Forbidden: Staff can only change status of Learner or Tutor accounts');
       }
     }
 
-    // Sync ban status with Supabase Auth so that login is also blocked/unblocked
     if (status === 'BANNED') {
-      // Set banned_until to a far future date (effectively permanent ban)
-      await supabaseAdmin.auth.admin.updateUserById(targetId, {
-        ban_duration: '876000h' // 100 years
-      });
+      await AccountRepository.setBanDuration(targetId, '876000h');
     } else if (status === 'ACTIVE') {
-      // Unban in Supabase Auth
-      await supabaseAdmin.auth.admin.updateUserById(targetId, {
-        ban_duration: 'none'
-      });
+      await AccountRepository.setBanDuration(targetId, 'none');
     }
 
     const payload = { status };

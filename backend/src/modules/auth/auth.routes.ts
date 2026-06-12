@@ -1,6 +1,15 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import { verifyToken } from '../../middlewares/auth.middleware';
+import {
+  validateRegisterInput,
+  validateLoginInput,
+  validateRefreshTokenInput,
+  validateForgotPasswordInput,
+  validateVerifyOtpInput,
+  validateResetPasswordInput,
+  validateGoogleSyncInput
+} from '../../middlewares/validators/auth.validator';
 
 const router = Router();
 
@@ -61,7 +70,7 @@ const router = Router();
  *                 message:
  *                   type: string
  */
-router.post('/register', AuthController.register);
+router.post('/register', validateRegisterInput, AuthController.register);
 
 /**
  * @swagger
@@ -113,7 +122,7 @@ router.post('/register', AuthController.register);
  *       401:
  *         description: Invalid login credentials
  */
-router.post('/login', AuthController.login);
+router.post('/login', validateLoginInput, AuthController.login);
 
 /**
  * @swagger
@@ -141,7 +150,7 @@ router.post('/login', AuthController.login);
  *       401:
  *         description: Invalid or expired refresh token
  */
-router.post('/refresh', AuthController.refreshToken);
+router.post('/refresh', validateRefreshTokenInput, AuthController.refreshToken);
 
 /**
  * @swagger
@@ -185,7 +194,7 @@ router.get('/verify', verifyToken, (_req: any, res: any) => {
  *       400:
  *         description: Error sending OTP
  */
-router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/forgot-password', validateForgotPasswordInput, AuthController.forgotPassword);
 
 /**
  * @swagger
@@ -215,7 +224,7 @@ router.post('/forgot-password', AuthController.forgotPassword);
  *       400:
  *         description: Invalid OTP
  */
-router.post('/verify-otp', AuthController.verifyOtp);
+router.post('/verify-otp', validateVerifyOtpInput, AuthController.verifyOtp);
 
 /**
  * @swagger
@@ -244,7 +253,7 @@ router.post('/verify-otp', AuthController.verifyOtp);
  *       400:
  *         description: Failed to reset password
  */
-router.post('/reset-password', AuthController.resetPassword);
+router.post('/reset-password', validateResetPasswordInput, AuthController.resetPassword);
 
 /**
  * @swagger
@@ -287,6 +296,6 @@ router.get('/google', AuthController.googleLogin);
  *       401:
  *         description: Invalid or expired token
  */
-router.post('/google-sync', AuthController.syncGoogle);
+router.post('/google-sync', validateGoogleSyncInput, AuthController.syncGoogle);
 
 export default router;

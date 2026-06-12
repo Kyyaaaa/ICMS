@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { validateEmail, validatePassword, validateFullName, validatePhoneNumber, validateOtp, validateUUID } from '../../utils/validators';
-import { supabaseAdmin } from '../../configs/supabase';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -250,23 +249,10 @@ export class AuthController {
 
   static async googleLogin(req: Request, res: Response) {
     try {
-      const { data, error } = await supabaseAdmin.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          // Trỏ về trang auth-callback của Frontend React để hứng Token
-          redirectTo: 'http://localhost:5173/auth/callback'
-        }
-      });
-
-      if (error) throw error;
-
-      // Chuyển hướng trình duyệt đến trang đăng nhập của Google
-      if (data.url) {
-        return res.redirect(data.url);
-      } else {
-        return res.status(400).json({ success: false, message: 'Could not generate Google Login URL' });
-      }
-    } catch (error: any) {
+      const url = await AuthService.getGoogleLoginUrl('http://localhost:5173/auth/callback');
+      return res.redirect(url);
+    } catch (error) {
+      const err = error as Error;
       console.error('Error generating Google OAuth URL:', error);
       return res.status(500).json({ success: false, message: 'Server error' });
     }

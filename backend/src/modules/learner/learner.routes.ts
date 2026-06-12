@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { LearnerController } from './learner.controller';
 import { verifyToken, requireRole } from '../../middlewares/auth.middleware';
+import { validateCreateLearnerInput, validateUpdateLearnerInput } from '../../middlewares/validators/learner.validator';
 
 const router = Router();
 
@@ -139,8 +140,8 @@ router.use(verifyToken);
 // Định tuyến
 router.get('/', requireRole(['STAFF', 'ADMIN']), LearnerController.getAll);
 router.get('/:id', requireRole(['LEARNER', 'STAFF', 'ADMIN']), LearnerController.getById);
-router.post('/', requireRole(['STAFF', 'ADMIN']), LearnerController.create);
-router.put('/:id', requireRole(['LEARNER', 'STAFF', 'ADMIN']), LearnerController.update);
+router.post('/', requireRole(['STAFF', 'ADMIN']), validateCreateLearnerInput, LearnerController.create);
+router.put('/:id', requireRole(['LEARNER', 'STAFF', 'ADMIN']), validateUpdateLearnerInput, LearnerController.update);
 router.delete('/:id', requireRole(['ADMIN']), LearnerController.delete);
 
 export default router;

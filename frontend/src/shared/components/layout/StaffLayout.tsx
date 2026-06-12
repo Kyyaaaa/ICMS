@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { LayoutDashboard, Users, BookOpen, Calendar, FileEdit, DollarSign, MessageSquare, UserCog, Banknote, LogOut, Menu, X, Bell, Briefcase, Globe , Wallet} from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Calendar, FileEdit, DollarSign, MessageSquare, UserCog, Banknote, LogOut, Menu, X, Bell, GraduationCap, Globe , Wallet} from 'lucide-react';
 
 const StaffLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -45,7 +45,7 @@ const StaffLayout = () => {
         { name: 'Operations', path: '/staff/master-schedule', icon: Calendar, activePaths: ['/staff/classes', '/staff/master-schedule', '/staff/tutor-availability'] },
         { name: 'Requests & Support', path: '/staff/consultations', icon: MessageSquare, activePaths: ['/staff/consultations', '/staff/change-requests', '/staff/support'] },
         { name: 'Finance', path: '/staff/invoices', icon: Wallet, activePaths: ['/staff/invoices', '/staff/salary'] },
-        { name: 'User Management', path: '/staff/accounts', icon: Users, activePaths: ['/staff/accounts', '/staff/profiles'] },
+        { name: 'User Management', path: '/staff/accounts', icon: Users, activePaths: ['/staff/accounts', '/staff/certificates'] },
         { name: 'My Profile', path: '/staff/profile', icon: UserCog },
     ];
 
@@ -77,10 +77,10 @@ const StaffLayout = () => {
                 { name: 'Invoices', path: '/staff/invoices', icon: DollarSign },
                 { name: 'Salary History', path: '/staff/salary', icon: Banknote },
             ];
-        } else if (path.startsWith('/staff/accounts') || path.startsWith('/staff/profiles')) {
+        } else if (path.startsWith('/staff/accounts') || path.startsWith('/staff/certificates')) {
             tabs = [
                 { name: 'All Accounts', path: '/staff/accounts', icon: UserCog },
-                { name: 'Tutor Profiles', path: '/staff/profiles', icon: Briefcase },
+                { name: 'Tutor Certificates', path: '/staff/certificates', icon: GraduationCap },
             ];
         }
 

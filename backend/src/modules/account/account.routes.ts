@@ -174,19 +174,21 @@ router.use(verifyToken);
  *         description: Account not found
  */
 
+import { validateGetAllAccountsInput, validateAccountIdParam, validateCreateAccountInput, validateUpdateAccountInput, validateUpdateAccountStatusInput } from '../../middlewares/validators/account.validator';
+
 // Lấy danh sách tài khoản (có hỗ trợ filter, search, pagination)
-router.get('/', requireRole(['ADMIN', 'STAFF']), AccountController.getAllAccounts);
+router.get('/', requireRole(['ADMIN', 'STAFF']), validateGetAllAccountsInput, AccountController.getAllAccounts);
 
 // Lấy chi tiết 1 tài khoản
-router.get('/:id', AccountController.getAccountById);
+router.get('/:id', validateAccountIdParam, AccountController.getAccountById);
 
 // Tạo tài khoản mới
-router.post('/', requireRole(['ADMIN', 'STAFF']), AccountController.createAccount);
+router.post('/', requireRole(['ADMIN', 'STAFF']), validateCreateAccountInput, AccountController.createAccount);
 
 // Cập nhật thông tin tài khoản (tên, sđt, mật khẩu)
-router.patch('/:id', AccountController.updateAccount);
+router.patch('/:id', validateAccountIdParam, validateUpdateAccountInput, AccountController.updateAccount);
 
 // Thay đổi trạng thái tài khoản (Ban / Active)
-router.patch('/:id/status', requireRole(['ADMIN', 'STAFF']), AccountController.updateAccountStatus);
+router.patch('/:id/status', requireRole(['ADMIN', 'STAFF']), validateAccountIdParam, validateUpdateAccountStatusInput, AccountController.updateAccountStatus);
 
 export default router;

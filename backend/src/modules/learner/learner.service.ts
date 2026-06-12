@@ -1,106 +1,41 @@
-import { supabase, supabaseAdmin } from '../../configs/supabase';
+import { LearnerRepository } from './learner.repository';
+import { CreateLearnerInput, UpdateLearnerInput } from './learner.model';
 
 export class LearnerService {
   /**
-   * Lấy danh sách tất cả học viên
+   * L?y danh s�ch t?t c? h?c vi�n
    */
   static async getAll() {
-    const { data, error } = await supabaseAdmin
-      .from('learner')
-      .select('*, account(email, phone_number, status, role_id, roles(name))');
-    if (error) throw error;
-    return data;
+    return await LearnerRepository.getAll();
   }
 
   /**
-   * Lấy chi tiết 1 học viên
+   * L?y chi ti?t 1 h?c vi�n
    */
   static async getById(id: string) {
-    const { data, error } = await supabaseAdmin
-      .from('learner')
-      .select('*, account(email, phone_number, status, role_id, roles(name))')
-      .eq('account_id', id)
-      .single();
-    if (error) throw error;
-    return data;
+    return await LearnerRepository.getById(id);
   }
 
   /**
-   * Tạo học viên mới (Dùng cho Admin/Staff)
+   * T?o h?c vi�n m?i (D�ng cho Admin/Staff)
    */
-  static async create(learnerData: any) {
-    const { email, password, full_name, phone_number } = learnerData;
-    
-    // Gọi Supabase Admin để tạo tài khoản, bypass phần gửi email
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        role: 'LEARNER',
-        full_name: full_name,
-        phone_number: phone_number
-      }
-    });
-    
-    if (authError) throw authError;
-
-    // Fetch from public.account
-    const { data: accountData, error: accountError } = await supabaseAdmin
-      .from('account')
-      .select('*, roles(name)')
-      .eq('id', authData.user.id)
-      .single();
-
-    if (accountError) {
-      await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-      throw accountError;
-    }
-
-    // Map role name for backward compatibility
-    if (accountData.roles && (accountData.roles as any).name) {
-      (accountData as any).role = (accountData.roles as any).name;
-    }
-
-    return accountData;
+  static async create(learnerData: CreateLearnerInput) {
+    return await LearnerRepository.create(learnerData);
   }
 
   /**
-   * Cập nhật thông tin học viên
+   * C?p nh?t th�ng tin h?c vi�n
    */
-  static async update(id: string, learnerData: any) {
-    const { full_name, phone_number, status } = learnerData;
-    
-
-    
-    // Cập nhật bảng account nếu có phone_number, status, hoặc full_name
-    if (phone_number || status || full_name) {
-      const updateData: any = { updated_at: new Date().toISOString() };
-      if (phone_number) updateData.phone_number = phone_number;
-      if (status) updateData.status = status;
-      if (full_name) updateData.full_name = full_name;
-      
-      const { error: accError } = await supabaseAdmin
-        .from('account')
-        .update(updateData)
-        .eq('id', id);
-      if (accError) throw accError;
-    }
-    
-    // Trả về bản ghi mới nhất
+  static async update(id: string, learnerData: UpdateLearnerInput) {
+    await LearnerRepository.update(id, learnerData);
+    // Tr? v? b?n ghi m?i nh?t
     return this.getById(id);
   }
 
   /**
-   * Xóa học viên
+   * X�a h?c vi�n
    */
   static async delete(id: string) {
-    // Xóa khỏi bảng account trước (nếu database chưa setup ON DELETE CASCADE)
-    await supabaseAdmin.from('account').delete().eq('id', id);
-
-    // Xóa user từ Supabase Auth
-    const { data, error } = await supabaseAdmin.auth.admin.deleteUser(id);
-    if (error) throw error;
-    return data;
+    return await LearnerRepository.delete(id);
   }
 }

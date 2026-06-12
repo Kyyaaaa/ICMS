@@ -1,25 +1,30 @@
-import { supabase, supabaseAdmin } from '../../configs/supabase';
-import { UserMetadata } from './auth.model';
+import { supabase, supabaseAdmin } from "../../configs/supabase";
+import { UserMetadata } from "./auth.model";
 
 export class AuthRepository {
   /**
    * Tạo user mới trên Supabase Auth
    */
-  static async createUser(email: string, password: string, metadata: UserMetadata) {
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: metadata
-    });
+  static async createUser(
+    email: string,
+    password: string,
+    metadata: UserMetadata,
+  ) {
+    const { data: authData, error: authError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: metadata,
+      });
 
     if (authError) throw authError;
 
     // Fetch the account that was auto-created by the DB trigger
     const { data: accountData, error: accountError } = await supabaseAdmin
-      .from('account')
-      .select('*, roles(name)')
-      .eq('id', authData.user.id)
+      .from("account")
+      .select("*, roles(name)")
+      .eq("id", authData.user.id)
       .single();
 
     if (accountError) {
@@ -46,6 +51,18 @@ export class AuthRepository {
   }
 
   /**
+   * Khởi tạo luồng đăng nhập Google bằng OAuth
+   */
+  static async signInWithGoogle(redirectTo: string) {
+    return await supabaseAdmin.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo
+      }
+    });
+  }
+
+  /**
    * Xin cấp lại Access Token bằng Refresh Token
    */
   static async refreshSession(refreshToken: string) {
@@ -64,9 +81,9 @@ export class AuthRepository {
    */
   static async getAccountByEmail(email: string) {
     return await supabaseAdmin
-      .from('account')
-      .select('*, roles(name)')
-      .eq('email', email)
+      .from("account")
+      .select("*, roles(name)")
+      .eq("email", email)
       .maybeSingle();
   }
 
@@ -75,23 +92,21 @@ export class AuthRepository {
    */
   static async invalidateOldOtps(email: string) {
     return await supabaseAdmin
-      .from('otps')
+      .from("otps")
       .update({ is_used: true })
-      .eq('email', email)
-      .eq('is_used', false);
+      .eq("email", email)
+      .eq("is_used", false);
   }
 
   /**
    * Lưu mã OTP vào database
    */
   static async insertOtp(email: string, otp: string, expiresAt: string) {
-    return await supabaseAdmin
-      .from('otps')
-      .insert({
-        email,
-        otp,
-        expires_at: expiresAt,
-      });
+    return await supabaseAdmin.from("otps").insert({
+      email,
+      otp,
+      expires_at: expiresAt,
+    });
   }
 
   /**
@@ -99,13 +114,13 @@ export class AuthRepository {
    */
   static async getValidOtp(email: string, otp: string, currentTime: string) {
     return await supabaseAdmin
-      .from('otps')
-      .select('id')
-      .eq('email', email)
-      .eq('otp', otp)
-      .eq('is_used', false)
-      .gte('expires_at', currentTime)
-      .order('created_at', { ascending: false })
+      .from("otps")
+      .select("id")
+      .eq("email", email)
+      .eq("otp", otp)
+      .eq("is_used", false)
+      .gte("expires_at", currentTime)
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
   }
@@ -115,12 +130,12 @@ export class AuthRepository {
    */
   static async markOtpAsUsed(id: string, resetToken: string) {
     return await supabaseAdmin
-      .from('otps')
+      .from("otps")
       .update({
         is_used: true,
-        reset_token: resetToken
+        reset_token: resetToken,
       })
-      .eq('id', id);
+      .eq("id", id);
   }
 
   /**
@@ -128,9 +143,9 @@ export class AuthRepository {
    */
   static async getOtpByResetToken(resetToken: string) {
     return await supabaseAdmin
-      .from('otps')
-      .select('id, email, expires_at')
-      .eq('reset_token', resetToken)
+      .from("otps")
+      .select("id, email, expires_at")
+      .eq("reset_token", resetToken)
       .maybeSingle();
   }
 
@@ -139,7 +154,7 @@ export class AuthRepository {
    */
   static async updateUserPassword(userId: string, newPassword: string) {
     return await supabaseAdmin.auth.admin.updateUserById(userId, {
-      password: newPassword
+      password: newPassword,
     });
   }
 
@@ -148,53 +163,58 @@ export class AuthRepository {
    */
   static async clearResetToken(id: string) {
     return await supabaseAdmin
-      .from('otps')
+      .from("otps")
       .update({ reset_token: null })
-      .eq('id', id);
+      .eq("id", id);
   }
 
   /**
    * Đồng bộ tài khoản Google vào bảng account (Chiến lược Merge)
    */
-  static async syncGoogleAccount(userId: string, email: string, fullName: string, avatarUrl: string) {
+  static async syncGoogleAccount(
+    userId: string,
+    email: string,
+    fullName: string,
+    avatarUrl: string,
+  ) {
     const { data: existingAcc } = await supabaseAdmin
-      .from('account')
-      .select('*, roles(name)')
-      .eq('email', email)
+      .from("account")
+      .select("*, roles(name)")
+      .eq("email", email)
       .maybeSingle();
 
     if (existingAcc) {
       // Merge account: update avatar nếu có thay đổi
       await supabaseAdmin
-        .from('account')
+        .from("account")
         .update({ avatar_url: avatarUrl || existingAcc.avatar_url })
-        .eq('id', existingAcc.id);
+        .eq("id", existingAcc.id);
 
       // Re-fetch with roles join
       return await supabaseAdmin
-        .from('account')
-        .select('*, roles(name)')
-        .eq('id', existingAcc.id)
+        .from("account")
+        .select("*, roles(name)")
+        .eq("id", existingAcc.id)
         .single();
     } else {
       // Look up LEARNER role_id
       const { data: roleData } = await supabaseAdmin
-        .from('roles')
-        .select('id')
-        .eq('name', 'LEARNER')
+        .from("roles")
+        .select("id")
+        .eq("name", "LEARNER")
         .single();
 
       // Nếu chưa có, tạo mới
       const { data, error } = await supabaseAdmin
-        .from('account')
+        .from("account")
         .insert({
           id: userId,
           email: email,
           full_name: fullName,
           avatar_url: avatarUrl,
-          role_id: roleData?.id
+          role_id: roleData?.id,
         })
-        .select('*, roles(name)')
+        .select("*, roles(name)")
         .single();
 
       return { data, error };

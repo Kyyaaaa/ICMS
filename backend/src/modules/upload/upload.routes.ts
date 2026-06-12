@@ -69,8 +69,10 @@ router.use(fileUpload({
  *       401:
  *         description: Unauthorized
  */
+import { validateFileUploadInput } from '../../middlewares/validators/upload.validator';
+
 // expects form-data with a field named "file" (and optionally "folder")
-router.post('/image', UploadController.uploadImage);
+router.post('/image', validateFileUploadInput, UploadController.uploadImage);
 
 // Error handling middleware specific to this router
 router.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

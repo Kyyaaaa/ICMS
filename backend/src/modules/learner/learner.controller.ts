@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { LearnerService } from './learner.service';
-import { validateEmail, validatePassword, validateFullName, validatePhoneNumber } from '../../utils/validators';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
 
 export class LearnerController {
@@ -14,11 +13,12 @@ export class LearnerController {
         success: true, 
         data: learners 
       });
-    } catch (error: any) {
-      console.error('Error fetching learners:', error);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error fetching learners:', err);
       return res.status(500).json({ 
         success: false, 
-        message: error.message || 'Internal Server Error' 
+        message: err.message || 'Internal Server Error' 
       });
     }
   }
@@ -41,8 +41,9 @@ export class LearnerController {
         success: true, 
         data: learner 
       });
-    } catch (error: any) {
-      console.error('Error fetching learner by ID:', error);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error fetching learner by ID:', err);
       return res.status(404).json({ 
         success: false, 
         message: 'Learner not found' 
@@ -58,52 +59,18 @@ export class LearnerController {
       const body = req.body || {};
       const { email, password, full_name, phone_number } = body;
       
-      if (!email || !password || !full_name) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Please provide email, password and full_name' 
-        });
-      }
-
-      if (!validateEmail(email)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Invalid email format' 
-        });
-      }
-
-      if (!validatePassword(password)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character' 
-        });
-      }
-
-      if (!validateFullName(full_name)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Invalid full_name. Must be 2-50 characters and contain only letters and spaces' 
-        });
-      }
-
-      if (phone_number && !validatePhoneNumber(phone_number)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Invalid phone_number. Must be a valid Vietnamese 10-digit phone number starting with 0' 
-        });
-      }
-      
       const newLearner = await LearnerService.create({ email, password, full_name, phone_number });
       return res.status(201).json({ 
         success: true, 
         message: 'Learner created successfully', 
         data: newLearner 
       });
-    } catch (error: any) {
-      console.error('Error creating learner:', error);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error creating learner:', err);
       return res.status(400).json({ 
         success: false, 
-        message: error.message || 'Error creating learner' 
+        message: err.message || 'Error creating learner' 
       });
     }
   }
@@ -122,21 +89,6 @@ export class LearnerController {
       }
 
       const body = req.body || {};
-      const { full_name, phone_number } = body;
-
-      if (full_name !== undefined && !validateFullName(full_name)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Invalid full_name. Must be 2-50 characters and contain only letters and spaces' 
-        });
-      }
-
-      if (phone_number !== undefined && !validatePhoneNumber(phone_number)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Invalid phone_number. Must be a valid Vietnamese 10-digit phone number starting with 0' 
-        });
-      }
 
       const updatedLearner = await LearnerService.update(req.params.id as string, body);
       return res.status(200).json({ 
@@ -144,11 +96,12 @@ export class LearnerController {
         message: 'Learner updated successfully', 
         data: updatedLearner 
       });
-    } catch (error: any) {
-      console.error('Error updating learner:', error);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error updating learner:', err);
       return res.status(400).json({ 
         success: false, 
-        message: error.message || 'Error updating learner' 
+        message: err.message || 'Error updating learner' 
       });
     }
   }
@@ -163,11 +116,12 @@ export class LearnerController {
         success: true, 
         message: 'Learner deleted successfully' 
       });
-    } catch (error: any) {
-      console.error('Error deleting learner:', error);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error deleting learner:', err);
       return res.status(400).json({ 
         success: false, 
-        message: error.message || 'Error deleting learner' 
+        message: err.message || 'Error deleting learner' 
       });
     }
   }

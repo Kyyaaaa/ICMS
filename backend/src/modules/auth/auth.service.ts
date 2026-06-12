@@ -1,7 +1,7 @@
-import { AuthRepository } from './auth.repository';
-import { UserMetadata } from './auth.model';
-import { sendOtpEmail } from '../../utils/mailer';
-import crypto from 'crypto';
+import { AuthRepository } from "./auth.repository";
+import { UserMetadata } from "./auth.model";
+import { sendOtpEmail } from "../../utils/mailer";
+import crypto from "crypto";
 
 export class AuthService {
   /**
@@ -11,14 +11,24 @@ export class AuthService {
    * @param fullName Họ và tên
    * @param phoneNumber Số điện thoại
    */
-  static async registerLearner(email: string, password: string, fullName: string, phoneNumber: string | null) {
-
+  static async registerLearner(
+    email: string,
+    password: string,
+    fullName: string,
+    phoneNumber: string | null,
+  ) {
     // Đóng gói dữ liệu metadata
     const metadata: UserMetadata = {
       full_name: fullName,
       phone_number: phoneNumber,
-      role: 'LEARNER' // Trigger DB sẽ đọc role này để lưu
+      role: "LEARNER", // Trigger DB sẽ đọc role này để lưu
     };
+
+    try {
+      const userAccount = await AuthRepository.getAccountByEmail(email);
+    } catch (error) {
+      throw new Error("Error checking existing email: " + error);
+    }
 
     // Ra lệnh cho Repository gọi DB
     const result = await AuthRepository.createUser(email, password, metadata);
@@ -33,12 +43,15 @@ export class AuthService {
    */
   static async login(email: string, password: string) {
     // 1. Lấy thông tin user từ DB nội bộ trước để kiểm tra trạng thái ban
-    const { data: account, error: accError } = await AuthRepository.getAccountByEmail(email);
+    const { data: account, error: accError } =
+      await AuthRepository.getAccountByEmail(email);
 
     if (!accError && account) {
       // Check ban status from internal DB
-      if (account.status === 'BANNED') {
-        throw new Error('This account has been banned. Please contact the administrator.');
+      if (account.status === "BANNED") {
+        throw new Error(
+          "This account has been banned. Please contact the administrator.",
+        );
       }
     }
 
@@ -50,7 +63,7 @@ export class AuthService {
     }
 
     if (accError || !account) {
-      throw new Error('User not found in internal database');
+      throw new Error("User not found in internal database");
     }
 
     // Map role back to string for frontend compatibility
@@ -72,12 +85,12 @@ export class AuthService {
     const { data, error } = await AuthRepository.refreshSession(refreshToken);
 
     if (error || !data.session) {
-      throw new Error('Refresh token invalid or expired. Please login again.');
+      throw new Error("Refresh token invalid or expired. Please login again.");
     }
 
     return {
       access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token
+      refresh_token: data.session.refresh_token,
     };
   }
 
@@ -87,11 +100,12 @@ export class AuthService {
    */
   static async forgotPassword(email: string) {
     // 1. Kiểm tra email có tồn tại không
-    const { data: userAccount, error: checkError } = await AuthRepository.getAccountByEmail(email);
+    const { data: userAccount, error: checkError } =
+      await AuthRepository.getAccountByEmail(email);
 
     if (checkError) throw checkError;
     if (!userAccount) {
-      throw new Error('Email not found in our system');
+      throw new Error("Email not found in our system");
     }
 
     // 1.5. Vô hiệu hóa tất cả OTP cũ chưa sử dụng
@@ -102,14 +116,18 @@ export class AuthService {
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 phút
 
     // 3. Ra lệnh Repository lưu OTP
-    const { error: insertError } = await AuthRepository.insertOtp(email, otp, expiresAt);
+    const { error: insertError } = await AuthRepository.insertOtp(
+      email,
+      otp,
+      expiresAt,
+    );
 
     if (insertError) throw insertError;
 
     // 4. Gửi email qua Nodemailer
     await sendOtpEmail(email, otp);
 
-    return { message: 'OTP sent' };
+    return { message: "OTP sent" };
   }
 
   /**
@@ -120,16 +138,23 @@ export class AuthService {
   static async verifyOtp(email: string, otp: string) {
     // 1. Tìm OTP hợp lệ
     const currentTime = new Date().toISOString();
-    const { data, error } = await AuthRepository.getValidOtp(email, otp, currentTime);
+    const { data, error } = await AuthRepository.getValidOtp(
+      email,
+      otp,
+      currentTime,
+    );
 
     if (error) throw error;
     if (!data) {
-      throw new Error('Invalid or expired OTP');
+      throw new Error("Invalid or expired OTP");
     }
 
     // 2. Tạo reset_token và đánh dấu OTP đã sử dụng
     const resetToken = crypto.randomUUID();
-    const { error: updateError } = await AuthRepository.markOtpAsUsed(data.id, resetToken);
+    const { error: updateError } = await AuthRepository.markOtpAsUsed(
+      data.id,
+      resetToken,
+    );
 
     if (updateError) throw updateError;
 
@@ -143,29 +168,37 @@ export class AuthService {
    */
   static async resetPassword(resetToken: string, newPassword: string) {
     // 1. Tìm token
-    const { data: otpData, error: otpError } = await AuthRepository.getOtpByResetToken(resetToken);
+    const { data: otpData, error: otpError } =
+      await AuthRepository.getOtpByResetToken(resetToken);
 
     if (otpError) throw otpError;
     if (!otpData) {
-      throw new Error('Invalid reset token');
+      throw new Error("Invalid reset token");
     }
 
     // 1.5. Kiểm tra mật khẩu mới có trùng với mật khẩu hiện tại không
     // Bằng cách thử đăng nhập với mật khẩu mới. Nếu thành công -> trùng pass cũ.
-    const { data: signInData, error: signInError } = await AuthRepository.signIn(otpData.email, newPassword);
+    const { data: signInData, error: signInError } =
+      await AuthRepository.signIn(otpData.email, newPassword);
     if (!signInError && signInData?.session) {
-      throw new Error('New password cannot be the same as the current password');
+      throw new Error(
+        "New password cannot be the same as the current password",
+      );
     }
 
     // 2. Tìm user ID
-    const { data: userAccount, error: accountError } = await AuthRepository.getAccountByEmail(otpData.email);
+    const { data: userAccount, error: accountError } =
+      await AuthRepository.getAccountByEmail(otpData.email);
 
     if (accountError || !userAccount) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
     // 3. Cập nhật mật khẩu
-    const { data, error } = await AuthRepository.updateUserPassword(userAccount.id, newPassword);
+    const { data, error } = await AuthRepository.updateUserPassword(
+      userAccount.id,
+      newPassword,
+    );
 
     if (error) throw error;
 
@@ -182,16 +215,26 @@ export class AuthService {
     // 1. Lấy thông tin user từ token Supabase bằng cách gọi auth API
     const { data, error } = await AuthRepository.getUserByToken(accessToken);
     if (error || !data?.user) {
-      throw new Error('Invalid or expired Google access token');
+      throw new Error("Invalid or expired Google access token");
     }
 
     const user = data.user;
-    const email = user.email || '';
-    const fullName = user.user_metadata?.full_name || user.user_metadata?.name || 'Google User';
-    const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+    const email = user.email || "";
+    const fullName =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      "Google User";
+    const avatarUrl =
+      user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
 
     // 2. Đồng bộ vào DB nội bộ (Merge hoặc Tạo mới)
-    const { data: account, error: syncError } = await AuthRepository.syncGoogleAccount(user.id, email, fullName, avatarUrl);
+    const { data: account, error: syncError } =
+      await AuthRepository.syncGoogleAccount(
+        user.id,
+        email,
+        fullName,
+        avatarUrl,
+      );
 
     if (syncError) {
       throw syncError;
@@ -204,7 +247,16 @@ export class AuthService {
 
     // 3. Trả về Account record chuẩn
     return {
-      user: account
+      user: account,
     };
+  }
+  /**
+   * Khởi tạo luồng đăng nhập Google bằng OAuth
+   */
+  static async getGoogleLoginUrl(redirectTo: string) {
+    const { data, error } = await AuthRepository.signInWithGoogle(redirectTo);
+    if (error) throw error;
+    if (!data.url) throw new Error("Could not generate Google Login URL");
+    return data.url;
   }
 }

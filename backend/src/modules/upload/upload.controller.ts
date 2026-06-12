@@ -5,11 +5,8 @@ import fs from 'fs';
 export class UploadController {
   static async uploadImage(req: Request, res: Response) {
     try {
-      if (!req.files || !req.files.file) {
-        return res.status(400).json({ success: false, message: 'No file uploaded' });
-      }
 
-      const file = req.files.file as any;
+      const file = req.files!.file as any;
 
       // Convert buffer to base64
       const b64 = Buffer.from(file.data).toString('base64');
@@ -17,7 +14,7 @@ export class UploadController {
 
       // Ensure directory organization on Cloudinary
       let folder = 'icms_uploads';
-      if (req.body.folder) {
+      if (req.body && req.body.folder) {
         // e.g. "avatars", "certificates"
         folder = `icms_${req.body.folder}`;
       }

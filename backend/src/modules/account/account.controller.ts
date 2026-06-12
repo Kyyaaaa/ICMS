@@ -2,7 +2,6 @@ import { Response } from 'express';
 import { AccountService } from './account.service';
 import { AuthService } from '../auth/auth.service';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
-import { validateEmail, validatePassword, validatePhoneNumber, validateFullName, validateRole, validateDateOfBirth, validateGender, validateAvatarUrl, validateUUID } from '../../utils/validators';
 
 export class AccountController {
   
@@ -11,20 +10,8 @@ export class AccountController {
       const callerRole = req.user.role;
       const { role, search, page, limit } = req.query;
 
-      if (role && !validateRole(role as string)) {
-        return res.status(400).json({ success: false, message: 'Invalid role filter. Allowed roles are: ADMIN, STAFF, TUTOR, LEARNER' });
-      }
-
       const p = page ? parseInt(page as string) : 1;
       const l = limit ? parseInt(limit as string) : 50;
-
-      if (isNaN(p) || p < 1) {
-        return res.status(400).json({ success: false, message: 'Invalid page number. Must be >= 1' });
-      }
-
-      if (isNaN(l) || l < 1 || l > 100) {
-        return res.status(400).json({ success: false, message: 'Invalid limit number. Must be between 1 and 100' });
-      }
 
       const accounts = await AccountService.listAccounts(
         callerRole, 
@@ -51,10 +38,6 @@ export class AccountController {
       const { id } = req.params;
       const targetId = id as string;
 
-      if (!validateUUID(targetId)) {
-        return res.status(400).json({ success: false, message: 'Invalid account ID format. Must be a valid UUID.' });
-      }
-
       if (callerRole !== 'ADMIN' && callerRole !== 'STAFF' && callerId !== targetId) {
         return res.status(403).json({ success: false, message: 'Forbidden: You can only access your own account' });
       }
@@ -79,48 +62,6 @@ export class AccountController {
       const callerRole = req.user.role as string;
       const { email, password, role, full_name, phone_number } = req.body;
 
-      if (!email || !password || !role || !full_name) {
-        return res.status(400).json({
-          success: false,
-          message: 'Missing required fields: email, password, role, full_name'
-        });
-      }
-
-      if (!validateRole(role)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid role. Allowed roles are: ADMIN, STAFF, TUTOR, LEARNER'
-        });
-      }
-
-      if (!validateEmail(email)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid email format'
-        });
-      }
-
-      if (!validatePassword(password)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Password must be 8-15 characters long, and include at least one lowercase letter, one uppercase letter, one number, and one special character'
-        });
-      }
-
-      if (!validateFullName(full_name)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid full name. Only letters and spaces allowed, 2-50 characters.'
-        });
-      }
-
-      if (phone_number && !validatePhoneNumber(phone_number)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid phone number. Must be 10 digits starting with 03, 05, 07, 08, or 09.'
-        });
-      }
-
       const newAccount = await AccountService.createAccount(callerRole, email, password, role, full_name, phone_number);
 
       return res.status(201).json({
@@ -143,102 +84,14 @@ export class AccountController {
       const { id } = req.params;
       const targetId = id as string;
 
-      if (!validateUUID(targetId)) {
-        return res.status(400).json({ success: false, message: 'Invalid account ID format. Must be a valid UUID.' });
-      }
-
       if (callerRole !== 'ADMIN' && callerRole !== 'STAFF' && callerId !== targetId) {
         return res.status(403).json({ success: false, message: 'Forbidden: You can only update your own account' });
       }
 
       const { full_name, email, phone_number, password, old_password, date_of_birth, gender, avatar_url, status } = req.body;
 
-      // --- Validate email format if provided ---
-      if (email !== undefined) {
-        if (!validateEmail(email)) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid email format'
-          });
-        }
-      }
-
-      // --- Validate status ---
-      if (status !== undefined) {
-        if (callerRole !== 'ADMIN' && callerRole !== 'STAFF') {
-          return res.status(403).json({
-            success: false,
-            message: 'Forbidden: You do not have permission to change account status'
-          });
-        }
-        if (status !== 'ACTIVE' && status !== 'BANNED') {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid status. Allowed values are: ACTIVE, BANNED'
-          });
-        }
-      }
-
-      // --- Validate full name format ---
-      if (full_name !== undefined) {
-        if (!validateFullName(full_name)) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid full name. Only letters and spaces allowed, 2-50 characters.'
-          });
-        }
-      }
-
-      // --- Validate phone number format ---
-      if (phone_number !== undefined && phone_number !== null) {
-        if (!validatePhoneNumber(phone_number)) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid phone number. Must be 10 digits starting with 03, 05, 07, 08, or 09.'
-          });
-        }
-      }
-
-      // --- Validate date of birth ---
-      if (date_of_birth !== undefined && date_of_birth !== null) {
-        if (!validateDateOfBirth(date_of_birth)) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid date_of_birth. Must be a valid ISO 8601 date (e.g. YYYY-MM-DD).'
-          });
-        }
-      }
-
-      // --- Validate gender ---
-      if (gender !== undefined && gender !== null) {
-        if (!validateGender(gender)) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid gender. Allowed values: MALE, FEMALE, OTHER.'
-          });
-        }
-      }
-
-      // --- Validate avatar URL ---
-      if (avatar_url !== undefined && avatar_url !== null) {
-        if (!validateAvatarUrl(avatar_url)) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid avatar_url. Must be a valid URL.'
-          });
-        }
-      }
-
-      // --- Validate new password ---
+      // --- Only require old password when user is changing their own password (not Admin reset) ---
       if (password !== undefined && password !== '') {
-        if (!validatePassword(password)) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid new password. Must be 8-15 characters, including uppercase, lowercase, digit, and special character.'
-          });
-        }
-
-        // Only require old password when user is changing their own password (not Admin reset)
         const isSelfUpdate = callerId === targetId;
         if (isSelfUpdate) {
           if (!old_password) {
@@ -301,18 +154,7 @@ export class AccountController {
       const { id } = req.params;
       const targetId = id as string;
 
-      if (!validateUUID(targetId)) {
-        return res.status(400).json({ success: false, message: 'Invalid account ID format. Must be a valid UUID.' });
-      }
-
       const { status } = req.body;
-
-      if (status !== 'ACTIVE' && status !== 'BANNED') {
-        return res.status(400).json({
-          success: false,
-          message: 'Missing or invalid required field: status (ACTIVE or BANNED)'
-        });
-      }
 
       const updatedAccount = await AccountService.setAccountStatus(callerRole, callerId, targetId, status);
 

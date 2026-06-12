@@ -26,8 +26,8 @@ export const validateRole = (role: string) => {
   return allowedRoles.includes(role.toUpperCase());
 };
 
-export const validateDateOfBirth = (dob: string) => {
-  return validator.isISO8601(dob, { strict: true, strictSeparator: true });
+export const validateDate = (dateString: string) => {
+  return validator.isISO8601(dateString, { strict: true, strictSeparator: true });
 };
 
 export const validateGender = (gender: string) => {
@@ -35,7 +35,7 @@ export const validateGender = (gender: string) => {
   return allowed.includes(gender.toUpperCase());
 };
 
-export const validateAvatarUrl = (url: string) => {
+export const validateUrl = (url: string) => {
   return validator.isURL(url, { require_protocol: true });
 };
 
