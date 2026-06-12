@@ -1,9 +1,19 @@
+export interface PaymentInstallment {
+    id: string;
+    amount: number;
+    dueDate: string;
+    status: 'paid' | 'pending' | 'overdue' | 'refunded' | 'cancelled';
+    paidDate?: string;
+}
+
 export interface PaymentInvoice {
     id: string;
     course: string;
     date: string;
     amount: number;
-    status: 'paid' | 'pending' | 'refunded';
+    discount?: number;
+    status: 'paid' | 'pending' | 'refunded' | 'cancelled' | 'expired' | 'partial';
+    installments?: PaymentInstallment[];
 }
 
 export interface PaymentCourseInfo {

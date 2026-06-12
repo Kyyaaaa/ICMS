@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { PaymentInvoice } from '../types/payment';
 import { LearnerPaymentsService } from '../services/payments.service';
@@ -22,8 +21,11 @@ const PaymentHistory = () => {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'paid': return <span className="px-3 py-1.5 bg-[#e6f4ea] text-[#137333] text-[11px] font-black rounded-full uppercase tracking-widest border border-[#137333]/20 shadow-sm">Paid</span>;
+            case 'partial': return <span className="px-3 py-1.5 bg-[#e3f2fd] text-[#0061a5] text-[11px] font-black rounded-full uppercase tracking-widest border border-[#0061a5]/20 shadow-sm">Partially Paid</span>;
             case 'pending': return <span className="px-3 py-1.5 bg-[#fff8e1] text-[#b45309] text-[11px] font-black rounded-full uppercase tracking-widest border border-[#b45309]/20 shadow-sm animate-pulse">Pending</span>;
             case 'refunded': return <span className="px-3 py-1.5 bg-[#fce8e8] text-[#c53030] text-[11px] font-black rounded-full uppercase tracking-widest border border-[#c53030]/20 shadow-sm">Refunded</span>;
+            case 'cancelled': return <span className="px-3 py-1.5 bg-[#f1f4f6] text-[#74777f] text-[11px] font-black rounded-full uppercase tracking-widest border border-[#c4c6cf]/50 shadow-sm">Cancelled</span>;
+            case 'expired': return <span className="px-3 py-1.5 bg-[#fce8e8] text-[#c53030] text-[11px] font-black rounded-full uppercase tracking-widest border border-[#c53030]/20 shadow-sm">Expired</span>;
             default: return null;
         }
     };
@@ -37,10 +39,6 @@ const PaymentHistory = () => {
             {/* Clean Hero Section */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="space-y-1 text-center md:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#f8f9fc] rounded-full mb-3 border border-[#eef0f4]">
-                        <DollarSign className="w-4 h-4 text-[#0061a5]" />
-                        <span className="text-[12px] font-bold text-[#0061a5] uppercase tracking-widest">Billing & Invoices</span>
-                    </div>
                     <h1 className="text-[28px] md:text-[36px] font-extrabold text-[#002045] leading-tight">Payment History</h1>
                     <p className="text-[15px] text-[#43474e] max-w-lg">View your past transactions, download receipts, and manage pending payments.</p>
                 </div>
@@ -72,16 +70,11 @@ const PaymentHistory = () => {
                                         </div>
                                     </td>
                                     <td className="py-5 px-6 text-right">
-                                        {inv.status === 'pending' && (
-                                            <Link to={`/learner/payments/${inv.id}/checkout`} className="inline-block px-5 py-2.5 bg-[#ef4444] text-white text-[13px] font-bold rounded-xl shadow-sm hover:bg-[#dc2626] hover:shadow-md hover:-translate-y-0.5 transition-all">
-                                                Pay Now
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Link to={`/learner/payments/${inv.id}`} className="inline-block px-5 py-2.5 bg-white border border-[#002045]/20 text-[#002045] text-[13px] font-bold rounded-xl hover:bg-[#f8f9fc] hover:border-[#002045]/50 transition-all">
+                                                View
                                             </Link>
-                                        )}
-                                        {inv.status === 'paid' && (
-                                            <Link to={`/learner/payments/${inv.id}/refund`} className="inline-block px-5 py-2.5 bg-white border border-[#002045]/20 text-[#002045] text-[13px] font-bold rounded-xl hover:bg-[#f8f9fc] hover:border-[#002045]/50 transition-all">
-                                                Request Refund
-                                            </Link>
-                                        )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

@@ -32,10 +32,6 @@ const LearnerClasses = () => {
             {/* Clean Hero Section */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="space-y-1 text-center md:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#f8f9fc] rounded-full mb-3 border border-[#eef0f4]">
-                        <GraduationCap className="w-4 h-4 text-[#0061a5]" />
-                        <span className="text-[12px] font-bold text-[#0061a5] uppercase tracking-widest">My Learning Journey</span>
-                    </div>
                     <h1 className="text-[28px] md:text-[36px] font-extrabold text-[#002045] leading-tight">My Classes</h1>
                     <p className="text-[15px] text-[#43474e] max-w-lg">Manage your active enrollments and review your past achievements.</p>
                 </div>

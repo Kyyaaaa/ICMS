@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, MapPin, Calendar, Clock } from 'lucide-react';
+import { BookOpen, MapPin, Calendar, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import type { ClassDetailData } from '../types/class-detail';
 import { LearnerClassDetailService } from '../services/class-detail.service';
@@ -8,17 +8,34 @@ const ClassDetail = () => {
     const { id } = useParams();
     const [classData, setClassData] = useState<ClassDetailData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [expandedSessions, setExpandedSessions] = useState<Record<number, boolean>>({});
 
     useEffect(() => {
         const fetchClassDetail = async () => {
             if (id) {
                 const data = await LearnerClassDetailService.getClassDetail(id);
-                if (data) setClassData(data);
+                if (data) {
+                    setClassData(data);
+                    const initialExpanded: Record<number, boolean> = {};
+                    data.curriculum.forEach(s => {
+                        if (s.status === 'ongoing') {
+                            initialExpanded[s.sessionNumber] = true;
+                        }
+                    });
+                    setExpandedSessions(initialExpanded);
+                }
             }
             setLoading(false);
         };
         fetchClassDetail();
     }, [id]);
+
+    const toggleSession = (sessionNumber: number) => {
+        setExpandedSessions(prev => ({
+            ...prev,
+            [sessionNumber]: !prev[sessionNumber]
+        }));
+    };
 
     if (loading) {
         return <div className="text-center py-10">Loading class details...</div>;
@@ -87,11 +104,10 @@ const ClassDetail = () => {
                             <h2 className="text-xl font-extrabold text-[#002045]">Curriculum Outline</h2>
                             <span className="text-[14px] font-semibold text-[#74777f] bg-[#f8f9fc] px-3 py-1 rounded-full">{classData.totalSessions} Sessions</span>
                         </div>
-                        <div className="space-y-0">
+                        <div className="space-y-0 max-h-125 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#c4c6cf] scrollbar-track-transparent">
                             {classData.curriculum.map((session, index) => {
                                 const isCompleted = session.status === 'completed';
                                 const isOngoing = session.status === 'ongoing';
-                                const isUpcoming = session.status === 'upcoming';
                                 
                                 return (
                                     <div className="flex gap-6 group" key={session.sessionNumber}>
@@ -114,27 +130,39 @@ const ClassDetail = () => {
                                         
                                         {/* Content Column */}
                                         <div className={`pb-10 pt-2 w-full ${index === classData.curriculum.length - 1 ? 'pb-2' : ''}`}>
-                                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1.5">
-                                                <h3 className={`font-bold text-[17px] transition-colors duration-300
-                                                    ${isCompleted ? 'text-[#002045]' : 
-                                                      isOngoing ? 'text-[#0061a5]' : 
-                                                      'text-[#74777f]'}
-                                                `}>
-                                                    {session.title}
-                                                </h3>
+                                            <div 
+                                                className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-1.5 cursor-pointer group/item select-none"
+                                                onClick={() => toggleSession(session.sessionNumber)}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className={`font-bold text-[17px] transition-colors duration-300
+                                                        ${isCompleted ? 'text-[#002045] group-hover/item:text-[#0061a5]' : 
+                                                          isOngoing ? 'text-[#0061a5]' : 
+                                                          'text-[#74777f] group-hover/item:text-[#43474e]'}
+                                                    `}>
+                                                        {session.title}
+                                                    </h3>
+                                                    {expandedSessions[session.sessionNumber] ? (
+                                                        <ChevronUp className="w-5 h-5 text-[#74777f]" />
+                                                    ) : (
+                                                        <ChevronDown className="w-5 h-5 text-[#c4c6cf] group-hover/item:text-[#74777f] transition-colors" />
+                                                    )}
+                                                </div>
                                                 {isOngoing && (
                                                     <span className="inline-flex shrink-0 px-2.5 py-1 bg-[#e3f2fd] text-[#0061a5] text-[11px] font-black rounded-md uppercase tracking-widest animate-pulse">
                                                         Current Session
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className={`text-[15px] leading-relaxed
-                                                ${isCompleted ? 'text-[#43474e]' : 
-                                                  isOngoing ? 'text-[#181c1e] font-medium' : 
-                                                  'text-[#c4c6cf]'}
-                                            `}>
-                                                {session.description}
-                                            </p>
+                                            {expandedSessions[session.sessionNumber] && (
+                                                <p className={`text-[15px] leading-relaxed mt-3 animate-fade-in-up
+                                                    ${isCompleted ? 'text-[#43474e]' : 
+                                                      isOngoing ? 'text-[#181c1e] font-medium' : 
+                                                      'text-[#74777f]'}
+                                                `}>
+                                                    {session.description}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 );

@@ -25,6 +25,7 @@ import AttendanceProgress from '@/features/learner/routes/attendance.tsx';
 import LearnerSchedules from '@/features/learner/routes/schedules.tsx';
 import ClassRegistration from '@/features/learner/routes/registration.tsx';
 import PaymentHistory from '@/features/learner/routes/payments.tsx';
+import PaymentDetail from '@/features/learner/routes/payment-detail.tsx';
 import PaymentCheckout from '@/features/learner/routes/checkout.tsx';
 import RefundRequest from '@/features/learner/routes/refund.tsx';
 import LearnerGrades from '@/features/learner/routes/grades.tsx';
@@ -124,6 +125,7 @@ export const AppRouter = () => {
               <Route path="/courses/:courseId/register" element={<ClassRegistration />} />
               
               <Route path="/learner/payments" element={<PaymentHistory />} />
+              <Route path="/learner/payments/:id" element={<PaymentDetail />} />
               <Route path="/learner/payments/:id/checkout" element={<PaymentCheckout />} />
               <Route path="/learner/payments/:id/refund" element={<RefundRequest />} />
               
