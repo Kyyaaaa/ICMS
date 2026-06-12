@@ -14,6 +14,9 @@ const RefundRequest = () => {
 
     const [reason, setReason] = useState('');
     const [details, setDetails] = useState('');
+    const [bankName, setBankName] = useState('');
+    const [accountNo, setAccountNo] = useState('');
+    const [accountName, setAccountName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
@@ -122,11 +125,50 @@ const RefundRequest = () => {
                     ></textarea>
                 </div>
 
+                <div className="bg-[#f7fafc] rounded-[8px] p-4 border border-[#e0e3e5] space-y-4">
+                    <h3 className="text-[14px] font-bold text-[#181c1e]">Bank Information for Refund</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-[14px] font-semibold text-[#181c1e]">Bank Name</label>
+                            <input 
+                                type="text"
+                                value={bankName}
+                                onChange={(e) => setBankName(e.target.value)}
+                                placeholder="e.g. Vietcombank"
+                                className="w-full px-4 py-2.5 bg-white border border-[#c4c6cf] rounded-[8px] text-[16px] focus:outline-none focus:border-[#ba1a1a] focus:ring-[3px] focus:ring-[#ba1a1a]/20" 
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[14px] font-semibold text-[#181c1e]">Account Number</label>
+                            <input 
+                                type="text"
+                                value={accountNo}
+                                onChange={(e) => setAccountNo(e.target.value)}
+                                placeholder="e.g. 0123456789"
+                                className="w-full px-4 py-2.5 bg-white border border-[#c4c6cf] rounded-[8px] text-[16px] focus:outline-none focus:border-[#ba1a1a] focus:ring-[3px] focus:ring-[#ba1a1a]/20" 
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-[14px] font-semibold text-[#181c1e]">Account Name</label>
+                            <input 
+                                type="text"
+                                value={accountName}
+                                onChange={(e) => setAccountName(e.target.value)}
+                                placeholder="e.g. NGUYEN VAN A"
+                                className="w-full px-4 py-2.5 bg-white border border-[#c4c6cf] rounded-[8px] text-[16px] focus:outline-none focus:border-[#ba1a1a] focus:ring-[3px] focus:ring-[#ba1a1a]/20" 
+                                required
+                            />
+                        </div>
+                    </div>
+                </div>
+
                 <div className="pt-4 border-t border-[#e0e3e5] flex justify-end">
                     <button 
                         type="submit" 
-                        disabled={!reason || isSubmitting} 
-                        className="bg-[#ba1a1a] text-white px-6 py-2.5 rounded-[8px] text-[14px] font-semibold flex items-center gap-[8px] hover:bg-[#93000a] transition-colors disabled:opacity-50"
+                        disabled={!reason || !bankName || !accountNo || !accountName || isSubmitting} 
+                        className="bg-[#ba1a1a] text-white px-6 py-2.5 rounded-[8px] text-[14px] font-semibold flex items-center gap-2 hover:bg-[#93000a] transition-colors disabled:opacity-50"
                     >
                         {isSubmitting ? 'Submitting...' : <><Send className="w-4 h-4"/> Submit Request</>}
                     </button>
