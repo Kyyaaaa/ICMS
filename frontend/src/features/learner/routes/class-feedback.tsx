@@ -26,12 +26,12 @@ const ClassFeedback = () => {
     }
 
     return (
-        <div className="max-w-2xl mx-auto space-y-[24px] animate-fade-in-up">
-            <div className="flex items-center gap-[16px]">
-                <Link to={`/learner/classes/${id}`} className="text-[#0061a5] hover:underline font-medium text-[14px]">← Back to Class</Link>
+        <div className="max-w-2xl mx-auto space-y-6 animate-fade-in-up">
+            <div className="flex items-center gap-4">
+                <Link to={`/learner/classes/${id}`} className="text-[#0061a5] hover:underline font-medium text-sm">← Back to Class</Link>
             </div>
             
-            <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Tutor Evaluation</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">Tutor Evaluation</h1>
             
             <FeedbackForm 
                 isSubmitting={isSubmitting} 

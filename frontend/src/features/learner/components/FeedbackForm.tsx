@@ -17,20 +17,20 @@ export const FeedbackForm = ({ isSubmitting, onSubmit }: FeedbackFormProps) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-[24px] md:p-[32px] space-y-[32px]">
-            <div className="flex items-center gap-[16px] pb-[24px] border-b border-[#e0e3e5]">
-                <div className="w-16 h-16 rounded-full bg-[#d2e4ff] text-[#0061a5] flex items-center justify-center font-bold text-[20px]">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6 md:p-8 space-y-8">
+            <div className="flex items-center gap-4 pb-6 border-b border-[#e0e3e5]">
+                <div className="w-16 h-16 rounded-full bg-[#d2e4ff] text-[#0061a5] flex items-center justify-center font-bold text-xl">
                     SJ
                 </div>
                 <div>
-                    <h2 className="text-[18px] font-bold text-[#181c1e]">Sarah Jenkins</h2>
-                    <p className="text-[14px] text-[#74777f]">IELTS Academic - Reading</p>
+                    <h2 className="text-lg font-bold text-[#181c1e]">Sarah Jenkins</h2>
+                    <p className="text-sm text-[#74777f]">IELTS Academic - Reading</p>
                 </div>
             </div>
 
-            <div className="space-y-[12px]">
-                <label className="block text-[16px] font-semibold text-[#181c1e]">Overall Rating</label>
-                <div className="flex gap-[8px]">
+            <div className="space-y-3">
+                <label className="block text-base font-semibold text-[#181c1e]">Overall Rating</label>
+                <div className="flex gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                         <button
                             key={star}
@@ -46,11 +46,11 @@ export const FeedbackForm = ({ isSubmitting, onSubmit }: FeedbackFormProps) => {
                 </div>
             </div>
 
-            <div className="space-y-[12px]">
-                <label className="block text-[16px] font-semibold text-[#181c1e]">Your Review</label>
+            <div className="space-y-3">
+                <label className="block text-base font-semibold text-[#181c1e]">Your Review</label>
                 <textarea 
                     rows={5} 
-                    className="w-full px-[16px] py-[12px] bg-white border border-[#c4c6cf] rounded-[8px] text-[16px] focus:outline-none focus:border-[#0061a5] focus:ring-[3px] focus:ring-[#0061a5]/20 resize-none"
+                    className="w-full px-4 py-3 bg-white border border-[#c4c6cf] rounded-lg text-base focus:outline-none focus:border-[#0061a5] focus:ring-[3px] focus:ring-[#0061a5]/20 resize-none"
                     placeholder="Tell us about your experience..."
                     value={review}
                     onChange={(e) => setReview(e.target.value)}
@@ -58,11 +58,11 @@ export const FeedbackForm = ({ isSubmitting, onSubmit }: FeedbackFormProps) => {
                 ></textarea>
             </div>
 
-            <div className="pt-[24px] border-t border-[#e0e3e5] flex justify-end">
+            <div className="pt-6 border-t border-[#e0e3e5] flex justify-end">
                 <button 
                     type="submit" 
                     disabled={rating === 0 || isSubmitting} 
-                    className="bg-[#002045] text-white px-[24px] py-[10px] rounded-[8px] text-[14px] font-semibold flex items-center gap-[8px] hover:bg-[#0061a5] transition-colors disabled:opacity-50"
+                    className="bg-[#002045] text-white px-6 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-[#0061a5] transition-colors disabled:opacity-50"
                 >
                     {isSubmitting ? 'Submitting...' : <><Send className="w-4 h-4"/> Submit Review</>}
                 </button>

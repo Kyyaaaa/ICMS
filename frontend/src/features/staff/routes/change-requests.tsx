@@ -40,14 +40,14 @@ const ChangeRequests = () => {
     return (
         <div className="space-y-6 animate-fade-in-up">
             <div className="flex justify-between items-center">
-                <h1 className="text-[24px] font-bold text-[#002045]">Schedule Change Requests</h1>
+                <h1 className="text-2xl font-bold text-[#002045]">Schedule Change Requests</h1>
                 <div className="flex items-center gap-3">
                     <div className="relative">
                         <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input 
                             type="text" 
                             placeholder="Search tutor or class..." 
-                            className="pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg w-[250px] focus:ring-2 focus:ring-[#0061a5] focus:outline-none" 
+                            className="pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg w-62.5 focus:ring-2 focus:ring-[#0061a5] focus:outline-none" 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />

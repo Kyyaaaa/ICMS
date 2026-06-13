@@ -274,24 +274,24 @@ export const ProfileView = ({
     return (
         <div className="max-w-4xl space-y-6 animate-fade-in-up pb-8">
             <div>
-                <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">{title}</h1>
-                <p className="text-[#74777f] text-[14px] mt-1">{description}</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">{title}</h1>
+                <p className="text-[#74777f] text-sm mt-1">{description}</p>
             </div>
             
             {isProfileIncomplete && (
                 <div className="bg-[#fef7e0] border border-[#fbbc04] text-[#b06000] px-4 py-3 rounded-xl flex items-start gap-3">
                     <div className="mt-0.5">⚠️</div>
                     <div>
-                        <h3 className="font-bold text-[14px]">Action Required: Complete Your Profile</h3>
-                        <p className="text-[13px] mt-1">Please provide your Phone Number, Date of Birth, and Gender to continue using the system. You will not be able to navigate to other pages until your profile is complete.</p>
+                        <h3 className="font-bold text-sm">Action Required: Complete Your Profile</h3>
+                        <p className="text-xs mt-1">Please provide your Phone Number, Date of Birth, and Gender to continue using the system. You will not be able to navigate to other pages until your profile is complete.</p>
                     </div>
                 </div>
             )}
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
-                        <label className="relative w-32 h-32 rounded-full bg-[#edf4fb] flex items-center justify-center text-[#0061a5] font-bold text-[48px] border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
+                    <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
+                        <label className="relative w-32 h-32 rounded-full bg-[#edf4fb] flex items-center justify-center text-[#0061a5] font-bold text-5xl border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
                             {account.avatar_url ? (
                                 <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
@@ -306,17 +306,17 @@ export const ProfileView = ({
                             </div>
                             <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} disabled={isUploadingAvatar} />
                         </label>
-                        <h2 className="text-[20px] font-bold text-[#002045]">{account.full_name || ''}</h2>
+                        <h2 className="text-xl font-bold text-[#002045]">{account.full_name || ''}</h2>
                         <div className="mt-2">
-                            <span className="px-3 py-1 bg-[#eadef7] text-[#4a0080] text-[12px] font-bold rounded-md uppercase tracking-wide">{account.role}</span>
+                            <span className="px-3 py-1 bg-[#eadef7] text-[#4a0080] text-xs font-bold rounded-md uppercase tracking-wide">{account.role}</span>
                         </div>
                         
                         <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-4">
-                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
+                            <div className="flex items-center gap-3 text-sm text-[#43474e]">
                                 <Users className="w-5 h-5 text-[#74777f] shrink-0" />
                                 <span>ID: {formatAccountID(account.account_code || account.id, account.role)}</span>
                             </div>
-                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
+                            <div className="flex items-center gap-3 text-sm text-[#43474e]">
                                 <CalendarDays className="w-5 h-5 text-[#74777f] shrink-0" />
                                 <span>Joined {account.created_at ? new Date(account.created_at).toLocaleDateString('en-GB') : ''}</span>
                             </div>
@@ -325,41 +325,41 @@ export const ProfileView = ({
                 </div>
 
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] overflow-hidden">
                         <div className="px-6 py-4 border-b border-[#e0e3e5] bg-[#f8f9fa]">
-                            <h2 className="text-[16px] font-bold text-[#002045]">Personal Information</h2>
+                            <h2 className="text-base font-bold text-[#002045]">Personal Information</h2>
                         </div>
                         <form onSubmit={handleSaveProfile} className="p-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Full Name</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Full Name</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="text" value={account.full_name} onChange={e => setAccount({...account, full_name: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
+                                        <input type="text" value={account.full_name} onChange={e => setAccount({...account, full_name: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Phone Number</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Phone Number</label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="tel" value={account.phone_number} onChange={e => setAccount({...account, phone_number: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
+                                        <input type="tel" value={account.phone_number} onChange={e => setAccount({...account, phone_number: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
                                     </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
                                     <div className="relative">
                                         <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="date" value={account.date_of_birth} onChange={e => setAccount({...account, date_of_birth: e.target.value})} max={new Date().toISOString().split('T')[0]} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" required />
+                                        <input type="date" value={account.date_of_birth} onChange={e => setAccount({...account, date_of_birth: e.target.value})} max={new Date().toISOString().split('T')[0]} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" required />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Gender</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Gender</label>
                                     <div className="relative">
                                         <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <select value={account.gender?.toUpperCase() || ''} onChange={e => setAccount({...account, gender: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e] appearance-none" required>
+                                        <select value={account.gender?.toUpperCase() || ''} onChange={e => setAccount({...account, gender: e.target.value})} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e] appearance-none" required>
                                             <option value="" disabled style={{ display: 'none' }}>Select Gender</option>
                                             <option value="MALE">Male</option>
                                             <option value="FEMALE">Female</option>
@@ -370,33 +370,33 @@ export const ProfileView = ({
                             </div>
 
                             <div className="space-y-2 mb-6">
-                                <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
+                                <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                    <input type="email" value={account.email} disabled className="w-full pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-[14px] text-[#74777f] cursor-not-allowed" />
+                                    <input type="email" value={account.email} disabled className="w-full pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-sm text-[#74777f] cursor-not-allowed" />
                                 </div>
-                                <p className="text-[12px] text-[#74777f] mt-1">{emailHint}</p>
+                                <p className="text-xs text-[#74777f] mt-1">{emailHint}</p>
                             </div>
 
                             <div className="flex items-center justify-end gap-4 pt-4 border-t border-[#e0e3e5]">
-                                {isProfileSuccess && <span className="text-[13px] text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Saved successfully</span>}
-                                <button type="submit" disabled={isSavingProfile} className="bg-[#0061a5] text-white px-5 py-2.5 rounded-xl text-[14px] font-bold flex items-center gap-2 hover:bg-[#004d80] transition-colors disabled:opacity-70">
+                                {isProfileSuccess && <span className="text-xs text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Saved successfully</span>}
+                                <button type="submit" disabled={isSavingProfile} className="bg-[#0061a5] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#004d80] transition-colors disabled:opacity-70">
                                     {isSavingProfile ? 'Saving...' : 'Save Changes'}
                                 </button>
                             </div>
                         </form>
                     </div>
 
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6">
+                    <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6">
                         <div className="mb-6 pb-4 border-b border-[#e0e3e5]">
-                            <h2 className="text-[20px] font-bold text-[#003366]">Change Password</h2>
+                            <h2 className="text-xl font-bold text-[#003366]">Change Password</h2>
                         </div>
                         <form onSubmit={handleSavePassword}>
                             <div className="space-y-6 mb-8">
                                 <div className="space-y-2">
-                                    <label className="text-[14px] font-bold text-[#181c1e]">Current Password</label>
+                                    <label className="text-sm font-bold text-[#181c1e]">Current Password</label>
                                     <div className="relative">
-                                        <input type={showOld ? "text" : "password"} value={passwords.oldPassword} onChange={e => setPasswords({...passwords, oldPassword: e.target.value})} placeholder="Current password" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] text-[#181c1e] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
+                                        <input type={showOld ? "text" : "password"} value={passwords.oldPassword} onChange={e => setPasswords({...passwords, oldPassword: e.target.value})} placeholder="Current password" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm text-[#181c1e] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required />
                                         <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045]">
                                             {showOld ? <Eye className="w-5 h-5"/> : <EyeOff className="w-5 h-5"/>}
                                         </button>
@@ -404,18 +404,18 @@ export const ProfileView = ({
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[14px] font-bold text-[#181c1e]">New Password</label>
+                                        <label className="text-sm font-bold text-[#181c1e]">New Password</label>
                                         <div className="relative">
-                                            <input type={showNew ? "text" : "password"} value={passwords.newPassword} onChange={e => setPasswords({...passwords, newPassword: e.target.value})} placeholder="New password" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] text-[#181c1e] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required minLength={8} />
+                                            <input type={showNew ? "text" : "password"} value={passwords.newPassword} onChange={e => setPasswords({...passwords, newPassword: e.target.value})} placeholder="New password" className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm text-[#181c1e] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" required minLength={8} />
                                             <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045]">
                                                 {showNew ? <Eye className="w-5 h-5"/> : <EyeOff className="w-5 h-5"/>}
                                             </button>
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[14px] font-bold text-[#181c1e]">Confirm New Password</label>
+                                        <label className="text-sm font-bold text-[#181c1e]">Confirm New Password</label>
                                         <div className="relative">
-                                            <input type={showConfirm ? "text" : "password"} value={passwords.confirmPassword} onChange={e => setPasswords({...passwords, confirmPassword: e.target.value})} placeholder="Confirm new password" className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border ${isPasswordMatch ? 'border-green-500 shadow-[0_0_0_1px_#22c55e]' : isPasswordMismatch ? 'border-red-500 shadow-[0_0_0_1px_#ef4444]' : 'border-[#c4c6cf]'} rounded-xl text-[14px] text-[#181c1e] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors`} required minLength={8} />
+                                            <input type={showConfirm ? "text" : "password"} value={passwords.confirmPassword} onChange={e => setPasswords({...passwords, confirmPassword: e.target.value})} placeholder="Confirm new password" className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border ${isPasswordMatch ? 'border-green-500 shadow-[0_0_0_1px_#22c55e]' : isPasswordMismatch ? 'border-red-500 shadow-[0_0_0_1px_#ef4444]' : 'border-[#c4c6cf]'} rounded-xl text-sm text-[#181c1e] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors`} required minLength={8} />
                                             <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045]">
                                                 {showConfirm ? <Eye className="w-5 h-5"/> : <EyeOff className="w-5 h-5"/>}
                                             </button>
@@ -424,8 +424,8 @@ export const ProfileView = ({
                                 </div>
                             </div>
                             <div className="flex items-center justify-end gap-4">
-                                {isPasswordSuccess && <span className="text-[13px] text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Password changed! Logging out...</span>}
-                                <button type="submit" disabled={isSavingPassword} className="bg-white border-2 border-[#0061a5] text-[#0061a5] px-6 py-2.5 rounded-xl text-[15px] font-bold hover:bg-[#e6f0fa] transition-colors disabled:opacity-70">
+                                {isPasswordSuccess && <span className="text-xs text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Password changed! Logging out...</span>}
+                                <button type="submit" disabled={isSavingPassword} className="bg-white border-2 border-[#0061a5] text-[#0061a5] px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#e6f0fa] transition-colors disabled:opacity-70">
                                     {isSavingPassword ? 'Updating...' : 'Update Password'}
                                 </button>
                             </div>

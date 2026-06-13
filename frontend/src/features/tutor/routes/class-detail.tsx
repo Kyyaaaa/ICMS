@@ -62,7 +62,7 @@ const TutorClassDetail = () => {
                 </button>
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">{classInfo.name}</h1>
-                    <p className="text-[14px] text-[#43474e]">Manage attendance and grades for this class.</p>
+                    <p className="text-sm text-[#43474e]">Manage attendance and grades for this class.</p>
                 </div>
             </div>
 
@@ -74,7 +74,7 @@ const TutorClassDetail = () => {
                         <button
                             key={tab.name}
                             onClick={() => navigate(tab.path)}
-                            className={`flex items-center gap-2 px-6 py-3 font-bold text-[14px] transition-colors border-b-2 relative -bottom-px ${
+                            className={`flex items-center gap-2 px-6 py-3 font-bold text-sm transition-colors border-b-2 relative -bottom-px ${
                                 isActive 
                                 ? 'text-[#0061a5] border-[#0061a5]' 
                                 : 'text-[#74777f] border-transparent hover:text-[#002045] hover:border-gray-300'

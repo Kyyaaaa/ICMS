@@ -41,44 +41,44 @@ const Courses = () => {
     const bands = ['5.5-6.5', '6.0-7.0', '7.0+', '7.5+', '8.0+'];
 
     return (
-        <div className="bg-[#f7fafc] text-[#181c1e] text-[16px] leading-[24px] font-sans min-h-screen flex flex-col">
+        <div className="bg-[#f7fafc] text-[#181c1e] text-base leading-6 font-sans min-h-screen flex flex-col">
             <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
 
             {/* Main Content */}
-            <main className="flex-grow w-full max-w-[1440px] mx-auto px-4 lg:px-[32px] py-[40px]">
+            <main className="grow w-full max-w-360 mx-auto px-4 lg:px-8 py-10">
                 {/* Hero */}
-                <div className="mb-[40px]">
-                    <h1 className="text-[40px] font-extrabold text-[#002045] mb-4">Explore Our Courses</h1>
-                    <p className="text-[18px] text-[#43474e] max-w-2xl">Discover the perfect path for your IELTS journey. We offer a variety of formats and specializations to help you achieve your target band score.</p>
+                <div className="mb-10">
+                    <h1 className="text-4xl font-extrabold text-[#002045] mb-4">Explore Our Courses</h1>
+                    <p className="text-lg text-[#43474e] max-w-2xl">Discover the perfect path for your IELTS journey. We offer a variety of formats and specializations to help you achieve your target band score.</p>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-[32px]">
+                <div className="flex flex-col lg:flex-row gap-8">
                     {/* Filter Sidebar */}
-                    <aside className="w-full lg:w-[280px] flex-shrink-0">
-                        <div className="bg-white border border-[#c4c6cf] rounded-2xl p-[24px] sticky top-[100px]">
-                            <div className="flex items-center gap-2 mb-[24px] pb-[16px] border-b border-[#e0e3e5]">
+                    <aside className="w-full lg:w-70 shrink-0">
+                        <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 sticky top-25">
+                            <div className="flex items-center gap-2 mb-6 pb-4 border-b border-[#e0e3e5]">
                                 <Filter className="w-5 h-5 text-[#0061a5]" />
-                                <h2 className="text-[18px] font-bold text-[#002045]">Filters</h2>
+                                <h2 className="text-lg font-bold text-[#002045]">Filters</h2>
                             </div>
 
                             {/* Format Filter - Removed since all courses are offline */}
 
                             {/* Target Band Filter */}
                             <div>
-                                <h3 className="text-[16px] font-bold text-[#002045] mb-[12px]">Target Band</h3>
-                                <div className="flex flex-col gap-[12px]">
+                                <h3 className="text-base font-bold text-[#002045] mb-3">Target Band</h3>
+                                <div className="flex flex-col gap-3">
                                     {bands.map(band => (
                                         <label key={band} className="flex items-center gap-3 cursor-pointer group">
                                             <div className="relative flex items-center justify-center">
                                                 <input 
                                                     type="checkbox" 
-                                                    className="w-5 h-5 border-2 border-[#c4c6cf] rounded-[6px] appearance-none checked:bg-[#0061a5] checked:border-[#0061a5] transition-colors"
+                                                    className="w-5 h-5 border-2 border-[#c4c6cf] rounded-md appearance-none checked:bg-[#0061a5] checked:border-[#0061a5] transition-colors"
                                                     checked={selectedBands.includes(band)}
                                                     onChange={() => toggleFilter(selectedBands, setSelectedBands, band)}
                                                 />
                                                 {selectedBands.includes(band) && <div className="absolute inset-0 flex items-center justify-center text-white pointer-events-none"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.00003 7.8L1.20003 5L0.266693 5.93333L4.00003 9.66667L12 1.66667L11.0667 0.733334L4.00003 7.8Z" fill="currentColor"/></svg></div>}
                                             </div>
-                                            <span className="text-[15px] text-[#43474e] group-hover:text-[#002045] transition-colors">IELTS {band}</span>
+                                            <span className="text-sm text-[#43474e] group-hover:text-[#002045] transition-colors">IELTS {band}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -88,37 +88,37 @@ const Courses = () => {
 
                     {/* Course Grid */}
                     <div className="flex-1">
-                        <div className="mb-[24px] flex justify-between items-center">
+                        <div className="mb-6 flex justify-between items-center">
                             <span className="text-[#43474e] font-medium">Showing <strong className="text-[#002045]">{filteredCourses.length}</strong> courses</span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[24px]">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {filteredCourses.map(course => (
                                 <div key={course.id} className="bg-white rounded-2xl overflow-hidden border border-[#e0e3e5] shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col cursor-pointer" onClick={() => navigate(`/courses/${course.id}`)}>
-                                    <div className="h-[200px] overflow-hidden relative">
+                                    <div className="h-50 overflow-hidden relative">
                                         <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                                        <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
                                     </div>
-                                    <div className="p-[24px] flex flex-col flex-grow relative">
+                                    <div className="p-6 flex flex-col grow relative">
                                         <div className="flex justify-between items-start mb-3">
                                             <div className="flex gap-2">
-                                                <span className="px-2 py-1 bg-white border border-[#c4c6cf] text-[#43474e] text-[11px] font-bold rounded uppercase tracking-wider">{course.category}</span>
-                                                <span className="px-2 py-1 bg-[#0061a5] text-white text-[11px] font-bold rounded uppercase tracking-wider">{course.format}</span>
+                                                <span className="px-2 py-1 bg-white border border-[#c4c6cf] text-[#43474e] text-xs font-bold rounded uppercase tracking-wider">{course.category}</span>
+                                                <span className="px-2 py-1 bg-[#0061a5] text-white text-xs font-bold rounded uppercase tracking-wider">{course.format}</span>
                                             </div>
-                                            <span className="flex items-center gap-1 text-[13px] font-bold text-[#ffd200] bg-[#181c1e] px-2 py-1 rounded">
+                                            <span className="flex items-center gap-1 text-xs font-bold text-[#ffd200] bg-[#181c1e] px-2 py-1 rounded">
                                                 <Star className="w-3 h-3 fill-[#ffd200]" /> {course.band}
                                             </span>
                                         </div>
-                                        <h3 className="text-[20px] font-bold text-[#002045] mb-2 leading-tight group-hover:text-[#0061a5] transition-colors">{course.title}</h3>
+                                        <h3 className="text-xl font-bold text-[#002045] mb-2 leading-tight group-hover:text-[#0061a5] transition-colors">{course.title}</h3>
                                         
                                         <div className="flex items-center gap-4 mb-4">
-                                            <div className="flex items-center gap-1.5 text-[13px] text-[#43474e] font-medium">
+                                            <div className="flex items-center gap-1.5 text-xs text-[#43474e] font-medium">
                                                 <Clock className="w-4 h-4 text-[#0061a5]" /> {course.duration}
                                             </div>
                                         </div>
 
                                         <div className="flex justify-between items-center mt-auto">
-                                            <span className="text-[20px] font-extrabold text-[#0061a5]">{course.price}</span>
-                                            <span className="text-[14px] font-bold text-[#002045] flex items-center gap-1 group-hover:text-[#0061a5] transition-colors">
+                                            <span className="text-xl font-extrabold text-[#0061a5]">{course.price}</span>
+                                            <span className="text-sm font-bold text-[#002045] flex items-center gap-1 group-hover:text-[#0061a5] transition-colors">
                                                 View Details <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                                             </span>
                                         </div>
@@ -131,21 +131,21 @@ const Courses = () => {
             </main>
 
             {/* Footer Component */}
-            <footer className="bg-[#00142d] text-[#f1f4f6] w-full pt-[80px] pb-[40px] border-t-4 border-[#0061a5] mt-auto">
-                <div className="max-w-[1200px] mx-auto px-4 lg:px-[32px] grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-[40px] lg:gap-[32px]">
+            <footer className="bg-[#00142d] text-[#f1f4f6] w-full pt-20 pb-10 border-t-4 border-[#0061a5] mt-auto">
+                <div className="max-w-300 mx-auto px-4 lg:px-8 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-10 lg:gap-8">
                     <div className="col-span-1 md:col-span-3 lg:col-span-5 flex flex-col items-start">
-                        <div className="text-[28px] font-extrabold text-white mb-[20px] flex items-center gap-2">
+                        <div className="text-3xl font-extrabold text-white mb-5 flex items-center gap-2">
                             <BookOpen className="w-8 h-8 text-[#adc7f7]" /> ICMS
                         </div>
-                        <p className="text-[#a8aeb4] text-[14px] leading-[24px] mb-[24px] max-w-[300px]">
+                        <p className="text-[#a8aeb4] text-sm leading-6 mb-6 max-w-75">
                             Empowering students to achieve their target IELTS band score with proven methodologies and elite instructors.
                         </p>
-                        <div className="flex flex-col gap-[12px]">
-                            <div className="flex items-center gap-3 text-[#a8aeb4] text-[14px]">
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center gap-3 text-[#a8aeb4] text-sm">
                                 <Headset className="w-5 h-5 text-[#adc7f7]" />
                                 <span>Hotline: <strong className="text-white">1900 1234</strong></span>
                             </div>
-                            <div className="flex items-start gap-3 text-[#a8aeb4] text-[14px]">
+                            <div className="flex items-start gap-3 text-[#a8aeb4] text-sm">
                                 <Compass className="w-5 h-5 text-[#adc7f7] mt-0.5" />
                                 <span>123 Education Street, Tech District,<br/>Hanoi, Vietnam</span>
                             </div>
@@ -153,41 +153,41 @@ const Courses = () => {
                     </div>
                     
                     <div className="col-span-1 lg:col-span-4">
-                        <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Our Programs</h4>
-                        <div className="flex flex-col gap-[16px]">
-                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
+                        <h4 className="text-base font-bold text-white mb-6 uppercase tracking-wider">Our Programs</h4>
+                        <div className="flex flex-col gap-4">
+                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm flex items-center gap-2">
                                 <ArrowRight className="w-4 h-4" /> IELTS Masterclass
                             </Link>
-                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
+                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm flex items-center gap-2">
                                 <ArrowRight className="w-4 h-4" /> Academic Fundamentals
                             </Link>
-                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
+                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm flex items-center gap-2">
                                 <ArrowRight className="w-4 h-4" /> Intensive Crash Course
                             </Link>
-                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
+                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm flex items-center gap-2">
                                 <ArrowRight className="w-4 h-4" /> 1-on-1 Private Tutoring
                             </Link>
                         </div>
                     </div>
                     
                     <div className="col-span-1 lg:col-span-3">
-                        <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Explore</h4>
-                        <div className="flex flex-col gap-[16px]">
-                            <a href="/homepage#about" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">About ICMS</a>
-                            <a href="/homepage#tutors" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Our Tutors</a>
-                            <a href="/homepage#stories" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Success Stories</a>
-                            <a href="/homepage#consultation" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Free Consultation</a>
+                        <h4 className="text-base font-bold text-white mb-6 uppercase tracking-wider">Explore</h4>
+                        <div className="flex flex-col gap-4">
+                            <a href="/homepage#about" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm">About ICMS</a>
+                            <a href="/homepage#tutors" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm">Our Tutors</a>
+                            <a href="/homepage#stories" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm">Success Stories</a>
+                            <a href="/homepage#consultation" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm">Free Consultation</a>
                         </div>
                     </div>
                 </div>
                 
-                <div className="max-w-[1200px] mx-auto px-4 lg:px-[32px] mt-[64px] pt-[32px] border-t border-[#43474e] flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div className="text-[14px] text-[#a8aeb4]">
+                <div className="max-w-300 mx-auto px-4 lg:px-8 mt-16 pt-8 border-t border-[#43474e] flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="text-sm text-[#a8aeb4]">
                         © {new Date().getFullYear()} ICMS Education. All rights reserved.
                     </div>
-                    <div className="flex gap-[24px]">
-                        <a href="#" className="text-[#a8aeb4] hover:text-white text-[14px] transition-colors">Privacy Policy</a>
-                        <a href="#" className="text-[#a8aeb4] hover:text-white text-[14px] transition-colors">Terms of Service</a>
+                    <div className="flex gap-6">
+                        <a href="#" className="text-[#a8aeb4] hover:text-white text-sm transition-colors">Privacy Policy</a>
+                        <a href="#" className="text-[#a8aeb4] hover:text-white text-sm transition-colors">Terms of Service</a>
                     </div>
                 </div>
             </footer>

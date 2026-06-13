@@ -94,7 +94,7 @@ const StaffCertificates = () => {
   return (
     <div className="space-y-6 animate-fade-in-up">
       <div className="flex justify-between items-center">
-        <h1 className="text-[24px] font-bold text-[#002045]">
+        <h1 className="text-2xl font-bold text-[#002045]">
           Tutor Certificates
         </h1>
         <div className="flex items-center gap-3">
@@ -204,14 +204,14 @@ const StaffCertificates = () => {
                     <p className="font-bold text-[#002045]">
                       {item.account.full_name}
                     </p>
-                    <p className="text-[12px] text-[#74777f]">
+                    <p className="text-xs text-[#74777f]">
                       {item.account.email}
                     </p>
                   </td>
                   <td className="p-4 font-bold text-[#181c1e]">{item.name}</td>
                   <td className="p-4 text-[#43474e]">{item.issuer}</td>
                   <td className="p-4 text-[#43474e]">
-                    <p className="text-[13px] font-medium">
+                    <p className="text-xs font-medium">
                       {new Date(item.created_at).toLocaleString("vi-VN")}
                     </p>
                   </td>
@@ -275,7 +275,7 @@ const StaffCertificates = () => {
             {/* Details & Actions - Right Side */}
             <div className="w-full md:w-90 bg-white p-5 flex flex-col h-full overflow-hidden">
               <div className="flex items-center justify-between mb-4 shrink-0">
-                <h3 className="font-bold text-[#002045] text-[20px]">
+                <h3 className="font-bold text-[#002045] text-xl">
                   Review Certificate
                 </h3>
                 <button
@@ -294,65 +294,65 @@ const StaffCertificates = () => {
 
               <div className="space-y-4 flex-1 overflow-y-auto pr-2 scrollbar-thin">
                 <div>
-                  <p className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1">
+                  <p className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1">
                     Tutor
                   </p>
-                  <p className="font-bold text-[#181c1e] text-[15px]">
+                  <p className="font-bold text-[#181c1e] text-sm">
                     {selectedQual.account.full_name}
                   </p>
-                  <p className="text-[#43474e] text-[13px]">
+                  <p className="text-[#43474e] text-xs">
                     {selectedQual.account.email}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1">
+                  <p className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1">
                     Certificate Name
                   </p>
-                  <p className="font-bold text-[#0061a5] text-[15px]">
+                  <p className="font-bold text-[#0061a5] text-sm">
                     {selectedQual.name}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1">
+                  <p className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1">
                     Issuer / Institution
                   </p>
-                  <p className="font-semibold text-[#181c1e] text-[14px]">
+                  <p className="font-semibold text-[#181c1e] text-sm">
                     {selectedQual.issuer}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <p className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1">
+                    <p className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1">
                       Issue Date
                     </p>
-                    <p className="font-medium text-[#181c1e] text-[14px]">
+                    <p className="font-medium text-[#181c1e] text-sm">
                       {formatDate(selectedQual.issue_date)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1">
+                    <p className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1">
                       Expiration
                     </p>
-                    <p className="font-medium text-[#181c1e] text-[14px]">
+                    <p className="font-medium text-[#181c1e] text-sm">
                       {formatDate(selectedQual.expiration_date)}
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1">
+                  <p className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1">
                     Submitted On
                   </p>
-                  <p className="font-medium text-[#181c1e] text-[14px]">
+                  <p className="font-medium text-[#181c1e] text-sm">
                     {new Date(selectedQual.created_at).toLocaleString("vi-VN")}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1">
+                  <p className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1">
                     Current Status
                   </p>
                   <span
@@ -395,7 +395,7 @@ const StaffCertificates = () => {
                     <div key={shakeKey} className="space-y-1">
                       <textarea
                         placeholder="Provide reason for rejection (required)..."
-                        className={`w-full p-3 border rounded-xl outline-none text-[14px] min-h-20 transition-all ${
+                        className={`w-full p-3 border rounded-xl outline-none text-sm min-h-20 transition-all ${
                           rejectError
                             ? "border-rose-500 bg-rose-50 animate-shake focus:ring-1 focus:ring-rose-500"
                             : "border-[#c4c6cf] focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
@@ -407,7 +407,7 @@ const StaffCertificates = () => {
                         }}
                       />
                       {rejectError && (
-                        <p className="text-rose-600 text-[12px] font-bold ml-1">
+                        <p className="text-rose-600 text-xs font-bold ml-1">
                           {rejectError}
                         </p>
                       )}

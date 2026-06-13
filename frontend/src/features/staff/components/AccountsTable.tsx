@@ -62,16 +62,16 @@ export const AccountsTable = ({
     };
 
     return (
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden relative min-h-75">
+        <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] overflow-hidden relative min-h-75">
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-200">
                     <thead>
                         <tr className="bg-[#f7fafc] border-b border-[#e0e3e5]">
-                            <th className="py-4 px-6 text-[13px] font-bold text-[#43474e] uppercase tracking-wider">User Info</th>
-                            <th className="py-4 px-6 text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Role</th>
-                            <th className="py-4 px-6 text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Joined Date</th>
-                            <th className="py-4 px-6 text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Status</th>
-                            <th className="py-4 px-6 text-[13px] font-bold text-[#43474e] uppercase tracking-wider text-right">Actions</th>
+                            <th className="py-4 px-6 text-xs font-bold text-[#43474e] uppercase tracking-wider">User Info</th>
+                            <th className="py-4 px-6 text-xs font-bold text-[#43474e] uppercase tracking-wider">Role</th>
+                            <th className="py-4 px-6 text-xs font-bold text-[#43474e] uppercase tracking-wider">Joined Date</th>
+                            <th className="py-4 px-6 text-xs font-bold text-[#43474e] uppercase tracking-wider">Status</th>
+                            <th className="py-4 px-6 text-xs font-bold text-[#43474e] uppercase tracking-wider text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -97,31 +97,31 @@ export const AccountsTable = ({
                                                 <p className={`font-bold ${acc.status !== 'ACTIVE' ? 'text-[#ba1a1a]' : 'text-[#002045]'}`}>
                                                     {acc.full_name || ''}
                                                 </p>
-                                                <p className="text-[13px] text-[#74777f]">
+                                                <p className="text-xs text-[#74777f]">
                                                     {acc.email}
                                                 </p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <span className={`px-2.5 py-1 text-[12px] font-bold rounded-full uppercase tracking-wider ${getRoleColor(acc.role)}`}>
+                                        <span className={`px-2.5 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${getRoleColor(acc.role)}`}>
                                             {acc.role}
                                         </span>
                                     </td>
-                                    <td className="py-4 px-6 text-[14px] text-[#43474e] font-medium">
+                                    <td className="py-4 px-6 text-sm text-[#43474e] font-medium">
                                         {new Date(acc.created_at).toLocaleDateString('en-GB')}
                                     </td>
                                     <td className="py-4 px-6">
                                         {acc.status === 'ACTIVE' ? (
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e6f4ea] text-[#137333] text-[13px] font-bold rounded-full">
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e6f4ea] text-[#137333] text-xs font-bold rounded-full">
                                                 <CheckCircle2 size={16} /> Active
                                             </span>
                                         ) : (
                                             <div className="flex flex-col">
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#ffdad6] text-[#ba1a1a] text-[13px] font-bold rounded-full w-fit mb-1">
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#ffdad6] text-[#ba1a1a] text-xs font-bold rounded-full w-fit mb-1">
                                                     <Ban size={16} /> Banned
                                                 </span>
-                                                <span className="text-[11px] text-[#ba1a1a] font-semibold pl-1 flex items-center gap-1">
+                                                <span className="text-xs text-[#ba1a1a] font-semibold pl-1 flex items-center gap-1">
                                                     <Lock size={10} /> Restricted Access
                                                 </span>
                                             </div>
@@ -176,7 +176,7 @@ export const AccountsTable = ({
             {/* Pagination UI */}
             {totalAccounts > limit && (
                 <div className="flex items-center justify-between px-6 py-4 border-t border-[#e0e3e5] bg-[#f8f9fa]">
-                    <span className="text-[13px] text-[#43474e]">
+                    <span className="text-xs text-[#43474e]">
                         Showing <span className="font-bold">{(currentPage - 1) * limit + 1}</span> to <span className="font-bold">{Math.min(currentPage * limit, totalAccounts)}</span> of <span className="font-bold">{totalAccounts}</span> accounts
                     </span>
                     <div className="flex gap-1.5 items-center">
@@ -206,7 +206,7 @@ export const AccountsTable = ({
                                 <button
                                     key={`page-${pageNum}`}
                                     onClick={() => setCurrentPage(pageNum as number)}
-                                    className={`min-w-8 h-8 px-2 flex items-center justify-center rounded-lg text-[13px] font-bold transition-colors ${
+                                    className={`min-w-8 h-8 px-2 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${
                                         currentPage === pageNum 
                                             ? 'bg-[#0061a5] text-white border border-[#0061a5]' 
                                             : 'border border-[#c4c6cf] text-[#43474e] bg-white hover:bg-[#f1f4f6]'

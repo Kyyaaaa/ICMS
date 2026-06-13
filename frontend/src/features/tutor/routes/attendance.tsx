@@ -83,7 +83,7 @@ const ClassAttendance = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm mt-8 mx-auto max-w-350">
+            <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-xl bg-white shadow-sm mt-8 mx-auto max-w-350">
                 <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
             </div>
         );

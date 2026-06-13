@@ -100,11 +100,11 @@ export const CertificateModals = ({
                     <div className="bg-white rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl animate-scale-in">
                         <div className="flex items-center justify-between p-4 border-b border-[#e0e3e5]">
                             <div>
-                                <h3 className="font-bold text-[#002045] text-[18px]">{viewQual.name}</h3>
+                                <h3 className="font-bold text-[#002045] text-lg">{viewQual.name}</h3>
                                   {viewQual.status === 'Rejected' && viewQual.rejection_reason && (
                                       <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-lg">
-                                          <p className="text-[12px] font-bold text-rose-700 uppercase tracking-wider mb-1">Rejection Reason</p>
-                                          <p className="text-rose-600 text-[13px]">{viewQual.rejection_reason}</p>
+                                          <p className="text-xs font-bold text-rose-700 uppercase tracking-wider mb-1">Rejection Reason</p>
+                                          <p className="text-rose-600 text-xs">{viewQual.rejection_reason}</p>
                                       </div>
                                   )}
                             </div>
@@ -123,7 +123,7 @@ export const CertificateModals = ({
                                         <FileBadge className="w-12 h-12" />
                                     </div>
                                     <p className="font-bold text-[#43474e]">Document Ready</p>
-                                    <a href={viewQual.file} target="_blank" rel="noreferrer" className="text-[#0061a5] hover:underline font-bold text-[13px] mt-2 inline-block">
+                                    <a href={viewQual.file} target="_blank" rel="noreferrer" className="text-[#0061a5] hover:underline font-bold text-xs mt-2 inline-block">
                                         Click here to view/download
                                     </a>
                                 </div>
@@ -137,7 +137,7 @@ export const CertificateModals = ({
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
                     <div className="bg-white rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl animate-scale-in">
                         <div className="flex items-center justify-between p-4 border-b border-[#e0e3e5]">
-                            <h3 className="font-bold text-[#002045] text-[18px]">Edit Certificate</h3>
+                            <h3 className="font-bold text-[#002045] text-lg">Edit Certificate</h3>
                             <button onClick={() => setEditQual(null)} className="p-2 hover:bg-[#f1f4f6] rounded-full transition-colors">
                                 <X className="w-5 h-5 text-[#43474e]" />
                             </button>
@@ -145,46 +145,46 @@ export const CertificateModals = ({
                         <form onSubmit={handleInternalEditSave} className="p-6 space-y-5">
                             {error && <p className="text-rose-600 text-sm bg-rose-50 p-3 rounded-lg border border-rose-200">{error}</p>}
                             <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-[#43474e]">Certificate Name</label>
+                                <label className="text-xs font-bold text-[#43474e]">Certificate Name</label>
                                 <input 
                                     type="text" 
                                     value={editQual.name} 
                                     onChange={(e) => setEditQual({...editQual, name: e.target.value})}
-                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-[14px]" 
+                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-sm" 
                                     required
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-[#43474e]">Issuer / Institution</label>
+                                <label className="text-xs font-bold text-[#43474e]">Issuer / Institution</label>
                                 <input 
                                     type="text" 
                                     value={editQual.issuer} 
                                     onChange={(e) => setEditQual({...editQual, issuer: e.target.value})}
-                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-[14px]" 
+                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-sm" 
                                     required
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-[#43474e]">Issue Date</label>
+                                <label className="text-xs font-bold text-[#43474e]">Issue Date</label>
                                 <input 
                                     type="date" 
                                     value={editQual.issueDate} 
                                     onChange={(e) => setEditQual({...editQual, issueDate: e.target.value})}
-                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-[14px] text-[#181c1e]" 
+                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-sm text-[#181c1e]" 
                                     required
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-[#43474e]">Expiration Date (if applicable)</label>
+                                <label className="text-xs font-bold text-[#43474e]">Expiration Date (if applicable)</label>
                                 <input 
                                     type="date" 
                                     value={editQual.expDate === 'No Expiration' ? '' : editQual.expDate} 
                                     onChange={(e) => setEditQual({...editQual, expDate: e.target.value || 'No Expiration'})}
-                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-[14px] text-[#181c1e]" 
+                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-sm text-[#181c1e]" 
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-[#43474e]">Replace Certificate Image / PDF</label>
+                                <label className="text-xs font-bold text-[#43474e]">Replace Certificate Image / PDF</label>
                                 <input type="file" ref={fileInputRef} className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange} />
                                 <div 
                                     onClick={() => !newFile && fileInputRef.current?.click()}
@@ -203,8 +203,8 @@ export const CertificateModals = ({
                                                     <div className="w-10 h-10 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] mb-2 group-hover:scale-110 transition-transform">
                                                         <Upload className="w-5 h-5" />
                                                     </div>
-                                                    <p className="text-[13px] font-bold text-[#002045] mb-1">New file selected</p>
-                                                    <p className="text-[12px] text-[#74777f] truncate max-w-50">{newFile.name}</p>
+                                                    <p className="text-xs font-bold text-[#002045] mb-1">New file selected</p>
+                                                    <p className="text-xs text-[#74777f] truncate max-w-50">{newFile.name}</p>
                                                 </div>
                                             )}
                                             <button
@@ -223,17 +223,17 @@ export const CertificateModals = ({
                                             <div className="w-10 h-10 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] mb-2 group-hover:scale-110 transition-transform">
                                                 <Upload className="w-5 h-5" />
                                             </div>
-                                            <p className="text-[13px] font-bold text-[#002045] mb-1">Click to upload new file</p>
-                                            <p className="text-[12px] text-[#74777f]">Current: <span className="font-medium text-[#0061a5] truncate max-w-50 inline-block align-bottom">{editQual.file.split('/').pop() || editQual.file}</span></p>
+                                            <p className="text-xs font-bold text-[#002045] mb-1">Click to upload new file</p>
+                                            <p className="text-xs text-[#74777f]">Current: <span className="font-medium text-[#0061a5] truncate max-w-50 inline-block align-bottom">{editQual.file.split('/').pop() || editQual.file}</span></p>
                                         </div>
                                     )}
                                 </div>
                             </div>
                             <div className="pt-4 border-t border-[#e0e3e5] mt-6 flex justify-end gap-3">
-                                <button type="button" onClick={() => setEditQual(null)} disabled={loading} className="px-5 py-2 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-bold text-[14px] hover:bg-[#f1f4f6] disabled:opacity-50">
+                                <button type="button" onClick={() => setEditQual(null)} disabled={loading} className="px-5 py-2 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-bold text-sm hover:bg-[#f1f4f6] disabled:opacity-50">
                                     Cancel
                                 </button>
-                                <button type="submit" disabled={loading} className="px-5 py-2 bg-[#0061a5] text-white rounded-lg font-bold text-[14px] hover:bg-[#004d80] disabled:opacity-50 flex items-center gap-2">
+                                <button type="submit" disabled={loading} className="px-5 py-2 bg-[#0061a5] text-white rounded-lg font-bold text-sm hover:bg-[#004d80] disabled:opacity-50 flex items-center gap-2">
                                     {loading ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : null}
                                     {loading ? 'Saving...' : 'Save Changes'}
                                 </button>
@@ -249,15 +249,15 @@ export const CertificateModals = ({
                         <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
                             <Trash2 className="w-8 h-8" />
                         </div>
-                        <h3 className="font-bold text-[#002045] text-[20px] mb-2">Delete Certificate?</h3>
-                        <p className="text-[#43474e] text-[14px] mb-6">
+                        <h3 className="font-bold text-[#002045] text-xl mb-2">Delete Certificate?</h3>
+                        <p className="text-[#43474e] text-sm mb-6">
                             Are you sure you want to delete <span className="font-bold">"{deleteQual.name}"</span>? This action cannot be undone.
                         </p>
                         <div className="flex gap-3">
-                            <button onClick={() => setDeleteQual(null)} className="flex-1 py-2.5 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-bold text-[14px] hover:bg-[#f1f4f6]">
+                            <button onClick={() => setDeleteQual(null)} className="flex-1 py-2.5 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-bold text-sm hover:bg-[#f1f4f6]">
                                 Cancel
                             </button>
-                            <button onClick={handleDelete} className="flex-1 py-2.5 bg-rose-600 text-white rounded-lg font-bold text-[14px] hover:bg-rose-700">
+                            <button onClick={handleDelete} className="flex-1 py-2.5 bg-rose-600 text-white rounded-lg font-bold text-sm hover:bg-rose-700">
                                 Yes, Delete
                             </button>
                         </div>

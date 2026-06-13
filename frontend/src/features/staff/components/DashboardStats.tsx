@@ -21,8 +21,8 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
                         <stat.icon className={`w-6 h-6 ${stat.color}`} />
                     </div>
                     <div>
-                        <p className="text-[#74777f] text-[13px] font-semibold">{stat.title}</p>
-                        <h3 className="text-[24px] font-bold text-[#002045]">{stat.value}</h3>
+                        <p className="text-[#74777f] text-xs font-semibold">{stat.title}</p>
+                        <h3 className="text-2xl font-bold text-[#002045]">{stat.value}</h3>
                     </div>
                 </div>
             ))}

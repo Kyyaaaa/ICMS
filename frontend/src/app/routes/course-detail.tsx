@@ -95,51 +95,51 @@ const CourseDetail = () => {
     };
 
     return (
-        <div className="bg-[#f7fafc] text-[#181c1e] text-[16px] leading-[24px] font-sans min-h-screen flex flex-col">
+        <div className="bg-[#f7fafc] text-[#181c1e] text-base leading-6 font-sans min-h-screen flex flex-col">
             <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
 
             {/* Main Content */}
-            <main className="flex-grow w-full max-w-[1440px] mx-auto px-4 lg:px-[32px] py-[40px]">
+            <main className="grow w-full max-w-360 mx-auto px-4 lg:px-8 py-10">
                 {/* Breadcrumbs */}
-                <nav className="flex items-center gap-2 text-[14px] text-[#74777f] mb-[24px]">
+                <nav className="flex items-center gap-2 text-sm text-[#74777f] mb-6">
                     <Link to="/courses" className="hover:text-[#0061a5] transition-colors">Courses</Link>
                     <ChevronRight className="w-4 h-4" />
                     <span className="text-[#181c1e] font-medium">{course.title}</span>
                 </nav>
 
                 {/* Course Header Hero Area */}
-                <div className="bg-[#002045] rounded-3xl p-[24px] md:p-[40px] shadow-lg mb-[40px] relative overflow-hidden flex flex-col md:flex-row gap-[40px] items-center">
+                <div className="bg-[#002045] rounded-3xl p-6 md:p-10 shadow-lg mb-10 relative overflow-hidden flex flex-col md:flex-row gap-10 items-center">
                     {/* Decorative background element */}
-                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#0061a5] rounded-full blur-[100px] opacity-40 -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+                    <div className="absolute top-0 right-0 w-100 h-100 bg-[#0061a5] rounded-full blur-[100px] opacity-40 -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
                     
                     <div className="flex-1 z-10 w-full">
-                        <div className="flex flex-wrap gap-2 mb-[16px]">
-                            <span className="bg-[#0061a5] text-white text-[13px] font-bold px-3 py-1 rounded-full">{course.type}</span>
-                            <span className="bg-white/10 text-white text-[13px] font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                        <div className="flex flex-wrap gap-2 mb-4">
+                            <span className="bg-[#0061a5] text-white text-xs font-bold px-3 py-1 rounded-full">{course.type}</span>
+                            <span className="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
                                 <Clock className="w-3.5 h-3.5" /> {course.duration}
                             </span>
                         </div>
-                        <h1 className="text-[32px] md:text-[48px] font-extrabold text-white mb-[16px] leading-tight tracking-tight">{course.title}</h1>
-                        <p className="text-[18px] text-[#adc7f7] max-w-2xl mb-[32px] leading-relaxed">{course.description}</p>
+                        <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">{course.title}</h1>
+                        <p className="text-lg text-[#adc7f7] max-w-2xl mb-8 leading-relaxed">{course.description}</p>
                         
-                        <div className="flex flex-wrap items-center gap-[24px] md:gap-[40px] bg-white/5 rounded-2xl p-[24px] border border-white/10 w-fit backdrop-blur-sm">
+                        <div className="flex flex-wrap items-center gap-6 md:gap-10 bg-white/5 rounded-2xl p-6 border border-white/10 w-fit backdrop-blur-sm">
                             <div className="flex flex-col">
-                                <span className="text-[12px] font-bold text-[#adc7f7] uppercase tracking-wider mb-1">Target Band</span>
-                                <span className="text-[24px] font-extrabold text-[#ffd200] flex items-center gap-2">
+                                <span className="text-xs font-bold text-[#adc7f7] uppercase tracking-wider mb-1">Target Band</span>
+                                <span className="text-2xl font-extrabold text-[#ffd200] flex items-center gap-2">
                                     <Star className="w-6 h-6 fill-[#ffd200]" /> {course.band}
                                 </span>
                             </div>
                             <div className="w-px h-12 bg-white/20 hidden md:block"></div>
                             <div className="flex flex-col">
-                                <span className="text-[12px] font-bold text-[#adc7f7] uppercase tracking-wider mb-1">Total Sessions</span>
-                                <span className="text-[24px] font-bold text-white flex items-center gap-2">
+                                <span className="text-xs font-bold text-[#adc7f7] uppercase tracking-wider mb-1">Total Sessions</span>
+                                <span className="text-2xl font-bold text-white flex items-center gap-2">
                                     <BookOpen className="w-6 h-6 text-[#adc7f7]" /> {course.sessions}
                                 </span>
                             </div>
                             <div className="w-px h-12 bg-white/20 hidden md:block"></div>
                             <div className="flex flex-col">
-                                <span className="text-[12px] font-bold text-[#adc7f7] uppercase tracking-wider mb-1">Format</span>
-                                <span className="text-[24px] font-bold text-white flex items-center gap-2">
+                                <span className="text-xs font-bold text-[#adc7f7] uppercase tracking-wider mb-1">Format</span>
+                                <span className="text-2xl font-bold text-white flex items-center gap-2">
                                     <Globe className="w-6 h-6 text-[#adc7f7]" /> {course.format}
                                 </span>
                             </div>
@@ -147,16 +147,16 @@ const CourseDetail = () => {
                     </div>
 
                     {/* Enrollment Action Box */}
-                    <div className="bg-white rounded-2xl p-[32px] shadow-xl w-full md:w-[340px] z-10 flex flex-col border border-[#e0e3e5]">
-                        <div className="flex flex-col mb-[24px]">
-                            <span className="text-[16px] text-[#74777f] line-through font-medium mb-1">{course.originalPrice}</span>
-                            <span className="text-[36px] font-extrabold text-[#002045] leading-none tracking-tight break-words">{course.price}</span>
+                    <div className="bg-white rounded-2xl p-8 shadow-xl w-full md:w-85 z-10 flex flex-col border border-[#e0e3e5]">
+                        <div className="flex flex-col mb-6">
+                            <span className="text-base text-[#74777f] line-through font-medium mb-1">{course.originalPrice}</span>
+                            <span className="text-4xl font-extrabold text-[#002045] leading-none tracking-tight wrap-break-word">{course.price}</span>
                         </div>
-                        <div className="flex items-center gap-3 bg-[#f7fafc] rounded-xl p-[16px] mb-[24px] border border-[#e0e3e5]">
+                        <div className="flex items-center gap-3 bg-[#f7fafc] rounded-xl p-4 mb-6 border border-[#e0e3e5]">
                             <Clock className="text-[#0061a5] w-6 h-6" />
-                            <div className="text-[14px] text-[#43474e]">
+                            <div className="text-sm text-[#43474e]">
                                 Course starts:<br/>
-                                <span className="font-bold text-[#002045] text-[16px]">{course.nextCohort}</span>
+                                <span className="font-bold text-[#002045] text-base">{course.nextCohort}</span>
                             </div>
                         </div>
                         <button 
@@ -166,54 +166,54 @@ const CourseDetail = () => {
                             Enroll Now
                             <ArrowRight className="w-5 h-5" />
                         </button>
-                        <div className="flex items-center justify-center gap-2 text-[13px] font-medium text-[#74777f]">
+                        <div className="flex items-center justify-center gap-2 text-xs font-medium text-[#74777f]">
                             <ShieldCheck className="w-4 h-4 text-[#0061a5]" /> 14-day money-back guarantee
                         </div>
                     </div>
                 </div>
 
                 {/* Layout Grid: Content + Sidebar */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-[32px]">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Main Content Area */}
-                    <div className="lg:col-span-8 flex flex-col gap-[32px]">
+                    <div className="lg:col-span-8 flex flex-col gap-8">
                         {/* Tab Navigation */}
                         <div className="border-b border-[#e0e3e5] flex overflow-x-auto hide-scrollbar gap-8">
                             {['syllabus', 'tutors', 'reviews', 'schedule'].map(tab => (
                                 <button 
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`pb-[16px] text-[16px] font-bold capitalize whitespace-nowrap transition-colors relative ${activeTab === tab ? 'text-[#0061a5]' : 'text-[#74777f] hover:text-[#002045]'}`}
+                                    className={`pb-4 text-base font-bold capitalize whitespace-nowrap transition-colors relative ${activeTab === tab ? 'text-[#0061a5]' : 'text-[#74777f] hover:text-[#002045]'}`}
                                 >
                                     {tab}
-                                    {activeTab === tab && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#0061a5] rounded-t-full"></div>}
+                                    {activeTab === tab && <div className="absolute bottom-0 left-0 w-full h-0.75 bg-[#0061a5] rounded-t-full"></div>}
                                 </button>
                             ))}
                         </div>
 
                         {/* Tab Content */}
                         {activeTab === 'syllabus' && (
-                            <div className="flex flex-col gap-[24px] animate-fade-in">
-                                <h2 className="text-[24px] font-bold text-[#002045]">Course Modules</h2>
+                            <div className="flex flex-col gap-6 animate-fade-in">
+                                <h2 className="text-2xl font-bold text-[#002045]">Course Modules</h2>
                                 
                                 {/* Dynamic Syllabus Content */}
-                                <div className="space-y-[16px]">
+                                <div className="space-y-4">
                                     {course.modules?.map((module, index) => (
-                                        <div key={index} className="bg-white border border-[#e0e3e5] rounded-2xl p-[24px] shadow-sm hover:shadow-md transition-shadow">
-                                            <div className="flex flex-col md:flex-row md:items-center justify-between mb-[16px] gap-[12px]">
-                                                <h3 className="text-[20px] font-bold text-[#002045] flex items-center gap-3">
-                                                    <div className="w-[32px] h-[32px] rounded-full bg-[#e6f0fa] text-[#0061a5] flex items-center justify-center text-[14px]">
+                                        <div key={index} className="bg-white border border-[#e0e3e5] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+                                                <h3 className="text-xl font-bold text-[#002045] flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-[#e6f0fa] text-[#0061a5] flex items-center justify-center text-sm">
                                                         {index + 1}
                                                     </div>
                                                     {module.title}
                                                 </h3>
-                                                <span className="bg-[#f7fafc] text-[#43474e] text-[13px] font-bold px-3 py-1 rounded-full border border-[#e0e3e5] whitespace-nowrap w-fit">
+                                                <span className="bg-[#f7fafc] text-[#43474e] text-xs font-bold px-3 py-1 rounded-full border border-[#e0e3e5] whitespace-nowrap w-fit">
                                                     {module.sessions}
                                                 </span>
                                             </div>
-                                            <p className="text-[#43474e] mb-[16px] leading-relaxed">
+                                            <p className="text-[#43474e] mb-4 leading-relaxed">
                                                 {module.description}
                                             </p>
-                                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-[12px]">
+                                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 {module.topics?.map((topic, tIndex) => (
                                                     <li key={tIndex} className="flex items-start gap-2">
                                                         <CheckCircle2 className="w-5 h-5 text-[#0061a5] shrink-0 mt-0.5" />
@@ -228,55 +228,55 @@ const CourseDetail = () => {
                         )}
 
                         {activeTab === 'tutors' && (
-                            <div className="flex flex-col gap-[24px] animate-fade-in">
-                                <h2 className="text-[24px] font-bold text-[#002045]">Lead Instructors</h2>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-[24px]">
+                            <div className="flex flex-col gap-6 animate-fade-in">
+                                <h2 className="text-2xl font-bold text-[#002045]">Lead Instructors</h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     {/* Tutor 1 */}
-                                    <div className="bg-white border border-[#c4c6cf] rounded-2xl p-[24px] flex gap-[16px] shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200&h=200" alt="Tutor" className="w-[80px] h-[80px] rounded-full object-cover shrink-0" />
+                                    <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200&h=200" alt="Tutor" className="w-20 h-20 rounded-full object-cover shrink-0" />
                                         <div className="flex flex-col">
-                                            <h3 className="text-[18px] font-bold text-[#002045]">James Sterling</h3>
-                                            <span className="text-[13px] font-bold text-[#0061a5] mb-2 uppercase tracking-wide">Ex-IELTS Examiner</span>
-                                            <div className="flex items-center gap-1 text-[13px] font-bold text-[#74777f] mb-2">
+                                            <h3 className="text-lg font-bold text-[#002045]">James Sterling</h3>
+                                            <span className="text-xs font-bold text-[#0061a5] mb-2 uppercase tracking-wide">Ex-IELTS Examiner</span>
+                                            <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] mb-2">
                                                 <Star className="w-4 h-4 fill-[#ffd200] text-[#ffd200]" /> 4.9 (120 reviews)
                                             </div>
-                                            <p className="text-[14px] text-[#43474e] line-clamp-2">Specializes in Advanced Writing Task 2 structure and logic.</p>
+                                            <p className="text-sm text-[#43474e] line-clamp-2">Specializes in Advanced Writing Task 2 structure and logic.</p>
                                         </div>
                                     </div>
                                     {/* Tutor 2 */}
-                                    <div className="bg-white border border-[#c4c6cf] rounded-2xl p-[24px] flex gap-[16px] shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200" alt="Tutor" className="w-[80px] h-[80px] rounded-full object-cover shrink-0" />
+                                    <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200" alt="Tutor" className="w-20 h-20 rounded-full object-cover shrink-0" />
                                         <div className="flex flex-col">
-                                            <h3 className="text-[18px] font-bold text-[#002045]">Dr. Eleanor Vance</h3>
-                                            <span className="text-[13px] font-bold text-[#0061a5] mb-2 uppercase tracking-wide">Reading Specialist</span>
-                                            <div className="flex items-center gap-1 text-[13px] font-bold text-[#74777f] mb-2">
+                                            <h3 className="text-lg font-bold text-[#002045]">Dr. Eleanor Vance</h3>
+                                            <span className="text-xs font-bold text-[#0061a5] mb-2 uppercase tracking-wide">Reading Specialist</span>
+                                            <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] mb-2">
                                                 <Star className="w-4 h-4 fill-[#ffd200] text-[#ffd200]" /> 4.9 (95 reviews)
                                             </div>
-                                            <p className="text-[14px] text-[#43474e] line-clamp-2">Focuses on critical thinking and complex text analysis.</p>
+                                            <p className="text-sm text-[#43474e] line-clamp-2">Focuses on critical thinking and complex text analysis.</p>
                                         </div>
                                     </div>
                                     {/* Tutor 3 */}
-                                    <div className="bg-white border border-[#c4c6cf] rounded-2xl p-[24px] flex gap-[16px] shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                                        <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200&h=200" alt="Tutor" className="w-[80px] h-[80px] rounded-full object-cover shrink-0" />
+                                    <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                                        <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200&h=200" alt="Tutor" className="w-20 h-20 rounded-full object-cover shrink-0" />
                                         <div className="flex flex-col">
-                                            <h3 className="text-[18px] font-bold text-[#002045]">Sophia Chen</h3>
-                                            <span className="text-[13px] font-bold text-[#0061a5] mb-2 uppercase tracking-wide">Speaking Coach</span>
-                                            <div className="flex items-center gap-1 text-[13px] font-bold text-[#74777f] mb-2">
+                                            <h3 className="text-lg font-bold text-[#002045]">Sophia Chen</h3>
+                                            <span className="text-xs font-bold text-[#0061a5] mb-2 uppercase tracking-wide">Speaking Coach</span>
+                                            <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] mb-2">
                                                 <Star className="w-4 h-4 fill-[#ffd200] text-[#ffd200]" /> 5.0 (210 reviews)
                                             </div>
-                                            <p className="text-[14px] text-[#43474e] line-clamp-2">Helps students achieve natural fluency and pronunciation.</p>
+                                            <p className="text-sm text-[#43474e] line-clamp-2">Helps students achieve natural fluency and pronunciation.</p>
                                         </div>
                                     </div>
                                     {/* Tutor 4 */}
-                                    <div className="bg-white border border-[#c4c6cf] rounded-2xl p-[24px] flex gap-[16px] shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200" alt="Tutor" className="w-[80px] h-[80px] rounded-full object-cover shrink-0" />
+                                    <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200" alt="Tutor" className="w-20 h-20 rounded-full object-cover shrink-0" />
                                         <div className="flex flex-col">
-                                            <h3 className="text-[18px] font-bold text-[#002045]">Michael Chang</h3>
-                                            <span className="text-[13px] font-bold text-[#0061a5] mb-2 uppercase tracking-wide">Listening Master</span>
-                                            <div className="flex items-center gap-1 text-[13px] font-bold text-[#74777f] mb-2">
+                                            <h3 className="text-lg font-bold text-[#002045]">Michael Chang</h3>
+                                            <span className="text-xs font-bold text-[#0061a5] mb-2 uppercase tracking-wide">Listening Master</span>
+                                            <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] mb-2">
                                                 <Star className="w-4 h-4 fill-[#ffd200] text-[#ffd200]" /> 4.8 (88 reviews)
                                             </div>
-                                            <p className="text-[14px] text-[#43474e] line-clamp-2">Expert in breaking down fast-paced native accents.</p>
+                                            <p className="text-sm text-[#43474e] line-clamp-2">Expert in breaking down fast-paced native accents.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -285,26 +285,26 @@ const CourseDetail = () => {
                         
                         {/* Other tabs can remain empty for now */}
                         {['reviews', 'schedule'].includes(activeTab) && (
-                            <div className="flex items-center justify-center h-[200px] bg-white border border-[#e0e3e5] rounded-2xl text-[#74777f] animate-fade-in">
+                            <div className="flex items-center justify-center h-50 bg-white border border-[#e0e3e5] rounded-2xl text-[#74777f] animate-fade-in">
                                 Content for {activeTab} will be available soon.
                             </div>
                         )}
                     </div>
 
                     {/* Sidebar (Desktop) / Bottom section (Mobile) */}
-                    <aside className="lg:col-span-4 flex flex-col gap-[24px]">
+                    <aside className="lg:col-span-4 flex flex-col gap-6">
                         {/* Key Information Card */}
-                        <div className="bg-white border border-[#c4c6cf] rounded-2xl p-[24px] shadow-sm">
-                            <h3 className="text-[18px] font-bold text-[#002045] border-b border-[#e0e3e5] pb-[16px] mb-[24px]">Course Details</h3>
+                        <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 shadow-sm">
+                            <h3 className="text-lg font-bold text-[#002045] border-b border-[#e0e3e5] pb-4 mb-6">Course Details</h3>
                             
-                            <div className="flex flex-col gap-[20px]">
+                            <div className="flex flex-col gap-5">
                                 <div className="flex items-start gap-4">
                                     <div className="bg-[#f1f4f6] p-2 rounded-lg text-[#0061a5]">
                                         <MapPin className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <div className="text-[16px] font-bold text-[#002045]">London Center / Online</div>
-                                        <div className="text-[14px] text-[#74777f]">Hybrid delivery model</div>
+                                        <div className="text-base font-bold text-[#002045]">London Center / Online</div>
+                                        <div className="text-sm text-[#74777f]">Hybrid delivery model</div>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
@@ -312,8 +312,8 @@ const CourseDetail = () => {
                                         <Globe className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <div className="text-[16px] font-bold text-[#002045]">English</div>
-                                        <div className="text-[14px] text-[#74777f]">Instruction language</div>
+                                        <div className="text-base font-bold text-[#002045]">English</div>
+                                        <div className="text-sm text-[#74777f]">Instruction language</div>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
@@ -321,21 +321,21 @@ const CourseDetail = () => {
                                         <Users className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <div className="text-[16px] font-bold text-[#002045]">Max 15 Students</div>
-                                        <div className="text-[14px] text-[#74777f]">Small group focus</div>
+                                        <div className="text-base font-bold text-[#002045]">Max 15 Students</div>
+                                        <div className="text-sm text-[#74777f]">Small group focus</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Promotional / Promo Code Box */}
-                        <div className="bg-[#002045] rounded-2xl p-[24px] shadow-sm text-white">
-                            <h3 className="text-[18px] font-bold mb-[16px] flex items-center gap-2">
+                        <div className="bg-[#002045] rounded-2xl p-6 shadow-sm text-white">
+                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <Ticket className="text-[#ffd200]" /> Apply Promo Code
                             </h3>
                             <div className="flex gap-2">
                                 <input 
-                                    className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-[14px] text-white focus:outline-none focus:border-[#adc7f7] placeholder:text-white/50" 
+                                    className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#adc7f7] placeholder:text-white/50" 
                                     placeholder="Enter code" 
                                     type="text" 
                                 />
@@ -347,21 +347,21 @@ const CourseDetail = () => {
             </main>
 
             {/* Footer Component */}
-            <footer className="bg-[#00142d] text-[#f1f4f6] w-full pt-[80px] pb-[40px] border-t-4 border-[#0061a5] mt-auto">
-                <div className="max-w-[1200px] mx-auto px-4 lg:px-[32px] grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-[40px] lg:gap-[32px]">
+            <footer className="bg-[#00142d] text-[#f1f4f6] w-full pt-20 pb-10 border-t-4 border-[#0061a5] mt-auto">
+                <div className="max-w-300 mx-auto px-4 lg:px-8 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-10 lg:gap-8">
                     <div className="col-span-1 md:col-span-3 lg:col-span-5 flex flex-col items-start">
-                        <div className="text-[28px] font-extrabold text-white mb-[20px] flex items-center gap-2">
+                        <div className="text-3xl font-extrabold text-white mb-5 flex items-center gap-2">
                             <BookOpen className="w-8 h-8 text-[#adc7f7]" /> ICMS
                         </div>
-                        <p className="text-[#a8aeb4] text-[14px] leading-[24px] mb-[24px] max-w-[300px]">
+                        <p className="text-[#a8aeb4] text-sm leading-6 mb-6 max-w-75">
                             Empowering students to achieve their target IELTS band score with proven methodologies and elite instructors.
                         </p>
-                        <div className="flex flex-col gap-[12px]">
-                            <div className="flex items-center gap-3 text-[#a8aeb4] text-[14px]">
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center gap-3 text-[#a8aeb4] text-sm">
                                 <Headset className="w-5 h-5 text-[#adc7f7]" />
                                 <span>Hotline: <strong className="text-white">1900 1234</strong></span>
                             </div>
-                            <div className="flex items-start gap-3 text-[#a8aeb4] text-[14px]">
+                            <div className="flex items-start gap-3 text-[#a8aeb4] text-sm">
                                 <Compass className="w-5 h-5 text-[#adc7f7] mt-0.5" />
                                 <span>123 Education Street, Tech District,<br/>Hanoi, Vietnam</span>
                             </div>
@@ -369,54 +369,54 @@ const CourseDetail = () => {
                     </div>
                     
                     <div className="col-span-1 lg:col-span-4">
-                        <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Our Programs</h4>
-                        <div className="flex flex-col gap-[16px]">
-                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
+                        <h4 className="text-base font-bold text-white mb-6 uppercase tracking-wider">Our Programs</h4>
+                        <div className="flex flex-col gap-4">
+                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm flex items-center gap-2">
                                 <ArrowRight className="w-4 h-4" /> IELTS Masterclass
                             </Link>
-                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
+                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm flex items-center gap-2">
                                 <ArrowRight className="w-4 h-4" /> Academic Fundamentals
                             </Link>
-                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
+                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm flex items-center gap-2">
                                 <ArrowRight className="w-4 h-4" /> Intensive Crash Course
                             </Link>
-                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px] flex items-center gap-2">
+                            <Link to="/courses" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm flex items-center gap-2">
                                 <ArrowRight className="w-4 h-4" /> 1-on-1 Private Tutoring
                             </Link>
                         </div>
                     </div>
                     
                     <div className="col-span-1 lg:col-span-3">
-                        <h4 className="text-[16px] font-bold text-white mb-[24px] uppercase tracking-wider">Explore</h4>
-                        <div className="flex flex-col gap-[16px]">
-                            <a href="/homepage#about" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">About ICMS</a>
-                            <a href="/homepage#tutors" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Our Tutors</a>
-                            <a href="/homepage#stories" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Success Stories</a>
-                            <a href="/homepage#consultation" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-[14px]">Free Consultation</a>
+                        <h4 className="text-base font-bold text-white mb-6 uppercase tracking-wider">Explore</h4>
+                        <div className="flex flex-col gap-4">
+                            <a href="/homepage#about" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm">About ICMS</a>
+                            <a href="/homepage#tutors" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm">Our Tutors</a>
+                            <a href="/homepage#stories" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm">Success Stories</a>
+                            <a href="/homepage#consultation" className="text-[#a8aeb4] hover:text-[#adc7f7] hover:translate-x-1 transition-all text-sm">Free Consultation</a>
                         </div>
                     </div>
                 </div>
                 
-                <div className="max-w-[1200px] mx-auto px-4 lg:px-[32px] mt-[64px] pt-[32px] border-t border-[#43474e] flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div className="text-[14px] text-[#a8aeb4]">
+                <div className="max-w-300 mx-auto px-4 lg:px-8 mt-16 pt-8 border-t border-[#43474e] flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="text-sm text-[#a8aeb4]">
                         © {new Date().getFullYear()} ICMS Education. All rights reserved.
                     </div>
-                    <div className="flex gap-[24px]">
-                        <a href="#" className="text-[#a8aeb4] hover:text-white text-[14px] transition-colors">Privacy Policy</a>
-                        <a href="#" className="text-[#a8aeb4] hover:text-white text-[14px] transition-colors">Terms of Service</a>
+                    <div className="flex gap-6">
+                        <a href="#" className="text-[#a8aeb4] hover:text-white text-sm transition-colors">Privacy Policy</a>
+                        <a href="#" className="text-[#a8aeb4] hover:text-white text-sm transition-colors">Terms of Service</a>
                     </div>
                 </div>
             </footer>
 
             {/* Class Selection Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#002045]/60 backdrop-blur-sm p-4 animate-fade-in">
+                <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#002045]/60 backdrop-blur-sm p-4 animate-fade-in">
                     <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                         {/* Modal Header */}
-                        <div className="p-[32px] border-b border-[#e0e3e5] flex justify-between items-start bg-white">
+                        <div className="p-8 border-b border-[#e0e3e5] flex justify-between items-start bg-white">
                             <div>
-                                <h3 className="text-[24px] font-extrabold text-[#002045] mb-2">Select a Class</h3>
-                                <p className="text-[15px] text-[#74777f]">Choose a schedule that fits you for <strong className="text-[#0061a5]">{course.title}</strong>.</p>
+                                <h3 className="text-2xl font-extrabold text-[#002045] mb-2">Select a Class</h3>
+                                <p className="text-sm text-[#74777f]">Choose a schedule that fits you for <strong className="text-[#0061a5]">{course.title}</strong>.</p>
                             </div>
                             <button 
                                 onClick={() => setIsModalOpen(false)}
@@ -427,7 +427,7 @@ const CourseDetail = () => {
                         </div>
                         
                         {/* Modal Body */}
-                        <div className="p-[24px] overflow-y-auto bg-[#f7fafc] flex justify-center">
+                        <div className="p-6 overflow-y-auto bg-[#f7fafc] flex justify-center">
                             <div className="w-full bg-white border border-[#e0e3e5] rounded-2xl overflow-hidden shadow-sm">
                                 {availableClasses.map((cls, index) => {
                                     const isFull = cls.currentStudents >= cls.maxStudents;
@@ -438,7 +438,7 @@ const CourseDetail = () => {
                                     <div 
                                         key={cls.id}
                                         onClick={() => !isFull && setSelectedClass(cls.id)}
-                                        className={`flex items-center justify-between p-[16px] md:p-[20px] transition-all duration-200 
+                                        className={`flex items-center justify-between p-4 md:p-5 transition-all duration-200 
                                             ${!isLast ? 'border-b border-[#e0e3e5]' : ''}
                                             ${isFull 
                                                 ? 'opacity-60 bg-[#f7fafc] cursor-not-allowed' 
@@ -447,7 +447,7 @@ const CourseDetail = () => {
                                                     : 'hover:bg-[#f1f4f6] cursor-pointer'
                                             }`}
                                     >
-                                        <div className="flex items-center gap-[16px]">
+                                        <div className="flex items-center gap-4">
                                             {/* Custom Radio */}
                                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors
                                                 ${isSelected ? 'border-[#0061a5]' : isFull ? 'border-[#c4c6cf]' : 'border-[#74777f] group-hover:border-[#0061a5]'}`}>
@@ -456,10 +456,10 @@ const CourseDetail = () => {
 
                                             {/* Info */}
                                             <div className="flex flex-col">
-                                                <span className={`font-bold text-[16px] mb-1 ${isSelected ? 'text-[#0061a5]' : isFull ? 'text-[#74777f]' : 'text-[#002045]'}`}>
+                                                <span className={`font-bold text-base mb-1 ${isSelected ? 'text-[#0061a5]' : isFull ? 'text-[#74777f]' : 'text-[#002045]'}`}>
                                                     {cls.name}
                                                 </span>
-                                                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-[14px] text-[#43474e]">
+                                                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-sm text-[#43474e]">
                                                     <span className="flex items-center gap-1.5 whitespace-nowrap">
                                                         <Clock className="w-4 h-4 text-[#74777f]" /> {cls.schedule}
                                                     </span>
@@ -472,17 +472,17 @@ const CourseDetail = () => {
                                         </div>
 
                                         {/* Status */}
-                                        <div className="flex items-center justify-end min-w-[100px]">
+                                        <div className="flex items-center justify-end min-w-25">
                                             {isFull ? (
-                                                <span className="text-[12px] font-bold bg-[#ffebee] text-[#c62828] px-3 py-1 rounded-full border border-[#ffcdd2]">
+                                                <span className="text-xs font-bold bg-[#ffebee] text-[#c62828] px-3 py-1 rounded-full border border-[#ffcdd2]">
                                                     Full
                                                 </span>
                                             ) : (
                                                 <div className="flex flex-col items-end">
-                                                    <span className={`text-[13px] font-bold ${isSelected ? 'text-[#0061a5]' : 'text-[#43474e]'}`}>
+                                                    <span className={`text-xs font-bold ${isSelected ? 'text-[#0061a5]' : 'text-[#43474e]'}`}>
                                                         {cls.currentStudents} / {cls.maxStudents}
                                                     </span>
-                                                    <span className="text-[11px] text-[#74777f] font-medium">Students</span>
+                                                    <span className="text-xs text-[#74777f] font-medium">Students</span>
                                                 </div>
                                             )}
                                         </div>
@@ -492,17 +492,17 @@ const CourseDetail = () => {
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-[24px] border-t border-[#e0e3e5] bg-white flex justify-end gap-[16px]">
+                        <div className="p-6 border-t border-[#e0e3e5] bg-white flex justify-end gap-4">
                             <button 
                                 onClick={() => setIsModalOpen(false)}
-                                className="px-6 py-3 rounded-xl font-bold text-[#43474e] hover:bg-[#f1f4f6] transition-colors text-[15px]"
+                                className="px-6 py-3 rounded-xl font-bold text-[#43474e] hover:bg-[#f1f4f6] transition-colors text-sm"
                             >
                                 Cancel
                             </button>
                             <button 
                                 onClick={handleConfirmEnrollment}
                                 disabled={!selectedClass}
-                                className={`px-10 py-3 rounded-xl font-bold text-white transition-all text-[16px] shadow-sm flex items-center gap-2 ${selectedClass ? 'bg-[#0061a5] hover:bg-[#004a80] hover:shadow-md' : 'bg-[#c4c6cf] cursor-not-allowed'}`}
+                                className={`px-10 py-3 rounded-xl font-bold text-white transition-all text-base shadow-sm flex items-center gap-2 ${selectedClass ? 'bg-[#0061a5] hover:bg-[#004a80] hover:shadow-md' : 'bg-[#c4c6cf] cursor-not-allowed'}`}
                             >
                                 Confirm Selection <ArrowRight className="w-5 h-5" />
                             </button>

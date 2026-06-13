@@ -39,8 +39,8 @@ const AdminFinance = () => {
         <div className="space-y-6 animate-fade-in-up pb-8 relative">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Transaction History</h1>
-                    <p className="text-[#74777f] mt-1 text-[14px]">View all cash inflows and outflows of the platform.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">Transaction History</h1>
+                    <p className="text-[#74777f] mt-1 text-sm">View all cash inflows and outflows of the platform.</p>
                 </div>
             </div>
 

@@ -33,14 +33,14 @@ const LearnerDashboard = () => {
         <div className="space-y-8 animate-fade-in-up pb-8 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-[28px] md:text-[36px] font-extrabold text-[#002045] leading-tight">
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-[#002045] leading-tight">
                         Dashboard
                     </h1>
                 </div>
             </div>
             
             {loading || !stats ? (
-                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm">
+                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-xl bg-white shadow-sm">
                     <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (

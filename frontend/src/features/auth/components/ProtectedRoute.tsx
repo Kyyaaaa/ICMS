@@ -105,7 +105,7 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
             <div className="flex items-center justify-center min-h-screen bg-[#f7fafc]">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="w-10 h-10 text-[#0061a5] animate-spin" />
-                    <p className="text-[#43474e] text-[14px] font-medium">Đang xác thực phiên đăng nhập...</p>
+                    <p className="text-[#43474e] text-sm font-medium">Đang xác thực phiên đăng nhập...</p>
                 </div>
             </div>
         );

@@ -161,8 +161,8 @@ const TutorGradebook = () => {
                     <>
                         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-6 mb-8">
                             <div className="space-y-1">
-                                <h2 className="text-[28px] font-extrabold text-[#002045] tracking-tight">Gradebook</h2>
-                                <p className="text-[#43474e] text-[15px]">Manage learner grades and provide feedback.</p>
+                                <h2 className="text-3xl font-extrabold text-[#002045] tracking-tight">Gradebook</h2>
+                                <p className="text-[#43474e] text-sm">Manage learner grades and provide feedback.</p>
                             </div>
                             
                             <div className="flex gap-3 w-full xl:w-auto">
@@ -171,8 +171,8 @@ const TutorGradebook = () => {
                                         <Users size={18} className="text-[#0061a5]" />
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-bold text-[#74777f] uppercase tracking-wider">Learners</p>
-                                        <p className="text-[18px] font-bold text-[#002045] leading-none mt-0.5">{gradesData.length}</p>
+                                        <p className="text-xs font-bold text-[#74777f] uppercase tracking-wider">Learners</p>
+                                        <p className="text-lg font-bold text-[#002045] leading-none mt-0.5">{gradesData.length}</p>
                                     </div>
                                 </div>
                                 <div className="flex-1 xl:flex-none bg-white py-2 px-4 rounded-xl shadow-sm border border-[#e2e2e9] flex items-center gap-3">
@@ -180,8 +180,8 @@ const TutorGradebook = () => {
                                         <BarChart3 size={18} className="text-[#0061a5]" />
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-bold text-[#74777f] uppercase tracking-wider">Class Avg</p>
-                                        <p className="text-[18px] font-bold text-[#002045] leading-none mt-0.5">{classAverage()}</p>
+                                        <p className="text-xs font-bold text-[#74777f] uppercase tracking-wider">Class Avg</p>
+                                        <p className="text-lg font-bold text-[#002045] leading-none mt-0.5">{classAverage()}</p>
                                     </div>
                                 </div>
                             </div>
@@ -195,7 +195,7 @@ const TutorGradebook = () => {
                                     placeholder="Search learners by name or ID..." 
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 bg-white border border-[#e2e2e9] rounded-xl shadow-sm text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0061a5]/30 focus:border-[#0061a5] transition-all"
+                                    className="w-full pl-10 pr-4 py-2 bg-white border border-[#e2e2e9] rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#0061a5]/30 focus:border-[#0061a5] transition-all"
                                 />
                             </div>
 
@@ -203,7 +203,7 @@ const TutorGradebook = () => {
                                 {isEditing && (
                                     <>
                                         <div className="flex items-center gap-2 pr-3 sm:border-r border-[#e2e2e9]">
-                                            <label className="text-[13px] font-semibold text-[#43474e]">Scale:</label>
+                                            <label className="text-xs font-semibold text-[#43474e]">Scale:</label>
                                             <input 
                                                 type="number"
                                                 min="1"
@@ -223,7 +223,7 @@ const TutorGradebook = () => {
                                                 setNewAssTitle('');
                                                 setShowAddModal(true);
                                             }}
-                                            className="px-4 py-2 text-[#0061a5] font-semibold bg-white border border-[#e2e2e9] shadow-sm rounded-xl hover:bg-[#f0f4f8] transition-colors flex items-center gap-2 text-[14px]"
+                                            className="px-4 py-2 text-[#0061a5] font-semibold bg-white border border-[#e2e2e9] shadow-sm rounded-xl hover:bg-[#f0f4f8] transition-colors flex items-center gap-2 text-sm"
                                         >
                                             <Plus size={16} />
                                             Add Column
@@ -235,7 +235,7 @@ const TutorGradebook = () => {
                                     <button 
                                         onClick={handleSaveGrades}
                                         disabled={isSaving}
-                                        className={`px-5 py-2 font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 text-[14px] ${
+                                        className={`px-5 py-2 font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 text-sm ${
                                             isSaving 
                                                 ? 'bg-[#e2e2e9] text-[#74777f] cursor-not-allowed' 
                                                 : 'bg-[#0061a5] text-white hover:bg-[#004a80]'
@@ -247,7 +247,7 @@ const TutorGradebook = () => {
                                 ) : (
                                     <button 
                                         onClick={() => setIsEditing(true)}
-                                        className="px-5 py-2 text-[14px] font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 bg-[#0061a5] text-white hover:bg-[#004a80]"
+                                        className="px-5 py-2 text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 bg-[#0061a5] text-white hover:bg-[#004a80]"
                                     >
                                         <Settings2 size={16} />
                                         Edit Grades
@@ -261,13 +261,13 @@ const TutorGradebook = () => {
                                 <table className="w-full text-left border-collapse min-w-max">
                                     <thead>
                                         <tr className="bg-[#f8f9fc] border-b-2 border-[#e2e2e9]">
-                                            <th className="py-3 px-5 font-bold text-[#43474e] min-w-70 w-auto sticky left-0 bg-[#f8f9fc] z-20 text-[12px] uppercase tracking-wider">
+                                            <th className="py-3 px-5 font-bold text-[#43474e] min-w-70 w-auto sticky left-0 bg-[#f8f9fc] z-20 text-xs uppercase tracking-wider">
                                                 Learner Information
                                             </th>
                                             {assessments.map(ass => (
                                                 <th key={ass.id} className="py-3 px-3 text-center relative group w-32.5 min-w-32.5 max-w-32.5 bg-[#f8f9fc] border-l border-[#e2e2e9]">
                                                     <div className="flex flex-col gap-0.5 items-center relative">
-                                                        <span className="text-[12px] font-bold text-[#43474e] leading-tight text-center uppercase tracking-wider">{ass.title}</span>
+                                                        <span className="text-xs font-bold text-[#43474e] leading-tight text-center uppercase tracking-wider">{ass.title}</span>
                                                         {isEditing && (
                                                             <button 
                                                                 onClick={() => handleDeleteColumn(ass.id)}
@@ -280,7 +280,7 @@ const TutorGradebook = () => {
                                                     </div>
                                                 </th>
                                             ))}
-                                            <th className="py-3 px-5 font-bold text-[#43474e] text-center w-30 min-w-30 border-l border-[#e2e2e9] bg-[#f8f9fc] sticky right-0 shadow-[-4px_0_12px_-4px_rgba(0,0,0,0.05)] z-20 text-[12px] uppercase tracking-wider">
+                                            <th className="py-3 px-5 font-bold text-[#43474e] text-center w-30 min-w-30 border-l border-[#e2e2e9] bg-[#f8f9fc] sticky right-0 shadow-[-4px_0_12px_-4px_rgba(0,0,0,0.05)] z-20 text-xs uppercase tracking-wider">
                                                 {defaultScale === 9 ? 'Overall' : 'Average'}
                                             </th>
                                         </tr>
@@ -291,12 +291,12 @@ const TutorGradebook = () => {
                                                 <tr key={student.id} className={`border-b border-[#e2e2e9] hover:bg-[#fcfdfd] transition-colors bg-white group/row`}>
                                                     <td className="py-3 px-5 sticky left-0 bg-inherit z-10">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-9 h-9 rounded-full bg-[#f8f9fc] text-[#0061a5] flex items-center justify-center font-bold text-[12px] shrink-0 border border-[#e2e2e9]">
+                                                            <div className="w-9 h-9 rounded-full bg-[#f8f9fc] text-[#0061a5] flex items-center justify-center font-bold text-xs shrink-0 border border-[#e2e2e9]">
                                                                 {student.name.substring(0, 2).toUpperCase()}
                                                             </div>
                                                             <div>
-                                                                <div className="font-semibold text-[#181c1e] text-[14px]">{student.name}</div>
-                                                                <div className="text-[12px] text-[#74777f]">{student.code}</div>
+                                                                <div className="font-semibold text-[#181c1e] text-sm">{student.name}</div>
+                                                                <div className="text-xs text-[#74777f]">{student.code}</div>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -316,12 +316,12 @@ const TutorGradebook = () => {
                                                                         placeholder="-"
                                                                         value={grade.score ?? ''}
                                                                         onChange={(e) => handleGradeChange(student.id, ass.id, 'score', e.target.value)}
-                                                                        className={`w-14 py-1.5 bg-white border rounded-lg text-center focus:outline-none font-semibold text-[14px] transition-colors shadow-sm
+                                                                        className={`w-14 py-1.5 bg-white border rounded-lg text-center focus:outline-none font-semibold text-sm transition-colors shadow-sm
                                                                             ${isSelected ? 'border-[#0061a5] text-[#0061a5] ring-2 ring-[#0061a5]/20' : 'border-[#c4c6cf] hover:border-[#74777f] text-[#181c1e]'}
                                                                         `}
                                                                     />
                                                                 ) : (
-                                                                    <div className="w-14 py-1.5 text-center font-semibold text-[15px] text-[#181c1e]">
+                                                                    <div className="w-14 py-1.5 text-center font-semibold text-sm text-[#181c1e]">
                                                                         {grade.score ?? '-'}
                                                                     </div>
                                                                 )}
@@ -349,7 +349,7 @@ const TutorGradebook = () => {
                                                     })}
 
                                                     <td className="py-2 px-5 text-center border-l border-[#e2e2e9] bg-inherit sticky right-0 shadow-[-4px_0_12px_-4px_rgba(0,0,0,0.05)] z-10">
-                                                        <span className={`inline-flex items-center justify-center text-[13px] font-bold ${
+                                                        <span className={`inline-flex items-center justify-center text-xs font-bold ${
                                                             calculateAverage(student.grades) === '-' 
                                                                 ? 'text-[#74777f]' 
                                                                 : Number(calculateAverage(student.grades)) >= defaultScale * 0.8
@@ -400,27 +400,27 @@ const TutorGradebook = () => {
                         <div className="space-y-6">
                             <div className="bg-[#f8f9fc] border border-[#e2e2e9] rounded-xl p-4 space-y-3">
                                 <div className="flex justify-between items-center border-b border-[#e2e2e9] pb-3">
-                                    <span className="text-[13px] font-semibold text-[#74777f]">Learner</span>
+                                    <span className="text-xs font-semibold text-[#74777f]">Learner</span>
                                     <span className="font-bold text-[#002045]">{activeStudent.name}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[13px] font-semibold text-[#74777f]">Assessment</span>
+                                    <span className="text-xs font-semibold text-[#74777f]">Assessment</span>
                                     <span className="font-bold text-[#002045]">{activeAss.title}</span>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-[14px] font-bold text-[#43474e] mb-2">Note / Feedback</label>
+                                <label className="block text-sm font-bold text-[#43474e] mb-2">Note / Feedback</label>
                                 <textarea 
                                     placeholder={isEditing ? "Write your feedback here..." : "No feedback provided."}
                                     value={activeGrade?.feedback ?? ''}
                                     readOnly={!isEditing}
                                     onChange={(e) => handleGradeChange(activeStudent.id, activeAss.id, 'feedback', e.target.value)}
                                     rows={5}
-                                    className="w-full px-4 py-3 bg-[#fdfdfd] border border-[#e2e2e9] rounded-xl text-[14px] text-[#181c1e] placeholder-[#c4c6cf] focus:outline-none focus:ring-2 focus:ring-[#0061a5]/30 focus:border-[#0061a5] resize-none transition-all shadow-inner"
+                                    className="w-full px-4 py-3 bg-[#fdfdfd] border border-[#e2e2e9] rounded-xl text-sm text-[#181c1e] placeholder-[#c4c6cf] focus:outline-none focus:ring-2 focus:ring-[#0061a5]/30 focus:border-[#0061a5] resize-none transition-all shadow-inner"
                                     autoFocus
                                 />
-                                {isEditing && <p className="text-[12px] text-[#74777f] mt-2 italic">Saved automatically when you save changes.</p>}
+                                {isEditing && <p className="text-xs text-[#74777f] mt-2 italic">Saved automatically when you save changes.</p>}
                             </div>
                             
                             <div className="pt-2 flex justify-end">
@@ -451,7 +451,7 @@ const TutorGradebook = () => {
                         
                         <div className="space-y-5">
                             <div>
-                                <label className="block text-[14px] font-bold text-[#43474e] mb-2">Assessment Name</label>
+                                <label className="block text-sm font-bold text-[#43474e] mb-2">Assessment Name</label>
                                 <input 
                                     type="text" 
                                     value={newAssTitle}

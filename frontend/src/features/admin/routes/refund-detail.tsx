@@ -11,30 +11,30 @@ const AdminRefundDetail = () => {
                 <Link to="/admin/refunds" className="p-2 rounded-full hover:bg-[#e0e3e5] text-[#43474e] transition-colors">
                     <ArrowLeft size={24} />
                 </Link>
-                <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Refund Request: {id || 'REF-1002'}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">Refund Request: {id || 'REF-1002'}</h1>
             </div>
 
-            <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 max-w-3xl">
+            <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6 max-w-3xl">
                 <div className="flex items-center gap-3 mb-6">
                     <RefreshCcw className="text-[#c9a82c]" size={28} />
                     <div>
-                        <h2 className="text-[20px] font-bold text-[#181c1e]">Amount Requested: 225 đ</h2>
-                        <span className="inline-block px-2 py-1 mt-1 bg-[#fff8e1] text-[#c9a82c] text-[12px] font-bold rounded uppercase">Pending Review</span>
+                        <h2 className="text-xl font-bold text-[#181c1e]">Amount Requested: 225 đ</h2>
+                        <span className="inline-block px-2 py-1 mt-1 bg-[#fff8e1] text-[#c9a82c] text-xs font-bold rounded uppercase">Pending Review</span>
                     </div>
                 </div>
 
                 <div className="space-y-4 border-t border-[#e0e3e5] pt-6">
                     <div>
-                        <h4 className="text-[12px] font-bold text-[#74777f] uppercase mb-1">Student Name</h4>
-                        <p className="text-[16px] text-[#181c1e] font-medium">Alex Smith (alex@example.com)</p>
+                        <h4 className="text-xs font-bold text-[#74777f] uppercase mb-1">Student Name</h4>
+                        <p className="text-base text-[#181c1e] font-medium">Alex Smith (alex@example.com)</p>
                     </div>
                     <div>
-                        <h4 className="text-[12px] font-bold text-[#74777f] uppercase mb-1">Original Course</h4>
-                        <p className="text-[16px] text-[#181c1e] font-medium">IELTS Intensive Mastery (IEL-INT-01)</p>
+                        <h4 className="text-xs font-bold text-[#74777f] uppercase mb-1">Original Course</h4>
+                        <p className="text-base text-[#181c1e] font-medium">IELTS Intensive Mastery (IEL-INT-01)</p>
                     </div>
                     <div>
-                        <h4 className="text-[12px] font-bold text-[#74777f] uppercase mb-1">Reason for Refund</h4>
-                        <p className="text-[16px] text-[#43474e] bg-[#f8f9fa] p-4 rounded-xl border border-[#e0e3e5]">
+                        <h4 className="text-xs font-bold text-[#74777f] uppercase mb-1">Reason for Refund</h4>
+                        <p className="text-base text-[#43474e] bg-[#f8f9fa] p-4 rounded-xl border border-[#e0e3e5]">
                             I have a scheduling conflict due to a new job and can no longer attend the evening sessions. I have only attended 2 sessions out of 48.
                         </p>
                     </div>

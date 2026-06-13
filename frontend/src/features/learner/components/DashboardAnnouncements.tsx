@@ -8,7 +8,7 @@ interface DashboardAnnouncementsProps {
 
 export const DashboardAnnouncements = ({ announcements }: DashboardAnnouncementsProps) => {
     return (
-        <div className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#eef0f4] p-8">
+        <div className="bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#eef0f4] p-8">
             <div className="flex justify-between items-end mb-6">
                 <div>
                     <h2 className="text-xl font-extrabold text-[#002045]">Announcements</h2>
@@ -22,7 +22,7 @@ export const DashboardAnnouncements = ({ announcements }: DashboardAnnouncements
                 {announcements.map((ann, idx) => (
                     <div key={ann.id} className={`group cursor-pointer p-4 rounded-2xl hover:bg-[#f8f9fc] transition-colors ${ann.isUnread ? 'bg-[#fcfdfd]' : ''} ${idx < announcements.length - 1 ? 'border-b border-[#eef0f4]' : ''}`}>
                         <div className="flex justify-between items-start mb-1.5">
-                            <h3 className={`font-bold text-[15px] group-hover:text-[#0061a5] transition-colors ${ann.isUnread ? 'text-[#002045]' : 'text-slate-600'}`}>
+                            <h3 className={`font-bold text-sm group-hover:text-[#0061a5] transition-colors ${ann.isUnread ? 'text-[#002045]' : 'text-slate-600'}`}>
                                 {ann.title}
                             </h3>
                             {ann.isUnread && (
@@ -33,7 +33,7 @@ export const DashboardAnnouncements = ({ announcements }: DashboardAnnouncements
                             )}
                         </div>
                         <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed">{ann.content}</p>
-                        <span className="text-[11px] font-bold text-slate-400 mt-3 block uppercase tracking-widest">{ann.timeAgo}</span>
+                        <span className="text-xs font-bold text-slate-400 mt-3 block uppercase tracking-widest">{ann.timeAgo}</span>
                     </div>
                 ))}
             </div>

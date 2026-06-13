@@ -130,14 +130,14 @@ const StaffTutorAvailability = () => {
                                 <>
                                     <button 
                                         onClick={handleDiscardChanges}
-                                        className="px-4 py-2 rounded-lg font-bold text-[13px] text-[#43474e] bg-white border border-[#c4c6cf] hover:bg-[#f8f9fa] transition-colors"
+                                        className="px-4 py-2 rounded-lg font-bold text-xs text-[#43474e] bg-white border border-[#c4c6cf] hover:bg-[#f8f9fa] transition-colors"
                                     >
                                         Discard
                                     </button>
                                     <button 
                                         onClick={handleSaveChanges}
                                         disabled={isSaving}
-                                        className="px-4 py-2 rounded-lg font-bold text-[13px] text-white bg-[#0061a5] hover:bg-[#004d84] shadow-sm transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        className="px-4 py-2 rounded-lg font-bold text-xs text-white bg-[#0061a5] hover:bg-[#004d84] shadow-sm transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                                     >
                                         {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                                         {isSaving ? 'Saving...' : 'Save Changes'}
@@ -147,7 +147,7 @@ const StaffTutorAvailability = () => {
                                 <button 
                                     onClick={handleToggleLock}
                                     disabled={isLocking}
-                                    className={`px-4 py-2 rounded-lg font-bold text-[13px] flex items-center gap-2 transition-colors border disabled:opacity-70 disabled:cursor-not-allowed ${selectedTutor.status === 'submitted' ? 'bg-white text-[#0061a5] border-[#0061a5] hover:bg-[#e3f2fd]' : 'bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200'}`}
+                                    className={`px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-colors border disabled:opacity-70 disabled:cursor-not-allowed ${selectedTutor.status === 'submitted' ? 'bg-white text-[#0061a5] border-[#0061a5] hover:bg-[#e3f2fd]' : 'bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200'}`}
                                 >
                                     {isLocking ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -166,7 +166,7 @@ const StaffTutorAvailability = () => {
 
                     {/* Progress Stats */}
                     <div className="w-full md:w-48 shrink-0">
-                        <div className="flex items-center justify-between text-[13px] mb-2">
+                        <div className="flex items-center justify-between text-xs mb-2">
                             <span className="text-[#43474e] font-medium flex items-center gap-2">
                                 <Users className="w-4 h-4 text-[#74777f]" />
                                 Progress
@@ -191,7 +191,7 @@ const StaffTutorAvailability = () => {
                         {selectedTutor.status === 'submitted' && (
                             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
                                 <Lock className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-                                <div className="text-[14px] text-amber-900">
+                                <div className="text-sm text-amber-900">
                                     <p className="font-bold mb-1">Tutor has submitted their availability.</p>
                                     <p>As a staff member, you can override and click on cells to edit their schedule if necessary, or you can click <strong>"Unlock for Tutor"</strong> to return control to the tutor.</p>
                                 </div>
@@ -209,19 +209,19 @@ const StaffTutorAvailability = () => {
                         <div className="flex items-center gap-6 px-2">
                             <div className="flex items-center gap-2">
                                 <div className="w-5 h-5 rounded-md bg-[#0061a5] shadow-sm" />
-                                <span className="text-[14px] font-bold text-[#002045]">Available ({draftSlots.size})</span>
+                                <span className="text-sm font-bold text-[#002045]">Available ({draftSlots.size})</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-5 h-5 rounded-md bg-white border border-[#e0e3e5]" />
-                                <span className="text-[14px] font-medium text-[#43474e]">Off ({DAYS.length * SHIFTS.length - draftSlots.size})</span>
+                                <span className="text-sm font-medium text-[#43474e]">Off ({DAYS.length * SHIFTS.length - draftSlots.size})</span>
                             </div>
                         </div>
                     </>
                 ) : (
                     <div className="bg-white p-12 rounded-2xl border border-[#e0e3e5] text-center flex flex-col items-center justify-center">
                         <Users className="w-12 h-12 text-[#c4c6cf] mb-4" />
-                        <h3 className="text-[18px] font-bold text-[#43474e]">No Tutor Selected</h3>
-                        <p className="text-[#74777f] text-[14px] mt-1">Please select a tutor from the roster to view and manage their availability.</p>
+                        <h3 className="text-lg font-bold text-[#43474e]">No Tutor Selected</h3>
+                        <p className="text-[#74777f] text-sm mt-1">Please select a tutor from the roster to view and manage their availability.</p>
                     </div>
                 )}
             </div>

@@ -10,9 +10,9 @@ const PublicNotifications = () => {
     }, []);
 
     return (
-        <div className="bg-[#f7fafc] min-h-screen text-[#181c1e] text-[16px] leading-[24px] font-sans flex flex-col">
+        <div className="bg-[#f7fafc] min-h-screen text-[#181c1e] text-base leading-6 font-sans flex flex-col">
             <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-            <main className="flex-grow w-full max-w-[1440px] mx-auto px-4 lg:px-[32px] py-8 md:py-12">
+            <main className="grow w-full max-w-360 mx-auto px-4 lg:px-8 py-8 md:py-12">
                 <NotificationsPage />
             </main>
         </div>

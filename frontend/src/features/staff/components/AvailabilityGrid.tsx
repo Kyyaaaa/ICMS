@@ -17,7 +17,7 @@ export const AvailabilityGrid = ({ selectedTutor, draftSlots, toggleSlot, toggle
                 {/* Header Row */}
                 <div className="grid grid-cols-8 border-b border-[#e0e3e5] bg-[#f7fafc]">
                     <div className="p-4 border-r border-[#e0e3e5] flex items-center justify-center">
-                        <span className="text-[12px] font-bold uppercase tracking-wider text-[#74777f]">Shift / Time</span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#74777f]">Shift / Time</span>
                     </div>
                     {DAYS.map(day => (
                         <div 
@@ -26,7 +26,7 @@ export const AvailabilityGrid = ({ selectedTutor, draftSlots, toggleSlot, toggle
                             className="py-4 text-center border-r border-[#e0e3e5] last:border-0 cursor-pointer hover:bg-[#e0e3e5]/50 transition-colors group"
                             title="Click to toggle all slots for this day"
                         >
-                            <span className="text-[13px] font-bold uppercase tracking-wider text-[#002045] group-hover:text-[#0061a5]">{day}</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-[#002045] group-hover:text-[#0061a5]">{day}</span>
                         </div>
                     ))}
                 </div>
@@ -41,8 +41,8 @@ export const AvailabilityGrid = ({ selectedTutor, draftSlots, toggleSlot, toggle
                                 className="p-4 border-r border-[#e0e3e5] bg-[#fdfdfd] flex flex-col justify-center items-center text-center cursor-pointer hover:bg-[#e0e3e5]/50 transition-colors group"
                                 title="Click to toggle all slots for this shift"
                             >
-                                <span className="text-[13px] font-bold text-[#181c1e] group-hover:text-[#0061a5]">{shift.label}</span>
-                                <span className="text-[12px] font-medium text-[#74777f] mt-1 group-hover:text-[#0061a5]">{shift.time}</span>
+                                <span className="text-xs font-bold text-[#181c1e] group-hover:text-[#0061a5]">{shift.label}</span>
+                                <span className="text-xs font-medium text-[#74777f] mt-1 group-hover:text-[#0061a5]">{shift.time}</span>
                             </div>
                             
                             {/* Days Columns */}
@@ -80,7 +80,7 @@ export const AvailabilityGrid = ({ selectedTutor, draftSlots, toggleSlot, toggle
                                         `}>
                                             {isSelected ? <Check className="w-4 h-4" /> : (isModified ? <Minus className="w-4 h-4 text-amber-500" /> : <Check className="w-4 h-4" />)}
                                         </div>
-                                        <span className={`text-[12px] font-bold ${textClass}`}>
+                                        <span className={`text-xs font-bold ${textClass}`}>
                                             {textLabel}
                                         </span>
                                     </div>

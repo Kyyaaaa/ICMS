@@ -32,8 +32,8 @@ const LearnerClasses = () => {
             {/* Clean Hero Section */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="space-y-1 text-center md:text-left">
-                    <h1 className="text-[28px] md:text-[36px] font-extrabold text-[#002045] leading-tight">My Classes</h1>
-                    <p className="text-[15px] text-[#43474e] max-w-lg">Manage your active enrollments and review your past achievements.</p>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-[#002045] leading-tight">My Classes</h1>
+                    <p className="text-sm text-[#43474e] max-w-lg">Manage your active enrollments and review your past achievements.</p>
                 </div>
             </div>
             
@@ -45,7 +45,7 @@ const LearnerClasses = () => {
             />
 
             {loading ? (
-                <div className="flex items-center justify-center h-64 bg-white rounded-[24px] shadow-sm border border-[#eef0f4]">
+                <div className="flex items-center justify-center h-64 bg-white rounded-3xl shadow-sm border border-[#eef0f4]">
                     <div className="w-10 h-10 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (
@@ -54,11 +54,11 @@ const LearnerClasses = () => {
                         <ClassCard key={classItem.id} classItem={classItem} />
                     ))}
                     {displayedClasses.length === 0 && (
-                        <div className="col-span-full py-16 text-center bg-white rounded-[24px] border border-[#eef0f4] shadow-sm">
+                        <div className="col-span-full py-16 text-center bg-white rounded-3xl border border-[#eef0f4] shadow-sm">
                             <div className="w-16 h-16 bg-[#f8f9fc] rounded-full flex items-center justify-center mx-auto mb-4">
                                 <GraduationCap className="w-8 h-8 text-[#c4c6cf]" />
                             </div>
-                            <h3 className="text-[18px] font-bold text-[#181c1e] mb-1">No {filter.toLowerCase()} classes</h3>
+                            <h3 className="text-lg font-bold text-[#181c1e] mb-1">No {filter.toLowerCase()} classes</h3>
                             <p className="text-[#74777f]">You don't have any {filter.toLowerCase()} classes at the moment.</p>
                         </div>
                     )}

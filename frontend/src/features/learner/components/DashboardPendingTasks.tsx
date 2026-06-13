@@ -20,8 +20,8 @@ export const DashboardPendingTasks = ({ tasks }: DashboardPendingTasksProps) => 
         <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-6 flex flex-col h-full">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="text-[18px] font-bold text-[#002045]">Pending Tasks</h2>
-                    <p className="text-[14px] text-[#43474e] mt-1">Assignments and payments due</p>
+                    <h2 className="text-lg font-bold text-[#002045]">Pending Tasks</h2>
+                    <p className="text-sm text-[#43474e] mt-1">Assignments and payments due</p>
                 </div>
             </div>
 
@@ -36,14 +36,14 @@ export const DashboardPendingTasks = ({ tasks }: DashboardPendingTasksProps) => 
                             {getIcon(task.iconType)}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-[#181c1e] text-[14px] truncate group-hover:text-[#0061a5] transition-colors">{task.title}</h3>
+                            <h3 className="font-bold text-[#181c1e] text-sm truncate group-hover:text-[#0061a5] transition-colors">{task.title}</h3>
                             <div className="flex items-center gap-2 mt-1">
                                 {task.courseName && (
-                                    <span className="text-[12px] font-medium text-[#0061a5] bg-[#e6f0fa] px-2 py-0.5 rounded-md truncate max-w-30">
+                                    <span className="text-xs font-medium text-[#0061a5] bg-[#e6f0fa] px-2 py-0.5 rounded-md truncate max-w-30">
                                         {task.courseName}
                                     </span>
                                 )}
-                                <span className="text-[12px] text-[#74777f] truncate">{task.dueDate}</span>
+                                <span className="text-xs text-[#74777f] truncate">{task.dueDate}</span>
                             </div>
                         </div>
                         <ArrowRight className="w-4 h-4 text-[#c4c6cf] group-hover:text-[#0061a5] transition-colors shrink-0" />
@@ -53,8 +53,8 @@ export const DashboardPendingTasks = ({ tasks }: DashboardPendingTasksProps) => 
                 {tasks.length === 0 && (
                     <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-[#74777f]">
                         <CheckCircle className="w-12 h-12 text-[#e0e3e5] mb-3" />
-                        <p className="font-bold text-[15px] text-[#181c1e]">You're all caught up!</p>
-                        <p className="text-[13px] mt-1">No pending tasks right now.</p>
+                        <p className="font-bold text-sm text-[#181c1e]">You're all caught up!</p>
+                        <p className="text-xs mt-1">No pending tasks right now.</p>
                     </div>
                 )}
             </div>

@@ -11,23 +11,23 @@ const AdminPayrollDetail = () => {
                 <Link to="/admin/payroll" className="p-2 rounded-full hover:bg-[#e0e3e5] text-[#43474e] transition-colors">
                     <ArrowLeft size={24} />
                 </Link>
-                <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Payslip Details</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">Payslip Details</h1>
             </div>
 
-            <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 max-w-4xl mx-auto">
+            <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6 max-w-4xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-[#e0e3e5]">
                     <div className="flex items-center gap-4 mb-4 md:mb-0">
                         <div className="w-16 h-16 bg-[#e6f0fa] rounded-full flex items-center justify-center text-[#0061a5]">
                             <Wallet size={32} />
                         </div>
                         <div>
-                            <h2 className="text-[24px] font-bold text-[#181c1e]">Dr. Sarah Smith</h2>
+                            <h2 className="text-2xl font-bold text-[#181c1e]">Dr. Sarah Smith</h2>
                             <p className="text-[#43474e]">Senior Tutor • 10-2026</p>
                         </div>
                     </div>
                     <div className="text-right">
-                        <p className="text-[14px] text-[#74777f] font-bold uppercase mb-1">Status</p>
-                        <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#e6f4ea] text-[#137333] text-[14px] font-bold rounded-full">
+                        <p className="text-sm text-[#74777f] font-bold uppercase mb-1">Status</p>
+                        <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#e6f4ea] text-[#137333] text-sm font-bold rounded-full">
                             <CheckCircle2 size={18} /> Processed
                         </span>
                     </div>
@@ -35,7 +35,7 @@ const AdminPayrollDetail = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     <div>
-                        <h3 className="text-[18px] font-bold text-[#181c1e] mb-4">Earnings</h3>
+                        <h3 className="text-lg font-bold text-[#181c1e] mb-4">Earnings</h3>
                         <div className="space-y-3">
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg">
                                 <span className="text-[#43474e]">Base Salary</span>
@@ -53,7 +53,7 @@ const AdminPayrollDetail = () => {
                     </div>
 
                     <div>
-                        <h3 className="text-[18px] font-bold text-[#181c1e] mb-4">Deductions</h3>
+                        <h3 className="text-lg font-bold text-[#181c1e] mb-4">Deductions</h3>
                         <div className="space-y-3">
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg">
                                 <span className="text-[#43474e]">Tax (10%)</span>
@@ -67,9 +67,9 @@ const AdminPayrollDetail = () => {
                     </div>
                 </div>
 
-                <div className="bg-[#e6f0fa] rounded-[12px] p-6 flex justify-between items-center border border-[#0061a5]">
-                    <span className="text-[20px] font-bold text-[#002045]">Net Pay</span>
-                    <span className="text-[32px] font-extrabold text-[#0061a5]">2.835 đ</span>
+                <div className="bg-[#e6f0fa] rounded-xl p-6 flex justify-between items-center border border-[#0061a5]">
+                    <span className="text-xl font-bold text-[#002045]">Net Pay</span>
+                    <span className="text-3xl font-extrabold text-[#0061a5]">2.835 đ</span>
                 </div>
             </div>
         </div>

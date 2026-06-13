@@ -62,16 +62,16 @@ const LearnerGrades = () => {
             {/* Clean Hero Section */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="space-y-1 text-center md:text-left">
-                    <h1 className="text-[28px] md:text-[36px] font-extrabold text-[#002045] tracking-tight">Academic Results</h1>
-                    <p className="text-[#43474e] text-[15px]">Track your overall performance and detailed assessments.</p>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-[#002045] tracking-tight">Academic Results</h1>
+                    <p className="text-[#43474e] text-sm">Track your overall performance and detailed assessments.</p>
                 </div>
                 
                 <div className="flex items-center gap-8 lg:gap-12 bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#eef0f4]">
                     <div className="flex flex-col items-center md:items-end">
-                        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Overall Band</p>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Overall Band</p>
                         <div className="flex items-baseline gap-1.5">
-                            <span className="text-[36px] font-black leading-none tracking-tighter text-[#002045]">{globalOverallScore.toFixed(1)}</span>
-                            <span className="text-[15px] font-bold text-slate-400 leading-none">/ 9.0</span>
+                            <span className="text-4xl font-black leading-none tracking-tighter text-[#002045]">{globalOverallScore.toFixed(1)}</span>
+                            <span className="text-sm font-bold text-slate-400 leading-none">/ 9.0</span>
                         </div>
                     </div>
                     
@@ -79,17 +79,17 @@ const LearnerGrades = () => {
                     
                     <div className="flex gap-8">
                         <div className="flex flex-col items-center">
-                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Courses</p>
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Courses</p>
                             <div className="flex items-center gap-1.5 text-[#002045]">
                                 <BookOpen className="w-5 h-5 opacity-50" />
-                                <span className="text-[24px] font-bold leading-none">{totalCourses}</span>
+                                <span className="text-2xl font-bold leading-none">{totalCourses}</span>
                             </div>
                         </div>
                         <div className="flex flex-col items-center">
-                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Attendance</p>
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Attendance</p>
                             <div className="flex items-center gap-1.5 text-[#002045]">
                                 <Clock className="w-5 h-5 opacity-50" />
-                                <span className="text-[24px] font-bold leading-none">{avgAttendance}%</span>
+                                <span className="text-2xl font-bold leading-none">{avgAttendance}%</span>
                             </div>
                         </div>
                     </div>
@@ -114,12 +114,12 @@ const LearnerGrades = () => {
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-3 mb-1">
-                                            <h2 className="text-[18px] font-extrabold text-[#002045] tracking-tight">{course.name}</h2>
+                                            <h2 className="text-lg font-extrabold text-[#002045] tracking-tight">{course.name}</h2>
                                             {course.status === 'COMPLETED' && (
-                                                <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-[#e6f4ea] text-[#137333] border border-[#137333]/20 uppercase tracking-widest">Completed</span>
+                                                <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-[#e6f4ea] text-[#137333] border border-[#137333]/20 uppercase tracking-widest">Completed</span>
                                             )}
                                         </div>
-                                        <p className="text-[14px] text-[#43474e] flex items-center gap-2">
+                                        <p className="text-sm text-[#43474e] flex items-center gap-2">
                                             Tutor: <span className="font-semibold text-[#002045]">{course.tutor}</span>
                                         </p>
                                     </div>
@@ -128,15 +128,15 @@ const LearnerGrades = () => {
                                 <div className="flex items-center gap-8 w-full lg:w-auto justify-between lg:justify-end">
                                     <div className="flex items-center gap-6 md:gap-8">
                                         <div className="text-right">
-                                            <p className="text-[11px] font-bold text-[#74777f] uppercase tracking-widest mb-1">Attendance</p>
-                                            <p className="text-[16px] font-black text-[#002045]">{course.attendanceRate}%</p>
+                                            <p className="text-xs font-bold text-[#74777f] uppercase tracking-widest mb-1">Attendance</p>
+                                            <p className="text-base font-black text-[#002045]">{course.attendanceRate}%</p>
                                         </div>
                                         <div className="w-px h-8 bg-[#e2e2e9]"></div>
                                         <div className="flex flex-col items-end">
-                                            <p className="text-[11px] font-bold text-[#74777f] uppercase tracking-widest mb-1">Avg Score</p>
+                                            <p className="text-xs font-bold text-[#74777f] uppercase tracking-widest mb-1">Avg Score</p>
                                             <div className="flex items-baseline gap-1" style={{ color: getScoreColor(course.overallScore, course.defaultScale) }}>
-                                                <span className="text-[20px] font-black leading-none">{course.overallScore}</span>
-                                                <span className="text-[13px] font-bold text-[#74777f] leading-none">/ {course.defaultScale}</span>
+                                                <span className="text-xl font-black leading-none">{course.overallScore}</span>
+                                                <span className="text-xs font-bold text-[#74777f] leading-none">/ {course.defaultScale}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -155,21 +155,21 @@ const LearnerGrades = () => {
                                                 <table className="w-full text-left border-collapse">
                                                     <thead>
                                                         <tr className="border-b border-[#e2e2e9] bg-[#f8f9fc]">
-                                                            <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-[12px] uppercase tracking-widest">Assessment</th>
-                                                            <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-[12px] uppercase tracking-widest">Date</th>
-                                                            <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-[12px] uppercase tracking-widest text-right">Score</th>
-                                                            <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-[12px] uppercase tracking-widest text-center w-28">Feedback</th>
+                                                            <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-xs uppercase tracking-widest">Assessment</th>
+                                                            <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-xs uppercase tracking-widest">Date</th>
+                                                            <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-xs uppercase tracking-widest text-right">Score</th>
+                                                            <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-xs uppercase tracking-widest text-center w-28">Feedback</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {course.assessments.map(ass => (
                                                             <tr key={ass.id} className="border-b last:border-0 border-[#f1f4f6] hover:bg-[#fcfdfd] transition-colors group">
-                                                                <td className="py-3 px-5 md:px-6 font-semibold text-[#002045] text-[14px]">{ass.title}</td>
-                                                                <td className="py-3 px-5 md:px-6 text-[#74777f] text-[13px]">{ass.date}</td>
+                                                                <td className="py-3 px-5 md:px-6 font-semibold text-[#002045] text-sm">{ass.title}</td>
+                                                                <td className="py-3 px-5 md:px-6 text-[#74777f] text-xs">{ass.date}</td>
                                                                 <td className="py-3 px-5 md:px-6 text-right">
                                                                     <div className="inline-flex items-baseline justify-end gap-1.5">
-                                                                        <span className="font-bold text-[15px] leading-none drop-shadow-sm" style={{ color: getScoreColor(ass.score, ass.maxScore) }}>{ass.score}</span>
-                                                                        <span className="text-[#74777f] text-[12px] font-bold leading-none">/ {ass.maxScore}</span>
+                                                                        <span className="font-bold text-sm leading-none drop-shadow-sm" style={{ color: getScoreColor(ass.score, ass.maxScore) }}>{ass.score}</span>
+                                                                        <span className="text-[#74777f] text-xs font-bold leading-none">/ {ass.maxScore}</span>
                                                                     </div>
                                                                 </td>
                                                                 <td className="py-3 px-5 md:px-6 text-center">
@@ -182,7 +182,7 @@ const LearnerGrades = () => {
                                                                             <MessageCircle size={18} className="text-[#0061a5] fill-[#e3f2fd]" />
                                                                         </button>
                                                                     ) : (
-                                                                        <span className="text-[#c4c6cf] text-[20px]">-</span>
+                                                                        <span className="text-[#c4c6cf] text-xl">-</span>
                                                                     )}
                                                                 </td>
                                                             </tr>
@@ -210,7 +210,7 @@ const LearnerGrades = () => {
                     <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 m-4" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-start mb-6">
                             <div>
-                                <h3 className="text-[14px] font-bold text-[#0061a5] uppercase tracking-wider mb-1">Tutor Feedback</h3>
+                                <h3 className="text-sm font-bold text-[#0061a5] uppercase tracking-wider mb-1">Tutor Feedback</h3>
                                 <h4 className="text-xl font-extrabold text-[#002045] leading-tight">{selectedFeedback.title}</h4>
                             </div>
                             <button onClick={() => setSelectedFeedback(null)} className="p-2 text-[#74777f] hover:bg-[#f1f4f6] rounded-full transition-colors shrink-0">
@@ -218,7 +218,7 @@ const LearnerGrades = () => {
                             </button>
                         </div>
                         <div className="bg-[#f8f9fc] rounded-xl p-5 border border-[#e2e2e9]">
-                            <p className="text-[15px] text-[#181c1e] leading-relaxed whitespace-pre-wrap">
+                            <p className="text-sm text-[#181c1e] leading-relaxed whitespace-pre-wrap">
                                 {selectedFeedback.content}
                             </p>
                         </div>

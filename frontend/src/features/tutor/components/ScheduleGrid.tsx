@@ -22,7 +22,7 @@ const attendanceBadge = (status: string) => {
     switch (status) {
         case 'taken':
             return (
-                <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1 py-0.5 w-fit shrink-0">
+                <div className="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1 py-0.5 w-fit shrink-0">
                     <CheckCircle2 className="w-3 h-3" />
                     <span>Taken</span>
                 </div>
@@ -30,7 +30,7 @@ const attendanceBadge = (status: string) => {
         case 'pending':
         default:
             return (
-                <div className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded px-1 py-0.5 w-fit shrink-0">
+                <div className="flex items-center gap-1 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded px-1 py-0.5 w-fit shrink-0">
                     <AlertCircle className="w-3 h-3" />
                     <span>Pending</span>
                 </div>
@@ -49,16 +49,16 @@ export const ScheduleGrid = ({ weekDates, schedule }: ScheduleGridProps) => {
     });
 
     return (
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden overflow-x-auto relative min-h-100">
+        <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] overflow-hidden overflow-x-auto relative min-h-100">
             <table className="w-full text-left border-collapse min-w-200">
                 <thead>
                     <tr className="bg-[#f8f9fa] border-b border-[#e0e3e5]">
-                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5] w-35">Date</th>
-                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5] w-32.5">Time</th>
-                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5]">Class</th>
-                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5] w-40">Room</th>
-                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider border-r border-[#e0e3e5] w-35">Students</th>
-                        <th className="p-4 font-bold text-[#43474e] text-[13px] uppercase tracking-wider w-35">Status</th>
+                        <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5] w-35">Date</th>
+                        <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5] w-32.5">Time</th>
+                        <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5]">Class</th>
+                        <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5] w-40">Room</th>
+                        <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5] w-35">Students</th>
+                        <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider w-35">Status</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-[#e0e3e5]">
@@ -74,11 +74,11 @@ export const ScheduleGrid = ({ weekDates, schedule }: ScheduleGridProps) => {
                                         <div className={`font-bold ${isToday ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>
                                             {dayName}
                                         </div>
-                                        <div className={`text-[13px] ${isToday ? 'text-[#0061a5]' : 'text-[#74777f]'}`}>
+                                        <div className={`text-xs ${isToday ? 'text-[#0061a5]' : 'text-[#74777f]'}`}>
                                             {dateStr}
                                         </div>
                                     </td>
-                                    <td colSpan={5} className="p-4 align-middle text-center text-[#74777f] text-[13px]">
+                                    <td colSpan={5} className="p-4 align-middle text-center text-[#74777f] text-xs">
                                         No classes scheduled
                                     </td>
                                 </tr>
@@ -98,29 +98,29 @@ export const ScheduleGrid = ({ weekDates, schedule }: ScheduleGridProps) => {
                                             <div className={`font-bold ${isToday ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>
                                                 {dayName}
                                             </div>
-                                            <div className={`text-[13px] ${isToday ? 'text-[#0061a5]' : 'text-[#74777f]'}`}>
+                                            <div className={`text-xs ${isToday ? 'text-[#0061a5]' : 'text-[#74777f]'}`}>
                                                 {dateStr}
                                             </div>
                                         </td>
                                     )}
                                     <td className="p-4 border-r border-[#e0e3e5] align-middle w-32.5">
-                                        <div className="font-bold text-[#002045] text-[13px]">{shift?.label}</div>
-                                        <div className="text-[12px] text-[#74777f] mt-0.5">{shift?.time}</div>
+                                        <div className="font-bold text-[#002045] text-xs">{shift?.label}</div>
+                                        <div className="text-xs text-[#74777f] mt-0.5">{shift?.time}</div>
                                     </td>
                                     <td className="p-4 border-r border-[#e0e3e5] align-middle">
-                                        <div className="font-bold text-[#002045] text-[14px]">{session.class}</div>
-                                        <div className="text-[11px] font-bold text-[#0061a5] bg-[#e6f0fa] px-1.5 py-0.5 rounded w-fit mt-1">
+                                        <div className="font-bold text-[#002045] text-sm">{session.class}</div>
+                                        <div className="text-xs font-bold text-[#0061a5] bg-[#e6f0fa] px-1.5 py-0.5 rounded w-fit mt-1">
                                             {session.session}
                                         </div>
                                     </td>
                                     <td className="p-4 border-r border-[#e0e3e5] align-middle w-40">
-                                        <div className="flex items-center gap-1.5 text-[13px] text-[#43474e]">
+                                        <div className="flex items-center gap-1.5 text-xs text-[#43474e]">
                                             <MapPin className="w-3.5 h-3.5 text-[#74777f]" />
                                             <span className="font-medium">{session.room}</span>
                                         </div>
                                     </td>
                                     <td className="p-4 border-r border-[#e0e3e5] align-middle w-35">
-                                        <div className="flex items-center gap-1.5 text-[13px] text-[#43474e]">
+                                        <div className="flex items-center gap-1.5 text-xs text-[#43474e]">
                                             <Users className="w-3.5 h-3.5 text-[#74777f]" />
                                             <span className="font-medium">{session.students} Students</span>
                                         </div>

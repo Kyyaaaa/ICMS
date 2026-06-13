@@ -90,8 +90,8 @@ export const TutorSupportTickets = () => {
                 ) : (
                     <div className="hidden md:flex flex-1 items-center justify-center flex-col text-[#74777f]">
                         <MessageSquare className="w-16 h-16 mb-4 text-[#c4c6cf]" />
-                        <h3 className="text-[20px] font-bold text-[#002045] mb-2">Select a Ticket</h3>
-                        <p className="text-[14px]">Choose a ticket from the left to view details or reply.</p>
+                        <h3 className="text-xl font-bold text-[#002045] mb-2">Select a Ticket</h3>
+                        <p className="text-sm">Choose a ticket from the left to view details or reply.</p>
                     </div>
                 )}
             </div>

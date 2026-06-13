@@ -9,17 +9,17 @@ interface CoursesTableProps {
 
 export const CoursesTable = ({ courses, handleDelete }: CoursesTableProps) => {
     return (
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] overflow-hidden">
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[800px]">
+                <table className="w-full text-left border-collapse min-w-200">
                     <thead>
                         <tr className="bg-[#f7fafc] border-b border-[#e0e3e5]">
-                            <th className="py-4 px-6 text-[14px] font-semibold text-[#43474e]">Course Name</th>
-                            <th className="py-4 px-6 text-[14px] font-semibold text-[#43474e]">Category</th>
-                            <th className="py-4 px-6 text-[14px] font-semibold text-[#43474e]">Classes</th>
-                            <th className="py-4 px-6 text-[14px] font-semibold text-[#43474e]">Price</th>
-                            <th className="py-4 px-6 text-[14px] font-semibold text-[#43474e]">Status</th>
-                            <th className="py-4 px-6 text-[14px] font-semibold text-[#43474e] text-right">Actions</th>
+                            <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Course Name</th>
+                            <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Category</th>
+                            <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Classes</th>
+                            <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Price</th>
+                            <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Status</th>
+                            <th className="py-4 px-6 text-sm font-semibold text-[#43474e] text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,11 +35,11 @@ export const CoursesTable = ({ courses, handleDelete }: CoursesTableProps) => {
                                         </div>
                                     </div>
                                 </td>
-                                <td className="py-4 px-6 text-[14px] text-[#43474e]">{course.category}</td>
-                                <td className="py-4 px-6 text-[14px] font-bold text-[#0061a5]">{course.classes} classes</td>
-                                <td className="py-4 px-6 text-[14px] font-bold text-[#181c1e]">{course.price} đ</td>
+                                <td className="py-4 px-6 text-sm text-[#43474e]">{course.category}</td>
+                                <td className="py-4 px-6 text-sm font-bold text-[#0061a5]">{course.classes} classes</td>
+                                <td className="py-4 px-6 text-sm font-bold text-[#181c1e]">{course.price} đ</td>
                                 <td className="py-4 px-6">
-                                    <span className={`px-2 py-1 text-[12px] font-bold rounded uppercase ${course.status === 'Active' ? 'bg-[#e6f4ea] text-[#137333]' : course.status === 'Hidden' ? 'bg-[#ffebed] text-[#ba1a1a]' : 'bg-[#f1f4f6] text-[#74777f]'}`}>
+                                    <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${course.status === 'Active' ? 'bg-[#e6f4ea] text-[#137333]' : course.status === 'Hidden' ? 'bg-[#ffebed] text-[#ba1a1a]' : 'bg-[#f1f4f6] text-[#74777f]'}`}>
                                         {course.status}
                                     </span>
                                 </td>

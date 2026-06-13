@@ -46,8 +46,8 @@ const TutorChangeRequests = () => {
                         <FileEdit className="w-5 h-5" />
                     </div>
                     <div>
-                        <h1 className="text-[24px] font-bold text-[#002045]">My Change Requests</h1>
-                        <p className="text-[#43474e] text-[14px]">Submit and track your schedule change requests</p>
+                        <h1 className="text-2xl font-bold text-[#002045]">My Change Requests</h1>
+                        <p className="text-[#43474e] text-sm">Submit and track your schedule change requests</p>
                     </div>
                 </div>
                 <button 
@@ -65,13 +65,13 @@ const TutorChangeRequests = () => {
                     <input 
                         type="text" 
                         placeholder="Search class..." 
-                        className="w-full pl-10 pr-4 py-2 bg-[#f8f9fa] border border-[#e0e3e5] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] transition-colors"
+                        className="w-full pl-10 pr-4 py-2 bg-[#f8f9fa] border border-[#e0e3e5] rounded-xl text-sm focus:outline-none focus:border-[#0061a5] transition-colors"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
                 <select 
-                    className="px-4 py-2 border border-[#e0e3e5] rounded-xl focus:outline-none focus:border-[#0061a5] font-medium bg-[#f8f9fa] text-[#181c1e] text-[14px]"
+                    className="px-4 py-2 border border-[#e0e3e5] rounded-xl focus:outline-none focus:border-[#0061a5] font-medium bg-[#f8f9fa] text-[#181c1e] text-sm"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                 >
@@ -83,7 +83,7 @@ const TutorChangeRequests = () => {
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm">
+                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-xl bg-white shadow-sm">
                     <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (

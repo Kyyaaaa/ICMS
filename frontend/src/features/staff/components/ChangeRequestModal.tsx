@@ -29,8 +29,8 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
     return (
         <div className="fixed inset-0 bg-[#002045]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden animate-fade-in-up">
-                <div className="flex items-center justify-between p-6 border-b border-[#e0e3e5] bg-[#f8f9fa] flex-shrink-0">
-                    <h3 className="text-[20px] font-bold text-[#002045]">
+                <div className="flex items-center justify-between p-6 border-b border-[#e0e3e5] bg-[#f8f9fa] shrink-0">
+                    <h3 className="text-xl font-bold text-[#002045]">
                         Request Details
                     </h3>
                     <button 
@@ -162,7 +162,7 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                 </div>
 
                 {request.status === 'Pending' ? (
-                    <div className="p-6 border-t border-[#e0e3e5] bg-[#f8f9fa] flex justify-end gap-3 flex-shrink-0">
+                    <div className="p-6 border-t border-[#e0e3e5] bg-[#f8f9fa] flex justify-end gap-3 shrink-0">
                         <button 
                             onClick={handleReject}
                             className="px-6 py-2.5 font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors flex items-center gap-2"
@@ -178,7 +178,7 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                         </button>
                     </div>
                 ) : (
-                    <div className="p-6 border-t border-[#e0e3e5] bg-[#f8f9fa] flex justify-end flex-shrink-0">
+                    <div className="p-6 border-t border-[#e0e3e5] bg-[#f8f9fa] flex justify-end shrink-0">
                         <button 
                             onClick={onClose}
                             className="px-6 py-2.5 font-semibold text-[#43474e] border border-[#c4c6cf] rounded-xl hover:bg-white transition-colors"

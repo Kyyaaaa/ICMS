@@ -66,7 +66,7 @@ const StaffClassDetail = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Class: {classNameStr}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">Class: {classNameStr}</h1>
                 <div className="flex gap-2">
                     <Link to={`/staff/classes/edit/${id}`} className="px-4 py-2 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-semibold hover:bg-gray-50 flex items-center gap-2">
                         <Edit className="w-4 h-4" /> Edit Info

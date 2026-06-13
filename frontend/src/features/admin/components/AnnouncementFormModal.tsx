@@ -57,7 +57,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
         <div className="fixed inset-0 bg-[#002045]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
             <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl animate-scale-in flex flex-col overflow-hidden">
                 <div className="flex items-center justify-between p-5 border-b border-[#e0e3e5] bg-[#f8f9fa] shrink-0">
-                    <h2 className="text-[20px] font-bold text-[#002045] flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-[#002045] flex items-center gap-2">
                         <Megaphone className="text-[#0061a5]" size={22} />
                         {mode === 'create' ? 'Compose Announcement' : 'Edit Announcement'}
                     </h2>
@@ -72,30 +72,30 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                         {/* Left Column: Content */}
                         <div className="lg:col-span-3 p-6 space-y-5 border-b lg:border-b-0 lg:border-r border-[#e0e3e5]">
                             <div>
-                                <h3 className="text-[15px] font-bold text-[#181c1e] mb-4 flex items-center gap-2">
-                                    <span className="w-6 h-6 rounded bg-[#0061a5] text-white flex items-center justify-center text-[12px]">1</span>
+                                <h3 className="text-sm font-bold text-[#181c1e] mb-4 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded bg-[#0061a5] text-white flex items-center justify-center text-xs">1</span>
                                     Message Content
                                 </h3>
                                 <div className="space-y-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Announcement Title</label>
+                                        <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Announcement Title</label>
                                         <input 
                                             type="text" 
                                             required 
                                             value={formData.title}
                                             onChange={e => setFormData({...formData, title: e.target.value})}
-                                            className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                            className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                                             placeholder="e.g. System Maintenance Notice"
                                         />
                                     </div>
                                     
                                     <div className="space-y-1.5 h-full flex flex-col">
-                                        <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Detailed Message</label>
+                                        <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Detailed Message</label>
                                         <textarea 
                                             required 
                                             value={formData.content}
                                             onChange={e => setFormData({...formData, content: e.target.value})}
-                                            className="w-full flex-1 min-h-[300px] px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors resize-none leading-relaxed" 
+                                            className="w-full flex-1 min-h-75 px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors resize-none leading-relaxed" 
                                             placeholder="Type the announcement message here..."
                                         ></textarea>
                                     </div>
@@ -106,8 +106,8 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                         {/* Right Column: Audience */}
                         <div className="lg:col-span-2 p-6 bg-[#f8f9fa] space-y-5">
                             <div>
-                                <h3 className="text-[15px] font-bold text-[#181c1e] mb-4 flex items-center gap-2">
-                                    <span className="w-6 h-6 rounded bg-[#0061a5] text-white flex items-center justify-center text-[12px]">2</span>
+                                <h3 className="text-sm font-bold text-[#181c1e] mb-4 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded bg-[#0061a5] text-white flex items-center justify-center text-xs">2</span>
                                     Target Audience
                                 </h3>
                                 
@@ -132,7 +132,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                                         {scope === 'System Wide' && <Globe size={18} className={isSelected ? 'text-[#0061a5]' : 'text-[#74777f]'}/>}
                                                         {scope === 'Specific Roles' && <Users size={18} className={isSelected ? 'text-[#0061a5]' : 'text-[#74777f]'}/>}
                                                         {scope === 'Specific Classes' && <BookOpen size={18} className={isSelected ? 'text-[#0061a5]' : 'text-[#74777f]'}/>}
-                                                        <span className={`text-[14px] font-bold ${isSelected ? 'text-[#002045]' : ''}`}>{scope}</span>
+                                                        <span className={`text-sm font-bold ${isSelected ? 'text-[#002045]' : ''}`}>{scope}</span>
                                                     </div>
                                                 </button>
 
@@ -156,7 +156,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                                                         <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${roleSelected ? 'bg-[#0061a5] border-[#0061a5] text-white' : 'border-[#c4c6cf] bg-white'}`}>
                                                                             {roleSelected && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                                                         </div>
-                                                                        <span className={`text-[13px] font-bold ${roleSelected ? 'text-[#002045]' : 'text-[#43474e]'}`}>
+                                                                        <span className={`text-xs font-bold ${roleSelected ? 'text-[#002045]' : 'text-[#43474e]'}`}>
                                                                             {role}
                                                                         </span>
                                                                     </button>
@@ -164,7 +164,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                                             })}
                                                         </div>
                                                         {formData.audience.roles.length === 0 && (
-                                                            <p className="text-[12px] text-[#74777f] font-medium flex items-center gap-1 mt-2">
+                                                            <p className="text-xs text-[#74777f] font-medium flex items-center gap-1 mt-2">
                                                                 💡 Leave empty to target ALL Roles
                                                             </p>
                                                         )}
@@ -173,7 +173,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
 
                                                 {isSelected && scope === 'Specific Classes' && (
                                                     <div className="pl-4 pr-1 py-2 animate-fade-in">
-                                                        <div className="space-y-2 max-h-[180px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#c4c6cf]">
+                                                        <div className="space-y-2 max-h-45 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#c4c6cf]">
                                                             {mockClasses.map(cls => {
                                                                 const classSelected = formData.audience.classes.includes(cls.id);
                                                                 return (
@@ -189,7 +189,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                                                         <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${classSelected ? 'bg-[#0061a5] border-[#0061a5] text-white' : 'border-[#c4c6cf]'}`}>
                                                                             {classSelected && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                                                         </div>
-                                                                        <span className={`text-[13px] font-bold truncate ${classSelected ? 'text-[#002045]' : 'text-[#43474e]'}`}>
+                                                                        <span className={`text-xs font-bold truncate ${classSelected ? 'text-[#002045]' : 'text-[#43474e]'}`}>
                                                                             {cls.name}
                                                                         </span>
                                                                     </div>
@@ -197,7 +197,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                                             })}
                                                         </div>
                                                         {formData.audience.classes.length === 0 && (
-                                                            <p className="text-[12px] text-[#74777f] font-medium flex items-center gap-1 mt-2">
+                                                            <p className="text-xs text-[#74777f] font-medium flex items-center gap-1 mt-2">
                                                                 💡 Leave empty to target ALL Classes
                                                             </p>
                                                         )}
@@ -211,20 +211,20 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
 
                             {/* Publish Settings moved to Right Column */}
                             <div className="pt-5 border-t border-[#e0e3e5]">
-                                <h3 className="text-[15px] font-bold text-[#181c1e] mb-4 flex items-center gap-2">
-                                    <span className="w-6 h-6 rounded bg-[#0061a5] text-white flex items-center justify-center text-[12px]">3</span>
+                                <h3 className="text-sm font-bold text-[#181c1e] mb-4 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded bg-[#0061a5] text-white flex items-center justify-center text-xs">3</span>
                                     Publish Settings
                                 </h3>
                                 
                                 <div className="space-y-3">
                                     <label className={`flex items-center gap-3 cursor-pointer p-3 rounded-xl border transition-colors ${publishMode === 'now' ? 'bg-white border-[#0061a5] shadow-sm ring-1 ring-[#0061a5]' : 'bg-white border-[#e0e3e5] hover:border-[#c4c6cf]'}`}>
                                         <input type="radio" name="publishMode" checked={publishMode === 'now'} onChange={() => setPublishMode('now')} className="accent-[#0061a5] w-4 h-4" />
-                                        <span className="text-[14px] text-[#181c1e] font-bold">Publish Immediately</span>
+                                        <span className="text-sm text-[#181c1e] font-bold">Publish Immediately</span>
                                     </label>
                                     
                                     <label className={`flex items-center gap-3 cursor-pointer p-3 rounded-xl border transition-colors ${publishMode === 'schedule' ? 'bg-white border-[#0061a5] shadow-sm ring-1 ring-[#0061a5]' : 'bg-white border-[#e0e3e5] hover:border-[#c4c6cf]'}`}>
                                         <input type="radio" name="publishMode" checked={publishMode === 'schedule'} onChange={() => setPublishMode('schedule')} className="accent-[#0061a5] w-4 h-4" />
-                                        <span className="text-[14px] text-[#181c1e] font-bold">Schedule for later</span>
+                                        <span className="text-sm text-[#181c1e] font-bold">Schedule for later</span>
                                     </label>
                                     
                                     {publishMode === 'schedule' && (
@@ -233,7 +233,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                                 type="datetime-local" 
                                                 value={formData.scheduledFor}
                                                 onChange={e => setFormData({...formData, scheduledFor: e.target.value})}
-                                                className="w-full px-4 py-2.5 bg-white border border-[#0061a5] rounded-xl text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 transition-all font-bold text-[#002045]"
+                                                className="w-full px-4 py-2.5 bg-white border border-[#0061a5] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 transition-all font-bold text-[#002045]"
                                             />
                                         </div>
                                     )}

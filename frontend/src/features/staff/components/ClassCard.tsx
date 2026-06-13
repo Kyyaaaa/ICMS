@@ -13,14 +13,14 @@ export const ClassCard = ({ cls }: ClassCardProps) => {
                 <div className="absolute top-0 left-0 w-1 h-full bg-[#0061a5] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <h3 className="text-[18px] font-bold text-[#002045] group-hover:text-[#0061a5] transition-colors">{cls.name}</h3>
+                        <h3 className="text-lg font-bold text-[#002045] group-hover:text-[#0061a5] transition-colors">{cls.name}</h3>
                     </div>
                     <span className={`px-3 py-1 text-xs font-bold rounded-full ${cls.students >= cls.maxStudents ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-[#0061a5]'}`}>
                         {cls.students}/{cls.maxStudents} Students
                     </span>
                 </div>
                 
-                <div className="space-y-2 text-[#43474e] text-[14px] mt-auto">
+                <div className="space-y-2 text-[#43474e] text-sm mt-auto">
                     <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-[#74777f]" />
                         <span><span className="font-medium text-[#181c1e]">Tutor:</span> {cls.tutor}</span>

@@ -47,12 +47,12 @@ export const NotificationsPage = () => {
         <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                 <div>
-                    <h1 className="text-[28px] font-extrabold text-[#002045]">All Notifications</h1>
+                    <h1 className="text-3xl font-extrabold text-[#002045]">All Notifications</h1>
                     <p className="text-[#43474e] mt-1">Stay updated with your latest alerts and system announcements.</p>
                 </div>
                 <button 
                     onClick={markAllAsRead}
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e0e3e5] rounded-xl text-[#0061a5] font-bold text-[14px] hover:bg-[#f1f4f6] transition-colors shadow-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e0e3e5] rounded-xl text-[#0061a5] font-bold text-sm hover:bg-[#f1f4f6] transition-colors shadow-sm"
                 >
                     <MailOpen className="w-4 h-4" />
                     Mark all as read
@@ -63,13 +63,13 @@ export const NotificationsPage = () => {
                 <div className="p-4 border-b border-[#e0e3e5] bg-[#f8f9fa] flex gap-2 overflow-x-auto scrollbar-none">
                     <button 
                         onClick={() => setFilter('all')}
-                        className={`px-4 py-2 rounded-xl text-[13px] font-bold whitespace-nowrap transition-colors ${filter === 'all' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${filter === 'all' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
                     >
                         All
                     </button>
                     <button 
                         onClick={() => setFilter('unread')}
-                        className={`px-4 py-2 rounded-xl text-[13px] font-bold whitespace-nowrap transition-colors ${filter === 'unread' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${filter === 'unread' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
                     >
                         Unread
                     </button>
@@ -77,13 +77,13 @@ export const NotificationsPage = () => {
                         <>
                             <button 
                                 onClick={() => setFilter('system')}
-                                className={`px-4 py-2 rounded-xl text-[13px] font-bold whitespace-nowrap transition-colors ${filter === 'system' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${filter === 'system' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
                             >
                                 System Updates
                             </button>
                             <button 
                                 onClick={() => setFilter('role')}
-                                className={`px-4 py-2 rounded-xl text-[13px] font-bold whitespace-nowrap transition-colors ${filter === 'role' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${filter === 'role' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
                             >
                                 {isStaff ? 'Staff Alerts' : 'Learner Alerts'}
                             </button>
@@ -104,17 +104,17 @@ export const NotificationsPage = () => {
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex flex-wrap items-center gap-2 mb-1">
-                                        <h3 className={`text-[15px] ${notif.unread ? 'font-bold text-[#002045]' : 'font-semibold text-[#43474e]'}`}>{notif.title}</h3>
+                                        <h3 className={`text-sm ${notif.unread ? 'font-bold text-[#002045]' : 'font-semibold text-[#43474e]'}`}>{notif.title}</h3>
                                         {notif.type === 'system' ? (
-                                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#e6f0fa] text-[#0061a5] uppercase tracking-wide">System</span>
+                                            <span className="px-2 py-0.5 rounded text-xs font-bold bg-[#e6f0fa] text-[#0061a5] uppercase tracking-wide">System</span>
                                         ) : (
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${isStaff ? 'bg-amber-100 text-amber-700' : 'bg-purple-100 text-purple-700'}`}>
+                                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${isStaff ? 'bg-amber-100 text-amber-700' : 'bg-purple-100 text-purple-700'}`}>
                                                 {isStaff ? 'Staff' : 'Learner'}
                                             </span>
                                         )}
                                     </div>
-                                    <p className={`text-[14px] leading-relaxed mb-3 ${notif.unread ? 'text-[#002045]' : 'text-[#43474e]'}`}>{notif.message}</p>
-                                    <div className="flex items-center gap-4 text-[12px] font-medium text-[#74777f]">
+                                    <p className={`text-sm leading-relaxed mb-3 ${notif.unread ? 'text-[#002045]' : 'text-[#43474e]'}`}>{notif.message}</p>
+                                    <div className="flex items-center gap-4 text-xs font-medium text-[#74777f]">
                                         <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {notif.time}</span>
                                         <span className="hidden sm:inline">•</span>
                                         <span className="hidden sm:inline">{notif.date}</span>
@@ -124,7 +124,7 @@ export const NotificationsPage = () => {
                                     {notif.unread && (
                                         <button 
                                             onClick={() => markAsRead(notif.id)}
-                                            className="px-3 py-1.5 rounded-lg text-[12px] font-bold text-[#0061a5] hover:bg-[#e6f0fa] transition-colors"
+                                            className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#0061a5] hover:bg-[#e6f0fa] transition-colors"
                                         >
                                             Mark read
                                         </button>
@@ -137,7 +137,7 @@ export const NotificationsPage = () => {
                             <div className="w-16 h-16 bg-[#f1f4f6] rounded-full flex items-center justify-center mb-4">
                                 <Bell className="w-8 h-8 text-[#74777f]" />
                             </div>
-                            <h3 className="text-[18px] font-bold text-[#002045]">No notifications found</h3>
+                            <h3 className="text-lg font-bold text-[#002045]">No notifications found</h3>
                             <p className="text-[#43474e] mt-2">You're all caught up! Check back later for new updates.</p>
                         </div>
                     )}

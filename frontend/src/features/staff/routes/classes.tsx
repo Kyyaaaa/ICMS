@@ -24,8 +24,8 @@ const ManageClasses = () => {
         <div className="space-y-8 animate-fade-in-up pb-10">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-[24px] font-bold text-[#002045]">Manage Classes</h1>
-                    <p className="text-[14px] text-[#74777f]">Organize classes grouped by courses, assign tutors and rooms.</p>
+                    <h1 className="text-2xl font-bold text-[#002045]">Manage Classes</h1>
+                    <p className="text-sm text-[#74777f]">Organize classes grouped by courses, assign tutors and rooms.</p>
                 </div>
                 <Link to="/staff/classes/create" className="px-4 py-2 bg-[#002045] text-white rounded-lg font-semibold hover:bg-[#0061a5] transition-colors flex items-center gap-2">
                     <Plus className="w-5 h-5" /> Create New Class
@@ -81,7 +81,7 @@ const ManageClasses = () => {
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm">
+                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-xl bg-white shadow-sm">
                     <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (

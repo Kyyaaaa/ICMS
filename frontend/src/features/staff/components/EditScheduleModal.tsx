@@ -12,14 +12,14 @@ export const EditScheduleModal = ({ session, onClose, onSave }: EditScheduleModa
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-300 max-h-[90vh] flex flex-col overflow-hidden animate-scale-in">
                 <div className={`p-6 ${session.color} border-b flex justify-between items-center`}>
-                    <h2 className="text-[20px] font-bold text-[#002045]">Class Schedule: {session.class}</h2>
+                    <h2 className="text-xl font-bold text-[#002045]">Class Schedule: {session.class}</h2>
                     <button onClick={onClose} className="text-[#002045] hover:bg-black/10 p-1.5 rounded-full transition-colors">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
                 <div className="p-6 space-y-4">
                     <div>
-                        <label className="block text-[#74777f] text-[13px] font-bold mb-1">Tutor</label>
+                        <label className="block text-[#74777f] text-xs font-bold mb-1">Tutor</label>
                         <select className="w-full border border-[#c4c6cf] rounded-lg p-2.5 font-semibold text-[#181c1e] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none transition-all">
                             <option>{session.tutor}</option>
                             <option>Mr. John Doe</option>
@@ -28,11 +28,11 @@ export const EditScheduleModal = ({ session, onClose, onSave }: EditScheduleModa
                         </select>
                     </div>
                     <div>
-                        <label className="block text-[#74777f] text-[13px] font-bold mb-1">Date</label>
+                        <label className="block text-[#74777f] text-xs font-bold mb-1">Date</label>
                         <input type="date" className="w-full border border-[#c4c6cf] rounded-lg p-2.5 font-semibold text-[#181c1e] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none transition-all" defaultValue="2026-10-26" />
                     </div>
                     <div>
-                        <label className="block text-[#74777f] text-[13px] font-bold mb-1">Available Rooms</label>
+                        <label className="block text-[#74777f] text-xs font-bold mb-1">Available Rooms</label>
                         <select className="w-full border border-[#c4c6cf] rounded-lg p-2.5 font-semibold text-[#181c1e] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none transition-all" defaultValue={session.room}>
                             <option value="Room 202">Room 202</option>
                             <option value="Room 205">Room 205</option>
@@ -41,7 +41,7 @@ export const EditScheduleModal = ({ session, onClose, onSave }: EditScheduleModa
                         </select>
                     </div>
                     <div>
-                        <label className="block text-[#74777f] text-[13px] font-bold mb-1">Available Time Slots</label>
+                        <label className="block text-[#74777f] text-xs font-bold mb-1">Available Time Slots</label>
                         <select className="w-full border border-[#c4c6cf] rounded-lg p-2.5 font-semibold text-[#181c1e] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none transition-all" defaultValue={`${session.startTime} - ${session.endTime}`}>
                             <option value="08:00 - 10:00">08:00 - 10:00 (Available)</option>
                             <option value="10:30 - 12:30">10:30 - 12:30 (Available)</option>

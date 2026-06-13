@@ -211,7 +211,7 @@ const AdminAccounts = () => {
     return (
         <div className="space-y-6 animate-fade-in-up pb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Manage Accounts</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">Manage Accounts</h1>
                 <button 
                     onClick={() => handleOpenModal('create')}
                     className="px-5 py-2.5 bg-[#0061a5] text-white rounded-xl font-bold hover:bg-[#004d80] transition-colors flex items-center gap-2 shadow-sm"

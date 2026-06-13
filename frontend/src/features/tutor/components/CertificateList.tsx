@@ -20,7 +20,7 @@ export const CertificateList = ({ Certificates, onView, onEdit, onDelete }: Cert
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden">
-            <div className="hidden md:grid grid-cols-12 gap-4 p-4 bg-[#f8f9fa] border-b border-[#e0e3e5] text-[13px] font-bold text-[#43474e] uppercase tracking-wider">
+            <div className="hidden md:grid grid-cols-12 gap-4 p-4 bg-[#f8f9fa] border-b border-[#e0e3e5] text-xs font-bold text-[#43474e] uppercase tracking-wider">
                 <div className="col-span-3">Certificate</div>
                 <div className="col-span-2">Issuer</div>
                 <div className="col-span-2">Issue Date</div>
@@ -37,34 +37,34 @@ export const CertificateList = ({ Certificates, onView, onEdit, onDelete }: Cert
                                 <FileBadge className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
-                                <h3 className="font-bold text-[#002045] text-[14px] leading-tight truncate">{qual.name}</h3>
+                                <h3 className="font-bold text-[#002045] text-sm leading-tight truncate">{qual.name}</h3>
                             </div>
                         </div>
                         
-                        <div className="col-span-1 md:col-span-2 text-[14px] text-[#43474e]">
-                            <span className="md:hidden font-bold mr-2 text-[12px] uppercase">Issuer:</span>
+                        <div className="col-span-1 md:col-span-2 text-sm text-[#43474e]">
+                            <span className="md:hidden font-bold mr-2 text-xs uppercase">Issuer:</span>
                             {qual.issuer}
                         </div>
 
                         <div className="col-span-1 md:col-span-2">
-                            <span className="md:hidden font-bold mr-2 text-[12px] uppercase">Issued:</span>
-                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[#f1f4f6] text-[#43474e] text-[12px] font-medium">
+                            <span className="md:hidden font-bold mr-2 text-xs uppercase">Issued:</span>
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[#f1f4f6] text-[#43474e] text-xs font-medium">
                                 <Clock className="w-3.5 h-3.5" />
                                 {formatDate(qual.issueDate)}
                             </div>
                         </div>
 
                         <div className="col-span-1 md:col-span-2">
-                            <span className="md:hidden font-bold mr-2 text-[12px] uppercase">Expires:</span>
-                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[#f1f4f6] text-[#43474e] text-[12px] font-medium">
+                            <span className="md:hidden font-bold mr-2 text-xs uppercase">Expires:</span>
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[#f1f4f6] text-[#43474e] text-xs font-medium">
                                 <Clock className="w-3.5 h-3.5" />
                                 {formatDate(qual.expDate)}
                             </div>
                         </div>
 
                         <div className="col-span-1 md:col-span-2">
-                            <span className="md:hidden font-bold mr-2 text-[12px] uppercase">Status:</span>
-                            <div className={`inline-flex items-center gap-1.5 text-[12px] font-bold ${qual.status === 'Verified' ? 'text-emerald-700' : qual.status === 'Rejected' ? 'text-rose-600' : 'text-amber-600'}`}>
+                            <span className="md:hidden font-bold mr-2 text-xs uppercase">Status:</span>
+                            <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${qual.status === 'Verified' ? 'text-emerald-700' : qual.status === 'Rejected' ? 'text-rose-600' : 'text-amber-600'}`}>
                                 {qual.status === 'Verified' ? <CheckCircle2 className="w-4 h-4" /> : qual.status === 'Rejected' ? <XCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                                 {qual.status}
                             </div>

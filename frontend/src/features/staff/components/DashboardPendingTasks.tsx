@@ -19,10 +19,10 @@ export const DashboardPendingTasks = ({ tasks }: DashboardPendingTasksProps) => 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-6">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-[18px] font-bold text-[#002045] flex items-center gap-2">
+                <h2 className="text-lg font-bold text-[#002045] flex items-center gap-2">
                     <AlertCircle className="w-5 h-5 text-amber-500" /> Pending Tasks
                 </h2>
-                <button className="text-[#0061a5] text-[13px] font-bold hover:underline">View All</button>
+                <button className="text-[#0061a5] text-xs font-bold hover:underline">View All</button>
             </div>
             
             <div className="space-y-4">
@@ -35,8 +35,8 @@ export const DashboardPendingTasks = ({ tasks }: DashboardPendingTasksProps) => 
                                     <Icon className={`w-5 h-5 ${task.color}`} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-[#002045] text-[15px] group-hover:text-[#0061a5] transition-colors">{task.title}</h4>
-                                    <div className="flex items-center gap-2 text-[12px] text-[#74777f] font-medium mt-1">
+                                    <h4 className="font-bold text-[#002045] text-sm group-hover:text-[#0061a5] transition-colors">{task.title}</h4>
+                                    <div className="flex items-center gap-2 text-xs text-[#74777f] font-medium mt-1">
                                         <span>{task.type}</span>
                                         <span className="w-1 h-1 rounded-full bg-[#c4c6cf]"></span>
                                         <span>{task.time}</span>

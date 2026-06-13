@@ -46,14 +46,14 @@ const InvoiceList = () => {
     return (
         <div className="space-y-6 animate-fade-in-up">
             <div className="flex justify-between items-center">
-                <h1 className="text-[24px] font-bold text-[#002045]">Invoice Management</h1>
+                <h1 className="text-2xl font-bold text-[#002045]">Invoice Management</h1>
                 <div className="flex items-center gap-3">
                     <div className="relative">
                         <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f]" />
                         <input 
                             type="text" 
                             placeholder="Search by ID or Learner..." 
-                            className="pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg w-[280px] focus:ring-2 focus:ring-[#0061a5] focus:outline-none bg-white"
+                            className="pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg w-70 focus:ring-2 focus:ring-[#0061a5] focus:outline-none bg-white"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -90,7 +90,7 @@ const InvoiceList = () => {
                                 <td className="p-4 font-bold text-[#0061a5]">{item.id}</td>
                                 <td className="p-4">
                                     <div className="font-bold text-[#002045]">{item.learner}</div>
-                                    <div className="text-[13px] text-[#74777f]">{item.course}</div>
+                                    <div className="text-xs text-[#74777f]">{item.course}</div>
                                 </td>
                                 <td className="p-4">
                                     <span className="font-semibold text-[#43474e] flex items-center gap-1.5">
@@ -110,17 +110,17 @@ const InvoiceList = () => {
                                     </div>
                                 </td>
                                 <td className="p-4">
-                                    <div className="font-bold text-[#002045]">{item.paidAmount} <span className="text-gray-400 font-medium text-[13px]">/ {item.totalAmount}</span></div>
-                                    <div className="text-[12px] text-[#74777f]">Last paid: {item.date}</div>
+                                    <div className="font-bold text-[#002045]">{item.paidAmount} <span className="text-gray-400 font-medium text-xs">/ {item.totalAmount}</span></div>
+                                    <div className="text-xs text-[#74777f]">Last paid: {item.date}</div>
                                 </td>
                                 <td className="p-4">
-                                    <span className={`flex items-center gap-1 w-fit px-2.5 py-1 rounded-md text-[12px] font-bold ${getStatusStyle(item.status)}`}>
+                                    <span className={`flex items-center gap-1 w-fit px-2.5 py-1 rounded-md text-xs font-bold ${getStatusStyle(item.status)}`}>
                                         {getStatusIcon(item.status)} {item.status}
                                     </span>
                                 </td>
                                 <td className="p-4 text-right">
                                     <div className="flex justify-end gap-2">
-                                        <Link to={`/staff/invoices/${item.id}`} className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#0061a5] text-[#0061a5] hover:bg-[#e6f0fa] rounded-lg transition-colors text-[13px] font-bold bg-white">
+                                        <Link to={`/staff/invoices/${item.id}`} className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#0061a5] text-[#0061a5] hover:bg-[#e6f0fa] rounded-lg transition-colors text-xs font-bold bg-white">
                                             <Eye className="w-4 h-4" /> View Details
                                         </Link>
                                     </div>

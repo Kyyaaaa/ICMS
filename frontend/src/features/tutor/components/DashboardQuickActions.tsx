@@ -11,12 +11,12 @@ export const DashboardQuickActions = () => {
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-6">
-            <h2 className="text-[18px] font-bold text-[#002045] mb-6">Quick Actions</h2>
+            <h2 className="text-lg font-bold text-[#002045] mb-6">Quick Actions</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {actions.map((action, i) => (
                     <Link to={action.link} key={i} className={`flex flex-col items-center justify-center p-4 rounded-xl transition-colors gap-2 text-center ${action.color}`}>
                         <action.icon className="w-6 h-6" />
-                        <span className="text-[13px] font-bold leading-tight">{action.name}</span>
+                        <span className="text-xs font-bold leading-tight">{action.name}</span>
                     </Link>
                 ))}
             </div>

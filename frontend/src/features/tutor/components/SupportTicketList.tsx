@@ -31,10 +31,10 @@ export const SupportTicketList = ({
     };
 
     return (
-        <div className={`w-full md:w-[350px] lg:w-[400px] border-r border-[#e0e3e5] bg-white flex flex-col h-full shrink-0 absolute md:relative z-10 transition-transform ${(!selectedTicketId && !isCreating) ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className={`w-full md:w-87.5 lg:w-100 border-r border-[#e0e3e5] bg-white flex flex-col h-full shrink-0 absolute md:relative z-10 transition-transform ${(!selectedTicketId && !isCreating) ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
             <div className="p-6 border-b border-[#e0e3e5]">
                 <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-[24px] font-extrabold text-[#002045] flex items-center gap-2">
+                    <h1 className="text-2xl font-extrabold text-[#002045] flex items-center gap-2">
                         <Ticket className="w-6 h-6 text-[#0061a5]" />
                         Support
                     </h1>
@@ -52,7 +52,7 @@ export const SupportTicketList = ({
                     <input 
                         type="text" 
                         placeholder="Search tickets..." 
-                        className="w-full pl-9 pr-4 py-2 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] transition-colors"
+                        className="w-full pl-9 pr-4 py-2 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-sm focus:outline-none focus:border-[#0061a5] transition-colors"
                         value={searchTerm}
                         onChange={(e) => onSearchChange(e.target.value)}
                     />
@@ -67,15 +67,15 @@ export const SupportTicketList = ({
                         className={`p-4 border-b border-[#f1f4f6] cursor-pointer transition-colors ${selectedTicketId === ticket.id && !isCreating ? 'bg-[#f0f7ff] border-l-4 border-l-[#0061a5]' : 'hover:bg-[#f8f9fa] border-l-4 border-l-transparent'}`}
                     >
                         <div className="flex justify-between items-start mb-2">
-                            <span className="text-[12px] font-bold text-[#74777f]">{ticket.id}</span>
-                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${getStatusStyle(ticket.status)}`}>
+                            <span className="text-xs font-bold text-[#74777f]">{ticket.id}</span>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded border ${getStatusStyle(ticket.status)}`}>
                                 {ticket.status}
                             </span>
                         </div>
-                        <h3 className={`text-[14px] font-bold leading-tight mb-2 line-clamp-2 ${selectedTicketId === ticket.id && !isCreating ? 'text-[#0061a5]' : 'text-[#002045]'}`}>
+                        <h3 className={`text-sm font-bold leading-tight mb-2 line-clamp-2 ${selectedTicketId === ticket.id && !isCreating ? 'text-[#0061a5]' : 'text-[#002045]'}`}>
                             {ticket.title}
                         </h3>
-                        <div className="flex justify-between items-center text-[12px] text-[#74777f]">
+                        <div className="flex justify-between items-center text-xs text-[#74777f]">
                             <span>{ticket.category}</span>
                             <span>{ticket.updatedAt}</span>
                         </div>

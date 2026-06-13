@@ -21,8 +21,8 @@ export const ConsultationModal = ({ consultation, onClose, onSave }: Consultatio
     return (
         <div className="fixed inset-0 bg-[#002045]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden animate-fade-in-up">
-                <div className="flex items-center justify-between p-6 border-b border-[#e0e3e5] bg-[#f8f9fa] flex-shrink-0">
-                    <h3 className="text-[20px] font-bold text-[#002045]">
+                <div className="flex items-center justify-between p-6 border-b border-[#e0e3e5] bg-[#f8f9fa] shrink-0">
+                    <h3 className="text-xl font-bold text-[#002045]">
                         Consultation Details
                     </h3>
                     <button 
@@ -82,7 +82,7 @@ export const ConsultationModal = ({ consultation, onClose, onSave }: Consultatio
                     </div>
                 </div>
 
-                <div className="p-6 border-t border-[#e0e3e5] bg-[#f8f9fa] flex items-center justify-between flex-shrink-0">
+                <div className="p-6 border-t border-[#e0e3e5] bg-[#f8f9fa] flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-3">
                         <p className="text-sm font-semibold text-gray-500">Update Status:</p>
                         <select 

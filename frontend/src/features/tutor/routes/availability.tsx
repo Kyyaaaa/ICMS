@@ -93,7 +93,7 @@ const AvailabilityRegistration = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm mt-8 mx-auto max-w-350">
+      <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-xl bg-white shadow-sm mt-8 mx-auto max-w-350">
         <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -108,10 +108,10 @@ const AvailabilityRegistration = () => {
             <CalendarClock className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">
               Availability Registration
             </h1>
-            <p className="text-[#43474e] text-[14px]">
+            <p className="text-[#43474e] text-sm">
               Select your available time slots for the upcoming weeks.
             </p>
           </div>
@@ -122,7 +122,7 @@ const AvailabilityRegistration = () => {
             <button
               onClick={handleSaveDraft}
               disabled={isSubmitting || isSavingDraft}
-              className="px-5 py-2.5 bg-white text-[#43474e] border border-[#c4c6cf] rounded-lg font-bold text-[14px] hover:bg-[#f0f4f8] transition-colors flex items-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 bg-white text-[#43474e] border border-[#c4c6cf] rounded-lg font-bold text-sm hover:bg-[#f0f4f8] transition-colors flex items-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSavingDraft ? (
                 <div className="w-4 h-4 border-2 border-[#0061a5]/30 border-t-[#0061a5] rounded-full animate-spin" />
@@ -132,7 +132,7 @@ const AvailabilityRegistration = () => {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting || isSavingDraft}
-              className="px-5 py-2.5 bg-[#0061a5] text-white rounded-lg font-bold text-[14px] hover:bg-[#004d80] transition-colors flex items-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 bg-[#0061a5] text-white rounded-lg font-bold text-sm hover:bg-[#004d80] transition-colors flex items-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -144,7 +144,7 @@ const AvailabilityRegistration = () => {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="px-5 py-2.5 bg-[#f0f4f8] text-[#43474e] rounded-lg font-bold text-[14px] flex items-center gap-2 border border-[#c4c6cf]">
+            <div className="px-5 py-2.5 bg-[#f0f4f8] text-[#43474e] rounded-lg font-bold text-sm flex items-center gap-2 border border-[#c4c6cf]">
               <Lock className="w-4 h-4" />
               Submitted
             </div>
@@ -156,7 +156,7 @@ const AvailabilityRegistration = () => {
       {status === "submitted" ? (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
           <Lock className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-          <div className="text-[14px] text-amber-900 leading-relaxed">
+          <div className="text-sm text-amber-900 leading-relaxed">
             <p className="font-bold mb-1">
               Your availability is currently locked.
             </p>
@@ -172,7 +172,7 @@ const AvailabilityRegistration = () => {
       ) : (
         <div className="bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl p-4 flex items-start gap-3">
           <Info className="w-5 h-5 text-[#0061a5] shrink-0 mt-0.5" />
-          <p className="text-[14px] text-[#43474e] leading-relaxed">
+          <p className="text-sm text-[#43474e] leading-relaxed">
             Click on the blocks below to toggle your availability. Once you are
             finished, click <strong>"Submit & Lock Schedule"</strong>.
             Submitting will lock your schedule so that staff can safely assign
@@ -191,13 +191,13 @@ const AvailabilityRegistration = () => {
       <div className="flex items-center gap-6 pt-2 px-2">
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 rounded-md bg-[#0061a5] shadow-sm" />
-          <span className="text-[14px] font-bold text-[#002045]">
+          <span className="text-sm font-bold text-[#002045]">
             Available ({selectedSlots.size})
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 rounded-md bg-[#f8f9fa] border border-[#e0e3e5]" />
-          <span className="text-[14px] font-medium text-[#43474e]">
+          <span className="text-sm font-medium text-[#43474e]">
             Off ({DAYS.length * SHIFTS.length - selectedSlots.size})
           </span>
         </div>

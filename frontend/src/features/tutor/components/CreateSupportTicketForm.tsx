@@ -19,13 +19,13 @@ export const CreateSupportTicketForm = ({ onCancel, onSubmit }: CreateSupportTic
 
     return (
         <div className="p-4 md:p-8 max-w-2xl mx-auto w-full flex-1 overflow-y-auto">
-            <button onClick={onCancel} className="md:hidden flex items-center gap-1 text-[#0061a5] font-bold text-[14px] mb-4">
+            <button onClick={onCancel} className="md:hidden flex items-center gap-1 text-[#0061a5] font-bold text-sm mb-4">
                 <ChevronRight className="w-4 h-4 rotate-180" /> Back to list
             </button>
-            <h2 className="text-[24px] font-extrabold text-[#002045] mb-6">Create New Ticket</h2>
+            <h2 className="text-2xl font-extrabold text-[#002045] mb-6">Create New Ticket</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label className="block text-[14px] font-bold text-[#002045] mb-2">Category</label>
+                    <label className="block text-sm font-bold text-[#002045] mb-2">Category</label>
                     <select 
                         required
                         value={category}
@@ -40,7 +40,7 @@ export const CreateSupportTicketForm = ({ onCancel, onSubmit }: CreateSupportTic
                     </select>
                 </div>
                 <div>
-                    <label className="block text-[14px] font-bold text-[#002045] mb-2">Subject</label>
+                    <label className="block text-sm font-bold text-[#002045] mb-2">Subject</label>
                     <input 
                         required
                         type="text" 
@@ -51,7 +51,7 @@ export const CreateSupportTicketForm = ({ onCancel, onSubmit }: CreateSupportTic
                     />
                 </div>
                 <div>
-                    <label className="block text-[14px] font-bold text-[#002045] mb-2">Description</label>
+                    <label className="block text-sm font-bold text-[#002045] mb-2">Description</label>
                     <textarea 
                         required
                         value={description}

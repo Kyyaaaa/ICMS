@@ -218,7 +218,7 @@ const AdminAccountDetail = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column: Avatar & Basic Info */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
+                    <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
                         <div className="relative w-32 h-32 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold text-5xl border-4 border-[#e6f0fa] shadow-sm mb-4 overflow-hidden">
                             {account.avatar_url ? (
                                 <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
@@ -228,24 +228,24 @@ const AdminAccountDetail = () => {
                         </div>
                         <h2 className="text-xl font-bold text-[#002045]">{account.full_name || ''}</h2>
                         <div className="flex flex-col items-center gap-2 mt-2">
-                            <span className="px-3 py-1 bg-[#e8def8] text-[#6750a4] text-[13px] font-bold rounded uppercase">{account.role}</span>
+                            <span className="px-3 py-1 bg-[#e8def8] text-[#6750a4] text-xs font-bold rounded uppercase">{account.role}</span>
                             {account.is_active ? (
-                                <span className="flex items-center gap-1.5 text-[#137333] text-[13px] font-bold">
+                                <span className="flex items-center gap-1.5 text-[#137333] text-xs font-bold">
                                     <CheckCircle2 size={16} /> Active Account
                                 </span>
                             ) : (
-                                <span className="flex items-center gap-1.5 text-[#ba1a1a] text-[13px] font-bold">
+                                <span className="flex items-center gap-1.5 text-[#ba1a1a] text-xs font-bold">
                                     <ShieldAlert size={16} /> Banned Account
                                 </span>
                             )}
                         </div>
                         
                         <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-3">
-                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
+                            <div className="flex items-center gap-3 text-sm text-[#43474e]">
                                 <Users className="w-5 h-5 text-[#74777f] shrink-0" />
                                 <span>ID: {formatAccountID(account.account_code || id || '', account.role)}</span>
                             </div>
-                            <div className="flex items-center gap-3 text-[14px] text-[#43474e]">
+                            <div className="flex items-center gap-3 text-sm text-[#43474e]">
                                 <Calendar className="w-5 h-5 text-[#74777f] shrink-0" />
                                 <span>Joined {account.created_at}</span>
                             </div>
@@ -256,15 +256,15 @@ const AdminAccountDetail = () => {
                 {/* Right Column: Forms */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Account Settings Form */}
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] overflow-hidden">
                         <div className="px-6 py-4 border-b border-[#e0e3e5] bg-[#f8f9fa] flex items-center justify-between">
-                            <h2 className="text-[16px] font-bold text-[#002045] flex items-center gap-2">
+                            <h2 className="text-base font-bold text-[#002045] flex items-center gap-2">
                                 <User size={20} />
                                 Profile Information
                             </h2>
                         </div>
                         {!canEdit && (
-                            <div className="mx-6 mt-4 p-3 bg-[#ffdad6] text-[#ba1a1a] rounded-xl text-[13px] font-bold flex items-center gap-2 border border-[#ba1a1a]/20">
+                            <div className="mx-6 mt-4 p-3 bg-[#ffdad6] text-[#ba1a1a] rounded-xl text-xs font-bold flex items-center gap-2 border border-[#ba1a1a]/20">
                                 <ShieldAlert size={18} />
                                 You cannot edit the profile of an account with the same role as yours.
                             </div>
@@ -272,25 +272,25 @@ const AdminAccountDetail = () => {
                         <form onSubmit={handleSaveProfile} className="p-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Full Name</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Full Name</label>
                                     <input 
                                         type="text" 
                                         value={account.full_name}
                                         onChange={e => setAccount({...account, full_name: e.target.value})}
-                                        className={`w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
+                                        className={`w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
                                         required 
                                         disabled={!canEdit}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Phone Number</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Phone Number</label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                         <input 
                                             type="tel" 
                                             value={account.phone_number}
                                             onChange={e => setAccount({...account, phone_number: e.target.value})}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
+                                            className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
                                             disabled={!canEdit}
                                         />
                                     </div>
@@ -299,7 +299,7 @@ const AdminAccountDetail = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
                                     <div className="relative">
                                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                         <input 
@@ -307,19 +307,19 @@ const AdminAccountDetail = () => {
                                             value={account.date_of_birth}
                                             onChange={e => setAccount({...account, date_of_birth: e.target.value})}
                                             max={new Date().toISOString().split('T')[0]}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
+                                            className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
                                             disabled={!canEdit}
                                         />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Gender</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Gender</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                         <select 
                                             value={account.gender?.toUpperCase() || ''}
                                             onChange={e => setAccount({...account, gender: e.target.value})}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors appearance-none ${!canEdit ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                                            className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors appearance-none ${!canEdit ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                                             disabled={!canEdit}
                                         >
                                             <option value="" disabled style={{ display: 'none' }}>Select Gender</option>
@@ -332,22 +332,22 @@ const AdminAccountDetail = () => {
                             </div>
 
                             <div className="space-y-2 mb-6">
-                                <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
+                                <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                                     <input 
                                         type="email" 
                                         value={account.email}
                                         disabled
-                                        className="w-full pl-10 pr-4 py-2.5 bg-[#e0e3e5] border border-[#c4c6cf] rounded-xl text-[14px] text-[#74777f] cursor-not-allowed" 
+                                        className="w-full pl-10 pr-4 py-2.5 bg-[#e0e3e5] border border-[#c4c6cf] rounded-xl text-sm text-[#74777f] cursor-not-allowed" 
                                     />
                                 </div>
-                                <p className="text-[12px] text-[#74777f] mt-1">Email address cannot be changed.</p>
+                                <p className="text-xs text-[#74777f] mt-1">Email address cannot be changed.</p>
                             </div>
 
                             <div className="flex items-center justify-end gap-4 pt-4 border-t border-[#e0e3e5]">
-                                {isSaved && <span className="text-[13px] text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Saved changes</span>}
-                                <button type="submit" disabled={isSaving || !canEdit} className="bg-[#0061a5] text-white px-5 py-2.5 rounded-xl text-[14px] font-bold flex items-center gap-2 hover:bg-[#004d80] transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
+                                {isSaved && <span className="text-xs text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Saved changes</span>}
+                                <button type="submit" disabled={isSaving || !canEdit} className="bg-[#0061a5] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#004d80] transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
                                     <Save size={18} />
                                     {isSaving ? 'Saving...' : 'Save Profile'}
                                 </button>
@@ -356,34 +356,34 @@ const AdminAccountDetail = () => {
                     </div>
 
                     {/* Reset Password Form */}
-                    <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] overflow-hidden">
                         <div className="px-6 py-4 border-b border-[#e0e3e5] bg-[#f8f9fa] flex items-center justify-between">
-                            <h2 className="text-[16px] font-bold text-[#002045] flex items-center gap-2">
+                            <h2 className="text-base font-bold text-[#002045] flex items-center gap-2">
                                 <Key size={20} />
                                 Reset Account Password
                             </h2>
                         </div>
                         {!canEdit && (
-                            <div className="mx-6 mt-4 p-3 bg-[#ffdad6] text-[#ba1a1a] rounded-xl text-[13px] font-bold flex items-center gap-2 border border-[#ba1a1a]/20">
+                            <div className="mx-6 mt-4 p-3 bg-[#ffdad6] text-[#ba1a1a] rounded-xl text-xs font-bold flex items-center gap-2 border border-[#ba1a1a]/20">
                                 <ShieldAlert size={18} />
                                 You cannot reset the password of an account with the same role as yours.
                             </div>
                         )}
                         <form onSubmit={handleSavePassword} className="p-6">
-                            <p className="text-[14px] text-[#74777f] mb-6">
+                            <p className="text-sm text-[#74777f] mb-6">
                                 As an administrator, you can reset the password for this user without needing their current password. 
                                 Make sure to communicate the new password securely to the user.
                             </p>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
                                 <div className="space-y-2">
-                                    <label className="text-[14px] font-bold text-[#181c1e]">New Password</label>
+                                    <label className="text-sm font-bold text-[#181c1e]">New Password</label>
                                     <div className="relative">
                                         <input 
                                             type={showNewPassword ? "text" : "password"} 
                                             value={account.password}
                                             onChange={e => setAccount({...account, password: e.target.value})}
-                                            className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
+                                            className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
                                             required 
                                             minLength={8} 
                                             disabled={!canEdit}
@@ -394,13 +394,13 @@ const AdminAccountDetail = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[14px] font-bold text-[#181c1e]">Confirm New Password</label>
+                                    <label className="text-sm font-bold text-[#181c1e]">Confirm New Password</label>
                                     <div className="relative">
                                         <input 
                                             type={showNewPassword ? "text" : "password"} 
                                             value={account.confirm_password}
                                             onChange={e => setAccount({...account, confirm_password: e.target.value})}
-                                            className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border ${account.confirm_password.length > 0 && account.password === account.confirm_password ? 'border-green-500 shadow-[0_0_0_1px_#22c55e]' : account.confirm_password.length > 0 && account.password !== account.confirm_password ? 'border-red-500 shadow-[0_0_0_1px_#ef4444]' : 'border-[#c4c6cf]'} rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                            className={`w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border ${account.confirm_password.length > 0 && account.password === account.confirm_password ? 'border-green-500 shadow-[0_0_0_1px_#22c55e]' : account.confirm_password.length > 0 && account.password !== account.confirm_password ? 'border-red-500 shadow-[0_0_0_1px_#ef4444]' : 'border-[#c4c6cf]'} rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`}
                                             required 
                                             minLength={8} 
                                             disabled={!canEdit}
@@ -410,8 +410,8 @@ const AdminAccountDetail = () => {
                             </div>
                             
                             <div className="flex items-center justify-end gap-4">
-                                {isPasswordSaved && <span className="text-[13px] text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Password Updated</span>}
-                                <button type="submit" disabled={isSavingPassword || !canEdit} className="bg-white border-2 border-[#0061a5] text-[#0061a5] px-6 py-2.5 rounded-xl text-[15px] font-bold hover:bg-[#e6f0fa] transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
+                                {isPasswordSaved && <span className="text-xs text-[#137333] font-bold flex items-center gap-1.5 animate-fade-in"><CheckCircle2 className="w-4 h-4"/> Password Updated</span>}
+                                <button type="submit" disabled={isSavingPassword || !canEdit} className="bg-white border-2 border-[#0061a5] text-[#0061a5] px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#e6f0fa] transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
                                     {isSavingPassword ? 'Updating...' : 'Set New Password'}
                                 </button>
                             </div>

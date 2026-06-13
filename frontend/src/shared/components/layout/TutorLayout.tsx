@@ -172,7 +172,7 @@ const TutorLayout = () => {
             <Link
               key={tab.name}
               to={tab.path}
-              className={`flex items-center gap-2 py-3.5 border-b-2 font-bold text-[14px] whitespace-nowrap transition-colors ${active ? "border-[#0061a5] text-[#0061a5]" : "border-transparent text-[#74777f] hover:text-[#002045]"}`}
+              className={`flex items-center gap-2 py-3.5 border-b-2 font-bold text-sm whitespace-nowrap transition-colors ${active ? "border-[#0061a5] text-[#0061a5]" : "border-transparent text-[#74777f] hover:text-[#002045]"}`}
             >
               <tab.icon className="w-4 h-4" />
               {tab.name}
@@ -218,11 +218,11 @@ const TutorLayout = () => {
         <div className="flex items-center justify-between h-18 px-6 border-b border-[#e0e3e5] shrink-0">
           <Link
             to="/tutor/dashboard"
-            className="text-[24px] font-extrabold text-[#002045] flex items-center gap-2"
+            className="text-2xl font-extrabold text-[#002045] flex items-center gap-2"
           >
             <BookOpen className="w-7 h-7 text-[#0061a5]" />
             ICMS{" "}
-            <span className="text-[#0061a5] font-semibold text-[18px]">
+            <span className="text-[#0061a5] font-semibold text-lg">
               Tutor
             </span>
           </Link>
@@ -243,7 +243,7 @@ const TutorLayout = () => {
                   <Link
                     to={item.path}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-[14px] ${isActive ? "bg-[#e6f0fa] text-[#0061a5]" : "text-[#43474e] hover:bg-[#f8f9fa] hover:text-[#002045]"}`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${isActive ? "bg-[#e6f0fa] text-[#0061a5]" : "text-[#43474e] hover:bg-[#f8f9fa] hover:text-[#002045]"}`}
                   >
                     <item.icon
                       className={`w-5 h-5 shrink-0 ${isActive ? "text-[#0061a5]" : "text-[#74777f]"}`}
@@ -262,7 +262,7 @@ const TutorLayout = () => {
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#43474e] font-bold hover:bg-[#e0e3e5]/50 transition-colors"
           >
             <Globe className="w-5 h-5" />
-            <span className="text-[14px]">Back to Homepage</span>
+            <span className="text-sm">Back to Homepage</span>
           </Link>
           <button
             onClick={() => {
@@ -274,7 +274,7 @@ const TutorLayout = () => {
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 transition-colors"
           >
             <LogOut className="w-5 h-5" />
-            <span className="text-[14px]">Log Out</span>
+            <span className="text-sm">Log Out</span>
           </button>
         </div>
       </aside>
@@ -291,10 +291,10 @@ const TutorLayout = () => {
               <Menu className="w-6 h-6" />
             </button>
             <div className="hidden md:flex flex-col">
-              <span className="text-[18px] font-bold text-[#002045]">
+              <span className="text-lg font-bold text-[#002045]">
                 Welcome back, {fullName}!
               </span>
-              <span className="text-[13px] text-[#74777f]">
+              <span className="text-xs text-[#74777f]">
                 Ready for your classes today?
               </span>
             </div>
@@ -320,7 +320,7 @@ const TutorLayout = () => {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowNotifications(false)}
                   ></div>
-                  <div className="absolute right-0 mt-2 w-[320px] md:w-95 bg-white rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] border border-[#e0e3e5] z-50 overflow-hidden animate-fade-in-down origin-top-right">
+                  <div className="absolute right-0 mt-2 w-80 md:w-95 bg-white rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] border border-[#e0e3e5] z-50 overflow-hidden animate-fade-in-down origin-top-right">
                     <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f7fafc]">
                       <h3 className="font-bold text-[#181c1e]">
                         Notifications
@@ -328,7 +328,7 @@ const TutorLayout = () => {
                       {unreadCount > 0 && (
                         <button
                           onClick={markAllAsRead}
-                          className="text-[12px] font-semibold text-[#0061a5] hover:text-[#002045]"
+                          className="text-xs font-semibold text-[#0061a5] hover:text-[#002045]"
                         >
                           Mark all as read
                         </button>
@@ -347,20 +347,20 @@ const TutorLayout = () => {
                             <div>
                               <div className="flex items-center gap-2 mb-1">
                                 <span
-                                  className={`px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider uppercase ${getTagColor(notification.type)}`}
+                                  className={`px-2 py-0.5 rounded text-xs font-extrabold tracking-wider uppercase ${getTagColor(notification.type)}`}
                                 >
                                   {notification.type}
                                 </span>
                                 <h4
-                                  className={`text-[14px] ${notification.unread ? "font-bold text-[#181c1e]" : "font-medium text-[#43474e]"}`}
+                                  className={`text-sm ${notification.unread ? "font-bold text-[#181c1e]" : "font-medium text-[#43474e]"}`}
                                 >
                                   {notification.title}
                                 </h4>
                               </div>
-                              <p className="text-[13px] text-[#43474e] mt-1 leading-relaxed">
+                              <p className="text-xs text-[#43474e] mt-1 leading-relaxed">
                                 {notification.message}
                               </p>
-                              <span className="text-[11px] font-medium text-[#74777f] mt-2 block">
+                              <span className="text-xs font-medium text-[#74777f] mt-2 block">
                                 {notification.time}
                               </span>
                             </div>
@@ -372,7 +372,7 @@ const TutorLayout = () => {
                       <Link
                         to="/tutor/notifications"
                         onClick={() => setShowNotifications(false)}
-                        className="text-[13px] font-bold text-[#0061a5] hover:underline block w-full"
+                        className="text-xs font-bold text-[#0061a5] hover:underline block w-full"
                       >
                         View All Notifications
                       </Link>
@@ -388,14 +388,14 @@ const TutorLayout = () => {
               className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group"
             >
               <div className="hidden md:flex flex-col text-right">
-                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">
+                <span className="text-sm font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">
                   {fullName}
                 </span>
-                <span className="text-[12px] text-[#74777f] leading-tight uppercase">
+                <span className="text-xs text-[#74777f] leading-tight uppercase">
                   {roleText ? roleText.toUpperCase() : ""}
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
+              <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-sm shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}

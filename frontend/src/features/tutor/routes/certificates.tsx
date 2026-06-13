@@ -72,13 +72,13 @@ const TutorCertificates = () => {
         <div className="space-y-6 animate-fade-in-up pb-8 relative">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">My Certificates</h1>
-                    <p className="text-[#43474e] text-[14px]">Upload and manage your certificates and diplomas.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">My Certificates</h1>
+                    <p className="text-[#43474e] text-sm">Upload and manage your certificates and diplomas.</p>
                 </div>
                 {!isUploading && (
                     <button 
                         onClick={() => setIsUploading(true)}
-                        className="px-6 py-2.5 bg-[#0061a5] text-white rounded-lg font-bold text-[14px] hover:bg-[#004d80] transition-colors flex items-center gap-2"
+                        className="px-6 py-2.5 bg-[#0061a5] text-white rounded-lg font-bold text-sm hover:bg-[#004d80] transition-colors flex items-center gap-2"
                     >
                         <Plus className="w-5 h-5" /> Add New
                     </button>
@@ -93,7 +93,7 @@ const TutorCertificates = () => {
             )}
 
             {loading ? (
-                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm">
+                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-xl bg-white shadow-sm">
                     <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (

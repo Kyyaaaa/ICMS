@@ -47,21 +47,21 @@ const PaymentCheckout = () => {
 
     if (isSuccess) {
         return (
-            <div className="max-w-3xl mx-auto mt-[40px] bg-white rounded-3xl shadow-sm border border-[#e0e3e5] p-[40px] md:p-[60px] text-center animate-fade-in-up">
-                <div className="w-24 h-24 rounded-full bg-[#e8f5e9] flex items-center justify-center mx-auto mb-[32px]">
+            <div className="max-w-3xl mx-auto mt-10 bg-white rounded-3xl shadow-sm border border-[#e0e3e5] p-10 md:p-15 text-center animate-fade-in-up">
+                <div className="w-24 h-24 rounded-full bg-[#e8f5e9] flex items-center justify-center mx-auto mb-8">
                     <CheckCircle2 className="w-12 h-12 text-[#2e7d32]" />
                 </div>
-                <h2 className="text-[32px] font-extrabold text-[#002045] mb-[16px]">Payment Successful!</h2>
-                <p className="text-[18px] text-[#43474e] mb-[32px] max-w-lg mx-auto">
+                <h2 className="text-3xl font-extrabold text-[#002045] mb-4">Payment Successful!</h2>
+                <p className="text-lg text-[#43474e] mb-8 max-w-lg mx-auto">
                     Your payment of <strong>{initialPayment.toLocaleString()} đ</strong> for {course.title} has been processed. 
                     {paymentPlan === 'installment' && " The next installment will be automatically billed next month."}
                 </p>
-                <div className="bg-[#f7fafc] border border-[#e0e3e5] rounded-2xl p-6 mb-[40px] text-left max-w-md mx-auto">
-                    <div className="flex justify-between mb-3 text-[15px]"><span className="text-[#74777f]">Invoice ID:</span> <span className="font-bold text-[#002045]">{id || 'INV-10025'}</span></div>
-                    <div className="flex justify-between mb-3 text-[15px]"><span className="text-[#74777f]">Payment Method:</span> <span className="font-bold text-[#002045]">Credit Card</span></div>
-                    <div className="flex justify-between text-[15px]"><span className="text-[#74777f]">Date:</span> <span className="font-bold text-[#002045]">{new Date().toLocaleDateString()}</span></div>
+                <div className="bg-[#f7fafc] border border-[#e0e3e5] rounded-2xl p-6 mb-10 text-left max-w-md mx-auto">
+                    <div className="flex justify-between mb-3 text-sm"><span className="text-[#74777f]">Invoice ID:</span> <span className="font-bold text-[#002045]">{id || 'INV-10025'}</span></div>
+                    <div className="flex justify-between mb-3 text-sm"><span className="text-[#74777f]">Payment Method:</span> <span className="font-bold text-[#002045]">Credit Card</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-[#74777f]">Date:</span> <span className="font-bold text-[#002045]">{new Date().toLocaleDateString()}</span></div>
                 </div>
-                <Link to={`/learner/payments`} className="inline-block px-[32px] py-[16px] bg-[#0061a5] text-white rounded-xl font-bold hover:bg-[#004d80] transition-colors shadow-md hover:shadow-lg">
+                <Link to={`/learner/payments`} className="inline-block px-8 py-4 bg-[#0061a5] text-white rounded-xl font-bold hover:bg-[#004d80] transition-colors shadow-md hover:shadow-lg">
                     Return to Payments
                 </Link>
             </div>
@@ -69,30 +69,30 @@ const PaymentCheckout = () => {
     }
 
     return (
-        <div className="animate-fade-in-up max-w-[1200px] mx-auto pb-12">
-            <div className="flex items-center gap-[16px] mb-6">
-                <Link to={`/learner/payments`} className="text-[#74777f] hover:text-[#0061a5] font-semibold text-[15px] flex items-center gap-2 transition-colors">
+        <div className="animate-fade-in-up max-w-300 mx-auto pb-12">
+            <div className="flex items-center gap-4 mb-6">
+                <Link to={`/learner/payments`} className="text-[#74777f] hover:text-[#0061a5] font-semibold text-sm flex items-center gap-2 transition-colors">
                     <ArrowLeft className="w-5 h-5"/> Back to Payments
                 </Link>
             </div>
             
-            <h1 className="text-[32px] font-extrabold text-[#002045] mb-[32px]">Secure Checkout</h1>
+            <h1 className="text-3xl font-extrabold text-[#002045] mb-8">Secure Checkout</h1>
             
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-[32px]">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left Column - Details & Payment Method */}
-                <div className="lg:col-span-7 flex flex-col gap-[32px]">
+                <div className="lg:col-span-7 flex flex-col gap-8">
                     
                     {/* Item Details */}
-                    <div className="bg-white rounded-3xl p-[32px] shadow-sm border border-[#e0e3e5]">
-                        <h2 className="text-[20px] font-bold text-[#002045] mb-[24px] border-b border-[#e0e3e5] pb-[16px]">Course Information</h2>
+                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#e0e3e5]">
+                        <h2 className="text-xl font-bold text-[#002045] mb-6 border-b border-[#e0e3e5] pb-4">Course Information</h2>
                         
-                        <div className="flex flex-col md:flex-row gap-[24px] mb-[32px]">
-                            <div className="w-full md:w-[120px] h-[100px] bg-[#e6f0fa] rounded-2xl flex items-center justify-center shrink-0 overflow-hidden">
+                        <div className="flex flex-col md:flex-row gap-6 mb-8">
+                            <div className="w-full md:w-30 h-25 bg-[#e6f0fa] rounded-2xl flex items-center justify-center shrink-0 overflow-hidden">
                                 <BookOpen className="w-10 h-10 text-[#0061a5] opacity-50" />
                             </div>
                             <div className="flex flex-col justify-center flex-1">
-                                <h3 className="text-[22px] font-extrabold text-[#002045] leading-tight mb-2">{course.title}</h3>
-                                <div className="flex flex-wrap items-center gap-3 text-[14px] text-[#43474e]">
+                                <h3 className="text-xl font-extrabold text-[#002045] leading-tight mb-2">{course.title}</h3>
+                                <div className="flex flex-wrap items-center gap-3 text-sm text-[#43474e]">
                                     <span className="bg-[#f1f4f6] px-3 py-1 rounded-full font-bold text-[#0061a5]">{course.band} Target</span>
                                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {course.duration}</span>
                                     <span className="flex items-center gap-1"><BookOpen className="w-4 h-4" /> {course.format}</span>
@@ -100,12 +100,12 @@ const PaymentCheckout = () => {
                             </div>
                         </div>
 
-                        <div className="bg-[#f8f9fa] rounded-2xl p-[20px] border border-[#e0e3e5]">
+                        <div className="bg-[#f8f9fa] rounded-2xl p-5 border border-[#e0e3e5]">
                             <div className="flex items-center gap-3 mb-4">
                                 <Calendar className="w-5 h-5 text-[#0061a5]" />
-                                <span className="font-bold text-[#002045] text-[16px]">{selectedClass.name}</span>
+                                <span className="font-bold text-[#002045] text-base">{selectedClass.name}</span>
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[14px] text-[#43474e]">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-[#43474e]">
                                 <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-[#74777f]" /> {selectedClass.schedule}</div>
                                 <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-[#74777f]" /> {selectedClass.room}</div>
                             </div>
@@ -113,8 +113,8 @@ const PaymentCheckout = () => {
                     </div>
 
                     {/* Payment Plan Selection */}
-                    <div className="bg-white rounded-3xl p-[32px] shadow-sm border border-[#e0e3e5]">
-                        <h2 className="text-[20px] font-bold text-[#002045] mb-[24px]">Payment Plan</h2>
+                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#e0e3e5]">
+                        <h2 className="text-xl font-bold text-[#002045] mb-6">Payment Plan</h2>
                         
                         <div className="flex flex-col gap-4">
                             <label className={`relative p-5 border-2 rounded-2xl cursor-pointer transition-all ${paymentPlan === 'full' ? 'border-[#0061a5] bg-[#f0f7ff]' : 'border-[#e0e3e5] hover:border-[#c4c6cf]'}`}>
@@ -123,9 +123,9 @@ const PaymentCheckout = () => {
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentPlan === 'full' ? 'bg-[#0061a5] text-white' : 'bg-gray-100 text-[#74777f]'}`}>
                                         <CheckCircle2 className="w-5 h-5" />
                                     </div>
-                                    <span className="text-[18px] font-bold text-[#002045]">Pay in Full</span>
+                                    <span className="text-lg font-bold text-[#002045]">Pay in Full</span>
                                 </div>
-                                <p className="text-[14px] text-[#43474e] ml-13">One-time payment of {priceValue.toLocaleString()} đ.</p>
+                                <p className="text-sm text-[#43474e] ml-13">One-time payment of {priceValue.toLocaleString()} đ.</p>
                             </label>
 
                             <label className={`relative p-5 border-2 rounded-2xl cursor-pointer transition-all ${paymentPlan === 'installment' ? 'border-[#0061a5] bg-[#f0f7ff]' : 'border-[#e0e3e5] hover:border-[#c4c6cf]'}`}>
@@ -134,22 +134,22 @@ const PaymentCheckout = () => {
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentPlan === 'installment' ? 'bg-[#0061a5] text-white' : 'bg-gray-100 text-[#74777f]'}`}>
                                         <CalendarDays className="w-5 h-5" />
                                     </div>
-                                    <span className="text-[18px] font-bold text-[#002045]">3 Installments</span>
+                                    <span className="text-lg font-bold text-[#002045]">3 Installments</span>
                                 </div>
-                                <p className="text-[14px] text-[#43474e] ml-13">Pay {(priceValue/3).toLocaleString()} đ today, and {(priceValue/3).toLocaleString()} đ monthly for 2 months.</p>
+                                <p className="text-sm text-[#43474e] ml-13">Pay {(priceValue/3).toLocaleString()} đ today, and {(priceValue/3).toLocaleString()} đ monthly for 2 months.</p>
                             </label>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Column - Summary */}
-                <div className="lg:col-span-5 flex flex-col gap-[32px]">
+                <div className="lg:col-span-5 flex flex-col gap-8">
 
                     {/* Order Summary */}
-                    <div className="bg-[#002045] rounded-3xl p-[32px] shadow-lg text-white">
-                        <h2 className="text-[20px] font-bold mb-[24px] border-b border-white/20 pb-[16px]">Order Summary</h2>
+                    <div className="bg-[#002045] rounded-3xl p-8 shadow-lg text-white">
+                        <h2 className="text-xl font-bold mb-6 border-b border-white/20 pb-4">Order Summary</h2>
                         
-                        <div className="flex flex-col gap-[16px] mb-[24px] text-[15px]">
+                        <div className="flex flex-col gap-4 mb-6 text-sm">
                             <div className="flex justify-between items-center">
                                 <span className="text-[#adc7f7]">Course Tuition</span>
                                 <span className="font-bold">{priceValue.toLocaleString()} đ</span>
@@ -166,12 +166,12 @@ const PaymentCheckout = () => {
                             )}
                         </div>
                         
-                        <div className="border-t border-white/20 pt-[24px] mb-[32px]">
+                        <div className="border-t border-white/20 pt-6 mb-8">
                             <div className="flex justify-between items-end">
-                                <span className="text-[16px] font-bold text-[#adc7f7]">Amount Due Today</span>
-                                <span className="text-[36px] font-extrabold leading-none">{initialPayment.toLocaleString()} đ</span>
+                                <span className="text-base font-bold text-[#adc7f7]">Amount Due Today</span>
+                                <span className="text-4xl font-extrabold leading-none">{initialPayment.toLocaleString()} đ</span>
                             </div>
-                            <div className="text-right text-[12px] text-[#adc7f7] mt-2">Includes all taxes and fees</div>
+                            <div className="text-right text-xs text-[#adc7f7] mt-2">Includes all taxes and fees</div>
                         </div>
 
                         <button 
@@ -183,7 +183,7 @@ const PaymentCheckout = () => {
                             {isProcessing ? 'Redirecting to Payment Gateway...' : `Proceed to Pay ${initialPayment.toLocaleString()} đ`}
                         </button>
 
-                        <div className="mt-6 flex items-center justify-center gap-2 text-[12px] text-[#adc7f7]">
+                        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-[#adc7f7]">
                             <ShieldCheck className="w-4 h-4" /> Secure 256-bit SSL Encryption
                         </div>
                     </div>

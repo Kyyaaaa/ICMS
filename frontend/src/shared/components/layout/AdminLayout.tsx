@@ -96,7 +96,7 @@ export const AdminLayout = () => {
                         <Link 
                             key={tab.name}
                             to={tab.path}
-                            className={`flex items-center gap-2 py-3.5 border-b-2 font-bold text-[14px] whitespace-nowrap transition-colors ${active ? 'border-[#0061a5] text-[#0061a5]' : 'border-transparent text-[#74777f] hover:text-[#002045]'}`}
+                            className={`flex items-center gap-2 py-3.5 border-b-2 font-bold text-sm whitespace-nowrap transition-colors ${active ? 'border-[#0061a5] text-[#0061a5]' : 'border-transparent text-[#74777f] hover:text-[#002045]'}`}
                         >
                             <tab.icon className="w-4 h-4" />
                             {tab.name}
@@ -140,9 +140,9 @@ export const AdminLayout = () => {
             {/* Sidebar */}
             <aside className={`fixed inset-y-0 left-0 z-50 w-65 bg-white border-r border-[#e0e3e5] transition-transform transform ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:sticky md:top-0 md:h-screen md:translate-x-0 flex flex-col`}>
                 <div className="flex items-center justify-between h-18 px-6 border-b border-[#e0e3e5] shrink-0">
-                    <Link to="/admin/dashboard" className="text-[24px] font-extrabold text-[#002045] flex items-center gap-2">
+                    <Link to="/admin/dashboard" className="text-2xl font-extrabold text-[#002045] flex items-center gap-2">
                         <BookOpen className="w-7 h-7 text-[#0061a5]" />
-                        ICMS <span className="text-[#0061a5] font-semibold text-[18px]">Admin</span>
+                        ICMS <span className="text-[#0061a5] font-semibold text-lg">Admin</span>
                     </Link>
                     <button className="md:hidden text-[#74777f] hover:text-[#002045]" onClick={() => setSidebarOpen(false)}>
                         <X className="w-6 h-6" />
@@ -158,7 +158,7 @@ export const AdminLayout = () => {
                                     <Link 
                                         to={item.path} 
                                         onClick={() => setSidebarOpen(false)}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-[14px] ${isActive ? 'bg-[#e6f0fa] text-[#0061a5]' : 'text-[#43474e] hover:bg-[#f8f9fa] hover:text-[#002045]'}`}
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${isActive ? 'bg-[#e6f0fa] text-[#0061a5]' : 'text-[#43474e] hover:bg-[#f8f9fa] hover:text-[#002045]'}`}
                                     >
                                         <item.icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#0061a5]' : 'text-[#74777f]'}`} />
                                         <span className="truncate">{item.name}</span>
@@ -176,7 +176,7 @@ export const AdminLayout = () => {
                         className="flex items-center gap-3 px-4 py-3 text-[#43474e] font-bold hover:bg-[#e0e3e5]/50 rounded-xl transition-colors"
                     >
                         <Globe size={20} />
-                        <span className="text-[14px]">Back to Homepage</span>
+                        <span className="text-sm">Back to Homepage</span>
                     </Link>
                     <button
                         onClick={() => {
@@ -188,7 +188,7 @@ export const AdminLayout = () => {
                         className="w-full flex items-center gap-3 px-4 py-3 text-[#ba1a1a] font-bold hover:bg-[#ffdad6]/50 rounded-xl transition-colors"
                     >
                         <LogOut size={20} />
-                        <span className="text-[14px]">Log Out</span>
+                        <span className="text-sm">Log Out</span>
                     </button>
                 </div>
             </aside>
@@ -202,8 +202,8 @@ export const AdminLayout = () => {
                             <Menu className="w-6 h-6" />
                         </button>
                         <div className="hidden md:flex flex-col">
-                            <span className="text-[18px] font-bold text-[#002045]">Welcome back, {fullName}!</span>
-                            <span className="text-[13px] text-[#74777f]">System is running smoothly today.</span>
+                            <span className="text-lg font-bold text-[#002045]">Welcome back, {fullName}!</span>
+                            <span className="text-xs text-[#74777f]">System is running smoothly today.</span>
                         </div>
                     </div>
                     <div className="flex items-center gap-5">
@@ -223,29 +223,29 @@ export const AdminLayout = () => {
                                     <div className="absolute right-0 mt-3 w-90 bg-white rounded-2xl shadow-xl border border-[#e0e3e5] overflow-hidden z-50 animate-scale-in origin-top-right">
                                         <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f8f9fa]">
                                             <h3 className="font-bold text-[#002045]">Notifications</h3>
-                                            <button onClick={markAllAsRead} className="text-[12px] font-bold text-[#0061a5] hover:underline">Mark all as read</button>
+                                            <button onClick={markAllAsRead} className="text-xs font-bold text-[#0061a5] hover:underline">Mark all as read</button>
                                         </div>
                                         <div className="max-h-100 overflow-y-auto scrollbar-thin">
                                             {notifications.length > 0 ? notifications.map(notif => (
                                                 <div key={notif.id} className={`p-4 border-b border-[#e0e3e5] last:border-b-0 hover:bg-[#f8f9fa] transition-colors cursor-pointer ${notif.unread ? 'bg-blue-50/30' : ''}`}>
                                                     <div className="flex justify-between items-start mb-1">
                                                         <div className="flex items-center gap-2">
-                                                            <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider uppercase ${getTagColor(notif.type)}`}>
+                                                            <span className={`px-2 py-0.5 rounded text-xs font-extrabold tracking-wider uppercase ${getTagColor(notif.type)}`}>
                                                                 {notif.type}
                                                             </span>
-                                                            <h4 className={`text-[14px] leading-tight text-[#002045] ${notif.unread ? 'font-bold' : 'font-semibold'}`}>{notif.title}</h4>
+                                                            <h4 className={`text-sm leading-tight text-[#002045] ${notif.unread ? 'font-bold' : 'font-semibold'}`}>{notif.title}</h4>
                                                         </div>
                                                         {notif.unread && <span className="w-2 h-2 rounded-full bg-[#0061a5] shrink-0 mt-1"></span>}
                                                     </div>
-                                                    <p className="text-[13px] text-[#43474e] mb-1.5 line-clamp-2">{notif.message}</p>
-                                                    <span className="text-[11px] font-semibold text-[#74777f]">{notif.time}</span>
+                                                    <p className="text-xs text-[#43474e] mb-1.5 line-clamp-2">{notif.message}</p>
+                                                    <span className="text-xs font-semibold text-[#74777f]">{notif.time}</span>
                                                 </div>
                                             )) : (
-                                                <div className="p-6 text-center text-[#74777f] text-[14px]">No notifications yet.</div>
+                                                <div className="p-6 text-center text-[#74777f] text-sm">No notifications yet.</div>
                                             )}
                                         </div>
                                         <div className="p-3 text-center border-t border-[#e0e3e5] bg-[#f8f9fa]">
-                                            <Link to="/admin/announcements" onClick={() => setShowNotifications(false)} className="text-[13px] font-bold text-[#0061a5] hover:underline block w-full">View All Notifications</Link>
+                                            <Link to="/admin/announcements" onClick={() => setShowNotifications(false)} className="text-xs font-bold text-[#0061a5] hover:underline block w-full">View All Notifications</Link>
                                         </div>
                                     </div>
                                 </>
@@ -253,10 +253,10 @@ export const AdminLayout = () => {
                         </div>
                         <Link to="/admin/profile" className="flex items-center gap-3 pl-5 border-l border-[#e0e3e5] cursor-pointer group">
                             <div className="hidden md:flex flex-col text-right">
-                                <span className="text-[14px] font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
-                                <span className="text-[12px] text-[#74777f] leading-tight uppercase">{roleText ? roleText.toUpperCase() : ''}</span>
+                                <span className="text-sm font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
+                                <span className="text-xs text-[#74777f] leading-tight uppercase">{roleText ? roleText.toUpperCase() : ''}</span>
                             </div>
-                            <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-[14px] shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
+                            <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-sm shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
                                 {avatarUrl ? (
                                     <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                                 ) : (

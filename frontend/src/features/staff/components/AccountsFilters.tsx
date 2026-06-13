@@ -10,11 +10,11 @@ interface AccountsFiltersProps {
 
 export const AccountsFilters = ({ searchTerm, setSearchTerm, roleFilter, setRoleFilter }: AccountsFiltersProps) => {
     return (
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] p-4 flex flex-col md:flex-row gap-4">
+        <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-4 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5" />
                 <input 
-                    className="pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] w-full transition-colors" 
+                    className="pl-10 pr-4 py-2.5 bg-[#f1f4f6] border border-[#c4c6cf] rounded-xl text-sm focus:outline-none focus:border-[#0061a5] w-full transition-colors" 
                     placeholder="Search users by name or email..." 
                     type="text" 
                     value={searchTerm}

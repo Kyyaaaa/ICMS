@@ -1,4 +1,4 @@
-﻿import type { AvailabilityShift, AvailabilityStatus } from '../types/availability';
+import type { AvailabilityShift, AvailabilityStatus } from '../types/availability';
 import axiosClient from '../../../shared/services/axiosClient';
 
 export const SHIFTS: AvailabilityShift[] = [
@@ -31,7 +31,7 @@ const fetchAvailability = async (): Promise<AvailabilityResponse['data']> => {
     isFetching = true;
     fetchPromise = axiosClient.get('/available-time-slots/my-availability')
         .then((res) => {
-            const data = (res as any).data;
+            const data = (res as AvailabilityResponse).data;
             cachedAvailability = data;
             return data;
         })

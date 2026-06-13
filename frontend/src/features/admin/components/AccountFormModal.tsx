@@ -33,7 +33,7 @@ export const AccountFormModal = ({
             <div className="absolute inset-0 bg-[#002045]/40" onClick={() => setIsModalOpen(false)} />
             <div className="relative bg-white rounded-2xl w-full max-w-md shadow-2xl animate-fade-in-up">
                 <div className="flex items-center justify-between p-6 border-b border-[#e0e3e5]">
-                    <h2 className="text-[20px] font-extrabold text-[#002045]">
+                    <h2 className="text-xl font-extrabold text-[#002045]">
                         {modalMode === 'create' ? 'Create New Account' : 'Edit Account'}
                     </h2>
                     <button onClick={() => setIsModalOpen(false)} className="text-[#74777f] hover:text-[#ba1a1a] transition-colors p-1 rounded-lg hover:bg-[#ffdad6]">
@@ -42,24 +42,24 @@ export const AccountFormModal = ({
                 </div>
                 <form onSubmit={handleSave} className="p-6 space-y-5">
                     <div className="space-y-2">
-                        <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Full Name</label>
+                        <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Full Name</label>
                         <input 
                             type="text" 
                             required 
                             value={formData.full_name}
                             onChange={e => setFormData({...formData, full_name: e.target.value})}
-                            className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                            className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                             placeholder="e.g. Michael Scott"
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
+                        <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Email Address</label>
                         <input 
                             type="email" 
                             required 
                             value={formData.email}
                             onChange={e => setFormData({...formData, email: e.target.value})}
-                            className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                            className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                             placeholder="michael@example.com"
                         />
                     </div>
@@ -67,11 +67,11 @@ export const AccountFormModal = ({
                     {modalMode === 'create' ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Role</label>
+                                <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Role</label>
                                 <select 
                                     value={formData.role}
                                     onChange={e => setFormData({...formData, role: e.target.value as Role})}
-                                    className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors cursor-pointer"
+                                    className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors cursor-pointer"
                                 >
                                     <option value="LEARNER">Learner</option>
                                     <option value="TUTOR">Tutor</option>
@@ -81,8 +81,8 @@ export const AccountFormModal = ({
                             </div>
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Password</label>
-                                    <button type="button" onClick={generatePassword} className="text-[#0061a5] text-[12px] font-bold hover:underline flex items-center gap-1 transition-colors">
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Password</label>
+                                    <button type="button" onClick={generatePassword} className="text-[#0061a5] text-xs font-bold hover:underline flex items-center gap-1 transition-colors">
                                         <RefreshCw size={12} /> Generate
                                     </button>
                                 </div>
@@ -92,7 +92,7 @@ export const AccountFormModal = ({
                                         required 
                                         value={formData.password}
                                         onChange={e => setFormData({...formData, password: e.target.value})}
-                                        className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                        className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                                         placeholder="Enter password"
                                     />
                                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045] transition-colors p-1">
@@ -105,21 +105,21 @@ export const AccountFormModal = ({
                         <>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Role</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Role</label>
                                     <input 
                                         type="text" 
                                         value={formData.role} 
                                         disabled 
-                                        className="w-full px-4 py-2.5 bg-[#e0e3e5] border border-[#c4c6cf] rounded-xl text-[14px] text-[#74777f] font-bold cursor-not-allowed"
+                                        className="w-full px-4 py-2.5 bg-[#e0e3e5] border border-[#c4c6cf] rounded-xl text-sm text-[#74777f] font-bold cursor-not-allowed"
                                         title="Role cannot be changed after creation"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">Status</label>
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Status</label>
                                     <select 
                                         value={formData.status}
                                         onChange={e => setFormData({...formData, status: e.target.value as 'ACTIVE' | 'BANNED'})}
-                                        className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors cursor-pointer"
+                                        className="w-full px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:outline-none focus:border-[#0061a5] focus:bg-white transition-colors cursor-pointer"
                                     >
                                         <option value="ACTIVE">Active</option>
                                         <option value="BANNED">Banned</option>
@@ -128,8 +128,8 @@ export const AccountFormModal = ({
                             </div>
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                    <label className="text-[13px] font-bold text-[#43474e] uppercase tracking-wider">New Password <span className="text-[#74777f] font-normal normal-case">(Leave blank to keep)</span></label>
-                                    <button type="button" onClick={generatePassword} className="text-[#0061a5] text-[12px] font-bold hover:underline flex items-center gap-1 transition-colors">
+                                    <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">New Password <span className="text-[#74777f] font-normal normal-case">(Leave blank to keep)</span></label>
+                                    <button type="button" onClick={generatePassword} className="text-[#0061a5] text-xs font-bold hover:underline flex items-center gap-1 transition-colors">
                                         <RefreshCw size={12} /> Generate
                                     </button>
                                 </div>
@@ -138,7 +138,7 @@ export const AccountFormModal = ({
                                         type={showPassword ? "text" : "password"}
                                         value={formData.password}
                                         onChange={e => setFormData({...formData, password: e.target.value})}
-                                        className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
+                                        className="w-full pl-4 pr-10 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors" 
                                         placeholder="Enter new password"
                                     />
                                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74777f] hover:text-[#002045] transition-colors p-1">

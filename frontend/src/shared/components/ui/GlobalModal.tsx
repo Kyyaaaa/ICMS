@@ -94,7 +94,7 @@ const GlobalModal = () => {
                     </div>
                     <div className="flex-1 w-0 pt-1">
                         <h3 className="text-xl font-extrabold text-[#002045] mb-2">{config.title}</h3>
-                        <p className="text-[15px] text-[#43474e] whitespace-pre-wrap leading-relaxed">{config.message}</p>
+                        <p className="text-sm text-[#43474e] whitespace-pre-wrap leading-relaxed">{config.message}</p>
                     </div>
                     <button onClick={handleCancel} className="ml-4 p-1.5 text-[#74777f] hover:bg-[#f1f4f6] rounded-full transition-colors">
                         <X className="w-5 h-5" />
@@ -105,14 +105,14 @@ const GlobalModal = () => {
                     {config.mode === 'confirm' && (
                         <button
                             onClick={handleCancel}
-                            className="px-5 py-2.5 text-[14px] font-bold text-[#43474e] bg-white border border-[#c4c6cf] rounded-xl hover:bg-[#f1f4f6] transition-colors"
+                            className="px-5 py-2.5 text-sm font-bold text-[#43474e] bg-white border border-[#c4c6cf] rounded-xl hover:bg-[#f1f4f6] transition-colors"
                         >
                             {config.cancelText || 'Cancel'}
                         </button>
                     )}
                     <button
                         onClick={handleConfirm}
-                        className={`px-6 py-2.5 text-[14px] font-bold text-white rounded-xl transition-all shadow-md hover:shadow-lg
+                        className={`px-6 py-2.5 text-sm font-bold text-white rounded-xl transition-all shadow-md hover:shadow-lg
                             ${config.type === 'error' ? 'bg-[#ba1a1a] hover:bg-[#93000a]' 
                             : config.type === 'warning' ? 'bg-[#855e00] hover:bg-[#604400]'
                             : config.type === 'success' ? 'bg-[#137333] hover:bg-[#0d5023]'

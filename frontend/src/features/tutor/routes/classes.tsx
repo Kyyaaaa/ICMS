@@ -32,7 +32,7 @@ const TutorClasses = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-2xl md:text-4xl font-bold text-[#002045]">Class Management</h1>
-                    <p className="text-[14px] text-[#43474e] mt-1">Select a class to manage attendance and grades.</p>
+                    <p className="text-sm text-[#43474e] mt-1">Select a class to manage attendance and grades.</p>
                 </div>
             </div>
 
@@ -47,15 +47,15 @@ const TutorClasses = () => {
                             <div className="w-12 h-12 bg-[#e3f2fd] rounded-xl flex items-center justify-center text-[#0061a5] mb-4">
                                 <BookOpen size={24} />
                             </div>
-                            <h2 className="text-[18px] font-bold text-[#002045] mb-2 group-hover:text-[#0061a5] transition-colors line-clamp-2">
+                            <h2 className="text-lg font-bold text-[#002045] mb-2 group-hover:text-[#0061a5] transition-colors line-clamp-2">
                                 {cls.name}
                             </h2>
-                            <div className="flex items-center gap-2 text-[#43474e] text-[14px]">
+                            <div className="flex items-center gap-2 text-[#43474e] text-sm">
                                 <Users size={16} className="text-[#74777f]" />
                                 <span>{cls.students} Learners</span>
                             </div>
                         </div>
-                        <div className="p-4 border-t border-[#e2e2e9] bg-[#f8f9fc] flex items-center justify-between text-[#0061a5] font-bold text-[14px]">
+                        <div className="p-4 border-t border-[#e2e2e9] bg-[#f8f9fc] flex items-center justify-between text-[#0061a5] font-bold text-sm">
                             <span>Manage Class</span>
                             <ArrowRight size={18} className="transform group-hover:translate-x-1 transition-transform" />
                         </div>

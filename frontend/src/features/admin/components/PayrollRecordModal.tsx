@@ -25,7 +25,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                 <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f7fafc]">
                     <div className="flex items-center gap-3">
                         <Wallet className="text-[#0061a5]" size={24} />
-                        <h2 className="text-[20px] font-bold text-[#002045]">Payslip Details: {record.month}</h2>
+                        <h2 className="text-xl font-bold text-[#002045]">Payslip Details: {record.month}</h2>
                     </div>
                     <button onClick={onClose} className="text-[#74777f] hover:text-[#181c1e] transition-colors"><X size={24} /></button>
                 </div>
@@ -33,12 +33,12 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                 <div className="p-6">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b border-[#e0e3e5]">
                         <div>
-                            <h2 className="text-[24px] font-bold text-[#181c1e]">{record.staffName}</h2>
+                            <h2 className="text-2xl font-bold text-[#181c1e]">{record.staffName}</h2>
                             <p className="text-[#43474e]">{record.role} • {record.staffId}</p>
                         </div>
                         <div className="text-right mt-4 md:mt-0">
-                            <p className="text-[12px] text-[#74777f] font-bold uppercase mb-1">Status</p>
-                            <span className={`inline-block px-3 py-1 text-[14px] font-bold rounded-full uppercase ${getStatusBadge(formData.status || '')}`}>
+                            <p className="text-xs text-[#74777f] font-bold uppercase mb-1">Status</p>
+                            <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full uppercase ${getStatusBadge(formData.status || '')}`}>
                                 {formData.status}
                             </span>
                         </div>
@@ -46,39 +46,39 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                         <div>
-                            <h3 className="text-[16px] font-bold text-[#181c1e] mb-4 flex items-center gap-2"><DollarSign size={18}/> Earnings</h3>
+                            <h3 className="text-base font-bold text-[#181c1e] mb-4 flex items-center gap-2"><DollarSign size={18}/> Earnings</h3>
                             <div className="space-y-4">
                                 {formData.role !== 'Tutor' ? (
                                     <>
                                         <div>
-                                            <label className="block text-[12px] font-bold text-[#43474e] mb-1">Base Salary (Monthly - đ)</label>
+                                            <label className="block text-xs font-bold text-[#43474e] mb-1">Base Salary (Monthly - đ)</label>
                                             <input 
                                                 type="number" 
                                                 value={formData.baseSalary} 
                                                 onChange={e => setFormData({...formData, baseSalary: parseInt(e.target.value) || 0})}
                                                 disabled={formData.status !== 'Pending'}
-                                                className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
+                                                className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                             />
                                         </div>
                                         <div className="flex gap-4">
                                             <div className="flex-1">
-                                                <label className="block text-[12px] font-bold text-[#43474e] mb-1">OT Hours</label>
+                                                <label className="block text-xs font-bold text-[#43474e] mb-1">OT Hours</label>
                                                 <input 
                                                     type="number" 
                                                     value={formData.overtimeHours} 
                                                     onChange={e => setFormData({...formData, overtimeHours: parseFloat(e.target.value) || 0})}
                                                     disabled={formData.status !== 'Pending'}
-                                                    className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
+                                                    className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <label className="block text-[12px] font-bold text-[#43474e] mb-1">OT Rate/Hr</label>
+                                                <label className="block text-xs font-bold text-[#43474e] mb-1">OT Rate/Hr</label>
                                                 <input 
                                                     type="number" 
                                                     value={formData.overtimeRate} 
                                                     onChange={e => setFormData({...formData, overtimeRate: parseInt(e.target.value) || 0})}
                                                     disabled={formData.status !== 'Pending'}
-                                                    className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
+                                                    className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                                 />
                                             </div>
                                         </div>
@@ -87,23 +87,23 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                     <>
                                         <div className="flex gap-4">
                                             <div className="flex-1">
-                                                <label className="block text-[12px] font-bold text-[#43474e] mb-1">Sessions Taught</label>
+                                                <label className="block text-xs font-bold text-[#43474e] mb-1">Sessions Taught</label>
                                                 <input 
                                                     type="number" 
                                                     value={formData.teachingSessions} 
                                                     onChange={e => setFormData({...formData, teachingSessions: parseInt(e.target.value) || 0})}
                                                     disabled={formData.status !== 'Pending'}
-                                                    className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
+                                                    className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <label className="block text-[12px] font-bold text-[#43474e] mb-1">Rate Per Session</label>
+                                                <label className="block text-xs font-bold text-[#43474e] mb-1">Rate Per Session</label>
                                                 <input 
                                                     type="number" 
                                                     value={formData.ratePerSession} 
                                                     onChange={e => setFormData({...formData, ratePerSession: parseInt(e.target.value) || 0})}
                                                     disabled={formData.status !== 'Pending'}
-                                                    className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
+                                                    className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                                 />
                                             </div>
                                         </div>
@@ -111,19 +111,19 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                 )}
 
                                 <div>
-                                    <label className="block text-[12px] font-bold text-[#43474e] mb-1">Bonus / Allowances (đ)</label>
+                                    <label className="block text-xs font-bold text-[#43474e] mb-1">Bonus / Allowances (đ)</label>
                                     <input 
                                         type="number" 
                                         value={formData.bonus} 
                                         onChange={e => setFormData({...formData, bonus: parseInt(e.target.value) || 0})}
                                         disabled={formData.status !== 'Pending'}
-                                        className="w-full px-3 py-2 text-[14px] border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
+                                        className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                     />
                                 </div>
                             </div>
                             <div className="mt-4 p-3 bg-[#f8f9fa] rounded-lg border border-[#e6f0fa] flex justify-between items-center">
-                                <span className="text-[#0061a5] font-bold text-[14px]">Total Earnings</span>
-                                <span className="font-bold text-[#0061a5] text-[16px]">
+                                <span className="text-[#0061a5] font-bold text-sm">Total Earnings</span>
+                                <span className="font-bold text-[#0061a5] text-base">
                                     {(() => {
                                         if (formData.role !== 'Tutor') {
                                             return ((formData.baseSalary || 0) + ((formData.overtimeHours || 0) * (formData.overtimeRate || 0)) + (formData.bonus || 0)).toLocaleString() + 'đ';
@@ -136,7 +136,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                         </div>
 
                         <div>
-                            <h3 className="text-[16px] font-bold text-[#181c1e] mb-4 flex items-center gap-2"><Calculator size={18}/> Deductions</h3>
+                            <h3 className="text-base font-bold text-[#181c1e] mb-4 flex items-center gap-2"><Calculator size={18}/> Deductions</h3>
                             <div className="space-y-3">
                                 {(formData.deductionItems || []).map((item, index) => (
                                     <div key={item.id} className="flex gap-2 items-start">
@@ -151,7 +151,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                                     setFormData({...formData, deductionItems: newItems});
                                                 }}
                                                 disabled={formData.status !== 'Pending'}
-                                                className="w-full px-3 py-2 text-[13px] border border-[#ffebed] rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#ba1a1a] disabled:bg-[#f1f4f6]"
+                                                className="w-full px-3 py-2 text-xs border border-[#ffebed] rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#ba1a1a] disabled:bg-[#f1f4f6]"
                                             />
                                             <input 
                                                 type="number" 
@@ -163,7 +163,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                                     setFormData({...formData, deductionItems: newItems});
                                                 }}
                                                 disabled={formData.status !== 'Pending'}
-                                                className="w-full px-3 py-2 text-[13px] font-bold border border-[#ffebed] rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#ba1a1a] disabled:bg-[#f1f4f6]"
+                                                className="w-full px-3 py-2 text-xs font-bold border border-[#ffebed] rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#ba1a1a] disabled:bg-[#f1f4f6]"
                                             />
                                         </div>
                                         {formData.status === 'Pending' && (
@@ -188,40 +188,40 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                             newItems.push({ id: Math.random().toString(), reason: '', amount: 0 });
                                             setFormData({...formData, deductionItems: newItems});
                                         }}
-                                        className="text-[#0061a5] font-bold text-[13px] flex items-center gap-1 mt-2 hover:underline"
+                                        className="text-[#0061a5] font-bold text-xs flex items-center gap-1 mt-2 hover:underline"
                                     >
                                         + Add Deduction
                                     </button>
                                 )}
                             </div>
                             <div className="mt-4 p-3 bg-[#fff0f0] rounded-lg border border-[#ffccd2] flex justify-between items-center">
-                                <span className="text-[#ba1a1a] font-bold text-[14px]">Total Deductions</span>
-                                <span className="font-bold text-[#ba1a1a] text-[16px]">
+                                <span className="text-[#ba1a1a] font-bold text-sm">Total Deductions</span>
+                                <span className="font-bold text-[#ba1a1a] text-base">
                                     {(formData.deductionItems?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0).toLocaleString()}đ
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-[#e6f0fa] rounded-[12px] p-6 flex justify-between items-center border border-[#0061a5] shadow-sm mb-6">
+                    <div className="bg-[#e6f0fa] rounded-xl p-6 flex justify-between items-center border border-[#0061a5] shadow-sm mb-6">
                         <div>
-                            <span className="block text-[14px] text-[#002045] uppercase font-bold tracking-wider">Final Net Pay</span>
-                            <span className="text-[12px] text-[#0061a5] mt-1">Amount to be transferred</span>
+                            <span className="block text-sm text-[#002045] uppercase font-bold tracking-wider">Final Net Pay</span>
+                            <span className="text-xs text-[#0061a5] mt-1">Amount to be transferred</span>
                         </div>
-                        <span className="text-[32px] md:text-[40px] font-extrabold text-[#0061a5] tracking-tight">
+                        <span className="text-3xl md:text-4xl font-extrabold text-[#0061a5] tracking-tight">
                             {calculateNetPay(formData).toLocaleString()}đ
                         </span>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4 border-t border-[#e0e3e5]">
-                        <button onClick={onClose} className="px-6 py-3 text-[14px] font-bold text-[#43474e] hover:bg-[#e0e3e5] rounded-xl transition-colors">
+                        <button onClick={onClose} className="px-6 py-3 text-sm font-bold text-[#43474e] hover:bg-[#e0e3e5] rounded-xl transition-colors">
                             Close
                         </button>
                         
                         {formData.status === 'Pending' && (
                             <button 
                                 onClick={() => { setFormData({...formData, status: 'Processed'}); }}
-                                className="px-6 py-3 text-[14px] font-bold text-white bg-[#0061a5] hover:bg-[#004d80] rounded-xl transition-colors flex items-center gap-2"
+                                className="px-6 py-3 text-sm font-bold text-white bg-[#0061a5] hover:bg-[#004d80] rounded-xl transition-colors flex items-center gap-2"
                             >
                                 <CheckCircle2 size={18} /> Mark Processed
                             </button>
@@ -230,7 +230,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                         {formData.status === 'Processed' && (
                             <button 
                                 onClick={() => { setFormData({...formData, status: 'Paid', paymentDate: new Date().toISOString().split('T')[0]}); }}
-                                className="px-6 py-3 text-[14px] font-bold text-white bg-[#137333] hover:bg-[#0d5022] rounded-xl transition-colors flex items-center gap-2"
+                                className="px-6 py-3 text-sm font-bold text-white bg-[#137333] hover:bg-[#0d5022] rounded-xl transition-colors flex items-center gap-2"
                             >
                                 <DollarSign size={18} /> Confirm Paid
                             </button>
@@ -239,7 +239,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                         {(formData.status === 'Processed' || formData.status === 'Paid') && (
                             <button 
                                 onClick={onSave}
-                                className="px-6 py-3 text-[14px] font-bold text-white bg-[#181c1e] hover:bg-[#000000] rounded-xl transition-colors"
+                                className="px-6 py-3 text-sm font-bold text-white bg-[#181c1e] hover:bg-[#000000] rounded-xl transition-colors"
                             >
                                 Save Changes
                             </button>
@@ -248,7 +248,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                         {formData.status === 'Pending' && (
                             <button 
                                 onClick={onSave}
-                                className="px-6 py-3 text-[14px] font-bold text-white bg-[#181c1e] hover:bg-[#000000] rounded-xl transition-colors"
+                                className="px-6 py-3 text-sm font-bold text-white bg-[#181c1e] hover:bg-[#000000] rounded-xl transition-colors"
                             >
                                 Save Draft
                             </button>

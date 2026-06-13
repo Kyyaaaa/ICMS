@@ -15,7 +15,7 @@ export const CourseClassesSection = ({ course }: CourseClassesSectionProps) => {
                         <BookOpen className="w-5 h-5" />
                     </div>
                     <div>
-                        <h2 className="text-[18px] font-bold text-[#002045]">{course.name}</h2>
+                        <h2 className="text-lg font-bold text-[#002045]">{course.name}</h2>
                         <p className="text-xs text-[#74777f] mt-1 flex items-center gap-1 font-medium">
                             <CalendarDays className="w-3 h-3" /> Duration: {course.startDate} - {course.endDate}
                         </p>

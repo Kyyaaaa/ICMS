@@ -38,7 +38,7 @@ export const EditSessionModal = ({ session, availableRooms, onClose, onSave }: E
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#002045]/40 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-md animate-fade-in-up overflow-hidden">
                 <div className="flex items-center justify-between p-5 border-b border-[#e0e3e5] bg-[#f8f9fa]">
-                    <h3 className="text-[18px] font-bold text-[#002045]">
+                    <h3 className="text-lg font-bold text-[#002045]">
                         Edit Session #{session.session}
                     </h3>
                     <button 

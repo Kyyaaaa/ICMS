@@ -87,7 +87,7 @@ const MasterSchedule = () => {
     return (
         <div className="space-y-6 animate-fade-in-up h-full flex flex-col pb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
-                <h1 className="text-[24px] font-bold text-[#002045]">Master Schedule</h1>
+                <h1 className="text-2xl font-bold text-[#002045]">Master Schedule</h1>
                 
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="flex items-center bg-white rounded-lg border border-[#c4c6cf] overflow-hidden shadow-sm">
@@ -118,15 +118,15 @@ const MasterSchedule = () => {
                 <div className="min-w-250 flex flex-col h-full">
                     <div className="grid grid-cols-8 border-b border-[#f1f4f6] bg-white">
                         <div className="p-4 border-r border-[#f1f4f6] flex items-center justify-center">
-                            <span className="text-[12px] font-bold uppercase tracking-wider text-[#74777f]">Shift / Time</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-[#74777f]">Shift / Time</span>
                         </div>
                         {DAY_NAMES.map((dayName, i) => {
                             const d = weekDates[i];
                             const isToday = new Date().toDateString() === d.toDateString();
                             return (
                                 <div key={dayName} className={`p-4 text-center font-bold text-[#43474e] border-r last:border-r-0 border-[#f1f4f6] ${isToday ? 'bg-[#e6f0fa] text-[#0061a5]' : ''}`}>
-                                    <div className="text-[13px] uppercase tracking-wider">{dayName}</div>
-                                    <div className="text-[20px]">{String(d.getDate()).padStart(2, '0')}</div>
+                                    <div className="text-xs uppercase tracking-wider">{dayName}</div>
+                                    <div className="text-xl">{String(d.getDate()).padStart(2, '0')}</div>
                                 </div>
                             );
                         })}
@@ -142,8 +142,8 @@ const MasterSchedule = () => {
                                 <div key={shift.id} className={`grid grid-cols-8 group ${hasSessionsInShift ? 'min-h-17.5' : 'h-14'}`}>
                                     {/* Shift Info Column */}
                                     <div className="p-2 border-r border-[#f1f4f6] bg-[#fafbfc] flex flex-col justify-center items-center text-center shrink-0 transition-colors group-hover:bg-[#f1f4f6]">
-                                        <span className="text-[11px] font-bold text-[#002045]">{shift.label}</span>
-                                        <span className="text-[10px] font-medium text-[#74777f] mt-0.5">{shift.time}</span>
+                                        <span className="text-xs font-bold text-[#002045]">{shift.label}</span>
+                                        <span className="text-xs font-medium text-[#74777f] mt-0.5">{shift.time}</span>
                                     </div>
                                     
                                     {DAY_NAMES.map((_, dayIdx) => {
@@ -158,13 +158,13 @@ const MasterSchedule = () => {
                                                         onClick={() => setSelectedSession(session)}
                                                         className={`p-2.5 rounded-md border-l-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col gap-2 ${session.color}`}
                                                     >
-                                                        <h4 className="font-bold text-[#002045] text-[12px] leading-tight line-clamp-2">{session.class}</h4>
+                                                        <h4 className="font-bold text-[#002045] text-xs leading-tight line-clamp-2">{session.class}</h4>
                                                         <div className="space-y-1">
-                                                            <div className="flex items-center gap-1.5 text-[11px] text-[#43474e]">
+                                                            <div className="flex items-center gap-1.5 text-xs text-[#43474e]">
                                                                 <User className="w-3 h-3 text-[#74777f] shrink-0" />
                                                                 <span className="truncate">{session.tutor}</span>
                                                             </div>
-                                                            <div className="flex items-center gap-1.5 text-[11px] text-[#43474e]">
+                                                            <div className="flex items-center gap-1.5 text-xs text-[#43474e]">
                                                                 <MapPin className="w-3 h-3 text-[#74777f] shrink-0" />
                                                                 <span className="truncate font-medium">{session.room}</span>
                                                             </div>

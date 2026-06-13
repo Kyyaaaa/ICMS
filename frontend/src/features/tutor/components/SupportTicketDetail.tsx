@@ -33,16 +33,16 @@ export const SupportTicketDetail = ({
             {/* Detail Header */}
             <div className="p-4 md:p-6 border-b border-[#e0e3e5] bg-white flex flex-col md:flex-row justify-between items-start md:items-center shrink-0 gap-4">
                 <div>
-                    <button onClick={onBackClick} className="md:hidden flex items-center gap-1 text-[#0061a5] font-bold text-[14px] mb-2">
+                    <button onClick={onBackClick} className="md:hidden flex items-center gap-1 text-[#0061a5] font-bold text-sm mb-2">
                         <ChevronRight className="w-4 h-4 rotate-180" /> Back to list
                     </button>
                     <div className="flex flex-wrap items-center gap-3 mb-2">
-                        <h2 className="text-[18px] md:text-[20px] font-extrabold text-[#002045] leading-tight">{ticket.title}</h2>
-                        <span className={`text-[12px] font-bold px-2 py-0.5 rounded border whitespace-nowrap ${getStatusStyle(ticket.status)}`}>
+                        <h2 className="text-lg md:text-xl font-extrabold text-[#002045] leading-tight">{ticket.title}</h2>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded border whitespace-nowrap ${getStatusStyle(ticket.status)}`}>
                             {ticket.status}
                         </span>
                     </div>
-                    <div className="flex items-center gap-4 text-[13px] text-[#74777f]">
+                    <div className="flex items-center gap-4 text-xs text-[#74777f]">
                         <span>ID: <strong>{ticket.id}</strong></span>
                         <span>Category: <strong>{ticket.category}</strong></span>
                     </div>
@@ -50,7 +50,7 @@ export const SupportTicketDetail = ({
                 {ticket.status !== 'Resolved' && (
                     <button 
                         onClick={onResolveClick}
-                        className="px-4 py-2 bg-[#f1f4f6] text-[#002045] font-bold text-[13px] rounded-lg hover:bg-[#e0e3e5] transition-colors whitespace-nowrap border border-[#c4c6cf]"
+                        className="px-4 py-2 bg-[#f1f4f6] text-[#002045] font-bold text-xs rounded-lg hover:bg-[#e0e3e5] transition-colors whitespace-nowrap border border-[#c4c6cf]"
                     >
                         Mark as Resolved
                     </button>
@@ -63,10 +63,10 @@ export const SupportTicketDetail = ({
                     {ticket.messages.map(msg => (
                         <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                             <div className="flex items-center gap-2 mb-1">
-                                <span className="text-[12px] font-bold text-[#43474e]">{msg.sender === 'user' ? 'You' : 'Support Team'}</span>
-                                <span className="text-[11px] text-[#74777f]">{msg.time}</span>
+                                <span className="text-xs font-bold text-[#43474e]">{msg.sender === 'user' ? 'You' : 'Support Team'}</span>
+                                <span className="text-xs text-[#74777f]">{msg.time}</span>
                             </div>
-                            <div className={`p-4 rounded-2xl max-w-[90%] md:max-w-[80%] text-[14px] leading-relaxed shadow-sm ${msg.sender === 'user' ? 'bg-[#0061a5] text-white rounded-tr-sm' : 'bg-white border border-[#e0e3e5] text-[#181c1e] rounded-tl-sm'}`}>
+                            <div className={`p-4 rounded-2xl max-w-[90%] md:max-w-[80%] text-sm leading-relaxed shadow-sm ${msg.sender === 'user' ? 'bg-[#0061a5] text-white rounded-tr-sm' : 'bg-white border border-[#e0e3e5] text-[#181c1e] rounded-tl-sm'}`}>
                                 {msg.text}
                             </div>
                         </div>
@@ -84,7 +84,7 @@ export const SupportTicketDetail = ({
                         <textarea 
                             rows={1}
                             placeholder="Type your reply..."
-                            className="flex-1 bg-transparent border-none focus:ring-0 resize-none py-2.5 px-2 text-[14px] min-h-[44px] max-h-[120px]"
+                            className="flex-1 bg-transparent border-none focus:ring-0 resize-none py-2.5 px-2 text-sm min-h-11 max-h-30"
                             value={replyText}
                             onChange={(e) => onReplyTextChange(e.target.value)}
                             onKeyDown={(e) => {
@@ -107,7 +107,7 @@ export const SupportTicketDetail = ({
                 </div>
             ) : (
                 <div className="p-6 border-t border-[#e0e3e5] bg-[#f8f9fa] text-center shrink-0">
-                    <p className="text-[#74777f] text-[14px]">
+                    <p className="text-[#74777f] text-sm">
                         This ticket has been resolved and closed. If you need further assistance, please create a new ticket.
                     </p>
                 </div>

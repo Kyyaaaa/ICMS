@@ -210,8 +210,8 @@ const ManageAccounts = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Account Management</h1>
-                    <p className="text-[14px] text-[#43474e] mt-1">Manage Learner and Tutor accounts in the system.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">Account Management</h1>
+                    <p className="text-sm text-[#43474e] mt-1">Manage Learner and Tutor accounts in the system.</p>
                 </div>
                 <button 
                     onClick={() => handleOpenModal('create')}

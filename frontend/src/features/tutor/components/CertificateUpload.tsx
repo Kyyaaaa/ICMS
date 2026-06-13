@@ -91,7 +91,7 @@ export const CertificateUpload = ({
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-6 animate-scale-in origin-top">
-      <h2 className="text-[18px] font-bold text-[#002045] mb-6 border-b border-[#e0e3e5] pb-4">
+      <h2 className="text-lg font-bold text-[#002045] mb-6 border-b border-[#e0e3e5] pb-4">
         Upload New Certificate
       </h2>
       {error && (
@@ -102,7 +102,7 @@ export const CertificateUpload = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-[13px] font-bold text-[#43474e]">
+            <label className="text-xs font-bold text-[#43474e]">
               Certificate Name <span className="text-rose-600">*</span>
             </label>
             <input
@@ -110,11 +110,11 @@ export const CertificateUpload = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. IELTS Academic 8.0"
-              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-[14px]"
+              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[13px] font-bold text-[#43474e]">
+            <label className="text-xs font-bold text-[#43474e]">
               Issuer / Institution <span className="text-rose-600">*</span>
             </label>
             <input
@@ -122,35 +122,35 @@ export const CertificateUpload = ({
               value={issuer}
               onChange={(e) => setIssuer(e.target.value)}
               placeholder="e.g. British Council"
-              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-[14px]"
+              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[13px] font-bold text-[#43474e]">
+            <label className="text-xs font-bold text-[#43474e]">
               Issue Date <span className="text-rose-600">*</span>
             </label>
             <input
               type="date"
               value={issueDate}
               onChange={(e) => setIssueDate(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-[14px] text-[#181c1e]"
+              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm text-[#181c1e]"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[13px] font-bold text-[#43474e]">
+            <label className="text-xs font-bold text-[#43474e]">
               Expiration Date (if applicable)
             </label>
             <input
               type="date"
               value={expDate}
               onChange={(e) => setExpDate(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-[14px] text-[#181c1e]"
+              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm text-[#181c1e]"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-[13px] font-bold text-[#43474e]">
+          <label className="text-xs font-bold text-[#43474e]">
             Upload Certificate Image / PDF{" "}
             <span className="text-rose-600">*</span>
           </label>
@@ -186,10 +186,10 @@ export const CertificateUpload = ({
                     <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mb-3">
                       <Upload className="w-6 h-6" />
                     </div>
-                    <p className="text-[14px] font-bold text-[#002045] mb-1 truncate max-w-50">
+                    <p className="text-sm font-bold text-[#002045] mb-1 truncate max-w-50">
                       {file.name}
                     </p>
-                    <p className="text-[12px] text-[#74777f]">
+                    <p className="text-xs text-[#74777f]">
                       {(file.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                   </div>
@@ -210,10 +210,10 @@ export const CertificateUpload = ({
                 <div className="w-12 h-12 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] mb-3 group-hover:scale-110 transition-transform">
                   <Upload className="w-6 h-6" />
                 </div>
-                <p className="text-[14px] font-bold text-[#002045] mb-1">
+                <p className="text-sm font-bold text-[#002045] mb-1">
                   Click to upload or drag and drop
                 </p>
-                <p className="text-[12px] text-[#74777f]">
+                <p className="text-xs text-[#74777f]">
                   JPG, PNG, or PDF (Max. 5MB)
                 </p>
               </>
@@ -225,14 +225,14 @@ export const CertificateUpload = ({
         <button
           onClick={onCancel}
           disabled={loading}
-          className="px-6 py-2.5 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-bold text-[14px] hover:bg-[#f1f4f6] transition-colors disabled:opacity-50"
+          className="px-6 py-2.5 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-bold text-sm hover:bg-[#f1f4f6] transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="px-6 py-2.5 bg-[#0061a5] text-white rounded-lg font-bold text-[14px] hover:bg-[#004d80] transition-colors disabled:opacity-50 flex items-center gap-2"
+          className="px-6 py-2.5 bg-[#0061a5] text-white rounded-lg font-bold text-sm hover:bg-[#004d80] transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {loading ? (
             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

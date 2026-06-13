@@ -10,16 +10,16 @@ interface AvailabilityGridProps {
 
 export const AvailabilityGrid = ({ selectedSlots, status, toggleSlot }: AvailabilityGridProps) => {
     return (
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden overflow-x-auto">
+        <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] overflow-hidden overflow-x-auto">
             <div className="min-w-225">
                 {/* Header Row */}
                 <div className="grid grid-cols-8 border-b border-[#e0e3e5] bg-[#f7fafc]">
                     <div className="p-4 border-r border-[#e0e3e5] flex items-center justify-center">
-                        <span className="text-[12px] font-bold uppercase tracking-wider text-[#74777f]">Shift / Time</span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#74777f]">Shift / Time</span>
                     </div>
                     {DAYS.map(day => (
                         <div key={day} className="py-4 text-center border-r border-[#e0e3e5] last:border-0">
-                            <span className="text-[13px] font-bold uppercase tracking-wider text-[#002045]">{day}</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-[#002045]">{day}</span>
                         </div>
                     ))}
                 </div>
@@ -30,8 +30,8 @@ export const AvailabilityGrid = ({ selectedSlots, status, toggleSlot }: Availabi
                         <div key={shift.id} className="grid grid-cols-8">
                             {/* Shift Info Column */}
                             <div className="p-4 border-r border-[#e0e3e5] bg-[#fdfdfd] flex flex-col justify-center items-center text-center">
-                                <span className="text-[13px] font-bold text-[#181c1e]">{shift.label}</span>
-                                <span className="text-[12px] font-medium text-[#74777f] mt-1">{shift.time}</span>
+                                <span className="text-xs font-bold text-[#181c1e]">{shift.label}</span>
+                                <span className="text-xs font-medium text-[#74777f] mt-1">{shift.time}</span>
                             </div>
                             
                             {/* Days Columns */}
@@ -59,7 +59,7 @@ export const AvailabilityGrid = ({ selectedSlots, status, toggleSlot }: Availabi
                                         `}>
                                             <Check className="w-4 h-4" />
                                         </div>
-                                        <span className={`text-[12px] font-bold ${isSelected ? 'text-[#0061a5]' : 'text-transparent select-none'}`}>
+                                        <span className={`text-xs font-bold ${isSelected ? 'text-[#0061a5]' : 'text-transparent select-none'}`}>
                                             Available
                                         </span>
                                     </div>

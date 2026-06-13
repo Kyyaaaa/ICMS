@@ -105,7 +105,7 @@ const PaymentDetail = () => {
                 <div className="w-20 h-20 bg-[#f1f4f6] rounded-full flex items-center justify-center mx-auto mb-4">
                     <FileText className="w-10 h-10 text-[#c4c6cf]" />
                 </div>
-                <h2 className="text-[24px] font-bold text-[#002045] mb-2">Invoice Not Found</h2>
+                <h2 className="text-2xl font-bold text-[#002045] mb-2">Invoice Not Found</h2>
                 <p className="text-[#74777f] mb-6">The invoice you are looking for does not exist or has been removed.</p>
                 <button onClick={() => navigate('/learner/payments')} className="px-6 py-2.5 bg-[#0061a5] text-white font-bold rounded-xl hover:bg-[#004a77] transition-all">
                     Back to Payments
@@ -126,17 +126,17 @@ const PaymentDetail = () => {
                 <span>Back to Payment History</span>
             </button>
 
-            <div className="bg-white rounded-[24px] shadow-sm border border-[#eef0f4] overflow-hidden">
+            <div className="bg-white rounded-3xl shadow-sm border border-[#eef0f4] overflow-hidden">
                 {/* Header Section */}
                 <div className="p-8 border-b border-[#eef0f4] flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h1 className="text-[28px] font-extrabold text-[#002045] mb-2">Invoice {invoice.id}</h1>
+                        <h1 className="text-3xl font-extrabold text-[#002045] mb-2">Invoice {invoice.id}</h1>
                         <p className="text-[#74777f] flex items-center gap-2 font-medium">
                             <span>Issued on: {invoice.date}</span>
                         </p>
                     </div>
                     <div className="flex flex-col items-end gap-3 w-full md:w-auto">
-                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${statusInfo.bg} ${statusInfo.color} ${statusInfo.border} font-bold text-[13px] uppercase tracking-widest`}>
+                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${statusInfo.bg} ${statusInfo.color} ${statusInfo.border} font-bold text-xs uppercase tracking-widest`}>
                             {statusInfo.icon}
                             {statusInfo.label}
                         </span>
@@ -146,60 +146,60 @@ const PaymentDetail = () => {
                 {/* Status Message */}
                 <div className={`px-8 py-4 ${statusInfo.bg} border-b ${statusInfo.border} flex items-start gap-3`}>
                     <div className="mt-0.5">{statusInfo.icon}</div>
-                    <p className={`text-[14px] font-medium ${statusInfo.color}`}>{statusInfo.message}</p>
+                    <p className={`text-sm font-medium ${statusInfo.color}`}>{statusInfo.message}</p>
                 </div>
 
                 {/* Invoice Details */}
                 <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-6">
                         <div>
-                            <h3 className="text-[13px] font-bold text-slate-500 uppercase tracking-widest mb-2">Billed To</h3>
-                            <p className="text-[16px] font-bold text-[#002045]">Learner User</p>
-                            <p className="text-[#74777f] text-[14px] mt-1">learner@example.com</p>
+                            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Billed To</h3>
+                            <p className="text-base font-bold text-[#002045]">Learner User</p>
+                            <p className="text-[#74777f] text-sm mt-1">learner@example.com</p>
                         </div>
                         <div>
-                            <h3 className="text-[13px] font-bold text-slate-500 uppercase tracking-widest mb-2">Payment Method</h3>
+                            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Payment Method</h3>
                             {invoice.status === 'paid' || invoice.status === 'refunded' ? (
-                                <p className="text-[15px] font-medium text-[#181c1e] flex items-center gap-2">
-                                    <span className="w-8 h-5 bg-[#002045] rounded flex items-center justify-center text-white text-[10px] font-bold">VNPAY</span>
+                                <p className="text-sm font-medium text-[#181c1e] flex items-center gap-2">
+                                    <span className="w-8 h-5 bg-[#002045] rounded flex items-center justify-center text-white text-xs font-bold">VNPAY</span>
                                     Online Banking
                                 </p>
                             ) : (
-                                <p className="text-[15px] font-medium text-[#74777f] italic">Not selected yet</p>
+                                <p className="text-sm font-medium text-[#74777f] italic">Not selected yet</p>
                             )}
                         </div>
                     </div>
                     
-                    <div className="bg-[#f8f9fc] rounded-[16px] p-6 border border-[#eef0f4]">
-                        <h3 className="text-[13px] font-bold text-slate-500 uppercase tracking-widest mb-4">Order Summary</h3>
+                    <div className="bg-[#f8f9fc] rounded-2xl p-6 border border-[#eef0f4]">
+                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Order Summary</h3>
                         
                         <div className="space-y-4">
                             <div className="flex justify-between items-start gap-4 pb-4 border-b border-[#eef0f4]">
                                 <div>
-                                    <p className="font-bold text-[#181c1e] text-[15px]">{invoice.course}</p>
-                                    <p className="text-[13px] text-[#74777f] mt-1">Tuition Fee</p>
+                                    <p className="font-bold text-[#181c1e] text-sm">{invoice.course}</p>
+                                    <p className="text-xs text-[#74777f] mt-1">Tuition Fee</p>
                                 </div>
                                 <p className="font-semibold text-[#181c1e] whitespace-nowrap">{invoice.amount.toLocaleString()} đ</p>
                             </div>
                             
-                            <div className="flex justify-between items-center text-[14px] text-[#74777f]">
+                            <div className="flex justify-between items-center text-sm text-[#74777f]">
                                 <span>Subtotal</span>
                                 <span>{(invoice.amount + (invoice.discount || 0)).toLocaleString()} đ</span>
                             </div>
                             {invoice.discount && (
-                                <div className="flex justify-between items-center text-[14px] text-[#137333]">
+                                <div className="flex justify-between items-center text-sm text-[#137333]">
                                     <span>Discount applied</span>
                                     <span>-{invoice.discount.toLocaleString()} đ</span>
                                 </div>
                             )}
-                            <div className="flex justify-between items-center text-[14px] text-[#74777f]">
+                            <div className="flex justify-between items-center text-sm text-[#74777f]">
                                 <span>Tax (0%)</span>
                                 <span>0 đ</span>
                             </div>
                             
                             <div className="pt-4 border-t border-[#eef0f4] flex justify-between items-center">
-                                <span className="font-bold text-[#002045] text-[16px]">Total</span>
-                                <span className="font-black text-[#0061a5] text-[24px]">{invoice.amount.toLocaleString()} đ</span>
+                                <span className="font-bold text-[#002045] text-base">Total</span>
+                                <span className="font-black text-[#0061a5] text-2xl">{invoice.amount.toLocaleString()} đ</span>
                             </div>
                         </div>
                     </div>
@@ -208,7 +208,7 @@ const PaymentDetail = () => {
                 {/* Installments Section */}
                 {invoice.installments && invoice.installments.length > 0 && (
                     <div className="border-t border-[#eef0f4] p-8">
-                        <h3 className="text-[16px] font-bold text-[#002045] mb-4 flex items-center gap-2">
+                        <h3 className="text-base font-bold text-[#002045] mb-4 flex items-center gap-2">
                             <Clock className="w-5 h-5 text-[#0061a5]" />
                             Installment Schedule
                         </h3>
@@ -216,43 +216,43 @@ const PaymentDetail = () => {
                             <table className="w-full text-left">
                                 <thead className="bg-[#f8f9fc] border-b border-[#eef0f4]">
                                     <tr>
-                                        <th className="py-3 px-4 text-[12px] font-bold text-slate-500 uppercase">Transaction ID</th>
-                                        <th className="py-3 px-4 text-[12px] font-bold text-slate-500 uppercase">Due Date</th>
-                                        <th className="py-3 px-4 text-[12px] font-bold text-slate-500 uppercase">Amount</th>
-                                        <th className="py-3 px-4 text-[12px] font-bold text-slate-500 uppercase">Status</th>
-                                        <th className="py-3 px-4 text-[12px] font-bold text-slate-500 uppercase text-right">Action</th>
+                                        <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase">Transaction ID</th>
+                                        <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase">Due Date</th>
+                                        <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase">Amount</th>
+                                        <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase">Status</th>
+                                        <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase text-right">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {invoice.installments.map((inst) => (
                                         <tr key={inst.id} className="border-b border-[#eef0f4] last:border-0 hover:bg-[#fcfdfd]">
                                             <td className="py-3 px-4 font-semibold text-[#002045]">{inst.id}</td>
-                                            <td className="py-3 px-4 text-[14px] text-slate-600">
+                                            <td className="py-3 px-4 text-sm text-slate-600">
                                                 {inst.dueDate}
-                                                {inst.paidDate && <span className="block text-[11px] text-[#137333] mt-0.5">Paid on {inst.paidDate}</span>}
+                                                {inst.paidDate && <span className="block text-xs text-[#137333] mt-0.5">Paid on {inst.paidDate}</span>}
                                             </td>
                                             <td className="py-3 px-4 font-bold text-[#181c1e]">{inst.amount.toLocaleString()} đ</td>
                                             <td className="py-3 px-4">
                                                 {inst.status === 'paid' ? (
-                                                    <span className="px-2 py-1 bg-[#e6f4ea] text-[#137333] text-[10px] font-black rounded uppercase">Paid</span>
+                                                    <span className="px-2 py-1 bg-[#e6f4ea] text-[#137333] text-xs font-black rounded uppercase">Paid</span>
                                                 ) : inst.status === 'overdue' ? (
-                                                    <span className="px-2 py-1 bg-[#fce8e8] text-[#c53030] text-[10px] font-black rounded uppercase">Overdue</span>
+                                                    <span className="px-2 py-1 bg-[#fce8e8] text-[#c53030] text-xs font-black rounded uppercase">Overdue</span>
                                                 ) : inst.status === 'refunded' ? (
-                                                    <span className="px-2 py-1 bg-[#fce8e8] text-[#c53030] text-[10px] font-black rounded uppercase">Refunded</span>
+                                                    <span className="px-2 py-1 bg-[#fce8e8] text-[#c53030] text-xs font-black rounded uppercase">Refunded</span>
                                                 ) : inst.status === 'cancelled' ? (
-                                                    <span className="px-2 py-1 bg-[#f1f4f6] text-[#74777f] text-[10px] font-black rounded uppercase">Cancelled</span>
+                                                    <span className="px-2 py-1 bg-[#f1f4f6] text-[#74777f] text-xs font-black rounded uppercase">Cancelled</span>
                                                 ) : (
-                                                    <span className="px-2 py-1 bg-[#fff8e1] text-[#b45309] text-[10px] font-black rounded uppercase">Pending</span>
+                                                    <span className="px-2 py-1 bg-[#fff8e1] text-[#b45309] text-xs font-black rounded uppercase">Pending</span>
                                                 )}
                                             </td>
                                             <td className="py-3 px-4 text-right">
                                                 {inst.status === 'paid' && (
-                                                    <Link to={`/learner/payments/${invoice.id}/refund?installment=${inst.id}`} className="px-3 py-1.5 bg-white border border-[#c4c6cf] text-[#43474e] text-[12px] font-bold rounded-lg hover:bg-[#f8f9fc] transition-colors">
+                                                    <Link to={`/learner/payments/${invoice.id}/refund?installment=${inst.id}`} className="px-3 py-1.5 bg-white border border-[#c4c6cf] text-[#43474e] text-xs font-bold rounded-lg hover:bg-[#f8f9fc] transition-colors">
                                                         Refund
                                                     </Link>
                                                 )}
                                                 {(inst.status === 'pending' || inst.status === 'overdue') && (
-                                                    <Link to={`/learner/payments/${invoice.id}/checkout?installment=${inst.id}`} className="px-4 py-1.5 bg-[#ef4444] text-white text-[12px] font-bold rounded-lg hover:bg-[#dc2626] transition-colors">
+                                                    <Link to={`/learner/payments/${invoice.id}/checkout?installment=${inst.id}`} className="px-4 py-1.5 bg-[#ef4444] text-white text-xs font-bold rounded-lg hover:bg-[#dc2626] transition-colors">
                                                         Pay
                                                     </Link>
                                                 )}
@@ -269,26 +269,26 @@ const PaymentDetail = () => {
                 <div className="px-8 py-6 bg-[#f8f9fc] border-t border-[#eef0f4] flex flex-col sm:flex-row justify-end items-center gap-4">
                     {invoice.status === 'pending' && (
                         <>
-                            <button className="w-full sm:w-auto px-6 py-3 bg-white border border-[#c4c6cf] text-[#43474e] text-[14px] font-bold rounded-xl hover:bg-[#f1f4f6] transition-all">
+                            <button className="w-full sm:w-auto px-6 py-3 bg-white border border-[#c4c6cf] text-[#43474e] text-sm font-bold rounded-xl hover:bg-[#f1f4f6] transition-all">
                                 Cancel Registration
                             </button>
-                            <Link to={`/learner/payments/${invoice.id}/checkout`} className="w-full sm:w-auto px-8 py-3 bg-[#ef4444] text-white text-[15px] font-bold rounded-xl shadow-md hover:bg-[#dc2626] hover:shadow-lg hover:-translate-y-0.5 transition-all text-center">
+                            <Link to={`/learner/payments/${invoice.id}/checkout`} className="w-full sm:w-auto px-8 py-3 bg-[#ef4444] text-white text-sm font-bold rounded-xl shadow-md hover:bg-[#dc2626] hover:shadow-lg hover:-translate-y-0.5 transition-all text-center">
                                 Pay Now
                             </Link>
                         </>
                     )}
                     {invoice.status === 'partial' && (
-                        <button className="w-full sm:w-auto px-6 py-3 bg-white border border-[#ef4444] text-[#ef4444] text-[14px] font-bold rounded-xl hover:bg-[#fce8e8] transition-all">
+                        <button className="w-full sm:w-auto px-6 py-3 bg-white border border-[#ef4444] text-[#ef4444] text-sm font-bold rounded-xl hover:bg-[#fce8e8] transition-all">
                             Cancel Remaining Installments
                         </button>
                     )}
                     {invoice.status === 'paid' && (
-                        <Link to={`/learner/payments/${invoice.id}/refund`} className="w-full sm:w-auto px-6 py-3 bg-white border border-[#002045]/20 text-[#002045] text-[14px] font-bold rounded-xl hover:bg-[#f8f9fc] transition-all text-center">
+                        <Link to={`/learner/payments/${invoice.id}/refund`} className="w-full sm:w-auto px-6 py-3 bg-white border border-[#002045]/20 text-[#002045] text-sm font-bold rounded-xl hover:bg-[#f8f9fc] transition-all text-center">
                             Request Refund
                         </Link>
                     )}
                     {(invoice.status === 'cancelled' || invoice.status === 'expired' || invoice.status === 'refunded') && (
-                        <Link to="/courses" className="w-full sm:w-auto px-6 py-3 bg-[#0061a5] text-white text-[14px] font-bold rounded-xl hover:bg-[#004a77] transition-all text-center">
+                        <Link to="/courses" className="w-full sm:w-auto px-6 py-3 bg-[#0061a5] text-white text-sm font-bold rounded-xl hover:bg-[#004a77] transition-all text-center">
                             Browse New Courses
                         </Link>
                     )}

@@ -45,7 +45,7 @@ export const TutorSelector = ({
 
   return (
     <div className="relative w-full md:w-100">
-      <span className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1.5 block">
+      <span className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1.5 block">
         Select Tutor
       </span>
       <button
@@ -61,7 +61,7 @@ export const TutorSelector = ({
                 className="w-9 h-9 rounded-full object-cover shrink-0"
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-[#e3f2fd] text-[#0061a5] flex items-center justify-center font-bold text-[13px] shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[#e3f2fd] text-[#0061a5] flex items-center justify-center font-bold text-xs shrink-0">
                 {selectedTutor.name
                   .split(" ")
                   .map((n) => n[0])
@@ -71,7 +71,7 @@ export const TutorSelector = ({
               </div>
             )}
             <div>
-              <div className="font-bold text-[14px] text-[#002045] leading-none mb-1">
+              <div className="font-bold text-sm text-[#002045] leading-none mb-1">
                 {selectedTutor.name}
               </div>
               <div className="flex items-center gap-1.5">
@@ -81,7 +81,7 @@ export const TutorSelector = ({
                   <span className="w-1.5 h-1.5 rounded-full bg-[#c4c6cf]"></span>
                 )}
                 <span
-                  className={`text-[11px] font-bold ${selectedTutor.status === "submitted" ? "text-amber-700" : "text-[#74777f]"}`}
+                  className={`text-xs font-bold ${selectedTutor.status === "submitted" ? "text-amber-700" : "text-[#74777f]"}`}
                 >
                   {selectedTutor.status === "submitted" ? "Locked" : "Draft"}
                 </span>
@@ -153,18 +153,18 @@ export const TutorSelector = ({
                             >
                               {tutor.name}
                             </div>
-                            <div className="text-[11px] text-[#74777f] leading-none">
+                            <div className="text-xs text-[#74777f] leading-none">
                               {tutor.account_code || tutor.id}
                             </div>
                           </div>
                         </div>
                         <div className="flex flex-col items-end">
                           {tutor.status === "submitted" ? (
-                            <span className="text-[10px] uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="text-xs uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1">
                               <Lock className="w-2.5 h-2.5" /> Locked
                             </span>
                           ) : (
-                            <span className="text-[10px] uppercase font-bold text-[#74777f] bg-[#e0e3e5] px-2 py-0.5 rounded-full">
+                            <span className="text-xs uppercase font-bold text-[#74777f] bg-[#e0e3e5] px-2 py-0.5 rounded-full">
                               Draft
                             </span>
                           )}
@@ -173,7 +173,7 @@ export const TutorSelector = ({
                     );
                   })
               ) : (
-                <div className="text-center py-6 text-[#74777f] text-[13px]">
+                <div className="text-center py-6 text-[#74777f] text-xs">
                   No tutors found.
                 </div>
               )}

@@ -103,8 +103,8 @@ const AdminAnnouncements = () => {
         <div className="space-y-6 animate-fade-in-up pb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">System Announcements</h1>
-                    <p className="text-[#43474e] text-[15px] mt-1">Broadcast important information across the platform or to specific groups.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">System Announcements</h1>
+                    <p className="text-[#43474e] text-sm mt-1">Broadcast important information across the platform or to specific groups.</p>
                 </div>
                 <button 
                     onClick={() => handleOpenModal('create')}
@@ -116,14 +116,14 @@ const AdminAnnouncements = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white p-4 rounded-2xl shadow-sm border border-[#e0e3e5] gap-4">
-                <div className="relative w-full lg:w-[400px]">
+                <div className="relative w-full lg:w-100">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#74777f]" />
                     <input 
                         type="text"
                         placeholder="Search announcements..."
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors"
+                        className="w-full pl-11 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors"
                     />
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
@@ -132,7 +132,7 @@ const AdminAnnouncements = () => {
                         <select 
                             value={filterScope}
                             onChange={e => setFilterScope(e.target.value as 'All' | AudienceScope)}
-                            className="px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] font-bold text-[#002045] focus:outline-none focus:border-[#0061a5] cursor-pointer w-full sm:w-auto"
+                            className="px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm font-bold text-[#002045] focus:outline-none focus:border-[#0061a5] cursor-pointer w-full sm:w-auto"
                         >
                             <option value="All">All Scopes</option>
                             <option value="System Wide">System Wide</option>
@@ -143,7 +143,7 @@ const AdminAnnouncements = () => {
                     <select 
                         value={filterStatus}
                         onChange={e => setFilterStatus(e.target.value as 'All' | 'Published' | 'Scheduled')}
-                        className="px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-[14px] font-bold text-[#002045] focus:outline-none focus:border-[#0061a5] cursor-pointer w-full sm:w-auto"
+                        className="px-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm font-bold text-[#002045] focus:outline-none focus:border-[#0061a5] cursor-pointer w-full sm:w-auto"
                     >
                         <option value="All">All Statuses</option>
                         <option value="Published">Published</option>
@@ -153,7 +153,7 @@ const AdminAnnouncements = () => {
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm">
+                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-xl bg-white shadow-sm">
                     <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (
@@ -169,8 +169,8 @@ const AdminAnnouncements = () => {
                     )) : (
                         <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-12 text-center text-[#74777f]">
                             <Megaphone size={48} className="mx-auto mb-4 opacity-20" />
-                            <p className="text-[16px] font-bold text-[#181c1e]">No announcements found.</p>
-                            <p className="text-[14px] mt-1">Try changing your filter or create a new announcement.</p>
+                            <p className="text-base font-bold text-[#181c1e]">No announcements found.</p>
+                            <p className="text-sm mt-1">Try changing your filter or create a new announcement.</p>
                         </div>
                     )}
                 </div>

@@ -74,8 +74,8 @@ const TeachingSchedule = () => {
         <div className="space-y-6 animate-fade-in-up pb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-[24px] md:text-[32px] font-bold text-[#002045]">Teaching Schedule</h1>
-                    <p className="text-[#43474e] text-[14px]">View your assigned classes and attendance status.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">Teaching Schedule</h1>
+                    <p className="text-[#43474e] text-sm">View your assigned classes and attendance status.</p>
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-4">
@@ -106,7 +106,7 @@ const TeachingSchedule = () => {
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-[12px] bg-white shadow-sm">
+                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] rounded-xl bg-white shadow-sm">
                     <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (

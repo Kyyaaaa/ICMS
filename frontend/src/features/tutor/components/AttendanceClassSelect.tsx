@@ -12,19 +12,19 @@ interface AttendanceClassSelectProps {
 export const AttendanceClassSelect = ({ classes, selectedClass, isDropdownOpen, setIsDropdownOpen, onSelectClass }: AttendanceClassSelectProps) => {
     return (
         <div className="w-full relative z-20">
-            <span className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1.5 block">Select Class</span>
+            <span className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1.5 block">Select Class</span>
             <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="w-full md:w-100 flex items-center justify-between p-3 rounded-xl border border-[#c4c6cf] hover:border-[#0061a5] bg-white transition-colors text-left shadow-sm"
             >
                 {selectedClass ? (
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-[#e3f2fd] text-[#0061a5] flex items-center justify-center font-bold text-[13px]">
+                        <div className="w-9 h-9 rounded-full bg-[#e3f2fd] text-[#0061a5] flex items-center justify-center font-bold text-xs">
                             <BookOpen className="w-4 h-4" />
                         </div>
                         <div>
-                            <div className="font-bold text-[14px] text-[#002045] leading-none mb-1">{selectedClass.name}</div>
-                            <div className="text-[11px] font-medium text-[#74777f]">
+                            <div className="font-bold text-sm text-[#002045] leading-none mb-1">{selectedClass.name}</div>
+                            <div className="text-xs font-medium text-[#74777f]">
                                 {selectedClass.id.toUpperCase()} • {selectedClass.students} students
                             </div>
                         </div>
@@ -46,14 +46,14 @@ export const AttendanceClassSelect = ({ classes, selectedClass, isDropdownOpen, 
                                     onClick={() => onSelectClass(cls.id)}
                                     className={`w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-[#f0f4f8] transition-colors ${selectedClass?.id === cls.id ? 'bg-[#e6f0fa]' : ''}`}
                                 >
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] ${selectedClass?.id === cls.id ? 'bg-[#0061a5] text-white' : 'bg-[#e0e3e5] text-[#43474e]'}`}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${selectedClass?.id === cls.id ? 'bg-[#0061a5] text-white' : 'bg-[#e0e3e5] text-[#43474e]'}`}>
                                         {cls.id.toUpperCase()}
                                     </div>
                                     <div className="text-left">
-                                        <div className={`font-bold text-[13px] leading-none mb-1 ${selectedClass?.id === cls.id ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>
+                                        <div className={`font-bold text-xs leading-none mb-1 ${selectedClass?.id === cls.id ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>
                                             {cls.name}
                                         </div>
-                                        <div className="text-[11px] text-[#74777f] leading-none">{cls.students} students</div>
+                                        <div className="text-xs text-[#74777f] leading-none">{cls.students} students</div>
                                     </div>
                                 </button>
                             ))}

@@ -81,15 +81,15 @@ const Register = () => {
                 <div className="relative z-20 p-8 animate-fade-in">
                     <div className="flex items-center gap-2">
                         <BookOpen className="text-white w-8 h-8" />
-                        <span className="text-[24px] leading-8 font-semibold text-white">ICMS</span>
+                        <span className="text-2xl leading-8 font-semibold text-white">ICMS</span>
                     </div>
                 </div>
                 {/* Hero Message Bottom */}
                 <div className="relative z-20 p-8 mb-10 animate-fade-in-up">
-                    <h1 className="text-[48px] leading-14 font-bold tracking-[-0.02em] text-white mb-4">
+                    <h1 className="text-5xl leading-14 font-bold tracking-[-0.02em] text-white mb-4">
                         Elevate Your<br />Center's Standard.
                     </h1>
-                    <p className="text-[18px] leading-7 font-normal text-[#adc7f7] max-w-md">
+                    <p className="text-lg leading-7 font-normal text-[#adc7f7] max-w-md">
                         Join the premier management system designed for IELTS test centers. Streamline scheduling, manage tutors, and deliver excellence globally.
                     </p>
                 </div>
@@ -98,34 +98,34 @@ const Register = () => {
             <div className="w-full lg:w-1/2 flex items-center justify-center p-4 md:p-8 bg-[#f7fafc] relative">
                 {/* Back to Home Button */}
                 <div className="absolute top-4 right-4 lg:top-8 lg:right-8 animate-fade-in-down z-50">
-                    <Link to="/homepage" className="flex items-center gap-2 text-[14px] font-semibold text-[#43474e] hover:text-[#0061a5] transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-[#e0e3e5] hover:shadow-md">
+                    <Link to="/homepage" className="flex items-center gap-2 text-sm font-semibold text-[#43474e] hover:text-[#0061a5] transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-[#e0e3e5] hover:shadow-md">
                         <ArrowLeft className="w-4 h-4" /> Back to Home
                     </Link>
                 </div>
                 {/* Mobile Brand Header (Visible only on mobile) */}
                 <div className="absolute top-4 left-4 flex items-center gap-2 lg:hidden animate-fade-in-down">
                     <BookOpen className="text-[#002045] w-7 h-7" />
-                    <span className="text-[20px] leading-7 font-semibold text-[#002045]">ICMS</span>
+                    <span className="text-xl leading-7 font-semibold text-[#002045]">ICMS</span>
                 </div>
                 <div className="w-full max-w-110 mt-16 lg:mt-0 animate-fade-in">
                     <div className="mb-10 text-center lg:text-left">
-                        <h2 className="text-[24px] md:text-[32px] md:leading-10 font-bold tracking-[-0.01em] text-[#181c1e] mb-2">
+                        <h2 className="text-2xl md:text-3xl md:leading-10 font-bold tracking-[-0.01em] text-[#181c1e] mb-2">
                             Create an account
                         </h2>
-                        <p className="text-[16px] leading-6 text-[#43474e]">
+                        <p className="text-base leading-6 text-[#43474e]">
                             Enter your details to register your center.
                         </p>
                     </div>
                     {/* Registration Form */}
                     <form className="space-y-4" onSubmit={handleRegister}>
                         {error && (
-                            <div className="bg-[#ffdad6] text-[#93000a] p-3 rounded-[8px] flex items-start gap-2 border border-[#ba1a1a]/20 animate-fade-in-down">
-                                <p className="text-[14px] leading-5">{error}</p>
+                            <div className="bg-[#ffdad6] text-[#93000a] p-3 rounded-lg flex items-start gap-2 border border-[#ba1a1a]/20 animate-fade-in-down">
+                                <p className="text-sm leading-5">{error}</p>
                             </div>
                         )}
                         {/* Full Name */}
                         <div className="space-y-2 group">
-                            <label className="block text-[14px] leading-4 font-semibold tracking-wider text-[#181c1e]" htmlFor="fullName">
+                            <label className="block text-sm leading-4 font-semibold tracking-wider text-[#181c1e]" htmlFor="fullName">
                                 Full Name
                             </label>
                             <div className="relative transition-transform duration-300 hover:scale-[1.01]">
@@ -133,7 +133,7 @@ const Register = () => {
                                 <input
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
-                                    className="w-full pl-10 pr-3 py-3 bg-white border border-[#c4c6cf] rounded-[8px] text-[#181c1e] text-[16px] leading-6 focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
+                                    className="w-full pl-10 pr-3 py-3 bg-white border border-[#c4c6cf] rounded-lg text-[#181c1e] text-base leading-6 focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
                                     id="fullName"
                                     name="fullName"
                                     placeholder="Jane Doe"
@@ -144,7 +144,7 @@ const Register = () => {
                         </div>
                         {/* Email */}
                         <div className="space-y-2 group">
-                            <label className="block text-[14px] leading-4 font-semibold tracking-wider text-[#181c1e]" htmlFor="email">
+                            <label className="block text-sm leading-4 font-semibold tracking-wider text-[#181c1e]" htmlFor="email">
                                 Email Address
                             </label>
                             <div className="relative transition-transform duration-300 hover:scale-[1.01]">
@@ -152,7 +152,7 @@ const Register = () => {
                                 <input
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 pr-3 py-3 bg-white border border-[#c4c6cf] rounded-[8px] text-[#181c1e] text-[16px] leading-6 focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
+                                    className="w-full pl-10 pr-3 py-3 bg-white border border-[#c4c6cf] rounded-lg text-[#181c1e] text-base leading-6 focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
                                     id="email"
                                     name="email"
                                     placeholder="jane@center.edu"
@@ -163,7 +163,7 @@ const Register = () => {
                         </div>
                         {/* Phone */}
                         <div className="space-y-2 group">
-                            <label className="block text-[14px] leading-4 font-semibold tracking-wider text-[#181c1e]" htmlFor="phone">
+                            <label className="block text-sm leading-4 font-semibold tracking-wider text-[#181c1e]" htmlFor="phone">
                                 Phone Number
                             </label>
                             <div className="relative transition-transform duration-300 hover:scale-[1.01]">
@@ -171,7 +171,7 @@ const Register = () => {
                                 <input
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
-                                    className="w-full pl-10 pr-3 py-3 bg-white border border-[#c4c6cf] rounded-[8px] text-[#181c1e] text-[16px] leading-6 focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
+                                    className="w-full pl-10 pr-3 py-3 bg-white border border-[#c4c6cf] rounded-lg text-[#181c1e] text-base leading-6 focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
                                     id="phone"
                                     name="phone"
                                     placeholder="+1 (555) 000-0000"
@@ -181,13 +181,13 @@ const Register = () => {
                         </div>
                         {/* Password */}
                         <div className="space-y-2 group">
-                            <label className="block text-[14px] leading-4 font-semibold tracking-wider text-[#181c1e]" htmlFor="password">
+                            <label className="block text-sm leading-4 font-semibold tracking-wider text-[#181c1e]" htmlFor="password">
                                 Password
                             </label>
                             <div className="relative transition-transform duration-300 hover:scale-[1.01]">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-5 h-5 group-focus-within:text-[#0061a5] transition-colors" />
                                 <input
-                                    className="w-full pl-10 pr-10 py-3 bg-white border border-[#c4c6cf] rounded-[8px] text-[#181c1e] text-[16px] leading-6 focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
+                                    className="w-full pl-10 pr-10 py-3 bg-white border border-[#c4c6cf] rounded-lg text-[#181c1e] text-base leading-6 focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 focus:border-[#0061a5] transition-all duration-200 shadow-sm hover:border-[#74777f]"
                                     id="password"
                                     name="password"
                                     placeholder="••••••••"
@@ -217,19 +217,19 @@ const Register = () => {
                             
                             {/* Validation Rules Checklist */}
                             <ul className="mt-2 space-y-1">
-                                <li className={`flex items-center gap-2 text-[13px] leading-5 transition-colors ${isLength ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                <li className={`flex items-center gap-2 text-xs leading-5 transition-colors ${isLength ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
                                     {isLength ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
                                     Length from 8 to 15 characters
                                 </li>
-                                <li className={`flex items-center gap-2 text-[13px] leading-5 transition-colors ${isCases ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                <li className={`flex items-center gap-2 text-xs leading-5 transition-colors ${isCases ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
                                     {isCases ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
                                     Contains uppercase and lowercase letters
                                 </li>
-                                <li className={`flex items-center gap-2 text-[13px] leading-5 transition-colors ${isNumber ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                <li className={`flex items-center gap-2 text-xs leading-5 transition-colors ${isNumber ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
                                     {isNumber ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
                                     Contains a number
                                 </li>
-                                <li className={`flex items-center gap-2 text-[13px] leading-5 transition-colors ${isSpecial ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
+                                <li className={`flex items-center gap-2 text-xs leading-5 transition-colors ${isSpecial ? 'text-[#181c1e]' : 'text-[#43474e]'}`}>
                                     {isSpecial ? <CheckCircle2 className="w-4 h-4 text-[#0061a5] fill-[#0061a5]/20" /> : <Circle className="w-4 h-4 text-[#74777f]" />}
                                     Contains a special symbol
                                 </li>
@@ -246,7 +246,7 @@ const Register = () => {
                                     onChange={(e) => setAgreedToTerms(e.target.checked)}
                                 />
                             </div>
-                            <label className="text-[14px] leading-5 font-normal text-[#43474e] cursor-pointer hover:text-[#181c1e] transition-colors" htmlFor="terms">
+                            <label className="text-sm leading-5 font-normal text-[#43474e] cursor-pointer hover:text-[#181c1e] transition-colors" htmlFor="terms">
                                 I agree to the <a className="text-[#0061a5] hover:text-[#002045] transition-colors font-medium underline-offset-2 hover:underline" href="#">Terms of Service</a> and <a className="text-[#0061a5] hover:text-[#002045] transition-colors font-medium underline-offset-2 hover:underline" href="#">Privacy Policy</a>.
                             </label>
                         </div>
@@ -254,7 +254,7 @@ const Register = () => {
                         <div className="pt-4">
                             <button
                                 disabled={loading || !isValid}
-                                className="w-full py-3 px-4 bg-[#0061a5] hover:bg-[#002045] active:scale-[0.98] text-white text-[14px] leading-4 font-semibold tracking-wider rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex justify-center items-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full py-3 px-4 bg-[#0061a5] hover:bg-[#002045] active:scale-[0.98] text-white text-sm leading-4 font-semibold tracking-wider rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex justify-center items-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                                 type="submit"
                             >
                                 {loading ? 'Creating Account...' : 'Create Account'}
@@ -265,13 +265,13 @@ const Register = () => {
                     {/* Divider */}
                     <div className="flex items-center gap-4 my-6">
                         <div className="h-px bg-[#c4c6cf] flex-1"></div>
-                        <span className="text-[12px] leading-4 font-medium text-[#74777f] uppercase tracking-wider">or</span>
+                        <span className="text-xs leading-4 font-medium text-[#74777f] uppercase tracking-wider">or</span>
                         <div className="h-px bg-[#c4c6cf] flex-1"></div>
                     </div>
                     {/* Google Auth */}
                     <button
                         onClick={handleGoogleLogin}
-                        className="w-full py-3 px-4 bg-white border border-[#c4c6cf] hover:bg-[#f1f4f6] active:scale-[0.98] text-[#181c1e] text-[14px] leading-4 font-semibold tracking-wider rounded-[8px] shadow-sm transition-all duration-200 flex justify-center items-center gap-3"
+                        className="w-full py-3 px-4 bg-white border border-[#c4c6cf] hover:bg-[#f1f4f6] active:scale-[0.98] text-[#181c1e] text-sm leading-4 font-semibold tracking-wider rounded-lg shadow-sm transition-all duration-200 flex justify-center items-center gap-3"
                         type="button"
                     >
                         <svg className="w-5 h-5 transition-transform duration-200 hover:scale-110" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -284,9 +284,9 @@ const Register = () => {
                     </button>
                     {/* Login Link */}
                     <div className="mt-6 text-center">
-                        <p className="text-[14px] leading-5 font-normal text-[#43474e]">
+                        <p className="text-sm leading-5 font-normal text-[#43474e]">
                             Already have an account?{' '}
-                            <Link className="text-[#0061a5] hover:text-[#002045] text-[14px] leading-4 font-semibold tracking-wider transition-colors hover:underline underline-offset-4" to="/login">
+                            <Link className="text-[#0061a5] hover:text-[#002045] text-sm leading-4 font-semibold tracking-wider transition-colors hover:underline underline-offset-4" to="/login">
                                 Log in here
                             </Link>
                         </p>
