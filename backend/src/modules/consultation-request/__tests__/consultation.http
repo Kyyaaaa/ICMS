@@ -1,112 +1,28 @@
 @baseUrl = http://localhost:5000/api
+@accessToken = YOUR_BEARER_TOKEN
 
-### ------------------------------------------------------------------------
-### QA-17: Kiểm thử Public API Form Tư vấn
-### ------------------------------------------------------------------------
-
-# 1. Gửi form thành công
+### 1. Gửi yêu cầu tư vấn (Public)
 POST {{baseUrl}}/consultations
 Content-Type: application/json
 
 {
-  "guest_name": "Nguyễn Văn A",
-  "guest_phone": "0987654321",
-  "guest_email": "nva@gmail.com",
-  "inquiry_details": "Tôi muốn tư vấn về khóa học ReactJS"
+    "guest_name": "Test User",
+    "guest_phone": "0123456789",
+    "guest_email": "test@gmail.com",
+    "inquiry_details": "Cho mình hỏi về khóa học"
 }
 
-###
+### 2. Lấy danh sách yêu cầu tư vấn (Staff)
+GET {{baseUrl}}/consultations/staff?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
 
-# 2. QA-17: Bắn payload thiếu thông tin bắt buộc (guest_phone) -> Kỳ vọng HTTP 400
-POST {{baseUrl}}/consultations
+### 3. Cập nhật yêu cầu tư vấn (Staff)
+PATCH {{baseUrl}}/consultations/staff/REPLACE_WITH_UUID
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "guest_name": "Nguyễn Văn B",
-  "inquiry_details": "Tư vấn NodeJS"
-}
-
-### ------------------------------------------------------------------------
-### Lấy Access Token để test QA-18 và QA-19
-### ------------------------------------------------------------------------
-
-# Lấy Token của Learner
-# @name loginLearner
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-  "email": "testuser6@gmail.com",
-  "password": "Password@123"
-}
-
-###
-@learnerToken = {{loginLearner.response.body.data.access_token}}
-
-# Lấy Token của Staff 1
-# @name loginStaff1
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-  "email": "staff@gmail.com",
-  "password": "Password@123"
-}
-
-###
-@staff1Token = {{loginStaff1.response.body.data.access_token}}
-
-# Lấy Token của Staff 2 (Hoặc Admin)
-# @name loginStaff2
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-  "email": "hoanglbp3300@gmail.com",
-  "password": "123123123@As"
-}
-
-###
-@staff2Token = {{loginStaff2.response.body.data.access_token}}
-
-### ------------------------------------------------------------------------
-### QA-18: Kiểm thử Phân quyền Staff
-### ------------------------------------------------------------------------
-
-# Đăng nhập Learner thử gọi API Staff -> Kỳ vọng HTTP 403 Forbidden
-GET {{baseUrl}}/staff/consultations
-Authorization: Bearer {{learnerToken}}
-
-### ------------------------------------------------------------------------
-### QA-19: Kiểm thử Race Condition (Xung đột Đồng thời)
-### ------------------------------------------------------------------------
-
-# Bước 1: Lấy danh sách để tìm 1 Consultation ID đang Pending
-GET {{baseUrl}}/staff/consultations?status=Pending
-Authorization: Bearer {{staff1Token}}
-
-###
-# Điền ID vào đây để test
-@consultationId = ID_TU_BUOC_1_O_DAY
-
-# Bước 2: Staff 1 bấm lưu -> Kỳ vọng Thành công (200 OK)
-PATCH {{baseUrl}}/staff/consultations/{{consultationId}}
-Authorization: Bearer {{staff1Token}}
-Content-Type: application/json
-
-{
-  "status": "Contacted",
-  "call_notes": "Staff 1 đang xử lý"
-}
-
-###
-# Bước 3: Staff 2 bấm lưu vào cùng ID đó -> Kỳ vọng API chặn (409 Conflict)
-# "Yêu cầu đã được nhân viên khác tiếp nhận"
-PATCH {{baseUrl}}/staff/consultations/{{consultationId}}
-Authorization: Bearer {{staff2Token}}
-Content-Type: application/json
-
-{
-  "status": "Converted",
-  "call_notes": "Staff 2 cố tình cập nhật"
+    "status": "Contacted",
+    "call_notes": "Đã gọi điện tư vấn chi tiết về khóa học"
 }

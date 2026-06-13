@@ -68,11 +68,12 @@ Khi phát triển một API / Tính năng mới, hãy tuân thủ kiến trúc *
 ### Bước 1: Tạo Module
 Giả sử tạo tính năng `Payment`. Tạo thư mục `backend/src/modules/payment` và tạo các file sau:
 1. `payment.controller.ts`:
-   - Nhiệm vụ: Tiếp nhận Request (`req.body`, `req.query`), **thực hiện Validate rất nghiêm ngặt dữ liệu đầu vào** (Bắt lỗi định dạng).
-   - Gọi logic Service và trả về Response (`200 OK`, `400 Bad Request`).
+   - Nhiệm vụ: Tiếp nhận Request (`req.body`, `req.query`) và chuyển tiếp xuống Service. **Tuyệt đối KHÔNG thực hiện Validate dữ liệu tại Controller**.
+   - Nhận kết quả từ Service và trả về Response (ví dụ: `200 OK` hoặc catch lỗi để trả về `400/500`).
 2. `payment.service.ts`:
-   - Nhiệm vụ: Chứa Business Logic cốt lõi (Kiểm tra số dư, trạng thái,...).
-   - Gọi tới Repository/Supabase để lấy hoặc lưu dữ liệu.
+   - Nhiệm vụ: **Thực hiện Validate rất nghiêm ngặt dữ liệu đầu vào** và chứa toàn bộ Business Logic cốt lõi (Kiểm tra điều kiện, tính toán,...).
+   - **Xử lý lỗi (Error Handling):** Khi xử lý logic hoặc validate mà phát hiện lỗi, tiến hành `throw` luôn tại đây (VD: `throw new Error('Invalid data')`). Không đẩy luồng dữ liệu lỗi xuống Repository mới throw nếu có thể bắt được từ sớm.
+   - Gọi tới Repository/Supabase để lấy hoặc lưu dữ liệu khi các điều kiện đã hợp lệ.
 3. `payment.repository.ts` (Tùy chọn):
    - Nhiệm vụ: Nơi chứa 100% các câu Query tương tác trực tiếp tới DB / Supabase Client.
 4. `payment.route.ts`:
