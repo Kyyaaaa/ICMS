@@ -5,17 +5,17 @@ import type { ConsultationRequest } from '../types/consultation';
 interface ConsultationModalProps {
     consultation: ConsultationRequest;
     onClose: () => void;
-    onSave: (id: number, status: string, note: string) => void;
+    onSave: (id: string, status: string, call_notes: string) => void;
 }
 
 export const ConsultationModal = ({ consultation, onClose, onSave }: ConsultationModalProps) => {
     const [tempStatus, setTempStatus] = useState(consultation.status);
-    const [tempNote, setTempNote] = useState(consultation.staffNote || '');
+    const [tempNote, setTempNote] = useState(consultation.call_notes || '');
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setTempStatus(consultation.status);
-        setTempNote(consultation.staffNote || '');
+        setTempNote(consultation.call_notes || '');
     }, [consultation]);
 
     return (
@@ -36,43 +36,38 @@ export const ConsultationModal = ({ consultation, onClose, onSave }: Consultatio
                 <div className="p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
                     <div className="grid grid-cols-2 gap-6">
                         <div>
-                            <p className="text-sm font-semibold text-gray-500 mb-1">Full Name</p>
-                            <p className="font-bold text-[#002045] text-lg">{consultation.name}</p>
+                            <p className="text-sm font-semibold text-gray-500 mb-1">Guest Name</p>
+                            <p className="font-bold text-[#002045] text-lg">{consultation.guest_name}</p>
                         </div>
                         <div>
                             <p className="text-sm font-semibold text-gray-500 mb-1">Submitted Date</p>
-                            <p className="font-semibold text-[#43474e]">{consultation.date}</p>
+                            <p className="font-semibold text-[#43474e]">{new Date(consultation.created_at).toLocaleString('vi-VN')}</p>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-6 p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5]">
                         <div>
                             <p className="text-sm font-semibold text-gray-500 mb-1">Phone Number</p>
-                            <p className="font-semibold text-[#002045]">{consultation.phone}</p>
+                            <p className="font-semibold text-[#002045]">{consultation.guest_phone}</p>
                         </div>
                         <div>
                             <p className="text-sm font-semibold text-gray-500 mb-1">Email Address</p>
-                            <p className="font-semibold text-[#002045]">{consultation.email}</p>
+                            <p className="font-semibold text-[#002045]">{consultation.guest_email || 'No email provided'}</p>
                         </div>
                     </div>
 
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm font-semibold text-gray-500 mb-1">Target / Course Interest</p>
-                            <p className="font-semibold text-[#0061a5] bg-blue-50 w-fit px-3 py-1 rounded-md">{consultation.targetScore}</p>
-                        </div>
-                        
-                        <div>
-                            <p className="text-sm font-semibold text-gray-500 mb-2">Message / Notes from Student</p>
-                            <div className="p-4 bg-[#f0f7ff] rounded-xl text-[#002045] leading-relaxed border border-blue-100 font-medium">
-                                "{consultation.message}"
+                            <p className="text-sm font-semibold text-gray-500 mb-2">Inquiry Details</p>
+                            <div className="p-4 bg-[#f0f7ff] rounded-xl text-[#002045] leading-relaxed border border-blue-100 font-medium whitespace-pre-wrap">
+                                "{consultation.inquiry_details}"
                             </div>
                         </div>
 
                         <div>
                             <p className="text-sm font-semibold text-[#181c1e] mb-2">Staff Internal Note</p>
                             <textarea 
-                                rows={3}
+                                rows={4}
                                 className="w-full px-4 py-3 bg-white border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 font-medium resize-none"
                                 placeholder="Add notes about your contact with this student..."
                                 value={tempNote}
@@ -88,11 +83,12 @@ export const ConsultationModal = ({ consultation, onClose, onSave }: Consultatio
                         <select 
                             className="px-4 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] font-semibold text-[#002045]"
                             value={tempStatus}
-                            onChange={(e) => setTempStatus(e.target.value)}
+                            onChange={(e) => setTempStatus(e.target.value as any)}
                         >
-                            <option value="New">New</option>
+                            <option value="Pending">Pending</option>
                             <option value="Contacted">Contacted</option>
-                            <option value="Resolved">Resolved</option>
+                            <option value="Converted">Converted</option>
+                            <option value="Canceled">Canceled</option>
                         </select>
                     </div>
                     <div className="flex gap-3">

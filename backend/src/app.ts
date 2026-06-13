@@ -8,6 +8,7 @@ import accountRoutes from './modules/account/account.routes';
 import uploadRoutes from './modules/upload/upload.routes';
 import certificateRoutes from './modules/certificate/certificate.routes';
 import availableTimeSlotRoutes from './modules/available-time-slot/available-time-slot.routes';
+import consultationRequestRoutes from './modules/consultation-request/consultation-request.routes';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/available-time-slots', availableTimeSlotRoutes);
+app.use('/api/consultations', consultationRequestRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

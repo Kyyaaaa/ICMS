@@ -3,7 +3,8 @@ import { ArrowRight, Clock, Headset, Trophy, Star, BookOpen, Compass, Quote } fr
 import { Link } from 'react-router-dom';
 import { TopNav } from '@/shared/components/layout/TopNav';
 import Cookies from 'js-cookie';
-
+import { ConsultationsService } from '@/features/staff/services/consultations.service';
+import { showAlertModal } from '@/utils/modal';
 interface UserInfo {
     role?: 'learner' | 'tutor' | 'staff' | 'admin';
     name?: string;
@@ -44,6 +45,35 @@ const marqueeStyles = `
 const Homepage = () => {
     // Auth state initialized synchronously from cookies (no useEffect needed)
     const [{ loggedIn: isLoggedIn, role: userRole, info: userInfo }] = useState(parseUserFromCookies);
+
+    const [formData, setFormData] = useState({ guest_name: '', guest_phone: '', guest_email: '', course: '', message: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleConsultationSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!formData.guest_name || !formData.guest_phone) return;
+        
+        setIsSubmitting(true);
+        try {
+            const inquiry_details = formData.course 
+                ? `Course Interest: ${formData.course}\nMessage: ${formData.message}` 
+                : formData.message;
+            
+            await ConsultationsService.createPublicConsultation({
+                guest_name: formData.guest_name,
+                guest_phone: formData.guest_phone,
+                guest_email: formData.guest_email,
+                inquiry_details: inquiry_details.trim() || 'General Consultation'
+            });
+            showAlertModal('Thành công', 'Cảm ơn bạn! Yêu cầu tư vấn của bạn đã được gửi. Chúng tôi sẽ liên hệ trong thời gian sớm nhất.', 'success');
+            setFormData({ guest_name: '', guest_phone: '', guest_email: '', course: '', message: '' });
+        } catch (error) {
+            console.error(error);
+            showAlertModal('Lỗi', 'Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.', 'error');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const tutors = [
         { name: "Dr. Eleanor Vance", ielts: "9.0", role: "Former IELTS Examiner", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200" },
@@ -353,35 +383,35 @@ const Homepage = () => {
                                 <h3 className="text-xl font-extrabold text-[#002045] mb-2 text-center">Get Free Advice</h3>
                                 <p className="text-center text-xs text-[#43474e] mb-6">Leave your details and we'll be in touch shortly.</p>
                                 
-                                <form className="flex flex-col gap-4">
+                                <form className="flex flex-col gap-4" onSubmit={handleConsultationSubmit}>
                                     <div>
                                         <label className="block text-xs font-bold text-[#002045] mb-1.5 uppercase tracking-wide">Full Name *</label>
-                                        <input type="text" className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-sm text-[#181c1e] transition-all" placeholder="John Doe" required />
+                                        <input type="text" className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-sm text-[#181c1e] transition-all" placeholder="John Doe" required value={formData.guest_name} onChange={e => setFormData({...formData, guest_name: e.target.value})} />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-[#002045] mb-1.5 uppercase tracking-wide">Phone Number *</label>
-                                        <input type="tel" className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-sm text-[#181c1e] transition-all" placeholder="09xx xxx xxx" required />
+                                        <input type="tel" className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-sm text-[#181c1e] transition-all" placeholder="09xx xxx xxx" required value={formData.guest_phone} onChange={e => setFormData({...formData, guest_phone: e.target.value})} />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-[#002045] mb-1.5 uppercase tracking-wide">Email Address</label>
-                                        <input type="email" className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-sm text-[#181c1e] transition-all" placeholder="email@example.com" />
+                                        <input type="email" className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-sm text-[#181c1e] transition-all" placeholder="email@example.com" value={formData.guest_email} onChange={e => setFormData({...formData, guest_email: e.target.value})} />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-[#002045] mb-1.5 uppercase tracking-wide">Course of Interest</label>
-                                        <select className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-[#43474e] text-sm cursor-pointer transition-all">
+                                        <select className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-[#43474e] text-sm cursor-pointer transition-all" value={formData.course} onChange={e => setFormData({...formData, course: e.target.value})}>
                                             <option value="">Select a Course</option>
-                                            <option value="masterclass">IELTS Masterclass</option>
-                                            <option value="academic">Academic Fundamentals</option>
-                                            <option value="intensive">Crash Course</option>
-                                            <option value="other">General Consultation</option>
+                                            <option value="IELTS Masterclass">IELTS Masterclass</option>
+                                            <option value="Academic Fundamentals">Academic Fundamentals</option>
+                                            <option value="Crash Course">Crash Course</option>
+                                            <option value="General Consultation">General Consultation</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-[#002045] mb-1.5 uppercase tracking-wide">Message (Optional)</label>
-                                        <textarea rows={2} className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-[#181c1e] text-sm transition-all resize-none" placeholder="Any specific requirements?"></textarea>
+                                        <textarea rows={2} className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-[#181c1e] text-sm transition-all resize-none" placeholder="Any specific requirements?" value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}></textarea>
                                     </div>
-                                    <button type="button" className="w-full py-3 mt-2 bg-[#002045] text-white text-sm font-bold uppercase tracking-wider rounded-xl hover:bg-[#00142d] hover:shadow-lg transition-all flex items-center justify-center gap-2">
-                                        Submit Request
+                                    <button type="submit" disabled={isSubmitting} className="w-full py-3 mt-2 bg-[#002045] text-white text-sm font-bold uppercase tracking-wider rounded-xl hover:bg-[#00142d] hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                                        {isSubmitting ? 'Submitting...' : 'Submit Request'}
                                     </button>
                                 </form>
                             </div>

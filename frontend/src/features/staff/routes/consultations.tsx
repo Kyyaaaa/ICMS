@@ -3,34 +3,54 @@ import { Eye, Search } from 'lucide-react';
 import type { ConsultationRequest } from '../types/consultation';
 import { ConsultationsService } from '../services/consultations.service';
 import { ConsultationModal } from '../components/ConsultationModal';
+import { showAlertModal } from '@/utils/modal';
 
 const ConsultationList = () => {
     const [consultations, setConsultations] = useState<ConsultationRequest[]>([]);
     const [selectedConsultation, setSelectedConsultation] = useState<ConsultationRequest | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
 
-    useEffect(() => {
-        const loadData = async () => {
+    const loadData = async () => {
+        setIsLoading(true);
+        try {
             const data = await ConsultationsService.getConsultations();
             setConsultations(data);
-        };
+        } catch (error) {
+            console.error(error);
+            showAlertModal('Lỗi', 'Không thể tải danh sách yêu cầu tư vấn.', 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
         loadData();
     }, []);
 
-    const handleSave = async (id: number, status: string, note: string) => {
-        const item = consultations.find(c => c.id === id);
-        if (item) {
-            const updated = { ...item, status, staffNote: note };
-            await ConsultationsService.updateConsultation(updated);
-            setConsultations(consultations.map(c => c.id === id ? updated : c));
+    const handleSave = async (id: string, status: string, call_notes: string) => {
+        try {
+            await ConsultationsService.updateConsultation(id, { status, call_notes });
+            setSelectedConsultation(null);
+            loadData(); // Reload to get fresh data and updated staff assignment
+        } catch (error: any) {
+            console.error(error);
+            if (error?.response?.status === 409) {
+                showAlertModal('Cảnh báo', 'Yêu cầu này đã được nhân viên khác tiếp nhận.', 'error');
+                setSelectedConsultation(null);
+                loadData(); // Refresh the list
+            } else {
+                showAlertModal('Lỗi', 'Có lỗi xảy ra khi cập nhật yêu cầu.', 'error');
+            }
         }
-        setSelectedConsultation(null);
     };
 
     const filteredConsultations = consultations.filter(c => {
-        const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm);
+        const name = c.guest_name || '';
+        const phone = c.guest_phone || '';
+        const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) || phone.includes(searchTerm);
         const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
@@ -56,9 +76,10 @@ const ConsultationList = () => {
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
                         <option value="All">All Statuses</option>
-                        <option value="New">New</option>
+                        <option value="Pending">Pending</option>
                         <option value="Contacted">Contacted</option>
-                        <option value="Resolved">Resolved</option>
+                        <option value="Converted">Converted</option>
+                        <option value="Canceled">Canceled</option>
                     </select>
                 </div>
             </div>
@@ -67,40 +88,51 @@ const ConsultationList = () => {
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-[#f8f9fa] border-b border-[#e0e3e5]">
                         <tr>
-                            <th className="p-4 font-semibold text-[#43474e]">Full Name</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Phone Number</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Email Address</th>
+                            <th className="p-4 font-semibold text-[#43474e]">Guest Name</th>
+                            <th className="p-4 font-semibold text-[#43474e]">Phone</th>
+                            <th className="p-4 font-semibold text-[#43474e]">Email</th>
                             <th className="p-4 font-semibold text-[#43474e]">Submitted Date</th>
                             <th className="p-4 font-semibold text-[#43474e]">Status</th>
                             <th className="p-4 font-semibold text-[#43474e] text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredConsultations.map(item => (
-                            <tr key={item.id} className="border-b border-[#e0e3e5] hover:bg-gray-50">
-                                <td className="p-4 font-bold text-[#002045]">{item.name}</td>
-                                <td className="p-4 text-[#43474e]">{item.phone}</td>
-                                <td className="p-4 text-[#43474e]">{item.email}</td>
-                                <td className="p-4 text-[#74777f]">{item.date}</td>
-                                <td className="p-4">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                        item.status === 'New' ? 'bg-blue-100 text-[#0061a5]' : 
-                                        item.status === 'Contacted' ? 'bg-amber-100 text-amber-700' : 
-                                        'bg-green-100 text-green-700'
-                                    }`}>
-                                        {item.status}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-right">
-                                    <button 
-                                        onClick={() => setSelectedConsultation(item)}
-                                        className="text-[#0061a5] hover:bg-[#f0f7ff] px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-end gap-1 ml-auto"
-                                    >
-                                        <Eye className="w-4 h-4"/> View Detail
-                                    </button>
-                                </td>
+                        {isLoading ? (
+                            <tr>
+                                <td colSpan={6} className="p-8 text-center text-gray-500">Loading...</td>
                             </tr>
-                        ))}
+                        ) : filteredConsultations.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="p-8 text-center text-gray-500">No consultation requests found.</td>
+                            </tr>
+                        ) : (
+                            filteredConsultations.map(item => (
+                                <tr key={item.id} className="border-b border-[#e0e3e5] hover:bg-gray-50">
+                                    <td className="p-4 font-bold text-[#002045]">{item.guest_name}</td>
+                                    <td className="p-4 text-[#43474e]">{item.guest_phone}</td>
+                                    <td className="p-4 text-[#43474e]">{item.guest_email || '-'}</td>
+                                    <td className="p-4 text-[#74777f]">{new Date(item.created_at).toLocaleDateString('vi-VN')}</td>
+                                    <td className="p-4">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                            item.status === 'Pending' ? 'bg-blue-100 text-[#0061a5]' : 
+                                            item.status === 'Contacted' ? 'bg-amber-100 text-amber-700' : 
+                                            item.status === 'Converted' ? 'bg-green-100 text-green-700' :
+                                            'bg-red-100 text-red-700'
+                                        }`}>
+                                            {item.status}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-right">
+                                        <button 
+                                            onClick={() => setSelectedConsultation(item)}
+                                            className="text-[#0061a5] hover:bg-[#f0f7ff] px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-end gap-1 ml-auto"
+                                        >
+                                            <Eye className="w-4 h-4"/> View Detail
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
