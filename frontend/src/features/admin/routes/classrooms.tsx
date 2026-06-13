@@ -5,7 +5,7 @@ import { ClassroomsService } from '../services/classrooms.service';
 import { ClassroomFilters } from '../components/ClassroomFilters';
 import { ClassroomsTable } from '../components/ClassroomsTable';
 import { ClassroomFormModal } from '../components/ClassroomFormModal';
-import { showConfirmModal } from '@/utils/modal';
+import { showConfirmModal, showAlertModal } from '@/utils/modal';
 const AdminClassrooms = () => {
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);
@@ -48,14 +48,19 @@ const AdminClassrooms = () => {
     };
 
     const handleSave = async () => {
-        if (editingId) {
-            const updated = await ClassroomsService.updateClassroom(editingId, formData);
-            setRooms(rooms.map(r => r.id === editingId ? updated : r));
-        } else {
-            const created = await ClassroomsService.createClassroom(formData);
-            setRooms([...rooms, created]);
+        try {
+            if (editingId) {
+                const updated = await ClassroomsService.updateClassroom(editingId, formData);
+                setRooms(rooms.map(r => r.id === editingId ? updated : r));
+            } else {
+                const created = await ClassroomsService.createClassroom(formData);
+                setRooms([...rooms, created]);
+            }
+            setIsModalOpen(false);
+        } catch (error: any) {
+            const msg = error.response?.data?.message || error.message || 'Failed to save classroom.';
+            await showAlertModal('Error', msg, 'error');
         }
-        setIsModalOpen(false);
     };
 
     const handleDelete = async (id: string) => {

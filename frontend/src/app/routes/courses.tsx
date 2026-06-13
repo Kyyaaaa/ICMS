@@ -158,8 +158,8 @@ const Courses = () => {
                                         )}
                                         <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
                                         <div className="absolute top-4 left-4 flex gap-2">
-                                            <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#002045] shadow-sm">{(course as any).image ? 'Offline' : 'Online'}</span>
-                                            <span className="bg-[#0061a5]/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm">IELTS {(course as any).image ? '6.5+' : '7.0+'}</span>
+                                            {course.format && <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#002045] shadow-sm">{course.format}</span>}
+                                            {course.band && <span className="bg-[#0061a5]/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm">IELTS {course.band}</span>}
                                         </div>
                                     </div>
                                     <div className="p-6 flex flex-col grow relative">

@@ -26,13 +26,16 @@ export const ClassroomFormModal = ({
                 <div className="p-6 space-y-4">
                     <div>
                         <label className="block text-xs font-bold text-[#43474e] mb-1">Room Name</label>
-                        <input 
-                            type="text" 
-                            value={formData.name || ''} 
-                            onChange={e => setFormData({...formData, name: e.target.value})}
-                            className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]"
-                            placeholder="e.g. Room 301"
-                        />
+                        <div className="flex items-center border border-[#c4c6cf] rounded-lg overflow-hidden focus-within:border-[#0061a5]">
+                            <span className="px-3 py-2 text-sm text-[#43474e] bg-[#f7fafc] border-r border-[#c4c6cf] font-medium">Room</span>
+                            <input 
+                                type="text" 
+                                value={formData.name?.replace(/^Room\s+/i, '') || ''} 
+                                onChange={e => setFormData({...formData, name: `Room ${e.target.value}`})}
+                                className="w-full px-3 py-2 text-sm focus:outline-none"
+                                placeholder="e.g. 301"
+                            />
+                        </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">

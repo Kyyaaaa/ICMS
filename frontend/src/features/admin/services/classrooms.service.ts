@@ -1,47 +1,56 @@
+import axios from 'axios';
+import Cookies from 'js-cookie';
 import type { Room } from '../types/classroom';
 
-// Mock data until backend is ready
-let MOCK_ROOMS: Room[] = [
-    { id: '1', name: 'Room 301', capacity: 30, status: 'Available' },
-    { id: '2', name: 'Room 302', capacity: 30, status: 'Occupied' },
-    { id: '3', name: 'Room 303', capacity: 25, status: 'Available' },
-    { id: '4', name: 'Room 401', capacity: 40, status: 'Maintenance', maintenanceSchedule: { date: '2024-10-12', startTime: '14:00', endTime: '18:00', note: 'AC Repair' } },
-    { id: '5', name: 'Room 402', capacity: 35, status: 'Available' },
-    { id: '6', name: 'Room 501', capacity: 50, status: 'Available' },
-    { id: '7', name: 'Room 502', capacity: 20, status: 'Available' },
-];
+const API_URL = 'http://localhost:5000/api/classrooms';
+
+const getHeaders = () => {
+    const token = Cookies.get('access_token');
+    return {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+};
 
 export const ClassroomsService = {
     getClassrooms: async (): Promise<Room[]> => {
-        return new Promise((resolve) => setTimeout(() => resolve([...MOCK_ROOMS]), 300));
+        try {
+            const response = await axios.get(API_URL);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching classrooms:', error);
+            throw error;
+        }
     },
 
     createClassroom: async (data: Partial<Room>): Promise<Room> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const newRoom = { ...data, id: Date.now().toString() } as Room;
-                MOCK_ROOMS.push(newRoom);
-                resolve(newRoom);
-            }, 300);
-        });
+        try {
+            const response = await axios.post(API_URL, data, getHeaders());
+            return response.data;
+        } catch (error) {
+            console.error('Error creating classroom:', error);
+            throw error;
+        }
     },
 
     updateClassroom: async (id: string, data: Partial<Room>): Promise<Room> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                MOCK_ROOMS = MOCK_ROOMS.map(r => r.id === id ? { ...r, ...data } as Room : r);
-                const updated = MOCK_ROOMS.find(r => r.id === id)!;
-                resolve(updated);
-            }, 300);
-        });
+        try {
+            const response = await axios.put(`${API_URL}/${id}`, data, getHeaders());
+            return response.data;
+        } catch (error) {
+            console.error('Error updating classroom:', error);
+            throw error;
+        }
     },
 
     deleteClassroom: async (id: string): Promise<boolean> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                MOCK_ROOMS = MOCK_ROOMS.filter(r => r.id !== id);
-                resolve(true);
-            }, 300);
-        });
+        try {
+            await axios.delete(`${API_URL}/${id}`, getHeaders());
+            return true;
+        } catch (error) {
+            console.error('Error deleting classroom:', error);
+            throw error;
+        }
     }
 };
