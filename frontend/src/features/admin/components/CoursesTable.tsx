@@ -1,6 +1,6 @@
 import { BookOpen, Edit, Eye, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import type { Course } from '../types/course';
+import type { Course } from '../../../shared/types/course';
 
 interface CoursesTableProps {
     courses: Course[];

@@ -1,86 +1,177 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Clock, Users, Edit, Target, Save, X, Image as ImageIcon, Star, Globe, CheckCircle2, ShieldCheck, MapPin } from 'lucide-react';
 
+import { CoursesService } from '../../../shared/services/courses.service';
+
 const AdminCourseDetail = () => {
     const { id } = useParams();
-//     const navigate = useNavigate();
-    const [courseData, setCourseData] = useState(() => {
-        if (id === 'new') {
-            return {
-                title: '',
-                code: '',
-                category: '',
-                status: 'Draft',
-                description: '',
-                duration: '',
-                sessions: '',
-                maxSize: '',
-                format: '',
-                targetBand: '',
-                price: '',
-                originalPrice: '',
-                nextCohort: '',
-                imageUrl: '',
-                modules: []
-            };
-        }
-        return {
-            title: 'IELTS Intensive Mastery',
-            code: 'IEL-INT-01',
-            category: 'Masterclass',
-            status: 'Active',
-            description: 'A comprehensive, high-intensity preparation course designed to elevate your IELTS band score across all four modules. Ideal for students aiming for Band 7.5+.',
-            duration: '12 Weeks',
-            sessions: '48',
-            maxSize: '15',
-            format: 'Offline',
-            targetBand: '7.5 - 8.0',
-            price: '899,000',
-            originalPrice: '1,200,000',
-            nextCohort: '15-10-2024',
-            imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=600&h=400',
-            modules: [
-                { 
-                    title: 'Listening Mastery', 
-                    sessions: '12 Sessions', 
-                    description: 'Focus on complex audio inputs, diverse accents, and advanced note-taking strategies under exam conditions.',
-                    topics: [
-                        'Identifying distractors and signpost words.',
-                        'Complex flowchart and map completions.'
-                    ]
-                },
-                {
-                    title: 'Reading Comprehension & Speed',
-                    sessions: '12 Sessions',
-                    description: 'Focus on speed-reading techniques, scanning, and detailed comprehension of academic texts.',
-                    topics: [
-                        'Skimming for main ideas and scanning for details.',
-                        'True/False/Not Given statement analysis.'
-                    ]
-                }
-            ]
-        };
+    const [loading, setLoading] = useState(id !== 'new');
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [initialDuration, setInitialDuration] = useState(1);
+    const [courseData, setCourseData] = useState({
+        title: '',
+        code: '',
+        category: '',
+        status: 'Draft',
+        description: '',
+        duration: '',
+        sessions: '',
+        maxSize: '',
+        format: '',
+        minBand: '',
+        maxBand: '',
+        price: '',
+        originalPrice: '',
+        nextCohort: '',
+        imageUrl: '',
+        modules: [] as any[]
     });
 
     const [activeTab, setActiveTab] = useState('syllabus');
     const [isEditing, setIsEditing] = useState(id === 'new' ? true : new URLSearchParams(location.search).get('edit') === 'true');
 
-    const handleSave = () => {
-        setIsEditing(false);
+    useEffect(() => {
+        const fetchCourse = async () => {
+            if (id && id !== 'new') {
+                setLoading(true);
+                const data = await CoursesService.getCourseById(id);
+                if (data) {
+                    let minB = '', maxB = '';
+                    if (data.band) {
+                        const parts = data.band.split('-');
+                        if (parts.length === 2) {
+                            minB = parts[0].trim();
+                            maxB = parts[1].trim();
+                        } else {
+                            minB = data.band;
+                        }
+                    }
+                    let dur = '';
+                    if (data.duration) {
+                        dur = data.duration.replace(/[^\d]/g, '');
+                        setInitialDuration(parseInt(dur) || 1);
+                    }
+                    
+                    let parsedNextCohort = '';
+                    if (data.next_cohort) {
+                        // Backend returns DD/MM/YYYY
+                        const parts = data.next_cohort.split('/');
+                        if (parts.length === 3) {
+                            parsedNextCohort = `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert to YYYY-MM-DD for input
+                        } else {
+                            parsedNextCohort = data.next_cohort;
+                        }
+                    }
+
+                    const parsedModules = data.modules ? data.modules.map((m: any) => ({
+                        ...m,
+                        sessions: m.sessions ? parseInt(String(m.sessions).replace(/[^\d]/g, '')) || 1 : 1,
+                        topics: Array.isArray(m.topics) ? m.topics : m.topics ? m.topics.split('\n').filter((t: any) => t.trim() !== '') : [],
+                        isExisting: true
+                    })) : [];
+
+                    setCourseData({
+                        title: data.title || '',
+                        code: data.code || '',
+                        category: data.category || '',
+                        status: data.status || 'Draft',
+                        description: data.description || '',
+                        duration: dur,
+                        sessions: String(data.sessions || ''),
+                        maxSize: String((data as any).max_size || '15'),
+                        format: data.format || '',
+                        minBand: minB,
+                        maxBand: maxB,
+                        price: String(data.price || ''),
+                        originalPrice: String(data.original_price || ''),
+                        nextCohort: parsedNextCohort,
+                        imageUrl: data.image_url || '',
+                        modules: parsedModules
+                    });
+                }
+                setLoading(false);
+            }
+        };
+        fetchCourse();
+    }, [id]);
+
+    const calculatedTotalSessions = courseData.modules.reduce((acc, mod) => acc + (Number(mod.sessions) || 0), 0);
+
+    const handleSave = async () => {
+        if (id && id !== 'new') {
+            if (courseData.modules.length === 0) {
+                alert('At least 1 Course Module is required.');
+                return;
+            }
+
+            setIsUploadingImage(true); // Reuse as loading state for button
+            try {
+                let formattedDate = courseData.nextCohort;
+                if (formattedDate && formattedDate.includes('-')) {
+                    const parts = formattedDate.split('-');
+                    if (parts.length === 3) {
+                        formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // YYYY-MM-DD -> DD/MM/YYYY
+                    }
+                }
+
+                const cleanedModules = courseData.modules.map(m => ({
+                    ...m,
+                    sessions: `${m.sessions} Sessions`,
+                    topics: m.topics && Array.isArray(m.topics) ? m.topics.filter((t: any) => typeof t === 'string' && t.trim() !== '') : []
+                }));
+
+                // map frontend fields to backend fields
+                const backendData = {
+                    title: courseData.title,
+                    code: courseData.code,
+                    category: courseData.category,
+                    status: courseData.status,
+                    description: courseData.description,
+                    duration: `${courseData.duration} Weeks`,
+                    sessions: calculatedTotalSessions,
+                    format: courseData.format,
+                    band: courseData.minBand && courseData.maxBand ? (courseData.minBand === courseData.maxBand ? courseData.minBand : `${courseData.minBand} - ${courseData.maxBand}`) : courseData.minBand,
+                    price: parseFloat(courseData.price) || 0,
+                    original_price: parseFloat(courseData.originalPrice) || 0,
+                    max_size: parseInt(courseData.maxSize) || 15,
+                    next_cohort: formattedDate,
+                    image_url: courseData.imageUrl,
+                    modules: cleanedModules
+                };
+                await CoursesService.updateCourse(id, backendData);
+                alert('Course saved successfully!');
+                setCourseData({
+                    ...courseData,
+                    sessions: String(calculatedTotalSessions),
+                    nextCohort: formattedDate
+                });
+                setIsEditing(false);
+            } catch (error) {
+                alert('An error occurred while saving the course.');
+            } finally {
+                setIsUploadingImage(false);
+            }
+        } else {
+            setIsEditing(false);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setCourseData({ ...courseData, [e.target.name]: e.target.value });
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            // In a real app, you would upload to a server here.
-            // For preview, we use createObjectURL.
-            const imageUrl = URL.createObjectURL(file);
-            setCourseData({ ...courseData, imageUrl });
+            setIsUploadingImage(true);
+            const url = await CoursesService.uploadImage(file);
+            if (url) {
+                setCourseData({ ...courseData, imageUrl: url });
+            } else {
+                alert('Failed to upload image!');
+            }
+            setIsUploadingImage(false);
         }
     };
 
@@ -89,6 +180,21 @@ const AdminCourseDetail = () => {
         newModules[index] = { ...newModules[index], [field]: value };
         setCourseData({ ...courseData, modules: newModules });
     };
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDateStr = tomorrow.toISOString().split('T')[0];
+    
+    // Check if the cohort date is in the past or today
+    let isCohortLocked = false;
+    if (courseData.nextCohort) {
+        const cohortDate = new Date(courseData.nextCohort);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (cohortDate <= today) {
+            isCohortLocked = true;
+        }
+    }
 
     const handleTopicChange = (moduleIndex: number, topicIndex: number, value: string) => {
         const newModules = [...courseData.modules];
@@ -101,7 +207,7 @@ const AdminCourseDetail = () => {
     const handleAddModule = () => {
         setCourseData({ 
             ...courseData, 
-            modules: [...courseData.modules, { title: 'New Module', sessions: '0 Sessions', description: '', topics: [''] }] 
+            modules: [...courseData.modules, { title: 'New Module', sessions: 1, description: '', topics: [''] }] 
         });
     };
 
@@ -117,10 +223,20 @@ const AdminCourseDetail = () => {
     };
 
     const handleRemoveTopic = (moduleIndex: number, topicIndex: number) => {
-        const newModules = [...courseData.modules];
-        newModules[moduleIndex].topics = newModules[moduleIndex].topics.filter((_, i) => i !== topicIndex);
-        setCourseData({ ...courseData, modules: newModules });
+        setCourseData(prev => {
+            const newModules = [...prev.modules];
+            newModules[moduleIndex].topics = newModules[moduleIndex].topics.filter((_: any, i: number) => i !== topicIndex);
+            return { ...prev, modules: newModules };
+        });
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 animate-fade-in-up pb-8">
@@ -170,9 +286,15 @@ const AdminCourseDetail = () => {
                                         </div>
                                     ) : (
                                         <div className="w-40 h-24 rounded-lg border-2 border-dashed border-[#c4c6cf] flex flex-col items-center justify-center text-[#74777f] bg-white cursor-pointer hover:border-[#0061a5] hover:text-[#0061a5] transition-colors relative">
-                                            <ImageIcon size={24} className="mb-1" />
-                                            <span className="text-xs font-medium">Upload Image</span>
-                                            <input type="file" onChange={handleImageChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
+                                            {isUploadingImage ? (
+                                                <div className="w-6 h-6 border-2 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
+                                            ) : (
+                                                <>
+                                                    <ImageIcon size={24} className="mb-1" />
+                                                    <span className="text-xs font-medium">Upload Image</span>
+                                                    <input type="file" onChange={handleImageChange} className={`absolute inset-0 w-full h-full opacity-0 ${isUploadingImage ? 'cursor-not-allowed' : 'cursor-pointer'}`} accept="image/*" disabled={isUploadingImage} />
+                                                </>
+                                            )}
                                         </div>
                                     )}
                                     <div className="flex-1">
@@ -185,10 +307,14 @@ const AdminCourseDetail = () => {
                                     <label className="block text-xs font-bold text-[#43474e] mb-1">Course Title</label>
                                     <input type="text" name="title" value={courseData.title} onChange={handleChange} className="w-full text-2xl font-bold text-[#181c1e] px-3 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] mb-4" placeholder="e.g. IELTS Intensive Mastery" />
                                     
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-[13px] font-bold text-[#43474e] mb-1">Course Code</label>
+                                            <input type="text" value={courseData.code} readOnly className="w-full px-3 py-2 text-[14px] font-bold text-[#43474e] bg-[#e0e3e5] border border-[#c4c6cf] rounded-lg cursor-not-allowed" />
+                                        </div>
                                         <div>
                                             <label className="block text-xs font-bold text-[#43474e] mb-1">Category</label>
-                                            <input type="text" name="category" value={courseData.category} onChange={handleChange} className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]" placeholder="e.g. Masterclass" />
+                                            <input type="text" name="category" value={courseData.category} onChange={handleChange} readOnly={isCohortLocked} className={`w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} placeholder="e.g. Masterclass" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-[#43474e] mb-1">Status</label>
@@ -209,13 +335,24 @@ const AdminCourseDetail = () => {
                                     <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5]">
                                         <Clock className="text-[#0061a5] mb-2" size={24} />
                                         <h4 className="text-xs text-[#74777f] font-bold uppercase mb-1">Duration</h4>
-                                        <input type="text" name="duration" value={courseData.duration} onChange={handleChange} className="w-full text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]" />
+                                        <div className="flex items-center gap-1">
+                                            <input type="number" min={isCohortLocked ? initialDuration : 1} name="duration" value={courseData.duration} onChange={handleChange} className="w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]" />
+                                            <span className="text-xs font-bold text-[#74777f]">Weeks</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5]">
+                                        <Users className="text-[#0061a5] mb-2" size={24} />
+                                        <h4 className="text-xs text-[#74777f] font-bold uppercase mb-1">Max Students</h4>
+                                        <div className="flex items-center gap-1">
+                                            <input type="number" min="1" name="maxSize" value={courseData.maxSize} onChange={handleChange} className="w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]" />
+                                            <span className="text-xs font-bold text-[#74777f]">/ Class</span>
+                                        </div>
                                     </div>
                                     <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5]">
                                         <BookOpen className="text-[#0061a5] mb-2" size={24} />
                                         <h4 className="text-xs text-[#74777f] font-bold uppercase mb-1">Sessions</h4>
                                         <div className="flex items-center gap-1">
-                                            <input type="number" name="sessions" value={courseData.sessions} onChange={handleChange} className="w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]" />
+                                            <input type="text" readOnly value={calculatedTotalSessions} className="w-16 text-sm font-bold text-[#43474e] bg-[#e0e3e5] p-1 border border-[#c4c6cf] rounded cursor-not-allowed outline-none" />
                                             <span className="text-xs font-bold text-[#74777f]">Total</span>
                                         </div>
                                     </div>
@@ -223,15 +360,17 @@ const AdminCourseDetail = () => {
                                         <Globe className="text-[#0061a5] mb-2" size={24} />
                                         <h4 className="text-xs text-[#74777f] font-bold uppercase mb-1">Format</h4>
                                         <div className="flex items-center gap-1">
-                                            <input type="text" name="format" value={courseData.format} onChange={handleChange} className="w-full text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]" />
+                                            <input type="text" name="format" value={courseData.format} onChange={handleChange} readOnly={isCohortLocked} className={`w-full text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
                                         </div>
                                     </div>
-                                    <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5]">
+                                    <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5] col-span-2">
                                         <Target className="text-[#0061a5] mb-2" size={24} />
                                         <h4 className="text-xs text-[#74777f] font-bold uppercase mb-1">Target</h4>
                                         <div className="flex items-center gap-1">
                                             <span className="text-sm font-bold text-[#74777f]">IELTS</span>
-                                            <input type="text" name="targetBand" value={courseData.targetBand} onChange={handleChange} className="flex-1 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]" />
+                                            <input type="number" step="0.5" min="0" max="9.0" name="minBand" value={courseData.minBand} onChange={handleChange} readOnly={isCohortLocked} className={`w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
+                                            <span className="font-bold text-[#74777f]">-</span>
+                                            <input type="number" step="0.5" min="0" max="9.0" name="maxBand" value={courseData.maxBand} onChange={handleChange} readOnly={isCohortLocked} className={`w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
                                         </div>
                                     </div>
                                 </div>
@@ -240,7 +379,12 @@ const AdminCourseDetail = () => {
 
                         <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-bold text-[#181c1e]">Course Modules</h3>
+                                <div>
+                                    <h3 className="text-lg font-bold text-[#181c1e]">Course Modules</h3>
+                                    {isCohortLocked && (
+                                        <p className="text-xs text-[#ba1a1a] mt-1">Note: adding modules should be accompanied by an increase in duration.</p>
+                                    )}
+                                </div>
                                 <button onClick={handleAddModule} className="text-sm text-[#0061a5] font-bold hover:underline">+ Add Module</button>
                             </div>
                             <div className="space-y-6">
@@ -249,26 +393,29 @@ const AdminCourseDetail = () => {
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="flex items-center gap-3 w-full pr-4">
                                                 <div className="w-8 h-8 bg-[#0061a5] text-white rounded-full flex items-center justify-center font-bold shrink-0">{mIndex + 1}</div>
-                                                <input type="text" value={module.title} onChange={(e) => handleModuleChange(mIndex, 'title', e.target.value)} className="flex-1 font-bold text-[#181c1e] px-3 py-1.5 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]" placeholder="Module Title" />
-                                                <input type="text" value={module.sessions} onChange={(e) => handleModuleChange(mIndex, 'sessions', e.target.value)} className="w-28 text-sm font-bold text-[#0061a5] px-3 py-1.5 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]" placeholder="12 Sessions" />
+                                                <input type="text" value={module.title} onChange={(e) => handleModuleChange(mIndex, 'title', e.target.value)} readOnly={isCohortLocked && module.isExisting} className={`flex-1 font-bold text-[#181c1e] px-3 py-1.5 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} placeholder="Module Title" />
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    <input type="number" min="1" value={module.sessions} onChange={(e) => handleModuleChange(mIndex, 'sessions', e.target.value)} readOnly={isCohortLocked && module.isExisting} className={`w-16 text-sm font-bold text-[#0061a5] px-2 py-1.5 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
+                                                    <span className="text-xs font-bold text-[#74777f]">Sessions</span>
+                                                </div>
                                             </div>
-                                            <button onClick={() => handleRemoveModule(mIndex)} className="text-[#ba1a1a] hover:bg-[#fceeee] p-1.5 rounded-lg shrink-0 mt-1">
+                                            <button onClick={() => handleRemoveModule(mIndex)} disabled={isCohortLocked && module.isExisting} className={`text-[#ba1a1a] p-1.5 rounded-lg shrink-0 mt-1 ${isCohortLocked && module.isExisting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#fceeee]'}`}>
                                                 <X size={16} />
                                             </button>
                                         </div>
                                         <div className="pl-11 space-y-4">
-                                            <textarea value={module.description} onChange={(e) => handleModuleChange(mIndex, 'description', e.target.value)} className="w-full text-sm text-[#43474e] px-3 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]" placeholder="Module Description" rows={2} />
+                                            <textarea value={module.description} onChange={(e) => handleModuleChange(mIndex, 'description', e.target.value)} readOnly={isCohortLocked && module.isExisting} className={`w-full text-sm text-[#43474e] px-3 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} placeholder="Module Description" rows={2} />
                                             
                                             <div className="space-y-2">
                                                 <div className="text-xs font-bold text-[#43474e] mb-2 flex justify-between items-center">
                                                     <span>Key Topics</span>
-                                                    <button onClick={() => handleAddTopic(mIndex)} className="text-[#0061a5] hover:underline">+ Add Topic</button>
+                                                    <button onClick={() => handleAddTopic(mIndex)} disabled={isCohortLocked && module.isExisting} className={`text-[#0061a5] ${isCohortLocked && module.isExisting ? 'opacity-50 cursor-not-allowed' : 'hover:underline'}`}>+ Add Topic</button>
                                                 </div>
-                                                {module.topics.map((topic, tIndex) => (
+                                                {module.topics && module.topics.map((topic: string, tIndex: number) => (
                                                     <div key={tIndex} className="flex items-center gap-2">
                                                         <CheckCircle2 className="text-[#0061a5] w-4 h-4 shrink-0" />
-                                                        <input type="text" value={topic} onChange={(e) => handleTopicChange(mIndex, tIndex, e.target.value)} className="flex-1 text-sm text-[#181c1e] px-2 py-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]" placeholder="Topic point" />
-                                                        <button onClick={() => handleRemoveTopic(mIndex, tIndex)} className="text-[#ba1a1a] hover:bg-[#fceeee] p-1 rounded shrink-0">
+                                                        <input type="text" value={topic} onChange={(e) => handleTopicChange(mIndex, tIndex, e.target.value)} readOnly={isCohortLocked && module.isExisting} className={`flex-1 text-sm text-[#181c1e] px-2 py-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} placeholder="Topic point" />
+                                                        <button onClick={() => handleRemoveTopic(mIndex, tIndex)} disabled={isCohortLocked && module.isExisting} className={`text-[#ba1a1a] p-1 rounded shrink-0 ${isCohortLocked && module.isExisting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#fceeee]'}`}>
                                                             <X size={14} />
                                                         </button>
                                                     </div>
@@ -289,15 +436,15 @@ const AdminCourseDetail = () => {
                                     <div>
                                         <label className="block text-xs font-bold text-[#43474e] mb-1">Current Price</label>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xl font-bold text-[#0061a5]">$</span>
-                                            <input type="number" name="price" value={courseData.price} onChange={handleChange} className="w-full text-base font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]" />
+                                            <span className="text-xl font-bold text-[#0061a5]">đ</span>
+                                            <input type="number" name="price" value={courseData.price} onChange={handleChange} readOnly={isCohortLocked} className={`w-full text-base font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
                                         </div>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-[#43474e] mb-1">Original Price</label>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xl font-bold text-[#74777f]">$</span>
-                                            <input type="text" name="originalPrice" value={courseData.originalPrice} onChange={handleChange} className="w-full text-base font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]" />
+                                            <span className="text-xl font-bold text-[#74777f]">đ</span>
+                                            <input type="text" name="originalPrice" value={courseData.originalPrice} onChange={handleChange} readOnly={isCohortLocked} className={`w-full text-base font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
                                         </div>
                                     </div>
                                 </div>
@@ -305,8 +452,11 @@ const AdminCourseDetail = () => {
                                     <label className="block text-xs font-bold text-[#43474e] mb-1">Course Starts</label>
                                     <div className="flex items-center gap-2">
                                         <Clock className="text-[#74777f]" size={20} />
-                                        <input type="text" name="nextCohort" value={courseData.nextCohort} onChange={handleChange} className="flex-1 text-sm font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]" placeholder="15-10-2024" />
+                                        <input type="date" min={isCohortLocked ? undefined : minDateStr} disabled={isCohortLocked} name="nextCohort" value={courseData.nextCohort} onChange={handleChange} className={`flex-1 text-sm font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] text-[#74777f] cursor-not-allowed' : ''}`} />
                                     </div>
+                                    {isCohortLocked && (
+                                        <p className="text-[11px] text-[#ba1a1a] mt-1 font-medium">The course has already started, cohort date cannot be changed.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -346,7 +496,7 @@ const AdminCourseDetail = () => {
                                 <div className="flex flex-col">
                                     <span className="text-xs font-bold text-[#adc7f7] uppercase tracking-wider mb-1">Target Band</span>
                                     <span className="text-2xl font-extrabold text-[#ffd200] flex items-center gap-2">
-                                        <Star className="w-6 h-6 fill-[#ffd200]" /> {courseData.targetBand}
+                                        <Star className="w-6 h-6 fill-[#ffd200]" /> {courseData.minBand && courseData.maxBand ? (courseData.minBand === courseData.maxBand ? courseData.minBand : `${courseData.minBand} - ${courseData.maxBand}`) : courseData.minBand}
                                     </span>
                                 </div>
                                 <div className="w-px h-12 bg-white/20 hidden md:block"></div>
@@ -378,7 +528,11 @@ const AdminCourseDetail = () => {
                                 <Clock className="text-[#0061a5] w-6 h-6" />
                                 <div className="text-sm text-[#43474e]">
                                     Course starts:<br/>
-                                    <span className="font-bold text-[#002045] text-base">{courseData.nextCohort}</span>
+                                    <span className="font-bold text-[#002045] text-base">
+                                        {courseData.nextCohort && courseData.nextCohort.includes('-') 
+                                            ? courseData.nextCohort.split('-').reverse().join('/') 
+                                            : courseData.nextCohort}
+                                    </span>
                                 </div>
                             </div>
                             <button disabled className="w-full bg-[#e0e3e5] text-[#74777f] font-bold py-4 rounded-xl flex justify-center items-center gap-2 mb-4 cursor-not-allowed">
@@ -424,7 +578,7 @@ const AdminCourseDetail = () => {
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <span className={`text-xs font-bold px-3 py-1 rounded-full ${index === 0 ? 'text-[#0061a5] bg-[#e6f0fa]' : 'text-[#74777f] bg-white border border-[#c4c6cf]'}`}>
-                                                        {module.sessions}
+                                                        {module.sessions} Sessions
                                                     </span>
                                                 </div>
                                             </div>
@@ -432,7 +586,7 @@ const AdminCourseDetail = () => {
                                                 <div className="p-6 flex flex-col gap-4">
                                                     <p className="text-[#43474e]">{module.description}</p>
                                                     <ul className="flex flex-col gap-3 mt-2">
-                                                        {module.topics.map((topic, tIndex) => (
+                                                        {module.topics && module.topics.map((topic: string, tIndex: number) => (
                                                             <li key={tIndex} className="flex items-start gap-3 text-[#181c1e] font-medium">
                                                                 <CheckCircle2 className="text-[#0061a5] w-5 h-5 shrink-0" /> {topic}
                                                             </li>
@@ -498,7 +652,7 @@ const AdminCourseDetail = () => {
                                             <Users className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <div className="text-base font-bold text-[#002045]">Max {courseData.maxSize} Students</div>
+                                            <div className="text-base font-bold text-[#002045]">Max {courseData.maxSize} Students / Class</div>
                                             <div className="text-sm text-[#74777f]">Small group focus</div>
                                         </div>
                                     </div>

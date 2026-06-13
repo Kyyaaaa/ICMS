@@ -9,7 +9,7 @@ import uploadRoutes from './modules/upload/upload.routes';
 import certificateRoutes from './modules/certificate/certificate.routes';
 import availableTimeSlotRoutes from './modules/available-time-slot/available-time-slot.routes';
 import consultationRequestRoutes from './modules/consultation-request/consultation-request.routes';
-
+import courseRoutes from './modules/course/course.routes';
 const app = express();
 
 // Middlewares toàn cục
@@ -24,6 +24,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/available-time-slots', availableTimeSlotRoutes);
 app.use('/api/consultations', consultationRequestRoutes);
+app.use('/api/courses', courseRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

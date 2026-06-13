@@ -2,21 +2,100 @@ import { useState, useEffect } from 'react';
 import {  BookOpen, Headset, Compass, ArrowRight, Star, CheckCircle2, ChevronRight, Clock, MapPin, Globe, Users, ShieldCheck, Ticket, X } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { TopNav } from '@/shared/components/layout/TopNav';
+import Cookies from 'js-cookie';
+import type { ErrorInfo, ReactNode } from 'react';
+import { Component } from 'react';
+import { CoursesService } from '@/shared/services/courses.service';
 
-const CourseDetail = () => {
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean, error: Error | null}> {
+    constructor(props: {children: ReactNode}) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error };
+    }
+    componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+        console.error("ErrorBoundary caught an error", error, errorInfo);
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="min-h-screen bg-red-50 p-10 flex flex-col items-start justify-center text-left">
+                    <h1 className="text-3xl font-bold text-red-600 mb-4">React App Crashed</h1>
+                    <pre className="bg-white p-4 rounded shadow text-red-800 text-sm overflow-auto max-w-full">
+                        {this.state.error?.toString()}
+                        <br/>
+                        {this.state.error?.stack}
+                    </pre>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
 
+const CourseDetailInner = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userInfo, setUserInfo] = useState<Record<string, unknown> | undefined>(undefined);
+    const [userRole, setUserRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>('learner');
     const navigate = useNavigate();
     const { id } = useParams();
-    // Tab state
+    const [course, setCourse] = useState<Course | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('syllabus');
-
-    // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedClass, setSelectedClass] = useState<number | null>(null);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+        
+        const token = Cookies.get('access_token');
+        const userStr = Cookies.get('user_info');
+        if (token && userStr) {
+            setIsLoggedIn(true);
+            try {
+                const user = JSON.parse(userStr);
+                setUserInfo(user);
+                setUserRole(user.role ? user.role.toLowerCase() : 'learner');
+            } catch (e) {
+                // Ignore parse error
+            }
+        }
+
+        const fetchCourse = async () => {
+            if (!id) return;
+            try {
+                const data = await CoursesService.getCourseById(id);
+                if (data) {
+                    setCourse(data as any);
+                } else {
+                    setCourse(null);
+                }
+            } catch (e: any) {
+                console.error("Failed to fetch course:", e);
+                setErrorMsg(e.message || "Unknown error");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchCourse();
+    }, [id]);
+
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
+
+    if (!course) {
+        return <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+            <h1 className="text-2xl font-bold text-[#002045]">Course not found</h1>
+            <p className="text-red-500">{errorMsg || "Invalid course data"}</p>
+            <Link to="/courses" className="text-[#0061a5] hover:underline">Return to Courses</Link>
+        </div>;
+    }
+
+    // Tab state and Modal state moved to top
 
     const availableClasses = [
         { id: 101, name: 'Class 1', schedule: 'Mon, Wed 18:00 - 20:00', room: 'Room 302', currentStudents: 12, maxStudents: 15 },
@@ -32,57 +111,21 @@ const CourseDetail = () => {
     }
 
     interface Course {
-        id: number;
+        id: number | string;
         title: string;
         band: string;
         duration: string;
         sessions: number;
         format: string;
         type: string;
-        price: string;
-        originalPrice: string;
+        price: string | number;
+        originalPrice?: string | number;
+        original_price?: string | number;
         description: string;
-        nextCohort: string;
+        nextCohort?: string;
+        next_cohort?: string;
         modules?: CourseModule[];
     }
-
-    // Mock data for the specific courses
-    const mockCourses: Record<string, Course> = {
-        '1': {
-            id: 1, title: 'IELTS Intensive Mastery', band: '7.5 - 8.0', duration: '12 Weeks', sessions: 48, format: 'Offline', type: 'Masterclass', price: '899,000 đ', originalPrice: '1,200,000 đ', description: 'A comprehensive, high-intensity preparation course designed to elevate your IELTS band score across all four modules. Ideal for students aiming for Band 7.5+.', nextCohort: '15-10-2024',
-            modules: [
-                { 
-                    title: 'Listening Mastery', 
-                    sessions: '12 Sessions', 
-                    description: 'Focus on complex audio inputs, diverse accents, and advanced note-taking strategies under exam conditions.',
-                    topics: [
-                        'Identifying distractors and signpost words.',
-                        'Complex flowchart and map completions.'
-                    ]
-                },
-                {
-                    title: 'Reading Comprehension & Speed',
-                    sessions: '12 Sessions',
-                    description: 'Focus on speed-reading techniques, scanning, and detailed comprehension of academic texts.',
-                    topics: [
-                        'Skimming for main ideas and scanning for details.',
-                        'True/False/Not Given statement analysis.'
-                    ]
-                }
-            ]
-        },
-        '2': {
-            id: 2, title: 'Academic 6.5+', band: '6.5+', duration: '16 Weeks', sessions: 64, format: 'Offline', type: 'Standard', price: '499,000 đ', originalPrice: '699,000 đ', description: 'Perfect for beginners aiming for a solid 6.5 band score. Master grammar and core vocab before diving into formal test strategies.', nextCohort: '20-10-2024'
-        },
-        '3': {
-            id: 3, title: '1-Month Crash Course', band: '6.0+', duration: '4 Weeks', sessions: 20, format: 'Offline', type: 'Intensive', price: '350,000 đ', originalPrice: '450,000 đ', description: 'Short on time? Intensive 4-week test-taking strategies and daily practice for immediate results in your upcoming exam.', nextCohort: '01-11-2024'
-        },
-        '4': {
-            id: 4, title: 'Foundation English', band: '4.5 - 5.0', duration: '8 Weeks', sessions: 32, format: 'Offline', type: 'Beginner', price: '299,000 đ', originalPrice: '400,000 đ', description: 'Build a strong English foundation focusing on daily communication, basic grammar, and general listening skills.', nextCohort: '05-11-2024'
-        }
-    };
-
-    const course = id ? (mockCourses[id] || mockCourses['1']) : mockCourses['1'];
 
     const handleConfirmEnrollment = () => {
         if (!selectedClass) return;
@@ -96,7 +139,7 @@ const CourseDetail = () => {
 
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-base leading-6 font-sans min-h-screen flex flex-col">
-            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userInfo={userInfo} userRole={userRole} />
 
             {/* Main Content */}
             <main className="grow w-full max-w-360 mx-auto px-4 lg:px-8 py-10">
@@ -149,14 +192,16 @@ const CourseDetail = () => {
                     {/* Enrollment Action Box */}
                     <div className="bg-white rounded-2xl p-8 shadow-xl w-full md:w-85 z-10 flex flex-col border border-[#e0e3e5]">
                         <div className="flex flex-col mb-6">
-                            <span className="text-base text-[#74777f] line-through font-medium mb-1">{course.originalPrice}</span>
-                            <span className="text-4xl font-extrabold text-[#002045] leading-none tracking-tight wrap-break-word">{course.price}</span>
+                            {(course.original_price || course.originalPrice) && (
+                                <span className="text-base text-[#74777f] line-through font-medium mb-1">{course.original_price || course.originalPrice} đ</span>
+                            )}
+                            <span className="text-4xl font-extrabold text-[#002045] leading-none tracking-tight wrap-break-word">{course.price} đ</span>
                         </div>
                         <div className="flex items-center gap-3 bg-[#f7fafc] rounded-xl p-4 mb-6 border border-[#e0e3e5]">
                             <Clock className="text-[#0061a5] w-6 h-6" />
                             <div className="text-sm text-[#43474e]">
                                 Course starts:<br/>
-                                <span className="font-bold text-[#002045] text-base">{course.nextCohort}</span>
+                                <span className="font-bold text-[#002045] text-base">{course.next_cohort || course.nextCohort}</span>
                             </div>
                         </div>
                         <button 
@@ -197,8 +242,8 @@ const CourseDetail = () => {
                                 
                                 {/* Dynamic Syllabus Content */}
                                 <div className="space-y-4">
-                                    {course.modules?.map((module, index) => (
-                                        <div key={index} className="bg-white border border-[#e0e3e5] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                                    {Array.isArray(course.modules) && course.modules.map((module, index) => (
+                                        <div key={index} className={`bg-white border border-[#e0e3e5] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow ${index > 0 ? 'opacity-70' : ''}`}>
                                             <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
                                                 <h3 className="text-xl font-bold text-[#002045] flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded-full bg-[#e6f0fa] text-[#0061a5] flex items-center justify-center text-sm">
@@ -207,20 +252,24 @@ const CourseDetail = () => {
                                                     {module.title}
                                                 </h3>
                                                 <span className="bg-[#f7fafc] text-[#43474e] text-xs font-bold px-3 py-1 rounded-full border border-[#e0e3e5] whitespace-nowrap w-fit">
-                                                    {module.sessions}
+                                                    {module.sessions} Sessions
                                                 </span>
                                             </div>
-                                            <p className="text-[#43474e] mb-4 leading-relaxed">
-                                                {module.description}
-                                            </p>
-                                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                {module.topics?.map((topic, tIndex) => (
-                                                    <li key={tIndex} className="flex items-start gap-2">
-                                                        <CheckCircle2 className="w-5 h-5 text-[#0061a5] shrink-0 mt-0.5" />
-                                                        <span className="text-[#43474e]">{topic}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                            {index === 0 && (
+                                                <>
+                                                    <p className="text-[#43474e] mb-4 leading-relaxed">
+                                                        {module.description}
+                                                    </p>
+                                                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                                                        {Array.isArray(module.topics) && module.topics.map((topic, tIndex) => (
+                                                            <li key={tIndex} className="flex items-start gap-2 text-sm text-[#43474e]">
+                                                                <CheckCircle2 className="w-5 h-5 text-[#0061a5] shrink-0 mt-0.5" />
+                                                                <span>{typeof topic === 'object' ? JSON.stringify(topic) : String(topic)}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -321,7 +370,7 @@ const CourseDetail = () => {
                                         <Users className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <div className="text-base font-bold text-[#002045]">Max 15 Students</div>
+                                        <div className="text-base font-bold text-[#002045]">Max {(course as any)?.max_size || 15} Students / Class</div>
                                         <div className="text-sm text-[#74777f]">Small group focus</div>
                                     </div>
                                 </div>
@@ -513,5 +562,11 @@ const CourseDetail = () => {
         </div>
     );
 };
+
+const CourseDetail = () => (
+    <ErrorBoundary>
+        <CourseDetailInner />
+    </ErrorBoundary>
+);
 
 export default CourseDetail;

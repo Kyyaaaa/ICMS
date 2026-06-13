@@ -2,24 +2,45 @@ import { useState, useEffect } from 'react';
 import {  BookOpen, Headset, Compass, ArrowRight, Filter, Star, Clock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TopNav } from '@/shared/components/layout/TopNav';
+import Cookies from 'js-cookie';
+import type { Course } from '@/shared/types/course';
+import { CoursesService } from '@/shared/services/courses.service';
 
 const Courses = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userInfo, setUserInfo] = useState<Record<string, unknown> | undefined>(undefined);
+    const [userRole, setUserRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>('learner');
+    const [courses, setCourses] = useState<Course[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, []);
+        
+        const token = Cookies.get('access_token');
+        const userStr = Cookies.get('user_info');
+        if (token && userStr) {
+            setIsLoggedIn(true);
+            try {
+                const user = JSON.parse(userStr);
+                setUserInfo(user);
+                setUserRole(user.role ? user.role.toLowerCase() : 'learner');
+            } catch (e) {
+                // Ignore parse error
+            }
+        }
 
-    // Mock data for courses
-    const allCourses = [
-        { id: '1', title: 'IELTS Intensive Mastery', band: '7.5+', duration: '12 Weeks', format: 'Offline', category: 'Masterclass', price: '899,000 đ', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '2', title: 'Academic Fundamentals', band: '5.5-6.5', duration: '8 Weeks', format: 'Offline', category: 'Fundamentals', price: '599,000 đ', image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '3', title: 'Speaking Boot Camp', band: '7.0+', duration: '4 Weeks', format: 'Offline', category: 'Specialized', price: '299,000 đ', image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '4', title: 'Writing Task 2 Accelerator', band: '7.0+', duration: '4 Weeks', format: 'Offline', category: 'Specialized', price: '299,000 đ', image: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '5', title: 'General Training Crash Course', band: '6.0-7.0', duration: '6 Weeks', format: 'Offline', category: 'General', price: '499,000 đ', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=600&h=400' },
-        { id: '6', title: '1-on-1 Elite Coaching', band: '8.0+', duration: 'Flexible', format: 'Offline', category: 'Private', price: '120,000 đ/hr', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=600&h=400' },
-    ];
+        const fetchCourses = async () => {
+            try {
+                const data = await CoursesService.getCourses();
+                setCourses(data);
+            } catch (e) {
+                console.error("Failed to fetch courses:", e);
+            } finally {
+                // setLoading(false);
+            }
+        };
+        fetchCourses();
+    }, []);
 
     // Filter states
     const [selectedBands, setSelectedBands] = useState<string[]>([]);
@@ -32,17 +53,38 @@ const Courses = () => {
         }
     };
 
-    // Very basic filtering logic
-    const filteredCourses = allCourses.filter(course => {
-        const bandMatch = selectedBands.length === 0 || selectedBands.includes(course.band) || (selectedBands.includes('7.0+') && (course.band === '7.5+' || course.band === '8.0+'));
-        return bandMatch;
+    // Advanced filtering logic for dynamic bands
+    const filteredCourses = courses.filter(course => {
+        if (selectedBands.length === 0) return true;
+        
+        let cMin = 0;
+        let cMax = 0;
+        if (course.band) {
+            const parts = String(course.band).split('-');
+            if (parts.length === 2) {
+                cMin = parseFloat(parts[0].trim());
+                cMax = parseFloat(parts[1].trim());
+            } else {
+                cMin = parseFloat(parts[0].trim());
+                cMax = cMin;
+            }
+        }
+        
+        return selectedBands.some(band => {
+            if (band === '5.5-6.5') return cMax >= 5.5 && cMin <= 6.5;
+            if (band === '6.0-7.0') return cMax >= 6.0 && cMin <= 7.0;
+            if (band === '7.0+') return cMax >= 7.0;
+            if (band === '7.5+') return cMax >= 7.5;
+            if (band === '8.0+') return cMax >= 8.0;
+            return false;
+        });
     });
 
     const bands = ['5.5-6.5', '6.0-7.0', '7.0+', '7.5+', '8.0+'];
 
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-base leading-6 font-sans min-h-screen flex flex-col">
-            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userInfo={userInfo} userRole={userRole} />
 
             {/* Main Content */}
             <main className="grow w-full max-w-360 mx-auto px-4 lg:px-8 py-10">
@@ -93,17 +135,21 @@ const Courses = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {filteredCourses.map(course => (
-                                <div key={course.id} className="bg-white rounded-2xl overflow-hidden border border-[#e0e3e5] shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col cursor-pointer" onClick={() => navigate(`/courses/${course.id}`)}>
-                                    <div className="h-50 overflow-hidden relative">
-                                        <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <div key={course.id} className="bg-white rounded-2xl overflow-hidden border border-[#e0e3e5] shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full hover:-translate-y-1 cursor-pointer" onClick={() => navigate(`/courses/${course.id}`)}>
+                                    <div className="relative h-50 overflow-hidden bg-[#e6f0fa]">
+                                        {(course as any).image_url || (course as any).image ? (
+                                            <img src={(course as any).image_url || (course as any).image} alt={course.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                        ) : (
+                                            <div className="absolute inset-0 bg-linear-to-br from-[#002045] to-[#0061a5] transition-transform duration-500 group-hover:scale-105"></div>
+                                        )}
                                         <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
+                                        <div className="absolute top-4 left-4 flex gap-2">
+                                            <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#002045] shadow-sm">{(course as any).image ? 'Offline' : 'Online'}</span>
+                                            <span className="bg-[#0061a5]/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm">IELTS {(course as any).image ? '6.5+' : '7.0+'}</span>
+                                        </div>
                                     </div>
                                     <div className="p-6 flex flex-col grow relative">
                                         <div className="flex justify-between items-start mb-3">
-                                            <div className="flex gap-2">
-                                                <span className="px-2 py-1 bg-white border border-[#c4c6cf] text-[#43474e] text-xs font-bold rounded uppercase tracking-wider">{course.category}</span>
-                                                <span className="px-2 py-1 bg-[#0061a5] text-white text-xs font-bold rounded uppercase tracking-wider">{course.format}</span>
-                                            </div>
                                             <span className="flex items-center gap-1 text-xs font-bold text-[#ffd200] bg-[#181c1e] px-2 py-1 rounded">
                                                 <Star className="w-3 h-3 fill-[#ffd200]" /> {course.band}
                                             </span>

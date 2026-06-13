@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { Course } from '../types/course';
-import { CoursesService } from '../services/courses.service';
+import type { Course } from '../../../shared/types/course';
+import { CoursesService } from '../../../shared/services/courses.service';
 import { CoursesFilters } from '../components/CoursesFilters';
 import { CoursesTable } from '../components/CoursesTable';
 import { showConfirmModal } from '@/utils/modal';
@@ -27,7 +27,9 @@ const AdminCourses = () => {
         if (isConfirmed) {
             const success = await CoursesService.deleteCourse(id);
             if (success) {
-                setCourses(courses.filter(c => c.id !== id));
+                setCourses(prev => prev.filter(c => c.id !== id));
+            } else {
+                alert("Failed to delete course from server.");
             }
         }
     };
@@ -36,10 +38,11 @@ const AdminCourses = () => {
         navigate(`/admin/courses/new`);
     };
 
-    const filteredCourses = courses.filter(c => 
-        c.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        c.code.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredCourses = courses.filter(c => {
+        const titleMatch = c.title ? c.title.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+        const codeMatch = c.code ? c.code.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+        return titleMatch || codeMatch;
+    });
 
     return (
         <div className="space-y-6 animate-fade-in-up pb-8">

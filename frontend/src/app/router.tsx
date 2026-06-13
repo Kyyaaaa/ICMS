@@ -53,6 +53,7 @@ import { StaffSupportTickets } from "@/features/staff/routes/support-tickets.tsx
 import { AdminLayout } from "@/shared/components/layout/AdminLayout.tsx";
 import AdminDashboard from "@/features/admin/routes/dashboard.tsx";
 import AdminCourses from "@/features/admin/routes/courses.tsx";
+import CreateCourse from "@/features/admin/routes/create-course.tsx";
 import AdminCourseDetail from "@/features/admin/routes/course-detail.tsx";
 import AdminDiscountCodes from "@/features/admin/routes/discount-codes.tsx";
 import AdminClassrooms from "@/features/admin/routes/classrooms.tsx";
@@ -187,6 +188,7 @@ export const AppRouter = () => {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/profile" element={<AdminProfile />} />
           <Route path="/admin/courses" element={<AdminCourses />} />
+          <Route path="/admin/courses/new" element={<CreateCourse />} />
           <Route path="/admin/courses/:id" element={<AdminCourseDetail />} />
           <Route path="/admin/finance" element={<AdminFinance />} />
           <Route

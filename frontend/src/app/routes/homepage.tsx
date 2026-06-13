@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowRight, Clock, Headset, Trophy, Star, BookOpen, Compass, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TopNav } from '@/shared/components/layout/TopNav';
 import Cookies from 'js-cookie';
 import { ConsultationsService } from '@/features/staff/services/consultations.service';
 import { showAlertModal } from '@/utils/modal';
+import axios from 'axios';
 interface UserInfo {
     role?: 'learner' | 'tutor' | 'staff' | 'admin';
     name?: string;
@@ -45,6 +46,19 @@ const marqueeStyles = `
 const Homepage = () => {
     // Auth state initialized synchronously from cookies (no useEffect needed)
     const [{ loggedIn: isLoggedIn, role: userRole, info: userInfo }] = useState(parseUserFromCookies);
+    const [courses, setCourses] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/courses');
+                setCourses((response.data.data || []).slice(0, 4));
+            } catch (error) {
+                console.error("Failed to fetch courses:", error);
+            }
+        };
+        fetchCourses();
+    }, []);
 
     const [formData, setFormData] = useState({ guest_name: '', guest_phone: '', guest_email: '', course: '', message: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,93 +156,28 @@ const Homepage = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {/* Course Card 1 */}
-                            <div className="bg-[#f7fafc] rounded-2xl shadow-sm border border-[#e0e3e5] hover:shadow-xl transition-all duration-300 flex flex-col relative overflow-hidden group cursor-pointer">
-                                <div className="h-48 overflow-hidden relative">
-                                    <img src="/images/course1.png" alt="Masterclass" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                    <div className="absolute top-4 right-4">
-                                        <span className="px-3 py-1 bg-[#d2e4ff] text-[#001d37] rounded-full text-xs font-bold shadow-sm">Popular</span>
+                            {courses.map(course => (
+                                <div key={course.id} className="bg-[#f7fafc] rounded-2xl shadow-sm border border-[#e0e3e5] hover:shadow-xl transition-all duration-300 flex flex-col relative overflow-hidden group cursor-pointer">
+                                    <div className="h-48 overflow-hidden relative">
+                                        <img src={course.image_url || '/images/course1.png'} alt={course.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                        <div className="absolute top-4 right-4">
+                                            <span className="px-3 py-1 bg-[#d2e4ff] text-[#001d37] rounded-full text-[12px] font-bold shadow-sm">{course.category || 'Popular'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 flex flex-col grow">
+                                        <h3 className="text-[20px] font-bold text-[#002045] mb-3">{course.title}</h3>
+                                        <p className="text-[14px] text-[#43474e] mb-6 grow line-clamp-2">{course.description}</p>
+                                        <div className="bg-white rounded-xl p-4 mb-6 border border-[#e0e3e5] flex flex-col gap-2 shadow-sm text-[14px]">
+                                            <div className="flex justify-between"><span className="text-[#43474e]">Duration</span><span className="font-bold text-[#002045]">{course.duration}</span></div>
+                                            <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">{course.band}</span></div>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[20px] font-bold text-[#002045]">{course.price ? `${course.price} đ` : 'Free'}</span>
+                                            <Link to={`/courses/${course.id}`} className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="p-6 flex flex-col grow">
-                                    <h3 className="text-xl font-bold text-[#002045] mb-3">Masterclass 7.5+</h3>
-                                    <p className="text-sm text-[#43474e] mb-6 grow">Advanced strategies for reading, rigorous writing structures, and idiomatic speaking.</p>
-                                    <div className="bg-white rounded-xl p-4 mb-6 border border-[#e0e3e5] flex flex-col gap-2 shadow-sm text-sm">
-                                        <div className="flex justify-between"><span className="text-[#43474e]">Duration</span><span className="font-bold text-[#002045]">12 Weeks</span></div>
-                                        <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">7.5+</span></div>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xl font-bold text-[#002045]">899,000 đ</span>
-                                        <Link to="/courses/1" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {/* Course Card 2 */}
-                            <div className="bg-[#f7fafc] rounded-2xl shadow-sm border border-[#e0e3e5] hover:shadow-xl transition-all duration-300 flex flex-col relative overflow-hidden group cursor-pointer">
-                                <div className="h-48 overflow-hidden relative">
-                                    <img src="/images/course2.png" alt="Academic" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                    <div className="absolute top-4 right-4">
-                                        <span className="px-3 py-1 bg-[#eef1f3] text-[#43474e] rounded-full text-xs font-bold shadow-sm">Standard</span>
-                                    </div>
-                                </div>
-                                <div className="p-6 flex flex-col grow">
-                                    <h3 className="text-xl font-bold text-[#002045] mb-3">Academic 6.5+</h3>
-                                    <p className="text-sm text-[#43474e] mb-6 grow">Perfect for beginners aiming for a solid 6.5 band score. Master grammar and core vocab.</p>
-                                    <div className="bg-white rounded-xl p-4 mb-6 border border-[#e0e3e5] flex flex-col gap-2 shadow-sm text-sm">
-                                        <div className="flex justify-between"><span className="text-[#43474e]">Duration</span><span className="font-bold text-[#002045]">16 Weeks</span></div>
-                                        <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">6.5+</span></div>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xl font-bold text-[#002045]">499,000 đ</span>
-                                        <Link to="/courses/2" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {/* Course Card 3 */}
-                            <div className="bg-[#f7fafc] rounded-2xl shadow-sm border border-[#e0e3e5] hover:shadow-xl transition-all duration-300 flex flex-col relative overflow-hidden group cursor-pointer">
-                                <div className="h-48 overflow-hidden relative">
-                                    <img src="/images/course3.png" alt="Intensive" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                    <div className="absolute top-4 right-4">
-                                        <span className="px-3 py-1 bg-[#ffdad6] text-[#93000a] rounded-full text-xs font-bold shadow-sm">Intensive</span>
-                                    </div>
-                                </div>
-                                <div className="p-6 flex flex-col grow">
-                                    <h3 className="text-xl font-bold text-[#002045] mb-3">1-Month Crash Course</h3>
-                                    <p className="text-sm text-[#43474e] mb-6 grow">Short on time? Intensive 4-week test-taking strategies and daily practice for immediate results.</p>
-                                    <div className="bg-white rounded-xl p-4 mb-6 border border-[#e0e3e5] flex flex-col gap-2 shadow-sm text-sm">
-                                        <div className="flex justify-between"><span className="text-[#43474e]">Duration</span><span className="font-bold text-[#002045]">4 Weeks</span></div>
-                                        <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">6.0+</span></div>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xl font-bold text-[#002045]">350,000 đ</span>
-                                        <Link to="/courses/3" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Course Card 4 */}
-                            <div className="bg-[#f7fafc] rounded-2xl shadow-sm border border-[#e0e3e5] hover:shadow-xl transition-all duration-300 flex flex-col relative overflow-hidden group cursor-pointer">
-                                <div className="h-48 overflow-hidden relative">
-                                    <img src="/images/course4.png" alt="Foundation" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                    <div className="absolute top-4 right-4">
-                                        <span className="px-3 py-1 bg-[#eef1f3] text-[#43474e] rounded-full text-xs font-bold shadow-sm">Beginner</span>
-                                    </div>
-                                </div>
-                                <div className="p-6 flex flex-col grow">
-                                    <h3 className="text-xl font-bold text-[#002045] mb-3">Foundation English</h3>
-                                    <p className="text-sm text-[#43474e] mb-6 grow">Build a strong English foundation before starting formal IELTS preparation.</p>
-                                    <div className="bg-white rounded-xl p-4 mb-6 border border-[#e0e3e5] flex flex-col gap-2 shadow-sm text-sm">
-                                        <div className="flex justify-between"><span className="text-[#43474e]">Duration</span><span className="font-bold text-[#002045]">8 Weeks</span></div>
-                                        <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">4.5 - 5.0</span></div>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xl font-bold text-[#002045]">299,000 đ</span>
-                                        <Link to="/courses/4" className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
-                                    </div>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </section>
