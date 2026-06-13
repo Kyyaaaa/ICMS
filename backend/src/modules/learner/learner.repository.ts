@@ -70,12 +70,4 @@ export class LearnerRepository {
       if (accError) throw accError;
     }
   }
-
-  static async delete(id: string) {
-    await supabaseAdmin.from('account').delete().eq('id', id);
-
-    const { data, error } = await supabaseAdmin.auth.admin.deleteUser(id);
-    if (error) throw error;
-    return data;
-  }
 }

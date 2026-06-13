@@ -114,27 +114,6 @@ router.use(verifyToken);
  *         description: Missing or invalid token
  *       403:
  *         description: Unauthorized access
- * 
- *   delete:
- *     summary: Permanently delete a learner from the system (Admin only)
- *     tags: [Learners]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Successfully deleted
- *       400:
- *         description: Bad Request
- *       401:
- *         description: Missing or invalid token
- *       403:
- *         description: Unauthorized access (Admin only)
  */
 
 // Định tuyến
@@ -142,6 +121,5 @@ router.get('/', requireRole(['STAFF', 'ADMIN']), LearnerController.getAll);
 router.get('/:id', requireRole(['LEARNER', 'STAFF', 'ADMIN']), LearnerController.getById);
 router.post('/', requireRole(['STAFF', 'ADMIN']), validateCreateLearnerInput, LearnerController.create);
 router.put('/:id', requireRole(['LEARNER', 'STAFF', 'ADMIN']), validateUpdateLearnerInput, LearnerController.update);
-router.delete('/:id', requireRole(['ADMIN']), LearnerController.delete);
 
 export default router;

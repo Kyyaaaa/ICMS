@@ -105,24 +105,4 @@ export class LearnerController {
       });
     }
   }
-
-  /**
-   * DELETE /api/learners/:id
-   */
-  static async delete(req: Request, res: Response) {
-    try {
-      await LearnerService.delete(req.params.id as string);
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Learner deleted successfully' 
-      });
-    } catch (error) {
-      const err = error as Error;
-      console.error('Error deleting learner:', err);
-      return res.status(400).json({ 
-        success: false, 
-        message: err.message || 'Error deleting learner' 
-      });
-    }
-  }
 }
