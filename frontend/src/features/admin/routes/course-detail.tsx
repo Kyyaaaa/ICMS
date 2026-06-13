@@ -100,6 +100,11 @@ const AdminCourseDetail = () => {
 
     const handleSave = async () => {
         if (id && id !== 'new') {
+            if (courseData.minBand && courseData.maxBand && parseFloat(courseData.minBand) > parseFloat(courseData.maxBand)) {
+                alert('Maximum band must be greater than or equal to minimum band.');
+                return;
+            }
+
             if (courseData.modules.length === 0) {
                 alert('At least 1 Course Module is required.');
                 return;
@@ -368,10 +373,13 @@ const AdminCourseDetail = () => {
                                         <h4 className="text-xs text-[#74777f] font-bold uppercase mb-1">Target</h4>
                                         <div className="flex items-center gap-1">
                                             <span className="text-sm font-bold text-[#74777f]">IELTS</span>
-                                            <input type="number" step="0.5" min="0" max="9.0" name="minBand" value={courseData.minBand} onChange={handleChange} readOnly={isCohortLocked} className={`w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
-                                            <span className="font-bold text-[#74777f]">-</span>
-                                            <input type="number" step="0.5" min="0" max="9.0" name="maxBand" value={courseData.maxBand} onChange={handleChange} readOnly={isCohortLocked} className={`w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
+                                            <input type="number" step="0.5" min="0" max={courseData.maxBand || "9.0"} name="minBand" value={courseData.minBand} onChange={handleChange} readOnly={isCohortLocked} className={`w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
+                                            <span className="mx-2 text-[#74777f] font-bold">-</span>
+                                            <input type="number" step="0.5" min={courseData.minBand || "0"} max="9.0" name="maxBand" value={courseData.maxBand} onChange={handleChange} readOnly={isCohortLocked} className={`w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
                                         </div>
+                                        {courseData.minBand && courseData.maxBand && parseFloat(courseData.minBand) > parseFloat(courseData.maxBand) && (
+                                            <p className="text-[11px] text-[#ba1a1a] mt-1 font-medium">Maximum band must be greater than or equal to minimum band.</p>
+                                        )}
                                     </div>
                                 </div>
                             </div>

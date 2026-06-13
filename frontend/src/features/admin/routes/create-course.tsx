@@ -91,6 +91,11 @@ const CreateCourse = () => {
                 setLoading(false);
                 return;
             }
+            if (formData.minBand && formData.maxBand && parseFloat(formData.minBand) > parseFloat(formData.maxBand)) {
+                alert('Maximum band must be greater than or equal to minimum band.');
+                setLoading(false);
+                return;
+            }
 
             for (let i = 0; i < modules.length; i++) {
                 const m = modules[i];
@@ -192,10 +197,13 @@ const CreateCourse = () => {
                                 </label>
                                 <div className="flex items-center gap-3">
                                     <span className="text-[14px] font-bold text-[#74777f] bg-[#f1f4f6] px-3 py-3 rounded-lg border border-[#e0e3e5]">IELTS</span>
-                                    <input type="number" step="0.5" min="0" max="9.0" required name="minBand" value={formData.minBand} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f8f9fa] font-bold text-center border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] focus:bg-white outline-none transition-all" />
+                                    <input type="number" step="0.5" min="0" max={formData.maxBand || "9.0"} required name="minBand" value={formData.minBand} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f8f9fa] font-bold text-center border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] focus:bg-white outline-none transition-all" />
                                     <span className="font-bold text-[#74777f]">-</span>
-                                    <input type="number" step="0.5" min="0" max="9.0" required name="maxBand" value={formData.maxBand} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f8f9fa] font-bold text-center border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] focus:bg-white outline-none transition-all" />
+                                    <input type="number" step="0.5" min={formData.minBand || "0"} max="9.0" required name="maxBand" value={formData.maxBand} onChange={handleInputChange} className={`w-full px-4 py-3 bg-[#f8f9fa] font-bold text-center border ${formData.minBand && formData.maxBand && parseFloat(formData.minBand) > parseFloat(formData.maxBand) ? 'border-[#ba1a1a] focus:border-[#ba1a1a] focus:ring-[#ba1a1a]' : 'border-[#c4c6cf] focus:border-[#0061a5]'} rounded-xl focus:bg-white outline-none transition-all`} />
                                 </div>
+                                {formData.minBand && formData.maxBand && parseFloat(formData.minBand) > parseFloat(formData.maxBand) && (
+                                    <p className="text-[13px] text-[#ba1a1a] mt-1 font-medium">Maximum band must be greater than or equal to minimum band.</p>
+                                )}
                             </div>
                         </div>
 

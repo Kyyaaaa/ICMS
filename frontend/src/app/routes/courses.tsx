@@ -43,44 +43,40 @@ const Courses = () => {
     }, []);
 
     // Filter states
-    const [selectedBands, setSelectedBands] = useState<string[]>([]);
+    const [userMinBand, setUserMinBand] = useState<string>('');
+    const [userMaxBand, setUserMaxBand] = useState<string>('');
+    const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
 
-    const toggleFilter = (state: string[], setState: React.Dispatch<React.SetStateAction<string[]>>, value: string) => {
-        if (state.includes(value)) {
-            setState(state.filter(item => item !== value));
-        } else {
-            setState([...state, value]);
-        }
-    };
-
-    // Advanced filtering logic for dynamic bands
+    // Advanced filtering logic
     const filteredCourses = courses.filter(course => {
-        if (selectedBands.length === 0) return true;
-        
-        let cMin = 0;
-        let cMax = 0;
-        if (course.band) {
-            const parts = String(course.band).split('-');
-            if (parts.length === 2) {
-                cMin = parseFloat(parts[0].trim());
-                cMax = parseFloat(parts[1].trim());
-            } else {
-                cMin = parseFloat(parts[0].trim());
-                cMax = cMin;
+        let matchCategory = true;
+        if (selectedCategory && selectedCategory !== 'All Categories') {
+            matchCategory = course.category === selectedCategory;
+        }
+
+        let matchBand = true;
+        if (userMinBand || userMaxBand) {
+            let cMin = 0;
+            let cMax = 0;
+            if (course.band) {
+                const parts = String(course.band).split('-');
+                if (parts.length === 2) {
+                    cMin = parseFloat(parts[0].trim());
+                    cMax = parseFloat(parts[1].trim());
+                } else {
+                    cMin = parseFloat(parts[0].trim());
+                    cMax = cMin;
+                }
             }
+            
+            const filterMin = userMinBand ? parseFloat(userMinBand) : 0;
+            const filterMax = userMaxBand ? parseFloat(userMaxBand) : 9.0;
+            
+            matchBand = cMin >= filterMin && cMax <= filterMax;
         }
         
-        return selectedBands.some(band => {
-            if (band === '5.5-6.5') return cMax >= 5.5 && cMin <= 6.5;
-            if (band === '6.0-7.0') return cMax >= 6.0 && cMin <= 7.0;
-            if (band === '7.0+') return cMax >= 7.0;
-            if (band === '7.5+') return cMax >= 7.5;
-            if (band === '8.0+') return cMax >= 8.0;
-            return false;
-        });
+        return matchCategory && matchBand;
     });
-
-    const bands = ['5.5-6.5', '6.0-7.0', '7.0+', '7.5+', '8.0+'];
 
     return (
         <div className="bg-[#f7fafc] text-[#181c1e] text-base leading-6 font-sans min-h-screen flex flex-col">
@@ -103,26 +99,44 @@ const Courses = () => {
                                 <h2 className="text-lg font-bold text-[#002045]">Filters</h2>
                             </div>
 
-                            {/* Format Filter - Removed since all courses are offline */}
+                            {/* Category Filter */}
+                            <div className="mb-6 pb-6 border-b border-[#e0e3e5]">
+                                <h3 className="text-base font-bold text-[#002045] mb-3">Category</h3>
+                                <select 
+                                    value={selectedCategory} 
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    className="w-full px-4 py-3 bg-[#f8f9fa] font-medium border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] focus:bg-white outline-none transition-all"
+                                >
+                                    <option value="All Categories">All Categories</option>
+                                    <option value="Masterclass">Masterclass</option>
+                                    <option value="Fundamentals">Fundamentals</option>
+                                    <option value="Specialized">Specialized</option>
+                                    <option value="General">General</option>
+                                    <option value="Private">Private</option>
+                                </select>
+                            </div>
 
                             {/* Target Band Filter */}
                             <div>
                                 <h3 className="text-base font-bold text-[#002045] mb-3">Target Band</h3>
-                                <div className="flex flex-col gap-3">
-                                    {bands.map(band => (
-                                        <label key={band} className="flex items-center gap-3 cursor-pointer group">
-                                            <div className="relative flex items-center justify-center">
-                                                <input 
-                                                    type="checkbox" 
-                                                    className="w-5 h-5 border-2 border-[#c4c6cf] rounded-md appearance-none checked:bg-[#0061a5] checked:border-[#0061a5] transition-colors"
-                                                    checked={selectedBands.includes(band)}
-                                                    onChange={() => toggleFilter(selectedBands, setSelectedBands, band)}
-                                                />
-                                                {selectedBands.includes(band) && <div className="absolute inset-0 flex items-center justify-center text-white pointer-events-none"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.00003 7.8L1.20003 5L0.266693 5.93333L4.00003 9.66667L12 1.66667L11.0667 0.733334L4.00003 7.8Z" fill="currentColor"/></svg></div>}
-                                            </div>
-                                            <span className="text-sm text-[#43474e] group-hover:text-[#002045] transition-colors">IELTS {band}</span>
-                                        </label>
-                                    ))}
+                                <div className="flex items-center gap-2">
+                                    <input 
+                                        type="number" 
+                                        step="0.5" min="0" max={userMaxBand || "9.0"} 
+                                        placeholder="Min"
+                                        value={userMinBand} 
+                                        onChange={(e) => setUserMinBand(e.target.value)} 
+                                        className="w-full px-3 py-2 bg-[#f8f9fa] font-bold text-center border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] focus:bg-white outline-none transition-all" 
+                                    />
+                                    <span className="font-bold text-[#74777f]">-</span>
+                                    <input 
+                                        type="number" 
+                                        step="0.5" min={userMinBand || "0"} max="9.0" 
+                                        placeholder="Max"
+                                        value={userMaxBand} 
+                                        onChange={(e) => setUserMaxBand(e.target.value)} 
+                                        className={`w-full px-3 py-2 bg-[#f8f9fa] font-bold text-center border ${userMinBand && userMaxBand && parseFloat(userMinBand) > parseFloat(userMaxBand) ? 'border-[#ba1a1a]' : 'border-[#c4c6cf] focus:border-[#0061a5]'} rounded-xl focus:bg-white outline-none transition-all`} 
+                                    />
                                 </div>
                             </div>
                         </div>
