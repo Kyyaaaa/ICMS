@@ -444,7 +444,7 @@ const AdminCourseDetail = () => {
                                         <label className="block text-xs font-bold text-[#43474e] mb-1">Original Price</label>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xl font-bold text-[#74777f]">đ</span>
-                                            <input type="text" name="originalPrice" value={courseData.originalPrice} onChange={handleChange} readOnly={isCohortLocked} className={`w-full text-base font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
+                                            <input type="number" name="originalPrice" value={courseData.originalPrice} onChange={handleChange} readOnly={isCohortLocked} className={`w-full text-base font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? 'bg-[#e0e3e5] cursor-not-allowed' : ''}`} />
                                         </div>
                                     </div>
                                 </div>
