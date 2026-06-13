@@ -9,8 +9,8 @@ interface EditScheduleModalProps {
 
 export const EditScheduleModal = ({ session, onClose, onSave }: EditScheduleModalProps) => {
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-scale-in">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-300 max-h-[90vh] flex flex-col overflow-hidden animate-scale-in">
                 <div className={`p-6 ${session.color} border-b flex justify-between items-center`}>
                     <h2 className="text-[20px] font-bold text-[#002045]">Class Schedule: {session.class}</h2>
                     <button onClick={onClose} className="text-[#002045] hover:bg-black/10 p-1.5 rounded-full transition-colors">

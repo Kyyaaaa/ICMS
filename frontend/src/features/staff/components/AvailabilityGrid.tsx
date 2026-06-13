@@ -11,8 +11,9 @@ interface AvailabilityGridProps {
 
 export const AvailabilityGrid = ({ selectedTutor, draftSlots, toggleSlot, toggleDay, toggleShift }: AvailabilityGridProps) => {
     return (
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#e0e3e5] overflow-hidden overflow-x-auto">
-            <div className="min-w-[900px]">
+        <div className="bg-white rounded-2xl border border-[#e0e3e5] shadow-sm overflow-hidden flex flex-col">
+            <div className="overflow-x-auto custom-scrollbar">
+                <div className="min-w-225">
                 {/* Header Row */}
                 <div className="grid grid-cols-8 border-b border-[#e0e3e5] bg-[#f7fafc]">
                     <div className="p-4 border-r border-[#e0e3e5] flex items-center justify-center">
@@ -87,6 +88,7 @@ export const AvailabilityGrid = ({ selectedTutor, draftSlots, toggleSlot, toggle
                             })}
                         </div>
                     ))}
+                </div>
                 </div>
             </div>
         </div>

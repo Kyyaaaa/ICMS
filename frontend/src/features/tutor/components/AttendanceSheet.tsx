@@ -75,7 +75,7 @@ export const AttendanceSheet = ({
 
             {/* Sheet Toolbar */}
             <div className="p-4 border-b border-[#e0e3e5] bg-[#f8f9fa] flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="relative w-full md:w-[300px]">
+                <div className="relative w-full md:w-75">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                     <input 
                         type="text" 
@@ -101,7 +101,7 @@ export const AttendanceSheet = ({
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-white sticky top-0 z-10 shadow-sm">
                             <tr>
-                                <th className="p-4 text-[12px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5] w-[120px]">ID</th>
+                                <th className="p-4 text-[12px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5] w-30">ID</th>
                                 <th className="p-4 text-[12px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Student</th>
                                 <th className="p-4 text-[12px] font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5] text-right">Attendance Status</th>
                             </tr>

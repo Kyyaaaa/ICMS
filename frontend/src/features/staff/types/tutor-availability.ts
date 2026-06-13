@@ -6,6 +6,7 @@ export interface Shift {
 
 export interface TutorAvailabilityProfile {
     id: string;
+    account_code: string;
     name: string;
     status: 'submitted' | 'draft' | string;
     slots: string[];

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lock, Unlock, Users } from 'lucide-react';
+import { Lock, Unlock, Users, Loader2 } from 'lucide-react';
 import { SHIFTS, DAYS, type TutorAvailabilityProfile } from '../types/tutor-availability';
 import { TutorAvailabilityService } from '../services/tutor-availability.service';
 import { TutorSelector } from '../components/TutorSelector';
@@ -10,15 +10,13 @@ const StaffTutorAvailability = () => {
     const [selectedTutorId, setSelectedTutorId] = useState<string>('');
     const [draftSlots, setDraftSlots] = useState<Set<string>>(new Set());
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isLocking, setIsLocking] = useState(false);
 
     useEffect(() => {
         const loadTutors = async () => {
             const data = await TutorAvailabilityService.getTutors();
             setTutors(data);
-            if (data.length > 0) {
-                setSelectedTutorId(data[0].id);
-                setDraftSlots(new Set(data[0].slots));
-            }
         };
         loadTutors();
     }, []);
@@ -74,22 +72,28 @@ const StaffTutorAvailability = () => {
 
     const handleToggleLock = async () => {
         if (!selectedTutor) return;
-        const newStatus = selectedTutor.status === 'submitted' ? 'draft' : 'submitted';
-        
-        const updatedTutor = { ...selectedTutor, status: newStatus };
-        await TutorAvailabilityService.updateTutor(updatedTutor);
-
-        setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
+        setIsLocking(true);
+        try {
+            const newStatus = selectedTutor.status === 'submitted' ? 'draft' : 'submitted';
+            const updatedTutor = { ...selectedTutor, status: newStatus };
+            await TutorAvailabilityService.updateTutor(updatedTutor);
+            setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
+        } finally {
+            setIsLocking(false);
+        }
     };
 
     const handleSaveChanges = async () => {
         if (!selectedTutor) return;
-        
-        const updatedTutor = { ...selectedTutor, slots: Array.from(draftSlots) };
-        await TutorAvailabilityService.updateTutor(updatedTutor);
-
-        setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
-        setHasUnsavedChanges(false);
+        setIsSaving(true);
+        try {
+            const updatedTutor = { ...selectedTutor, slots: Array.from(draftSlots) };
+            await TutorAvailabilityService.updateTutor(updatedTutor);
+            setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
+            setHasUnsavedChanges(false);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleDiscardChanges = () => {
@@ -110,7 +114,7 @@ const StaffTutorAvailability = () => {
     return (
         <div className="p-6 lg:p-8 max-w-400 mx-auto animate-fade-in-up space-y-6">
             
-            {/* Top Bar: Tutor List */}
+            {/* Unified Top Bar */}
             <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
                 <TutorSelector 
                     tutors={tutors} 
@@ -119,22 +123,62 @@ const StaffTutorAvailability = () => {
                     onSelectTutor={handleSelectTutor} 
                 />
 
-                <div className="hidden md:block w-px h-12 bg-[#e0e3e5]"></div>
+                <div className="flex-1 flex flex-col md:flex-row items-start md:items-center justify-end gap-6 w-full">
+                    {selectedTutor && (
+                        <div className="flex items-center gap-3 w-full md:w-auto">
+                            {hasUnsavedChanges ? (
+                                <>
+                                    <button 
+                                        onClick={handleDiscardChanges}
+                                        className="px-4 py-2 rounded-lg font-bold text-[13px] text-[#43474e] bg-white border border-[#c4c6cf] hover:bg-[#f8f9fa] transition-colors"
+                                    >
+                                        Discard
+                                    </button>
+                                    <button 
+                                        onClick={handleSaveChanges}
+                                        disabled={isSaving}
+                                        className="px-4 py-2 rounded-lg font-bold text-[13px] text-white bg-[#0061a5] hover:bg-[#004d84] shadow-sm transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                    >
+                                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                        {isSaving ? 'Saving...' : 'Save Changes'}
+                                    </button>
+                                </>
+                            ) : (
+                                <button 
+                                    onClick={handleToggleLock}
+                                    disabled={isLocking}
+                                    className={`px-4 py-2 rounded-lg font-bold text-[13px] flex items-center gap-2 transition-colors border disabled:opacity-70 disabled:cursor-not-allowed ${selectedTutor.status === 'submitted' ? 'bg-white text-[#0061a5] border-[#0061a5] hover:bg-[#e3f2fd]' : 'bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200'}`}
+                                >
+                                    {isLocking ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : selectedTutor.status === 'submitted' ? (
+                                        <Unlock className="w-4 h-4" />
+                                    ) : (
+                                        <Lock className="w-4 h-4" />
+                                    )}
+                                    {isLocking ? (selectedTutor.status === 'submitted' ? 'Unlocking...' : 'Locking...') : (selectedTutor.status === 'submitted' ? 'Unlock for Tutor' : 'Lock Schedule')}
+                                </button>
+                            )}
+                        </div>
+                    )}
 
-                {/* Progress Stats */}
-                <div className="flex-1 w-full max-w-75">
-                    <div className="flex items-center justify-between text-[13px] mb-2">
-                        <span className="text-[#43474e] font-medium flex items-center gap-2">
-                            <Users className="w-4 h-4 text-[#74777f]" />
-                            Submission Progress
-                        </span>
-                        <span className="font-bold text-[#0061a5]">{tutors.filter(t => t.status === 'submitted').length} / {tutors.length}</span>
-                    </div>
-                    <div className="h-2 w-full bg-[#e0e3e5] rounded-full overflow-hidden">
-                        <div 
-                            className="h-full bg-[#0061a5] transition-all duration-500" 
-                            style={{ width: `${tutors.length > 0 ? (tutors.filter(t => t.status === 'submitted').length / tutors.length) * 100 : 0}%` }}
-                        />
+                    <div className="hidden md:block w-px h-12 bg-[#e0e3e5]"></div>
+
+                    {/* Progress Stats */}
+                    <div className="w-full md:w-48 shrink-0">
+                        <div className="flex items-center justify-between text-[13px] mb-2">
+                            <span className="text-[#43474e] font-medium flex items-center gap-2">
+                                <Users className="w-4 h-4 text-[#74777f]" />
+                                Progress
+                            </span>
+                            <span className="font-bold text-[#0061a5]">{tutors.filter(t => t.status === 'submitted').length} / {tutors.length}</span>
+                        </div>
+                        <div className="h-2 w-full bg-[#e0e3e5] rounded-full overflow-hidden">
+                            <div 
+                                className="h-full bg-[#0061a5] transition-all duration-500" 
+                                style={{ width: `${tutors.length > 0 ? (tutors.filter(t => t.status === 'submitted').length / tutors.length) * 100 : 0}%` }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -143,53 +187,6 @@ const StaffTutorAvailability = () => {
             <div className="flex-1 space-y-6 min-w-0">
                 {selectedTutor ? (
                     <>
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 rounded-2xl border border-[#e0e3e5] shadow-sm">
-                            <div>
-                                <h1 className="text-[24px] font-bold text-[#002045] flex items-center gap-3">
-                                    {selectedTutor.name}
-                                    <span className={`text-[12px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${selectedTutor.status === 'submitted' ? 'bg-amber-100 text-amber-800' : 'bg-[#e0e3e5] text-[#43474e]'}`}>
-                                        {selectedTutor.status === 'submitted' ? 'LOCKED' : 'DRAFT'}
-                                    </span>
-                                </h1>
-                                <p className="text-[#43474e] text-[13px] mt-1">Reviewing and editing availability profile for {selectedTutor.id}.</p>
-                            </div>
-                            
-                            <div className="flex items-center gap-3">
-                                {hasUnsavedChanges ? (
-                                    <>
-                                        <button 
-                                            onClick={handleDiscardChanges}
-                                            className="px-4 py-2 rounded-lg font-bold text-[13px] text-[#43474e] bg-white border border-[#c4c6cf] hover:bg-[#f8f9fa] transition-colors"
-                                        >
-                                            Discard
-                                        </button>
-                                        <button 
-                                            onClick={handleSaveChanges}
-                                            className="px-4 py-2 rounded-lg font-bold text-[13px] text-white bg-[#0061a5] hover:bg-[#004d84] shadow-sm transition-colors"
-                                        >
-                                            Save Changes
-                                        </button>
-                                    </>
-                                ) : (
-                                    <button 
-                                        onClick={handleToggleLock}
-                                        className={`px-4 py-2 rounded-lg font-bold text-[13px] flex items-center gap-2 transition-colors border ${selectedTutor.status === 'submitted' ? 'bg-white text-[#0061a5] border-[#0061a5] hover:bg-[#e3f2fd]' : 'bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200'}`}
-                                    >
-                                        {selectedTutor.status === 'submitted' ? (
-                                            <>
-                                                <Unlock className="w-4 h-4" />
-                                                Unlock for Tutor
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Lock className="w-4 h-4" />
-                                                Lock Schedule
-                                            </>
-                                        )}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
 
                         {selectedTutor.status === 'submitted' && (
                             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">

@@ -7,6 +7,7 @@ import learnerRoutes from './modules/learner/learner.routes';
 import accountRoutes from './modules/account/account.routes';
 import uploadRoutes from './modules/upload/upload.routes';
 import certificateRoutes from './modules/certificate/certificate.routes';
+import availableTimeSlotRoutes from './modules/available-time-slot/available-time-slot.routes';
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/learners', learnerRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/certificates', certificateRoutes);
+app.use('/api/available-time-slots', availableTimeSlotRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

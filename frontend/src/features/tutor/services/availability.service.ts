@@ -1,4 +1,5 @@
-import type { AvailabilityShift, AvailabilityStatus } from '../types/availability';
+﻿import type { AvailabilityShift, AvailabilityStatus } from '../types/availability';
+import axiosClient from '../../../shared/services/axiosClient';
 
 export const SHIFTS: AvailabilityShift[] = [
     { id: 'M1', label: 'Slot 1', time: '07:30 - 09:30' },
@@ -11,16 +12,54 @@ export const SHIFTS: AvailabilityShift[] = [
 
 export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+interface AvailabilityResponse {
+    data: {
+        status: AvailabilityStatus;
+        slots: string[];
+    }
+}
+
+// Gi? l?i cache d? kh�ng ph?i g?i API 2 l?n trong useEffect
+let cachedAvailability: AvailabilityResponse['data'] | null = null;
+let isFetching = false;
+let fetchPromise: Promise<AvailabilityResponse['data']> | null = null;
+
+const fetchAvailability = async (): Promise<AvailabilityResponse['data']> => {
+    if (cachedAvailability) return cachedAvailability;
+    if (isFetching && fetchPromise) return fetchPromise;
+
+    isFetching = true;
+    fetchPromise = axiosClient.get('/available-time-slots/my-availability')
+        .then((res) => {
+            const data = (res as any).data;
+            cachedAvailability = data;
+            return data;
+        })
+        .finally(() => {
+            isFetching = false;
+            fetchPromise = null;
+        });
+
+    return fetchPromise;
+};
+
 export const AvailabilityService = {
     getInitialSlots: async (): Promise<Set<string>> => {
-        return new Promise(resolve => setTimeout(() => {
-            resolve(new Set(['Monday-E1', 'Wednesday-E1', 'Friday-E1', 'Saturday-M1', 'Saturday-M2']));
-        }, 200));
+        const data = await fetchAvailability();
+        return new Set(data.slots || []);
     },
     getInitialStatus: async (): Promise<AvailabilityStatus> => {
-        return new Promise(resolve => setTimeout(() => resolve('draft'), 200));
+        const data = await fetchAvailability();
+        return data.status || 'draft';
     },
-    submitAvailability: async (_slots: Set<string>): Promise<void> => {
-        return new Promise(resolve => setTimeout(resolve, 800));
+    submitAvailability: async (slots: Set<string>, status: AvailabilityStatus = 'submitted'): Promise<void> => {
+        const slotsArray = Array.from(slots);
+        await axiosClient.post('/available-time-slots/submit', { slots: slotsArray, status });
+        // C?p nh?t l?i cache sau khi submit th�nh c�ng
+        if (cachedAvailability) {
+            cachedAvailability.status = status;
+            cachedAvailability.slots = slotsArray;
+        }
     }
 };
+

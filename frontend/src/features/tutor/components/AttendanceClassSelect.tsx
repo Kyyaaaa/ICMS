@@ -15,7 +15,7 @@ export const AttendanceClassSelect = ({ classes, selectedClass, isDropdownOpen, 
             <span className="text-[12px] font-bold text-[#74777f] uppercase tracking-wider mb-1.5 block">Select Class</span>
             <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full md:w-[400px] flex items-center justify-between p-3 rounded-xl border border-[#c4c6cf] hover:border-[#0061a5] bg-white transition-colors text-left shadow-sm"
+                className="w-full md:w-100 flex items-center justify-between p-3 rounded-xl border border-[#c4c6cf] hover:border-[#0061a5] bg-white transition-colors text-left shadow-sm"
             >
                 {selectedClass ? (
                     <div className="flex items-center gap-3">
@@ -38,8 +38,8 @@ export const AttendanceClassSelect = ({ classes, selectedClass, isDropdownOpen, 
             {isDropdownOpen && (
                 <>
                     <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
-                    <div className="absolute top-[calc(100%+8px)] left-0 w-full md:w-[400px] bg-white border border-[#e0e3e5] rounded-xl shadow-xl z-50 overflow-hidden flex flex-col">
-                        <div className="max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#c4c6cf] p-2 space-y-1">
+                    <div className="absolute top-[calc(100%+8px)] left-0 w-full md:w-100 bg-white border border-[#e0e3e5] rounded-xl shadow-xl z-50 overflow-hidden flex flex-col">
+                        <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-[#c4c6cf] p-2 space-y-1">
                             {classes.map(cls => (
                                 <button
                                     key={cls.id}
