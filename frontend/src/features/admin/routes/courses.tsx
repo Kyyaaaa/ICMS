@@ -29,7 +29,9 @@ const AdminCourses = () => {
             if (success) {
                 setCourses(prev => prev.filter(c => c.id !== id));
             } else {
-                alert("Failed to delete course from server.");
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { title: 'Delete Failed', message: 'Failed to delete course from server.', mode: 'alert', type: 'error' }
+                }));
             }
         }
     };

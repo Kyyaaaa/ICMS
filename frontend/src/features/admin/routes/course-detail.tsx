@@ -101,12 +101,16 @@ const AdminCourseDetail = () => {
     const handleSave = async () => {
         if (id && id !== 'new') {
             if (courseData.minBand && courseData.maxBand && parseFloat(courseData.minBand) > parseFloat(courseData.maxBand)) {
-                alert('Maximum band must be greater than or equal to minimum band.');
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { title: 'Validation Error', message: 'Maximum band must be greater than or equal to minimum band.', mode: 'alert', type: 'warning' }
+                }));
                 return;
             }
 
             if (courseData.modules.length === 0) {
-                alert('At least 1 Course Module is required.');
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { title: 'Validation Error', message: 'At least 1 Course Module is required.', mode: 'alert', type: 'warning' }
+                }));
                 return;
             }
 
@@ -145,15 +149,25 @@ const AdminCourseDetail = () => {
                     modules: cleanedModules
                 };
                 await CoursesService.updateCourse(id, backendData);
-                alert('Course saved successfully!');
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { title: 'Success', message: 'Course saved successfully!', mode: 'alert', type: 'success' }
+                }));
                 setCourseData({
                     ...courseData,
                     sessions: String(calculatedTotalSessions),
                     nextCohort: formattedDate
                 });
                 setIsEditing(false);
-            } catch (error) {
-                alert('An error occurred while saving the course.');
+            } catch (error: any) {
+                if (error.response?.data?.message) {
+                    window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                        detail: { title: 'Error', message: error.response.data.message, mode: 'alert', type: 'error' }
+                    }));
+                } else {
+                    window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                        detail: { title: 'Error', message: 'An error occurred while saving the course.', mode: 'alert', type: 'error' }
+                    }));
+                }
             } finally {
                 setIsUploadingImage(false);
             }
@@ -174,7 +188,9 @@ const AdminCourseDetail = () => {
             if (url) {
                 setCourseData({ ...courseData, imageUrl: url });
             } else {
-                alert('Failed to upload image!');
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { title: 'Upload Failed', message: 'Failed to upload image!', mode: 'alert', type: 'error' }
+                }));
             }
             setIsUploadingImage(false);
         }

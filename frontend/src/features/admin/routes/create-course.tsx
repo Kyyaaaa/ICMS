@@ -48,7 +48,9 @@ const CreateCourse = () => {
             if (url) {
                 setFormData(prev => ({ ...prev, image_url: url }));
             } else {
-                alert('Failed to upload image!');
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { title: 'Upload Failed', message: 'Failed to upload image!', mode: 'alert', type: 'error' }
+                }));
             }
             setIsUploadingImage(false);
         }
@@ -87,12 +89,16 @@ const CreateCourse = () => {
         setLoading(true);
         try {
             if (modules.length === 0) {
-                alert('At least 1 Course Module is required.');
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { title: 'Validation Error', message: 'At least 1 Course Module is required.', mode: 'alert', type: 'warning' }
+                }));
                 setLoading(false);
                 return;
             }
             if (formData.minBand && formData.maxBand && parseFloat(formData.minBand) > parseFloat(formData.maxBand)) {
-                alert('Maximum band must be greater than or equal to minimum band.');
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { title: 'Validation Error', message: 'Maximum band must be greater than or equal to minimum band.', mode: 'alert', type: 'warning' }
+                }));
                 setLoading(false);
                 return;
             }
@@ -100,17 +106,23 @@ const CreateCourse = () => {
             for (let i = 0; i < modules.length; i++) {
                 const m = modules[i];
                 if (!m.title.trim()) {
-                    alert(`Module ${i + 1} requires a Module Title.`);
+                    window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                        detail: { title: 'Validation Error', message: `Module ${i + 1} requires a Module Title.`, mode: 'alert', type: 'warning' }
+                    }));
                     setLoading(false);
                     return;
                 }
                 if (!m.sessions) {
-                    alert(`Module ${i + 1} requires Sessions.`);
+                    window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                        detail: { title: 'Validation Error', message: `Module ${i + 1} requires Sessions.`, mode: 'alert', type: 'warning' }
+                    }));
                     setLoading(false);
                     return;
                 }
                 if (m.topics.filter(t => t.trim() !== '').length === 0) {
-                    alert(`Module ${i + 1} requires at least 1 Topic.`);
+                    window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                        detail: { title: 'Validation Error', message: `Module ${i + 1} requires at least 1 Topic.`, mode: 'alert', type: 'warning' }
+                    }));
                     setLoading(false);
                     return;
                 }
@@ -147,7 +159,9 @@ const CreateCourse = () => {
             navigate('/admin/courses');
         } catch (error) {
             console.error(error);
-            alert('Failed to create course');
+            window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                detail: { title: 'Creation Failed', message: 'Failed to create course', mode: 'alert', type: 'error' }
+            }));
         } finally {
             setLoading(false);
         }

@@ -32,6 +32,27 @@ export class CourseService {
 
     static async updateCourse(id: string, courseData: any) {
         if (!id) throw new Error('Course ID is required.');
+        
+        const existingCourse = await CourseRepository.getCourseById(id);
+        if (!existingCourse) throw new Error('Course not found.');
+
+        if (existingCourse.next_cohort) {
+            let startDate: Date;
+            if (existingCourse.next_cohort.includes('/')) {
+                const [day, month, year] = existingCourse.next_cohort.split('/');
+                startDate = new Date(Number(year), Number(month) - 1, Number(day));
+            } else {
+                startDate = new Date(existingCourse.next_cohort);
+            }
+
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            
+            if (!isNaN(startDate.getTime()) && startDate <= now) {
+                throw new Error('Cannot update course after it has started.');
+            }
+        }
+
         const { modules, ...data } = courseData;
         const updatedCourse = await CourseRepository.updateCourse(id, data, modules);
         return updatedCourse;
