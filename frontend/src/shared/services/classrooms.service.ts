@@ -11,8 +11,12 @@ export interface Classroom {
 export const ClassroomsService = {
     getAll: async (): Promise<Classroom[]> => {
         try {
-            const res = await axiosClient.get('/classrooms');
-            return (res as any).data || [];
+            const res: any = await axiosClient.get('/classrooms');
+            const rooms = Array.isArray(res) ? res : (res?.data || []);
+            return rooms.map((r: any) => ({
+                ...r,
+                room_name: r.room_name || r.name
+            }));
         } catch (error) {
             console.error('Error fetching classrooms', error);
             return [];
