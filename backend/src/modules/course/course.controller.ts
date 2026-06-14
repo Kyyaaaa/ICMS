@@ -37,7 +37,7 @@ export class CourseController {
 
     static async getCourseById(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const course = await CourseService.getCourseById(id);
             res.status(200).json({
                 success: true,
@@ -54,7 +54,7 @@ export class CourseController {
 
     static async deleteCourse(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             await CourseService.deleteCourse(id);
             res.status(200).json({
                 success: true,
@@ -71,7 +71,7 @@ export class CourseController {
 
     static async updateCourse(req: Request, res: Response) {
         try {
-            const { id } = req.params;
+            const id = req.params.id as string;
             const courseData = req.body;
             const updatedCourse = await CourseService.updateCourse(id, courseData);
             res.status(200).json({
