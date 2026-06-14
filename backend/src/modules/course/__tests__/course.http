@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:5000/api
+@adminToken = YOUR_ADMIN_TOKEN_HERE
+
+### ------------------------------------------------------------------------
+### MODULE: COURSE
+### ------------------------------------------------------------------------
+
+### 1. Lấy danh sách tất cả khóa học (Public)
+GET {{baseUrl}}/courses
+Content-Type: application/json
+
+###
+
+### 2. Lấy thông tin chi tiết một khóa học (Public)
+@courseId = ID_KHOA_HOC_O_DAY
+GET {{baseUrl}}/courses/{{courseId}}
+Content-Type: application/json
+
+###
+
+### 3. Tạo khóa học mới (Yêu cầu quyền Admin)
+POST {{baseUrl}}/courses
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "Khóa học ReactJS Cơ bản",
+  "description": "Nắm vững ReactJS từ con số 0",
+  "price": 500000,
+  "duration_weeks": 8,
+  "status": "ACTIVE"
+}
+
+###
+
+### 4. Cập nhật thông tin khóa học (Yêu cầu quyền Admin)
+PUT {{baseUrl}}/courses/{{courseId}}
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "price": 600000,
+  "description": "Nắm vững ReactJS từ con số 0 (Cập nhật)"
+}
+
+###
+
+### 5. Xóa khóa học (Yêu cầu quyền Admin)
+DELETE {{baseUrl}}/courses/{{courseId}}
+Authorization: Bearer {{adminToken}}
