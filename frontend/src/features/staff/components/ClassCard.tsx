@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { User, Clock, MapPin } from 'lucide-react';
-import type { ClassSchedule } from '../types/class';
+import type { Class } from '../types/class';
 
 interface ClassCardProps {
-    cls: ClassSchedule;
+    cls: Class;
 }
 
 export const ClassCard = ({ cls }: ClassCardProps) => {
@@ -15,23 +15,23 @@ export const ClassCard = ({ cls }: ClassCardProps) => {
                     <div>
                         <h3 className="text-lg font-bold text-[#002045] group-hover:text-[#0061a5] transition-colors">{cls.name}</h3>
                     </div>
-                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${cls.students >= cls.maxStudents ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-[#0061a5]'}`}>
-                        {cls.students}/{cls.maxStudents} Students
+                    <span className="px-3 py-1 text-xs font-bold rounded-full bg-blue-50 text-[#0061a5]">
+                        {cls.capacity} Max Students
                     </span>
                 </div>
                 
                 <div className="space-y-2 text-[#43474e] text-sm mt-auto">
                     <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-[#74777f]" />
-                        <span><span className="font-medium text-[#181c1e]">Tutor:</span> {cls.tutor}</span>
+                        <span><span className="font-medium text-[#181c1e]">Tutor:</span> {cls.tutor?.full_name || 'Not assigned'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-[#74777f]" />
-                        <span><span className="font-medium text-[#181c1e]">Time:</span> {cls.schedule}</span>
+                        <span><span className="font-medium text-[#181c1e]">Status:</span> {cls.status}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-[#74777f]" />
-                        <span><span className="font-medium text-[#181c1e]">Room:</span> {cls.room}</span>
+                        <span><span className="font-medium text-[#181c1e]">Room:</span> {cls.classroom?.room_name || 'Not assigned'}</span>
                     </div>
                 </div>
             </div>

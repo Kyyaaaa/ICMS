@@ -11,6 +11,7 @@ import availableTimeSlotRoutes from './modules/available-time-slot/available-tim
 import consultationRequestRoutes from './modules/consultation-request/consultation-request.routes';
 import courseRoutes from './modules/course/course.routes';
 import classroomRoutes from './modules/classroom/classroom.routes';
+import classRoutes from './modules/class/class.routes';
 const app = express();
 
 // Middlewares toàn cục
@@ -27,6 +28,7 @@ app.use('/api/available-time-slots', availableTimeSlotRoutes);
 app.use('/api/consultations', consultationRequestRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/classrooms', classroomRoutes);
+app.use('/api/staff/classes', classRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

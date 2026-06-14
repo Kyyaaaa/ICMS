@@ -3,28 +3,28 @@ import { CreateLearnerInput, UpdateLearnerInput } from './learner.model';
 
 export class LearnerService {
   /**
-   * L?y danh sách t?t c? h?c viên
+   * L?y danh sï¿½ch t?t c? h?c viï¿½n
    */
   static async getAll() {
     return await LearnerRepository.getAll();
   }
 
   /**
-   * L?y chi ti?t 1 h?c viên
+   * L?y chi ti?t 1 h?c viï¿½n
    */
   static async getById(id: string) {
     return await LearnerRepository.getById(id);
   }
 
   /**
-   * T?o h?c viên m?i (Dùng cho Admin/Staff)
+   * T?o h?c viï¿½n m?i (Dï¿½ng cho Admin/Staff)
    */
   static async create(learnerData: CreateLearnerInput) {
     return await LearnerRepository.create(learnerData);
   }
 
   /**
-   * C?p nh?t thông tin h?c viên
+   * C?p nh?t thï¿½ng tin h?c viï¿½n
    */
   static async update(id: string, learnerData: UpdateLearnerInput) {
     await LearnerRepository.update(id, learnerData);
@@ -32,10 +32,5 @@ export class LearnerService {
     return this.getById(id);
   }
 
-  /**
-   * Xóa h?c viên
-   */
-  static async delete(id: string) {
-    return await LearnerRepository.delete(id);
-  }
+  
 }

@@ -1,18 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Users, MapPin, ChevronDown, Save } from 'lucide-react';
-import type { ClassSession, RoomOption } from '../types/class-detail';
+import { X, Users, MapPin, ChevronDown, Save, Calendar, Clock } from 'lucide-react';
+import type { Session } from '../types/class';
+import type { Classroom } from '@/shared/services/classrooms.service';
 
 interface EditSessionModalProps {
-    session: ClassSession;
-    availableRooms: RoomOption[];
+    session: Session;
+    availableRooms: Classroom[];
+    availableTutors: any[];
     onClose: () => void;
-    onSave: (session: ClassSession) => void;
+    onSave: (session: Partial<Session>) => void;
 }
 
-export const EditSessionModal = ({ session, availableRooms, onClose, onSave }: EditSessionModalProps) => {
+export const EditSessionModal = ({ session, availableRooms, availableTutors, onClose, onSave }: EditSessionModalProps) => {
     const [isEditRoomDropdownOpen, setIsEditRoomDropdownOpen] = useState(false);
-    const [selectedEditRoom, setSelectedEditRoom] = useState<RoomOption | null>(null);
-    const [selectedTutor, setSelectedTutor] = useState(session.tutor);
+    const [selectedEditRoom, setSelectedEditRoom] = useState<Classroom | null>(null);
+    const [selectedTutor, setSelectedTutor] = useState(session.tutor_id || '');
+    const [date, setDate] = useState(session.date);
+    const [slot, setSlot] = useState(session.slot);
     const editRoomDropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -26,10 +30,12 @@ export const EditSessionModal = ({ session, availableRooms, onClose, onSave }: E
     }, []);
 
     const handleSave = () => {
-        const updatedSession = {
-            ...session,
-            tutor: selectedTutor,
-            room: selectedEditRoom ? selectedEditRoom.name : session.room
+        const updatedSession: Partial<Session> = {
+            id: session.id,
+            tutor_id: selectedTutor || null,
+            classroom_id: selectedEditRoom ? selectedEditRoom.id : session.classroom_id,
+            date,
+            slot
         };
         onSave(updatedSession);
     };
@@ -39,7 +45,7 @@ export const EditSessionModal = ({ session, availableRooms, onClose, onSave }: E
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-md animate-fade-in-up overflow-hidden">
                 <div className="flex items-center justify-between p-5 border-b border-[#e0e3e5] bg-[#f8f9fa]">
                     <h3 className="text-lg font-bold text-[#002045]">
-                        Edit Session #{session.session}
+                        Edit Session #{session.session_number}
                     </h3>
                     <button 
                         onClick={onClose}
@@ -50,9 +56,35 @@ export const EditSessionModal = ({ session, availableRooms, onClose, onSave }: E
                 </div>
                 
                 <div className="p-6 space-y-5">
-                    <div>
-                        <p className="text-sm font-bold text-[#74777f] mb-1">Topic</p>
-                        <p className="font-semibold text-[#002045]">{session.topic}</p>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
+                                <Calendar className="w-4 h-4 text-gray-500"/> Date
+                            </label>
+                            <input 
+                                type="date"
+                                className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 font-medium"
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
+                                <Clock className="w-4 h-4 text-gray-500"/> Slot
+                            </label>
+                            <select 
+                                className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 font-medium"
+                                value={slot}
+                                onChange={(e) => setSlot(e.target.value)}
+                            >
+                                <option value="slot1">Slot 1 (07:30 - 09:50)</option>
+                                <option value="slot2">Slot 2 (10:00 - 12:20)</option>
+                                <option value="slot3">Slot 3 (12:50 - 15:10)</option>
+                                <option value="slot4">Slot 4 (15:20 - 17:40)</option>
+                                <option value="slot5">Slot 5 (18:00 - 20:20)</option>
+                                <option value="slot6">Slot 6 (20:30 - 22:50)</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div className="space-y-2">
@@ -64,9 +96,10 @@ export const EditSessionModal = ({ session, availableRooms, onClose, onSave }: E
                             value={selectedTutor}
                             onChange={(e) => setSelectedTutor(e.target.value)}
                         >
-                            <option value={session.tutor}>{session.tutor} (Current)</option>
-                            <option value="Mr. James Bond">Mr. James Bond (Available)</option>
-                            <option value="Ms. Emily Blunt">Ms. Emily Blunt (Available)</option>
+                            <option value="">-- No Tutor --</option>
+                            {availableTutors.map(t => (
+                                <option key={t.id} value={t.id}>{t.full_name}</option>
+                            ))}
                         </select>
                     </div>
                     
@@ -80,26 +113,32 @@ export const EditSessionModal = ({ session, availableRooms, onClose, onSave }: E
                             className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 flex justify-between items-center text-left"
                         >
                             {selectedEditRoom ? (
-                                <span>
-                                    {selectedEditRoom.name} (Cap: {selectedEditRoom.cap}) {selectedEditRoom.current && '(Current)'} • <span className="text-[#16a34a] font-medium">Available</span>
+                                <span className="truncate">
+                                    {selectedEditRoom.room_name} (Cap: {selectedEditRoom.capacity})
                                 </span>
                             ) : (
                                 <span>
-                                    {session.room} (Current) • <span className="text-[#16a34a] font-medium">Available</span>
+                                    {session.classroom?.room_name || 'Not assigned'} (Current)
                                 </span>
                             )}
                             <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isEditRoomDropdownOpen ? 'rotate-180' : ''}`} />
                         </button>
 
                         {isEditRoomDropdownOpen && (
-                            <div className="absolute z-10 bottom-full left-0 right-0 mb-1 bg-white border border-[#c4c6cf] rounded-xl shadow-lg overflow-hidden py-1">
+                            <div className="absolute z-10 bottom-full left-0 right-0 mb-1 bg-white border border-[#c4c6cf] rounded-xl shadow-lg overflow-hidden py-1 max-h-60 overflow-y-auto">
+                                <button 
+                                    className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors truncate text-gray-500"
+                                    onClick={() => { setSelectedEditRoom(null); setIsEditRoomDropdownOpen(false); }}
+                                >
+                                    -- Keep Current --
+                                </button>
                                 {availableRooms.map((room) => (
                                     <button 
                                         key={room.id}
-                                        className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors"
+                                        className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors truncate"
                                         onClick={() => { setSelectedEditRoom(room); setIsEditRoomDropdownOpen(false); }}
                                     >
-                                        {room.name} (Cap: {room.cap}) {room.current && '(Current)'} • <span className="text-[#16a34a] font-medium">Available</span>
+                                        {room.room_name} (Cap: {room.capacity})
                                     </button>
                                 ))}
                             </div>

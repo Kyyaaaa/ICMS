@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronRight, ArrowLeft, Users, Calendar, MapPin, Edit, BookOpen, Trash2 } from 'lucide-react';
-import type { ClassSession, EnrolledStudent, RoomOption } from '../types/class-detail';
-import { ClassDetailService } from '../services/class-detail.service';
+import type { Class, Session } from '../types/class';
+import { ClassesService } from '../services/classes.service';
+import { AccountsService } from '../services/accounts.service';
+import { ClassroomsService } from '@/shared/services/classrooms.service';
+import type { Classroom } from '@/shared/services/classrooms.service';
 import { ClassScheduleTab } from '../components/ClassScheduleTab';
 import { ClassStudentsTab } from '../components/ClassStudentsTab';
 import { EditSessionModal } from '../components/EditSessionModal';
@@ -12,45 +15,66 @@ const StaffClassDetail = () => {
     const { id } = useParams();
     
     const [activeTab, setActiveTab] = useState('schedule');
-    const [scheduleData, setScheduleData] = useState<ClassSession[]>([]);
-    const [students, setStudents] = useState<EnrolledStudent[]>([]);
-    const [availableRooms, setAvailableRooms] = useState<RoomOption[]>([]);
+    const [classData, setClassData] = useState<Class | null>(null);
+    const [students, setStudents] = useState<any[]>([]);
+    const [availableRooms, setAvailableRooms] = useState<Classroom[]>([]);
+    const [availableTutors, setAvailableTutors] = useState<any[]>([]);
     
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [selectedSession, setSelectedSession] = useState<ClassSession | null>(null);
+    const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+
+    const loadData = async () => {
+        if (!id) return;
+        try {
+            const [cls, rooms, tutors] = await Promise.all([
+                ClassesService.getClassById(id),
+                ClassroomsService.getAll(),
+                AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' })
+            ]);
+            setClassData(cls);
+            setStudents((cls as any).students || []);
+            setAvailableRooms(rooms);
+            setAvailableTutors((tutors as any).data?.data || []);
+        } catch (err) {
+            console.error("Failed to load class details", err);
+        }
+    };
 
     useEffect(() => {
-        const loadData = async () => {
-            const classIdStr = id || '101';
-            const [sched, studs, rooms] = await Promise.all([
-                ClassDetailService.getSchedule(classIdStr),
-                ClassDetailService.getStudents(classIdStr),
-                ClassDetailService.getAvailableRooms()
-            ]);
-            setScheduleData(sched);
-            setStudents(studs);
-            setAvailableRooms(rooms);
-        };
         loadData();
     }, [id]);
 
     const enrolledStudents = students.length;
-    const courseName = id === '101' || id === '102' ? 'IELTS Masterclass' : id === '201' ? 'TOEIC Intensive' : 'Course Name';
-    const classNameStr = id === '101' ? 'IELTS-A01' : id === '102' ? 'IELTS-A02' : id === '201' ? 'TOEIC-B01' : `Class-${id}`;
+    const courseName = classData?.courses?.title || 'Course Name';
+    const classNameStr = classData?.name || `Class-${id}`;
 
-    const handleEditSession = (session: ClassSession) => {
+    const handleEditSession = (session: Session) => {
         setSelectedSession(session);
         setIsEditModalOpen(true);
     };
 
-    const handleSaveSession = async (updatedSession: ClassSession) => {
+    const handleSaveSession = async (updatedSession: Partial<Session>) => {
         const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to update this session schedule?', 'warning');
         if (!isConfirmed) return;
 
-        await ClassDetailService.updateSession(updatedSession);
-        setScheduleData(scheduleData.map(s => s.session === updatedSession.session ? updatedSession : s));
-        setIsEditModalOpen(false);
+        try {
+            await ClassesService.updateSession(id as string, updatedSession.id as string, {
+                tutor_id: updatedSession.tutor_id,
+                classroom_id: updatedSession.classroom_id,
+                date: updatedSession.date,
+                slot: updatedSession.slot
+            });
+            showAlertModal('Thành công', 'Đã cập nhật buổi học', 'success');
+            setIsEditModalOpen(false);
+            loadData(); // reload
+        } catch (err: any) {
+            showAlertModal('Conflict', err.message || 'Lỗi cập nhật buổi học', 'error');
+        }
     };
+
+    if (!classData) {
+        return <div className="p-10 text-center">Loading class details...</div>;
+    }
 
     return (
         <div className="space-y-6 animate-fade-in-up pb-10">
@@ -103,21 +127,21 @@ const StaffClassDetail = () => {
                     <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center"><Users className="w-5 h-5"/></div>
                     <div>
                         <p className="text-xs text-gray-500">Tutor</p>
-                        <p className="font-bold text-[#002045]">Dr. Sarah Connor</p>
+                        <p className="font-bold text-[#002045]">{classData?.tutor?.full_name || 'Not assigned'}</p>
                     </div>
                 </div>
                 <div className="bg-white p-4 rounded-xl border border-[#e0e3e5] shadow-sm flex items-center gap-3">
                     <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center"><Calendar className="w-5 h-5"/></div>
                     <div>
-                        <p className="text-xs text-gray-500">Schedule</p>
-                        <p className="font-bold text-[#002045] text-sm">Mon/Wed/Fri 18:00</p>
+                        <p className="text-xs text-gray-500">Status</p>
+                        <p className="font-bold text-[#002045] text-sm">{classData?.status}</p>
                     </div>
                 </div>
                 <div className="bg-white p-4 rounded-xl border border-[#e0e3e5] shadow-sm flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center"><MapPin className="w-5 h-5"/></div>
                     <div>
                         <p className="text-xs text-gray-500">Room</p>
-                        <p className="font-bold text-[#002045]">Room 102</p>
+                        <p className="font-bold text-[#002045]">{classData?.classroom?.room_name || 'Not assigned'}</p>
                     </div>
                 </div>
             </div>
@@ -141,7 +165,7 @@ const StaffClassDetail = () => {
             {/* Tab Content */}
             <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden">
                 {activeTab === 'schedule' && (
-                    <ClassScheduleTab scheduleData={scheduleData} onEditSession={handleEditSession} />
+                    <ClassScheduleTab scheduleData={(classData as any).sessions || []} onEditSession={handleEditSession} />
                 )}
 
                 {activeTab === 'students' && (
@@ -154,6 +178,7 @@ const StaffClassDetail = () => {
                 <EditSessionModal 
                     session={selectedSession} 
                     availableRooms={availableRooms} 
+                    availableTutors={availableTutors}
                     onClose={() => setIsEditModalOpen(false)} 
                     onSave={handleSaveSession} 
                 />

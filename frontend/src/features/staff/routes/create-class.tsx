@@ -1,26 +1,53 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Users, MapPin, Calendar, ChevronRight, ChevronDown } from 'lucide-react';
+import { CoursesService } from '@/shared/services/courses.service';
+import { AccountsService } from '../services/accounts.service';
+import { ClassroomsService } from '@/shared/services/classrooms.service';
+import type { Classroom } from '@/shared/services/classrooms.service';
+import { ClassesService } from '../services/classes.service';
+import { showAlertModal } from '@/utils/modal';
 
 const CreateClass = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const isEdit = location.pathname.includes('/edit');
     useParams();
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const [isRoomDropdownOpen, setIsRoomDropdownOpen] = useState(false);
-    const [selectedRoom, setSelectedRoom] = useState<{id: string, name: string, cap: number} | null>(isEdit ? { id: '101', name: 'Room 101', cap: 20 } : null);
+    const [selectedRoom, setSelectedRoom] = useState<Classroom | null>(null);
     const roomDropdownRef = useRef<HTMLDivElement>(null);
 
-    const [course, setCourse] = useState(isEdit ? 'ielts' : '');
-    const [className, setClassName] = useState(isEdit ? 'IELTS-A03' : '');
-    const [tutor, setTutor] = useState(isEdit ? 'sarah' : '');
-    const [studyDays, setStudyDays] = useState(isEdit ? 'mwf' : 'mwf');
-    const [shift, setShift] = useState(isEdit ? 'evening' : 'morning');
+    const [course, setCourse] = useState('');
+    const [className, setClassName] = useState('');
+    const [tutor, setTutor] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [capacity, setCapacity] = useState(20);
 
-    const availableRooms = [
-        { id: '101', name: 'Room 101', cap: 20 },
-        { id: '102', name: 'Room 102', cap: 30 }
-    ];
+    const [allCourses, setAllCourses] = useState<{id: string, title: string}[]>([]);
+    const [allTutors, setAllTutors] = useState<{id: string, full_name: string}[]>([]);
+    const [availableRooms, setAvailableRooms] = useState<Classroom[]>([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const [coursesData, tutorsData, roomsData] = await Promise.all([
+                    CoursesService.getCourses(),
+                    AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' }),
+                    ClassroomsService.getAll()
+                ]);
+                setAllCourses(coursesData);
+                setAllTutors((tutorsData as any).data?.data || []);
+                setAvailableRooms(roomsData);
+            } catch (err) {
+                console.error("Failed to load form data", err);
+            }
+        };
+        loadData();
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -31,6 +58,7 @@ const CreateClass = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
     return (
         <div className="space-y-6 animate-fade-in-up max-w-4xl pb-10">
             {/* Breadcrumb Navigation */}
@@ -50,14 +78,15 @@ const CreateClass = () => {
                 <div className="p-6 md:p-8 space-y-8">
                     {/* Course Selection */}
                     <div className="space-y-4">
-                        <h2 className="text-lg font-bold text-[#002045] border-b pb-2">1. Select Course</h2>
+                        <h2 className="text-lg font-bold text-[#002045] border-b pb-2">1. Select Course & Name</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e]">Course Program <span className="text-red-500">*</span></label>
                                 <select value={course} onChange={(e) => setCourse(e.target.value)} className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
                                     <option value="">-- Select Course --</option>
-                                    <option value="ielts">IELTS Masterclass (Band 7.0+)</option>
-                                    <option value="toeic">TOEIC Intensive (750+)</option>
+                                    {allCourses.map(c => (
+                                        <option key={c.id} value={c.id}>{c.title}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="space-y-2">
@@ -70,13 +99,14 @@ const CreateClass = () => {
                     {/* Tutor & Room */}
                     <div className="space-y-4">
                         <h2 className="text-lg font-bold text-[#002045] border-b pb-2">2. Assignments</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1"><Users className="w-4 h-4 text-gray-500"/> Assign Tutor</label>
                                 <select value={tutor} onChange={(e) => setTutor(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
                                     <option value="">-- Select Available Tutor --</option>
-                                    <option value="sarah">Dr. Sarah Connor (IELTS Expert)</option>
-                                    <option value="james">Mr. James Bond (Advanced Comm.)</option>
+                                    {allTutors.map(t => (
+                                        <option key={t.id} value={t.id}>{t.full_name}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="space-y-2 relative" ref={roomDropdownRef}>
@@ -87,17 +117,17 @@ const CreateClass = () => {
                                     className="w-full px-4 py-3 bg-white border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 flex justify-between items-center text-left"
                                 >
                                     {selectedRoom ? (
-                                        <span>
-                                            {selectedRoom.name} (Cap: {selectedRoom.cap}) • <span className="text-[#16a34a] font-medium">Available</span>
+                                        <span className="truncate">
+                                            {selectedRoom.room_name} (Cap: {selectedRoom.capacity})
                                         </span>
                                     ) : (
                                         <span className="text-gray-500">-- Select Available Room --</span>
                                     )}
-                                    <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isRoomDropdownOpen ? 'rotate-180' : ''}`} />
+                                    <ChevronDown className={`w-4 h-4 shrink-0 text-gray-500 transition-transform ${isRoomDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
 
                                 {isRoomDropdownOpen && (
-                                    <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-[#c4c6cf] rounded-xl shadow-lg overflow-hidden py-1">
+                                    <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-[#c4c6cf] rounded-xl shadow-lg overflow-hidden py-1 max-h-60 overflow-y-auto">
                                         <button 
                                             className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors text-gray-500"
                                             onClick={() => { setSelectedRoom(null); setIsRoomDropdownOpen(false); }}
@@ -107,37 +137,33 @@ const CreateClass = () => {
                                         {availableRooms.map((room) => (
                                             <button 
                                                 key={room.id}
-                                                className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors"
+                                                className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors truncate"
                                                 onClick={() => { setSelectedRoom(room); setIsRoomDropdownOpen(false); }}
                                             >
-                                                {room.name} (Cap: {room.cap}) • <span className="text-[#16a34a] font-medium">Available</span>
+                                                {room.room_name} (Cap: {room.capacity})
                                             </button>
                                         ))}
                                     </div>
                                 )}
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-[#181c1e]">Capacity <span className="text-red-500">*</span></label>
+                                <input type="number" min="1" value={capacity} onChange={(e) => setCapacity(parseInt(e.target.value))} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
                             </div>
                         </div>
                     </div>
 
                     {/* Schedule Details */}
                     <div className="space-y-4">
-                        <h2 className="text-lg font-bold text-[#002045] border-b pb-2">3. Schedule Details</h2>
+                        <h2 className="text-lg font-bold text-[#002045] border-b pb-2">3. Timeline</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1"><Calendar className="w-4 h-4 text-gray-500"/> Study Days</label>
-                                <select value={studyDays} onChange={(e) => setStudyDays(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
-                                    <option value="mwf">Mon - Wed - Fri</option>
-                                    <option value="tts">Tue - Thu - Sat</option>
-                                    <option value="ss">Sat - Sun</option>
-                                </select>
+                                <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1"><Calendar className="w-4 h-4 text-gray-500"/> Start Date <span className="text-red-500">*</span></label>
+                                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-[#181c1e]">Time / Shift</label>
-                                <select value={shift} onChange={(e) => setShift(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
-                                    <option value="morning">09:00 - 11:30 (Morning)</option>
-                                    <option value="afternoon">14:00 - 16:30 (Afternoon)</option>
-                                    <option value="evening">18:00 - 20:30 (Evening)</option>
-                                </select>
+                                <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1"><Calendar className="w-4 h-4 text-gray-500"/> End Date <span className="text-red-500">*</span></label>
+                                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
                             </div>
                         </div>
                     </div>
@@ -147,8 +173,36 @@ const CreateClass = () => {
                     <Link to="/staff/classes" className="px-6 py-3 font-semibold text-[#43474e] border border-[#c4c6cf] rounded-xl hover:bg-white transition-colors">
                         Cancel
                     </Link>
-                    <button className="px-6 py-3 font-semibold text-white bg-[#0061a5] rounded-xl hover:bg-[#004a80] transition-colors flex items-center gap-2">
-                        <Save className="w-5 h-5" /> {isEdit ? 'Save Changes' : 'Save Class'}
+                    <button 
+                        disabled={isSubmitting}
+                        onClick={async () => {
+                            if (!course || !className || !startDate || !endDate || !capacity) {
+                                showAlertModal('Lỗi', 'Vui lòng nhập đầy đủ các trường bắt buộc (*)', 'error');
+                                return;
+                            }
+                            setIsSubmitting(true);
+                            try {
+                                await ClassesService.createClass({
+                                    name: className,
+                                    course_id: course,
+                                    tutor_id: tutor || null,
+                                    classroom_id: selectedRoom?.id || null,
+                                    start_date: startDate,
+                                    end_date: endDate,
+                                    capacity
+                                });
+                                showAlertModal('Thành công', 'Khởi tạo lớp học mới thành công!', 'success').then(() => {
+                                    navigate('/staff/classes');
+                                });
+                            } catch (err: any) {
+                                showAlertModal('Lỗi', err.message || 'Có lỗi xảy ra khi tạo lớp', 'error');
+                            } finally {
+                                setIsSubmitting(false);
+                            }
+                        }}
+                        className="px-6 py-3 font-semibold text-white bg-[#0061a5] rounded-xl hover:bg-[#004a80] transition-colors flex items-center gap-2 disabled:opacity-50"
+                    >
+                        <Save className="w-5 h-5" /> {isSubmitting ? 'Saving...' : (isEdit ? 'Save Changes' : 'Save Class')}
                     </button>
                 </div>
             </div>

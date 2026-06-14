@@ -1,0 +1,45 @@
+### Lấy danh sách Lớp học
+GET http://localhost:5000/api/staff/classes
+Content-Type: application/json
+
+###
+
+### Khởi tạo Lớp học mới
+POST http://localhost:5000/api/staff/classes
+Content-Type: application/json
+
+{
+  "name": "IELTS Beginner 01",
+  "course_id": "83cab8e9-a526-4fe3-bc61-ed55114a26e1",
+  "start_date": "2026-08-01",
+  "end_date": "2026-10-01",
+  "capacity": 20,
+  "sessions": [
+    {
+      "session_number": 1,
+      "date": "2026-08-02",
+      "slot": "slot1"
+    }
+  ]
+}
+
+###
+
+### Cập nhật Lớp học (Đổi status, tutor, classroom)
+PATCH http://localhost:5000/api/staff/classes/13cf6f28-88ca-483c-863d-fe51cd98a4d3
+Content-Type: application/json
+
+{
+  "status": "ONGOING"
+}
+
+###
+
+### Cập nhật Buổi học (Đổi Slot/Date của 1 session cụ thể)
+PATCH http://localhost:5000/api/staff/classes/13cf6f28-88ca-483c-863d-fe51cd98a4d3/sessions/YOUR_SESSION_ID
+Content-Type: application/json
+
+{
+  "date": "2026-08-03",
+  "slot": "slot2"
+}
