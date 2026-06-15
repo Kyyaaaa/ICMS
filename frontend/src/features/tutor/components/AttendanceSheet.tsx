@@ -90,6 +90,7 @@ export const AttendanceSheet = ({
                     <div className="flex items-center gap-2 shrink-0">
                         <span className="text-xs font-bold text-[#74777f] uppercase mr-2">Mark All As:</span>
                         <button onClick={() => onMarkAll('absent')} className="px-3 py-1.5 rounded-md text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors">Absent</button>
+                        <button onClick={() => onMarkAll('excused')} className="px-3 py-1.5 rounded-md text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-colors">Excused</button>
                         <button onClick={() => onMarkAll('present')} className="px-3 py-1.5 rounded-md text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors">Present</button>
                     </div>
                 )}
@@ -139,6 +140,19 @@ export const AttendanceSheet = ({
                                                 >
                                                     <XCircle className={`w-4 h-4 ${status === 'absent' ? 'text-white' : ''}`} />
                                                     Absent
+                                                </button>
+                                                
+                                                <button 
+                                                    disabled={isLocked}
+                                                    onClick={() => onStatusChange(student.id, 'excused')}
+                                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                                                        status === 'excused' 
+                                                            ? 'bg-amber-500 text-white border-amber-600 shadow-sm' 
+                                                            : 'bg-white text-[#74777f] border-[#c4c6cf] hover:border-amber-500 hover:text-amber-600'
+                                                    } ${isLocked && status !== 'excused' ? 'opacity-50 cursor-not-allowed bg-transparent border-transparent' : ''}`}
+                                                >
+                                                    <XCircle className={`w-4 h-4 ${status === 'excused' ? 'text-white' : ''}`} />
+                                                    Excused
                                                 </button>
                                                 
                                                 <button 

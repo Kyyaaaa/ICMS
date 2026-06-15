@@ -19,6 +19,6 @@ export interface AttendanceStudent {
     name: string;
 }
 
-export type AttendanceStatus = 'not_yet' | 'present' | 'absent' | null;
+export type AttendanceStatus = 'not_yet' | 'present' | 'absent' | 'excused' | null;
 
 export type AttendanceRecordMap = Record<string, Record<string, AttendanceStatus>>;

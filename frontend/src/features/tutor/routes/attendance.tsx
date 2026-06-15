@@ -74,7 +74,11 @@ const ClassAttendance = () => {
                         code: `STU-${record.learner_id.substring(0, 4)}`, // mock code logic for now
                         name: acc.full_name || 'Unknown Learner'
                     });
-                    recordMap[record.learner_id] = (record.status || 'NOT_YET').toLowerCase() as AttendanceStatus;
+                    let parsedStatus = (record.status || 'NOT_YET').toLowerCase();
+                    if (parsedStatus === 'absent_excused') parsedStatus = 'excused';
+                    else if (parsedStatus === 'absent_unexcused') parsedStatus = 'absent';
+                    else if (parsedStatus.includes('absent')) parsedStatus = 'absent';
+                    recordMap[record.learner_id] = parsedStatus as AttendanceStatus;
                 });
                 
                 setStudents(loadedStudents);
@@ -135,11 +139,18 @@ const ClassAttendance = () => {
         const isConfirmed = await showConfirmModal('Confirm Submission', 'Are you sure you want to submit this attendance record? You will not be able to change it later without staff approval.', 'warning');
         if (isConfirmed) {
             try {
-                const recordsToSubmit = Object.entries(currentRecords).map(([learner_id, status]) => ({
-                    learner_id,
-                    status: (status as string).toUpperCase(),
-                    notes: ''
-                }));
+                const recordsToSubmit = Object.entries(currentRecords).map(([learner_id, status]) => {
+                    const statusStr = (status as string).toUpperCase();
+                    let finalStatus = statusStr;
+                    if (statusStr === 'ABSENT') finalStatus = 'ABSENT_UNEXCUSED';
+                    else if (statusStr === 'EXCUSED') finalStatus = 'ABSENT_EXCUSED';
+                    
+                    return {
+                        learner_id,
+                        status: finalStatus,
+                        notes: ''
+                    };
+                });
                 
                 await AttendanceService.submitAttendance(selectedSessionId, recordsToSubmit);
                 
