@@ -64,11 +64,11 @@ const StaffClassDetail = () => {
                 date: updatedSession.date,
                 slot: updatedSession.slot
             });
-            showAlertModal('Thành công', 'Đã cập nhật buổi học', 'success');
+            showAlertModal('Success', 'Session updated successfully', 'success');
             setIsEditModalOpen(false);
             loadData(); // reload
         } catch (err: any) {
-            showAlertModal('Conflict', err.message || 'Lỗi cập nhật buổi học', 'error');
+            showAlertModal('Conflict', err.message || 'Error updating session', 'error');
         }
     };
 

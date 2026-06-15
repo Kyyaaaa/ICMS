@@ -144,7 +144,7 @@ axiosClient.interceptors.response.use(
 
         // Bắt lỗi 403: Tài khoản bị khóa (Banned)
         if (error.response?.status === 403 && error.response?.data?.message === 'Account is deactivated') {
-            showAlertModal('Account Locked', 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để biết thêm chi tiết.', 'error').then(() => {
+            showAlertModal('Account Locked', 'Your account has been deactivated. Please contact Admin for more details.', 'error').then(() => {
                 forceLogout();
             });
             return Promise.reject(error);

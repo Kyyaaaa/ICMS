@@ -79,11 +79,11 @@ const Homepage = () => {
                 guest_email: formData.guest_email,
                 inquiry_details: inquiry_details.trim() || 'General Consultation'
             });
-            showAlertModal('Thành công', 'Cảm ơn bạn! Yêu cầu tư vấn của bạn đã được gửi. Chúng tôi sẽ liên hệ trong thời gian sớm nhất.', 'success');
+            showAlertModal('Success', 'Thank you! Your consultation request has been sent. We will contact you shortly.', 'success');
             setFormData({ guest_name: '', guest_phone: '', guest_email: '', course: '', message: '' });
         } catch (error) {
             console.error(error);
-            showAlertModal('Lỗi', 'Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.', 'error');
+            showAlertModal('Error', 'An error occurred while sending the request. Please try again later.', 'error');
         } finally {
             setIsSubmitting(false);
         }

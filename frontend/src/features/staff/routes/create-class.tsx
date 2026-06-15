@@ -177,7 +177,7 @@ const CreateClass = () => {
                         disabled={isSubmitting}
                         onClick={async () => {
                             if (!course || !className || !startDate || !endDate || !capacity) {
-                                showAlertModal('Lỗi', 'Vui lòng nhập đầy đủ các trường bắt buộc (*)', 'error');
+                                showAlertModal('Error', 'Please fill in all required fields (*)', 'error');
                                 return;
                             }
                             setIsSubmitting(true);
@@ -191,11 +191,11 @@ const CreateClass = () => {
                                     end_date: endDate,
                                     capacity
                                 });
-                                showAlertModal('Thành công', 'Khởi tạo lớp học mới thành công!', 'success').then(() => {
+                                showAlertModal('Success', 'Class created successfully!', 'success').then(() => {
                                     navigate('/staff/classes');
                                 });
                             } catch (err: any) {
-                                showAlertModal('Lỗi', err.message || 'Có lỗi xảy ra khi tạo lớp', 'error');
+                                showAlertModal('Error', err.message || 'Error creating class', 'error');
                             } finally {
                                 setIsSubmitting(false);
                             }

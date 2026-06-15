@@ -147,7 +147,7 @@ const VerifyOTP = () => {
             
             if (!token) {
                 setError(true);
-                setErrorMsg('Lỗi hệ thống: Không nhận được reset token từ server.');
+                setErrorMsg('System error: Reset token not received from server.');
                 return;
             }
 

@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 
 const AuthCallback = () => {
     const navigate = useNavigate();
-    const [status, setStatus] = useState('Đang xác thực tài khoản...');
+    const [status, setStatus] = useState('Authenticating account...');
 
     useEffect(() => {
         const syncUser = async () => {
@@ -13,7 +13,7 @@ const AuthCallback = () => {
                 // 1. Parse token từ dấu # trên URL
                 const hash = window.location.hash;
                 if (!hash) {
-                    setStatus('Lỗi: Không tìm thấy Token. Đang quay lại trang đăng nhập...');
+                    setStatus('Error: Token not found. Redirecting to login...');
                     setTimeout(() => navigate('/login?error=NoHash'), 2000);
                     return;
                 }
@@ -23,12 +23,12 @@ const AuthCallback = () => {
                 const refreshToken = params.get('refresh_token');
 
                 if (!accessToken) {
-                    setStatus('Lỗi: Token không hợp lệ. Đang quay lại trang đăng nhập...');
+                    setStatus('Error: Invalid token. Redirecting to login...');
                     setTimeout(() => navigate('/login?error=InvalidToken'), 2000);
                     return;
                 }
 
-                setStatus('Đang đồng bộ dữ liệu...');
+                setStatus('Synchronizing data...');
 
                 // 2. Gửi token ngầm qua POST Body xuống Backend (Bảo mật tuyệt đối)
                 const res = await fetch('http://localhost:5000/api/auth/google-sync', {
@@ -45,7 +45,7 @@ const AuthCallback = () => {
                 const data = await res.json();
 
                 if (!res.ok || !data.success) {
-                    throw new Error(data.message || 'Đồng bộ thất bại');
+                    throw new Error(data.message || 'Synchronization failed');
                 }
 
                 // 3. Backend trả về thông tin an toàn, Frontend lưu Cookie
@@ -56,12 +56,12 @@ const AuthCallback = () => {
                 }
 
                 // 4. Chuyển hướng vào nhà
-                setStatus('Thành công! Đang chuyển hướng...');
+                setStatus('Success! Redirecting...');
                 navigate('/homepage');
 
             } catch (error) {
-                console.error('Lỗi Callback:', error);
-                setStatus('Đã xảy ra lỗi đồng bộ. Đang quay lại trang đăng nhập...');
+                console.error('Callback Error:', error);
+                setStatus('A synchronization error occurred. Redirecting to login...');
                 setTimeout(() => navigate('/login?error=SyncFailed'), 3000);
             }
         };

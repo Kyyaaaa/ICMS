@@ -139,12 +139,12 @@ Chịu trách nhiệm dịch toàn bộ các message trả về từ API và cá
 ### 🎨 Frontend Agent
 Chịu trách nhiệm dịch toàn bộ các từ khóa, nút bấm, thông báo, và tiêu đề trên giao diện UI.
 
-- `[ ]` **FE-27: Chuẩn hóa Global UI & Alerts**
+- `[x]` **FE-27: Chuẩn hóa Global UI & Alerts**
   - Sửa `axiosClient.ts` (VD: "Tài khoản bị khóa" -> "Account deactivated", "Thông báo" -> "Notification").
-- `[ ]` **FE-28: Chuẩn hóa Giao diện Khách (Guest) & Xác thực (Auth)**
+- `[x]` **FE-28: Chuẩn hóa Giao diện Khách (Guest) & Xác thực (Auth)**
   - Sửa `homepage.tsx` ("Nhận tư vấn ngay", "Tên", "Số điện thoại" -> "Get a Consultation", "Name", "Phone number").
   - Sửa `ProtectedRoute.tsx`, `verify-otp.tsx`, `auth-callback.tsx`.
-- `[ ]` **FE-29: Chuẩn hóa Giao diện Nhân viên (Staff)**
+- `[x]` **FE-29: Chuẩn hóa Giao diện Nhân viên (Staff)**
   - Dịch toàn bộ màn hình Quản lý Tư vấn (`consultations.tsx`) và Quản lý Lớp học (`classes.tsx`, `create-class.tsx`, `class-detail.tsx`).
   - Đổi toàn bộ các cột bảng (Tên, Mã, Trạng thái), nút bấm (Lưu, Đóng, Sửa), và Modal Confirm (Bạn có chắc chắn...) sang tiếng Anh tương ứng.
 

@@ -20,7 +20,7 @@ const ConsultationList = () => {
             setConsultations(data);
         } catch (error) {
             console.error(error);
-            showAlertModal('Lỗi', 'Không thể tải danh sách yêu cầu tư vấn.', 'error');
+            showAlertModal('Error', 'Cannot load consultation requests.', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -38,11 +38,11 @@ const ConsultationList = () => {
         } catch (error: any) {
             console.error(error);
             if (error?.response?.status === 409) {
-                showAlertModal('Cảnh báo', 'Yêu cầu này đã được nhân viên khác tiếp nhận.', 'error');
+                showAlertModal('Conflict', 'This request has been taken by another staff.', 'error');
                 setSelectedConsultation(null);
                 loadData(); // Refresh the list
             } else {
-                showAlertModal('Lỗi', 'Có lỗi xảy ra khi cập nhật yêu cầu.', 'error');
+                showAlertModal('Error', 'An error occurred while updating the request.', 'error');
             }
         }
     };
