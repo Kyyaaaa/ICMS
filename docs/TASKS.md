@@ -176,17 +176,17 @@ Theo thống nhất, mảng Thanh toán (Payment) sẽ được lùi lại. Giai
   - `PUT /api/sessions/:session_id/attendance`: API cho phép Tutor submit mảng dữ liệu điểm danh hàng loạt.
 
 ### 🎨 Frontend Agent
-- `[ ]` **FE-30: Màn hình Học viên Ghi danh**
+- `[x]` **FE-30: Màn hình Học viên Ghi danh**
   - Cập nhật `registration.tsx`: Nút "Đăng ký ngay" sẽ bỏ qua giỏ hàng, gọi thẳng API `BE-28` và hiện thông báo vào lớp thành công.
   - Cập nhật `classes.tsx` (Learner): Gọi API hiển thị Lớp của tôi.
-- `[ ]` **FE-31: Cập nhật Màn hình Chi tiết Lớp (Staff/Tutor)**
+- `[x]` **FE-31: Cập nhật Màn hình Chi tiết Lớp (Staff/Tutor)**
   - Mở tab "Students" trong `class-detail.tsx`, gọi API `BE-29` để hiển thị danh sách học viên hiện tại của lớp.
-- `[ ]` **FE-32: Giao diện Điểm danh (Tutor Screen)**
+- `[x]` **FE-32: Giao diện Điểm danh (Tutor Screen)**
   - Cập nhật `attendance.tsx`: Hiển thị danh sách các Session. Bấm vào 1 Session sẽ sổ ra dạng Grid danh sách Học viên.
   - Có các Radio buttons (Present, Absent, Excused) và nút "Lưu điểm danh".
 
 ### 🕵️‍♂️ QA Agent
-- `[ ]` **QA-25: Kiểm thử Sĩ số lớp (Capacity Limit)**
+- `[x]` **QA-25: Kiểm thử Sĩ số lớp (Capacity Limit)**
   - Tạo lớp có Capacity = 1. Đưa 1 Learner vào lớp. Đưa Learner thứ 2 vào -> Kỳ vọng Backend văng lỗi 400 và FE hiển thị rõ "Lớp đã đầy".
-- `[ ]` **QA-26: Kiểm thử luồng Điểm danh End-to-End**
+- `[x]` **QA-26: Kiểm thử luồng Điểm danh End-to-End**
   - Tutor truy cập đúng Session của mình -> Điểm danh "Vắng mặt" 1 Learner -> Gọi lại API Get Attendance xem dữ liệu có lưu đúng không.

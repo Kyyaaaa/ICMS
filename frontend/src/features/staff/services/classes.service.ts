@@ -78,5 +78,15 @@ export const ClassesService = {
             console.error('Error updating class session:', error);
             throw error;
         }
+    },
+
+    getClassStudents: async (classId: string): Promise<any[]> => {
+        try {
+            const res = await axiosClient.get<{success: boolean, data: any[]}>(`/staff/classes/${classId}/students`);
+            return (res as any).data || [];
+        } catch (error) {
+            console.error('Error fetching class students:', error);
+            return [];
+        }
     }
 };

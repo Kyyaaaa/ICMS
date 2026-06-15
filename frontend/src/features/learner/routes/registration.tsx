@@ -7,7 +7,7 @@ import { LearnerRegistrationService } from '../services/registration.service';
 const ClassRegistration = () => {
     const { courseId } = useParams();
     const [classOptions, setClassOptions] = useState<RegistrationClassOption[]>([]);
-    const [selectedClass, setSelectedClass] = useState<number | null>(null);
+    const [selectedClass, setSelectedClass] = useState<number | string | null>(null);
     const [invoicePreview, setInvoicePreview] = useState<RegistrationInvoicePreview | null>(null);
     const [loading, setLoading] = useState(true);
     
@@ -58,17 +58,10 @@ const ClassRegistration = () => {
                     <CheckCircle2 className="w-8 h-8 text-[#0061a5]" />
                 </div>
                 <h2 className="text-2xl font-bold text-[#181c1e] mb-4">Registration Successful!</h2>
-                <p className="text-base text-[#43474e] mb-4">You have successfully reserved a seat in the class. A tuition invoice has been generated.</p>
-                <div className="bg-[#fff8e1] border border-[#c9a82c] p-4 rounded-lg mb-8 text-left">
-                    <p className="text-sm text-[#c9a82c] font-semibold">Important: Payment Required</p>
-                    <p className="text-sm text-[#c9a82c]">Your registration will be automatically canceled if the payment is not completed within 24 hours.</p>
-                </div>
+                <p className="text-base text-[#43474e] mb-8">You have successfully enrolled in the class.</p>
                 <div className="flex justify-center gap-4">
-                    <Link to={`/learner/classes`} className="px-6 py-2.5 bg-white text-[#002045] border border-[#002045] rounded-lg font-semibold hover:bg-[#f1f4f6] transition-colors">
-                        View Classes
-                    </Link>
-                    <Link to={`/learner/payments/1/checkout`} className="px-6 py-2.5 bg-[#ba1a1a] text-white rounded-lg font-semibold hover:bg-[#93000a] transition-colors flex items-center gap-2">
-                        Pay Now <ArrowRight className="w-4 h-4"/>
+                    <Link to={`/learner/classes`} className="px-6 py-2.5 bg-[#002045] text-white rounded-lg font-semibold hover:bg-[#0061a5] transition-colors">
+                        View My Classes
                     </Link>
                 </div>
             </div>
@@ -108,27 +101,7 @@ const ClassRegistration = () => {
                     ))}
                 </div>
 
-                {/* Invoice Preview */}
-                {invoicePreview && (
-                    <div className="border-t border-[#e0e3e5] pt-6">
-                        <h2 className="text-lg font-bold text-[#181c1e] mb-4">Invoice Summary</h2>
-                        <div className="bg-[#f7fafc] rounded-lg p-4 space-y-3">
-                            <div className="flex justify-between text-sm text-[#43474e]">
-                                <span>Course Tuition Fee</span>
-                                <span>{invoicePreview.courseFee.toLocaleString()} đ</span>
-                            </div>
-                            <div className="flex justify-between text-sm text-[#43474e]">
-                                <span>Discount</span>
-                                <span>-{invoicePreview.discount.toLocaleString()} đ</span>
-                            </div>
-                            <div className="border-t border-[#e0e3e5] my-2"></div>
-                            <div className="flex justify-between text-lg font-bold text-[#181c1e]">
-                                <span>Total Due</span>
-                                <span>{invoicePreview.totalDue.toLocaleString()} đ</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* Invoice Preview is hidden for Phase 1 & 3 */}
 
                 <div className="mt-8 flex justify-end">
                     <button 

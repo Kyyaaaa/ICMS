@@ -21,6 +21,8 @@ const MOCK_CLASS_OPTIONS: RegistrationClassOption[] = [
     }
 ];
 
+import axiosClient from '@/shared/services/axiosClient';
+
 export const LearnerRegistrationService = {
     getAvailableClasses: async (_courseId: string): Promise<RegistrationClassOption[]> => {
         return new Promise(resolve => setTimeout(() => resolve([...MOCK_CLASS_OPTIONS]), 200));
@@ -34,7 +36,13 @@ export const LearnerRegistrationService = {
         }), 200));
     },
 
-    confirmRegistration: async (_courseId: string, _classId: number): Promise<boolean> => {
-        return new Promise(resolve => setTimeout(() => resolve(true), 1500));
+    confirmRegistration: async (_courseId: string, _classId: number | string): Promise<boolean> => {
+        try {
+            await axiosClient.post('/enrollments', { class_id: _classId });
+            return true;
+        } catch (error) {
+            console.error('Registration failed:', error);
+            return false;
+        }
     }
 };

@@ -26,13 +26,14 @@ const StaffClassDetail = () => {
     const loadData = async () => {
         if (!id) return;
         try {
-            const [cls, rooms, tutors] = await Promise.all([
+            const [cls, rooms, tutors, studentsData] = await Promise.all([
                 ClassesService.getClassById(id),
                 ClassroomsService.getAll(),
-                AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' })
+                AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' }),
+                ClassesService.getClassStudents(id)
             ]);
             setClassData(cls);
-            setStudents((cls as any).students || []);
+            setStudents(studentsData || []);
             setAvailableRooms(rooms);
             setAvailableTutors((tutors as any).data?.data || []);
         } catch (err) {
