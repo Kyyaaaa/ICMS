@@ -55,7 +55,7 @@ export const verifyToken = async (req: AuthenticatedRequest, res: Response, next
     req.user = user;
     next();
   } catch (error) {
-    console.error('Lỗi khi xác thực token:', error);
+    console.error('Error during token verification:', error);
     return res.status(500).json({
       success: false,
       message: 'Internal Server Error during authentication'

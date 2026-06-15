@@ -27,6 +27,10 @@ describe('ConsultationRequestController API Tests', () => {
 
   describe('QA-17: POST /api/consultations', () => {
     it('should return 400 if missing mandatory fields', async () => {
+      const err: any = new Error('Missing required fields: guest_name, guest_phone, inquiry_details');
+      err.status = 400;
+      (ConsultationRequestService.createRequest as jest.Mock).mockRejectedValueOnce(err);
+
       const response = await request(app)
         .post('/api/consultations')
         .send({
@@ -80,7 +84,7 @@ describe('ConsultationRequestController API Tests', () => {
       });
 
       const response = await request(app)
-        .get('/api/staff/consultations')
+        .get('/api/consultations/staff')
         .set('Authorization', 'Bearer dummy-token');
 
       expect(response.status).toBe(403);
@@ -106,21 +110,21 @@ describe('ConsultationRequestController API Tests', () => {
       });
 
       // Mock the service to throw a 409 conflict error
-      const conflictError: any = new Error('Yêu cầu đã được nhân viên khác tiếp nhận');
+      const conflictError: any = new Error('Conflict: Request handled by another staff');
       conflictError.status = 409;
       (ConsultationRequestService.updateRequest as jest.Mock).mockRejectedValue(conflictError);
 
       const response = await request(app)
-        .patch('/api/staff/consultations/f47ac10b-58cc-4372-a567-0e02b2c3d479')
+        .patch('/api/consultations/staff/f47ac10b-58cc-4372-a567-0e02b2c3d479')
         .set('Authorization', 'Bearer dummy-token')
         .send({
           status: 'Contacted',
-          call_notes: 'Cố gắng sửa'
+          call_notes: 'Update notes'
         });
 
       expect(response.status).toBe(409);
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Yêu cầu đã được nhân viên khác tiếp nhận');
+      expect(response.body.message).toBe('Conflict: Request handled by another staff');
     });
   });
 });

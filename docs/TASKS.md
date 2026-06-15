@@ -118,3 +118,37 @@ Bảo vệ tính đúng đắn của logic nghiệp vụ phức tạp.
   - Cập nhật thủ công ngày hiện tại hoặc trigger Cron chạy tay -> Kiểm tra trạng thái nhảy đúng logic Up coming -> Ongoing -> Completed.
 - `[x]` **QA-23: Bổ sung HTTP Testing**
   - Tạo file `class.http` chứa các request khởi tạo lớp, sửa lịch học để team Backend dễ dàng maintain.
+
+---
+
+## 🌐 13. Chuẩn hóa Ngôn ngữ Hệ thống (Language Standardization)
+
+Dựa trên Rule trong tài liệu `.agent/language.md`: **Code 100% tiếng Anh, Comment 100% tiếng Việt**.
+Toàn bộ mã nguồn, các câu báo lỗi, và văn bản hiển thị trên UI cần được đổi sang tiếng Anh.
+
+### 🧑‍💻 Backend Agent
+Chịu trách nhiệm dịch toàn bộ các message trả về từ API và các log nội bộ.
+
+- `[x]` **BE-26: Chuẩn hóa Error Messages và API Responses**
+  - Sửa `consultation-request.service.ts` & `controller.ts` (VD: "Yêu cầu đã được nhân viên..." -> "Conflict: Request handled by another staff").
+  - Sửa `auth.middleware.ts` (Lỗi Token/Role).
+  - Khảo sát nhanh toàn bộ thư mục `src/modules` và `src/middlewares` để phát hiện và thay thế các chuỗi tiếng Việt.
+- `[x]` **BE-27: Cập nhật Unit Tests**
+  - Sửa lại các Expectation (Assertions) trong các file `*.test.ts` (VD: `consultation-request.controller.test.ts`) để test chạy pass với message tiếng Anh mới.
+
+### 🎨 Frontend Agent
+Chịu trách nhiệm dịch toàn bộ các từ khóa, nút bấm, thông báo, và tiêu đề trên giao diện UI.
+
+- `[ ]` **FE-27: Chuẩn hóa Global UI & Alerts**
+  - Sửa `axiosClient.ts` (VD: "Tài khoản bị khóa" -> "Account deactivated", "Thông báo" -> "Notification").
+- `[ ]` **FE-28: Chuẩn hóa Giao diện Khách (Guest) & Xác thực (Auth)**
+  - Sửa `homepage.tsx` ("Nhận tư vấn ngay", "Tên", "Số điện thoại" -> "Get a Consultation", "Name", "Phone number").
+  - Sửa `ProtectedRoute.tsx`, `verify-otp.tsx`, `auth-callback.tsx`.
+- `[ ]` **FE-29: Chuẩn hóa Giao diện Nhân viên (Staff)**
+  - Dịch toàn bộ màn hình Quản lý Tư vấn (`consultations.tsx`) và Quản lý Lớp học (`classes.tsx`, `create-class.tsx`, `class-detail.tsx`).
+  - Đổi toàn bộ các cột bảng (Tên, Mã, Trạng thái), nút bấm (Lưu, Đóng, Sửa), và Modal Confirm (Bạn có chắc chắn...) sang tiếng Anh tương ứng.
+
+### 🕵️‍♂️ QA Agent
+- `[ ]` **QA-24: Rà soát lại chất lượng ngôn ngữ**
+  - Mở giao diện và kiểm tra ngẫu nhiên xem có sót chuỗi tiếng Việt nào không.
+  - Sửa đổi nội dung payload trong các file `*.http` (ví dụ `consultation.http`, `class.http`) để sử dụng sample data bằng tiếng Anh (hoặc không chứa ký tự tiếng Việt báo lỗi).

@@ -3,7 +3,7 @@ import { supabase } from '../configs/supabase';
 
 // Chạy vào 00:00 mỗi ngày
 cron.schedule('0 0 * * *', async () => {
-  console.log('[Cron Job] Bắt đầu cập nhật trạng thái các lớp học...');
+  console.log('[Cron Job] Starting class status update...');
   const today = new Date().toISOString().split('T')[0];
 
   try {
@@ -16,9 +16,9 @@ cron.schedule('0 0 * * *', async () => {
       .select('id');
 
     if (err1) {
-      console.error('[Cron Job] Lỗi khi cập nhật UPCOMING -> ONGOING:', err1.message);
+      console.error('[Cron Job] Error updating UPCOMING -> ONGOING:', err1.message);
     } else {
-      console.log(`[Cron Job] Đã chuyển ${upcomingClasses?.length || 0} lớp từ UPCOMING sang ONGOING.`);
+      console.log(`[Cron Job] Successfully transitioned ${upcomingClasses?.length || 0} classes from UPCOMING to ONGOING.`);
     }
 
     // 2. Chuyển ONGOING -> COMPLETED (end_date < today)
@@ -31,13 +31,13 @@ cron.schedule('0 0 * * *', async () => {
       .select('id');
 
     if (err2) {
-      console.error('[Cron Job] Lỗi khi cập nhật ONGOING -> COMPLETED:', err2.message);
+      console.error('[Cron Job] Error updating ONGOING -> COMPLETED:', err2.message);
     } else {
-      console.log(`[Cron Job] Đã chuyển ${ongoingClasses?.length || 0} lớp từ ONGOING sang COMPLETED.`);
+      console.log(`[Cron Job] Successfully transitioned ${ongoingClasses?.length || 0} classes from ONGOING to COMPLETED.`);
     }
   } catch (error) {
-    console.error('[Cron Job] Lỗi không xác định:', error);
+    console.error('[Cron Job] Unknown error:', error);
   }
 });
 
-console.log('[Cron Job] Class Status Updater đã được khởi động.');
+console.log('[Cron Job] Class Status Updater has been initialized.');

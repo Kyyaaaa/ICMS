@@ -50,7 +50,7 @@ export class ConsultationRequestService {
 
     // Logic xử lý Race Condition (BE-21)
     if (request.handled_by_staff_id !== null && request.handled_by_staff_id !== staffId) {
-      const error: any = new Error('Yêu cầu đã được nhân viên khác tiếp nhận');
+      const error: any = new Error('Conflict: Request handled by another staff');
       error.status = 409;
       throw error;
     }
