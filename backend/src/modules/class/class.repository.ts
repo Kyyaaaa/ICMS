@@ -1,4 +1,4 @@
-import { supabase } from '../../configs/supabase';
+import { supabaseAdmin as supabase } from '../../configs/supabase';
 import { CreateClassDTO, UpdateClassDTO, UpdateClassSessionDTO } from './class.model';
 
 export class ClassRepository {
@@ -103,14 +103,16 @@ export class ClassRepository {
 
         if (sessionsError) throw new Error(sessionsError.message);
 
-        // Fetch enrolled students (placeholder, since we might not have an enrollments table fully mapped here, just attempt it if exists)
+        // Fetch enrolled students
         const { data: students } = await supabase
             .from('enrollments')
             .select(`
                 id,
+                enrollment_date,
                 account:account!learner_id(id, full_name, email)
             `)
-            .eq('class_id', id);
+            .eq('class_id', id)
+            .eq('status', 'ACTIVE');
 
         return { ...classData, sessions: sessions || [], students: students || [] };
     }

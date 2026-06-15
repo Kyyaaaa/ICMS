@@ -47,8 +47,10 @@ export interface CreateClassDTO {
 }
 
 export interface UpdateClassDTO {
+    name?: string;
     tutor_id?: string | null;
     classroom_id?: string | null;
+    capacity?: number;
     status?: string;
 }
 

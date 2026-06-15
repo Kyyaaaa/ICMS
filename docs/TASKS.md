@@ -162,7 +162,7 @@ Theo thống nhất, mảng Thanh toán (Payment) sẽ được lùi lại. Giai
 ### 🗄️ DB Agent
 - `[x]` **DB-05: Schema `Enrollment` và `Attendance`**
   - Tạo bảng `Enrollment`: `id`, `learner_id` (FK Account), `class_id` (FK Class), `enrollment_date`, `status` (Enum: 'ACTIVE', 'CANCELED').
-  - Tạo bảng `Attendance`: `id`, `session_id` (FK Session), `learner_id` (FK Account), `status` (Enum: 'PRESENT', 'ABSENT_EXCUSED', 'ABSENT_UNEXCUSED'), `notes`.
+  - Tạo bảng `Attendance`: `id`, `session_id` (FK Session), `learner_id` (FK Account), `status` (Enum: 'NOT_YET', 'PRESENT', 'ABSENT_EXCUSED', 'ABSENT_UNEXCUSED'), `notes`.
   - Đảm bảo Unique Constraint: Một học viên chỉ được enroll vào một lớp 1 lần. Một học viên chỉ có 1 record attendance trong 1 session.
 
 ### 🧑‍💻 Backend Agent
@@ -172,7 +172,7 @@ Theo thống nhất, mảng Thanh toán (Payment) sẽ được lùi lại. Giai
 - `[x]` **BE-29: API Lấy danh sách Lớp học cho chi tiết lớp**
   - `GET /api/classes/:id/students`: Trả về danh sách Learner dựa theo `Enrollment` để Tutor/Staff xem.
 - `[x]` **BE-30: API Điểm danh (Attendance)**
-  - `GET /api/sessions/:session_id/attendance`: Lấy danh sách học viên trong buổi học. Tự động sinh records mặc định 'PRESENT' cho tất cả Learner nếu đây là lần đầu gọi.
+  - `GET /api/sessions/:session_id/attendance`: Lấy danh sách học viên trong buổi học. Tự động sinh records mặc định 'NOT_YET' cho tất cả Learner nếu đây là lần đầu gọi.
   - `PUT /api/sessions/:session_id/attendance`: API cho phép Tutor submit mảng dữ liệu điểm danh hàng loạt.
 
 ### 🎨 Frontend Agent
@@ -190,3 +190,30 @@ Theo thống nhất, mảng Thanh toán (Payment) sẽ được lùi lại. Giai
   - Tạo lớp có Capacity = 1. Đưa 1 Learner vào lớp. Đưa Learner thứ 2 vào -> Kỳ vọng Backend văng lỗi 400 và FE hiển thị rõ "Lớp đã đầy".
 - `[x]` **QA-26: Kiểm thử luồng Điểm danh End-to-End**
   - Tutor truy cập đúng Session của mình -> Điểm danh "Vắng mặt" 1 Learner -> Gọi lại API Get Attendance xem dữ liệu có lưu đúng không.
+
+---
+
+## 📝 15. Cập nhật trạng thái Điểm danh mặc định (NOT_YET)
+
+Thay đổi logic điểm danh: Trạng thái mặc định khi Tutor chưa điểm danh sẽ là `NOT_YET` thay vì `PRESENT` mặc định.
+
+### 🗄️ DB Agent
+- `[x]` **DB-06: Cập nhật Schema Attendance**
+  - Chạy migration hoặc thay đổi file schema Database để bổ sung giá trị `'NOT_YET'` vào Enum của trường `status` trong bảng `Attendance`.
+  - Cập nhật Data Default của cột `status` thành `'NOT_YET'`.
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-31: Cập nhật logic Service (`session.service.ts`)**
+  - Trong logic hàm `getAttendance`, khi tự động sinh (auto-generate) các bản ghi điểm danh cho học viên trong Session mới, phải truyền giá trị `status: 'NOT_YET'`.
+  - Validate payload truyền lên từ `PUT /api/sessions/:session_id/attendance` để cho phép giá trị `NOT_YET`.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-33: Cập nhật giao diện Điểm danh (`attendance.tsx`)**
+  - Thêm xử lý hiển thị trạng thái `NOT_YET` (Ví dụ: Chữ màu xám, hoặc thêm một Radio button/Label "Chưa điểm danh").
+  - Nếu bản ghi đang ở `NOT_YET`, giao diện cần làm nổi bật để Tutor biết là mình chưa thao tác trên học viên này.
+  - Khi Tutor bấm "Đánh dấu tất cả là Có mặt", FE phải chuyển toàn bộ các record `NOT_YET` sang `PRESENT`.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-27: Kiểm thử mặc định Điểm danh**
+  - Tạo một buổi học mới -> Lần đầu Get Attendance -> Kỳ vọng BE trả về 100% học viên có status là `NOT_YET`.
+  - Đảm bảo việc lưu `NOT_YET` (hoặc update từ NOT_YET sang PRESENT) qua API thành công không báo lỗi Enum.

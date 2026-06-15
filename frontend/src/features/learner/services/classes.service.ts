@@ -15,10 +15,10 @@ export const ClassesService = {
                 return {
                     id: cls.id,
                     courseName: course.title || 'Unknown Course',
-                    className: cls.name || `Class ${cls.class_code}`,
+                    className: cls.name || `Class ${cls.class_code || ''}`,
                     classCode: cls.class_code || 'Unknown',
-                    tutorName: 'Assigned Tutor', // Need to fetch tutor if available
-                    room: 'Assigned Room', // Need to fetch room if available
+                    tutorName: cls.tutor?.full_name || 'TBA',
+                    room: cls.classroom?.room_name || 'TBA',
                     schedule: 'TBD',
                     time: 'TBD',
                     startDate: cls.start_date ? new Date(cls.start_date).toLocaleDateString() : 'TBD',

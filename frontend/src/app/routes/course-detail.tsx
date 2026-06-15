@@ -205,7 +205,13 @@ const CourseDetailInner = () => {
                             </div>
                         </div>
                         <button 
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => {
+                                if (!isLoggedIn) {
+                                    navigate('/login');
+                                } else {
+                                    navigate(`/courses/${id}/register`);
+                                }
+                            }}
                             className="w-full bg-[#0061a5] text-white font-bold py-4 rounded-xl shadow-md hover:bg-[#004a80] hover:shadow-lg hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2 mb-4"
                         >
                             Enroll Now
@@ -457,108 +463,7 @@ const CourseDetailInner = () => {
                 </div>
             </footer>
 
-            {/* Class Selection Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#002045]/60 backdrop-blur-sm p-4 animate-fade-in">
-                    <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                        {/* Modal Header */}
-                        <div className="p-8 border-b border-[#e0e3e5] flex justify-between items-start bg-white">
-                            <div>
-                                <h3 className="text-2xl font-extrabold text-[#002045] mb-2">Select a Class</h3>
-                                <p className="text-sm text-[#74777f]">Choose a schedule that fits you for <strong className="text-[#0061a5]">{course.title}</strong>.</p>
-                            </div>
-                            <button 
-                                onClick={() => setIsModalOpen(false)}
-                                className="p-2 rounded-full hover:bg-[#f1f4f6] text-[#43474e] transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-                        
-                        {/* Modal Body */}
-                        <div className="p-6 overflow-y-auto bg-[#f7fafc] flex justify-center">
-                            <div className="w-full bg-white border border-[#e0e3e5] rounded-2xl overflow-hidden shadow-sm">
-                                {availableClasses.map((cls, index) => {
-                                    const isFull = cls.currentStudents >= cls.maxStudents;
-                                    const isSelected = selectedClass === cls.id;
-                                    const isLast = index === availableClasses.length - 1;
-                                    
-                                    return (
-                                    <div 
-                                        key={cls.id}
-                                        onClick={() => !isFull && setSelectedClass(cls.id)}
-                                        className={`flex items-center justify-between p-4 md:p-5 transition-all duration-200 
-                                            ${!isLast ? 'border-b border-[#e0e3e5]' : ''}
-                                            ${isFull 
-                                                ? 'opacity-60 bg-[#f7fafc] cursor-not-allowed' 
-                                                : isSelected 
-                                                    ? 'bg-[#f0f7ff] cursor-pointer' 
-                                                    : 'hover:bg-[#f1f4f6] cursor-pointer'
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            {/* Custom Radio */}
-                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors
-                                                ${isSelected ? 'border-[#0061a5]' : isFull ? 'border-[#c4c6cf]' : 'border-[#74777f] group-hover:border-[#0061a5]'}`}>
-                                                {isSelected && <div className="w-3 h-3 bg-[#0061a5] rounded-full"></div>}
-                                            </div>
-
-                                            {/* Info */}
-                                            <div className="flex flex-col">
-                                                <span className={`font-bold text-base mb-1 ${isSelected ? 'text-[#0061a5]' : isFull ? 'text-[#74777f]' : 'text-[#002045]'}`}>
-                                                    {cls.name}
-                                                </span>
-                                                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-sm text-[#43474e]">
-                                                    <span className="flex items-center gap-1.5 whitespace-nowrap">
-                                                        <Clock className="w-4 h-4 text-[#74777f]" /> {cls.schedule}
-                                                    </span>
-                                                    <span className="hidden md:block w-1 h-1 rounded-full bg-[#c4c6cf]"></span>
-                                                    <span className="flex items-center gap-1.5 whitespace-nowrap">
-                                                        <MapPin className="w-4 h-4 text-[#74777f]" /> {cls.room}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Status */}
-                                        <div className="flex items-center justify-end min-w-25">
-                                            {isFull ? (
-                                                <span className="text-xs font-bold bg-[#ffebee] text-[#c62828] px-3 py-1 rounded-full border border-[#ffcdd2]">
-                                                    Full
-                                                </span>
-                                            ) : (
-                                                <div className="flex flex-col items-end">
-                                                    <span className={`text-xs font-bold ${isSelected ? 'text-[#0061a5]' : 'text-[#43474e]'}`}>
-                                                        {cls.currentStudents} / {cls.maxStudents}
-                                                    </span>
-                                                    <span className="text-xs text-[#74777f] font-medium">Students</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )})}
-                            </div>
-                        </div>
-
-                        {/* Modal Footer */}
-                        <div className="p-6 border-t border-[#e0e3e5] bg-white flex justify-end gap-4">
-                            <button 
-                                onClick={() => setIsModalOpen(false)}
-                                className="px-6 py-3 rounded-xl font-bold text-[#43474e] hover:bg-[#f1f4f6] transition-colors text-sm"
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                onClick={handleConfirmEnrollment}
-                                disabled={!selectedClass}
-                                className={`px-10 py-3 rounded-xl font-bold text-white transition-all text-base shadow-sm flex items-center gap-2 ${selectedClass ? 'bg-[#0061a5] hover:bg-[#004a80] hover:shadow-md' : 'bg-[#c4c6cf] cursor-not-allowed'}`}
-                            >
-                                Confirm Selection <ArrowRight className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Modal removed to use actual registration page */}
         </div>
     );
 };

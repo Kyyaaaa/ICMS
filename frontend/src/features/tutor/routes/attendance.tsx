@@ -34,7 +34,7 @@ const ClassAttendance = () => {
                 if (classData) {
                     setClasses([{
                         id: classData.id,
-                        name: classData.name || `Class ${classData.class_code}`,
+                        name: classData.name || 'Unknown Class',
                         students: (classData as any).students?.length || 0
                     }]);
                     
@@ -74,7 +74,7 @@ const ClassAttendance = () => {
                         code: `STU-${record.learner_id.substring(0, 4)}`, // mock code logic for now
                         name: acc.full_name || 'Unknown Learner'
                     });
-                    recordMap[record.learner_id] = (record.status || 'PRESENT').toLowerCase() as AttendanceStatus;
+                    recordMap[record.learner_id] = (record.status || 'NOT_YET').toLowerCase() as AttendanceStatus;
                 });
                 
                 setStudents(loadedStudents);
@@ -113,9 +113,16 @@ const ClassAttendance = () => {
 
     const handleMarkAll = (status: AttendanceStatus) => {
         if (isLocked || !selectedSessionId) return;
-        const newRecords: Record<string, AttendanceStatus> = {};
+        const newRecords: Record<string, AttendanceStatus> = { ...currentRecords };
         students.forEach(stu => {
-            newRecords[stu.id] = status;
+            if (status === 'present') {
+                // Change NOT_YET to PRESENT
+                if (!newRecords[stu.id] || newRecords[stu.id] === 'not_yet') {
+                    newRecords[stu.id] = 'present';
+                }
+            } else {
+                newRecords[stu.id] = status;
+            }
         });
         setAttendanceRecords(prev => ({
             ...prev,

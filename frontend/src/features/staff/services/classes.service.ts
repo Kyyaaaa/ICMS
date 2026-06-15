@@ -83,7 +83,14 @@ export const ClassesService = {
     getClassStudents: async (classId: string): Promise<any[]> => {
         try {
             const res = await axiosClient.get<{success: boolean, data: any[]}>(`/staff/classes/${classId}/students`);
-            return (res as any).data || [];
+            const data = (res as any).data || [];
+            return data.map((item: any) => ({
+                id: item.id,
+                name: item.account?.full_name || 'Unknown',
+                email: item.account?.email || 'N/A',
+                joinedDate: item.enrollment_date ? new Date(item.enrollment_date).toLocaleDateString() : 'TBA',
+                attendanceRate: 100 // Mock attendance rate for now
+            }));
         } catch (error) {
             console.error('Error fetching class students:', error);
             return [];

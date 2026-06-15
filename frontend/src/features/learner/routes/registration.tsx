@@ -3,6 +3,7 @@ import { BookOpen, MapPin, Calendar, Clock, ArrowRight, CheckCircle2 } from 'luc
 import { Link, useParams } from 'react-router-dom';
 import type { RegistrationClassOption, RegistrationInvoicePreview } from '../types/registration';
 import { LearnerRegistrationService } from '../services/registration.service';
+import { showAlertModal } from '@/utils/modal';
 
 const ClassRegistration = () => {
     const { courseId } = useParams();
@@ -40,11 +41,15 @@ const ClassRegistration = () => {
     const handleConfirm = async () => {
         if (!courseId || !selectedClass) return;
         setIsConfirming(true);
-        const success = await LearnerRegistrationService.confirmRegistration(courseId, selectedClass);
-        if (success) {
+        try {
+            await LearnerRegistrationService.confirmRegistration(courseId, selectedClass);
             setIsSuccess(true);
+        } catch (error: any) {
+            const errorMsg = error.response?.data?.message || error.message || 'An unexpected error occurred.';
+            showAlertModal('Registration Failed', errorMsg, 'error');
+        } finally {
+            setIsConfirming(false);
         }
-        setIsConfirming(false);
     };
 
     if (loading) {

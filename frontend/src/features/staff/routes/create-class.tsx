@@ -12,7 +12,7 @@ const CreateClass = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const isEdit = location.pathname.includes('/edit');
-    useParams();
+    const { id } = useParams();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,12 +42,27 @@ const CreateClass = () => {
                 setAllCourses(coursesData);
                 setAllTutors((tutorsData as any).data?.data || []);
                 setAvailableRooms(roomsData);
+
+                if (isEdit && id) {
+                    const classData = await ClassesService.getClassById(id);
+                    setCourse(classData.course_id || '');
+                    setClassName(classData.name || '');
+                    setTutor(classData.tutor_id || '');
+                    setStartDate(classData.start_date || '');
+                    setEndDate(classData.end_date || '');
+                    setCapacity(classData.capacity || 20);
+                    
+                    if (classData.classroom_id) {
+                        const room = roomsData.find(r => r.id === classData.classroom_id);
+                        if (room) setSelectedRoom(room);
+                    }
+                }
             } catch (err) {
                 console.error("Failed to load form data", err);
             }
         };
         loadData();
-    }, []);
+    }, [isEdit, id]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -82,7 +97,7 @@ const CreateClass = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e]">Course Program <span className="text-red-500">*</span></label>
-                                <select value={course} onChange={(e) => setCourse(e.target.value)} className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
+                                <select disabled={isEdit} value={course} onChange={(e) => setCourse(e.target.value)} className={`w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 ${isEdit ? 'bg-gray-100 cursor-not-allowed' : 'bg-[#f8f9fa]'}`}>
                                     <option value="">-- Select Course --</option>
                                     {allCourses.map(c => (
                                         <option key={c.id} value={c.id}>{c.title}</option>
@@ -159,11 +174,11 @@ const CreateClass = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1"><Calendar className="w-4 h-4 text-gray-500"/> Start Date <span className="text-red-500">*</span></label>
-                                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
+                                <input disabled={isEdit} type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={`w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 ${isEdit ? 'bg-gray-100 cursor-not-allowed' : ''}`} />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1"><Calendar className="w-4 h-4 text-gray-500"/> End Date <span className="text-red-500">*</span></label>
-                                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
+                                <input disabled={isEdit} type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={`w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 ${isEdit ? 'bg-gray-100 cursor-not-allowed' : ''}`} />
                             </div>
                         </div>
                     </div>
@@ -182,20 +197,32 @@ const CreateClass = () => {
                             }
                             setIsSubmitting(true);
                             try {
-                                await ClassesService.createClass({
-                                    name: className,
-                                    course_id: course,
-                                    tutor_id: tutor || null,
-                                    classroom_id: selectedRoom?.id || null,
-                                    start_date: startDate,
-                                    end_date: endDate,
-                                    capacity
-                                });
-                                showAlertModal('Success', 'Class created successfully!', 'success').then(() => {
-                                    navigate('/staff/classes');
-                                });
+                                if (isEdit && id) {
+                                    await ClassesService.updateClass(id, {
+                                        name: className,
+                                        tutor_id: tutor || null,
+                                        classroom_id: selectedRoom?.id || null,
+                                        capacity
+                                    });
+                                    showAlertModal('Success', 'Class updated successfully!', 'success').then(() => {
+                                        navigate('/staff/classes');
+                                    });
+                                } else {
+                                    await ClassesService.createClass({
+                                        name: className,
+                                        course_id: course,
+                                        tutor_id: tutor || null,
+                                        classroom_id: selectedRoom?.id || null,
+                                        start_date: startDate,
+                                        end_date: endDate,
+                                        capacity
+                                    });
+                                    showAlertModal('Success', 'Class created successfully!', 'success').then(() => {
+                                        navigate('/staff/classes');
+                                    });
+                                }
                             } catch (err: any) {
-                                showAlertModal('Error', err.message || 'Error creating class', 'error');
+                                showAlertModal('Error', err.message || 'Error saving class', 'error');
                             } finally {
                                 setIsSubmitting(false);
                             }

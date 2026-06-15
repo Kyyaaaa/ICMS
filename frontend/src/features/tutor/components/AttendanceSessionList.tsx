@@ -28,15 +28,15 @@ export const AttendanceSessionList = ({ selectedClass, classSessions, onSelectSe
             </div>
             
             <div className="p-6 flex flex-col gap-3 overflow-y-auto">
-                {classSessions.map(session => (
+                {classSessions.map((session, index) => (
                     <div 
                         key={session.id}
                         onClick={() => onSelectSession(session.id)}
                         className="bg-white border border-[#e0e3e5] rounded-xl p-4 hover:border-[#0061a5] hover:shadow-sm transition-all cursor-pointer group flex items-center justify-between gap-4"
                     >
                         <div className="flex items-center gap-4 md:gap-6">
-                            <div className="w-12 h-12 rounded-xl bg-[#f8f9fa] border border-[#e0e3e5] flex items-center justify-center text-[#43474e] font-bold text-sm">
-                                {session.id.toUpperCase()}
+                            <div className="w-12 h-12 rounded-xl bg-[#e3f2fd] border border-[#bbdefb] flex items-center justify-center text-[#0061a5] font-bold text-lg">
+                                {index + 1}
                             </div>
                             <div>
                                 <h3 className="font-bold text-sm text-[#181c1e] mb-1.5 group-hover:text-[#0061a5]">{session.name}</h3>

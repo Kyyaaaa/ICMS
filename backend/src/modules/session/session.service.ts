@@ -18,7 +18,7 @@ export class SessionService {
 
     let attendances = await SessionRepository.getSessionAttendance(sessionId);
 
-    // Nếu chưa có dữ liệu điểm danh, tự động khởi tạo giá trị PRESENT cho tất cả học viên
+    // Nếu chưa có dữ liệu điểm danh, tự động khởi tạo giá trị NOT_YET cho tất cả học viên
     if (!attendances || attendances.length === 0) {
       const enrollments = await SessionRepository.getClassEnrollments(session.class_id);
       
@@ -26,7 +26,7 @@ export class SessionService {
         const initialRecords: Attendance[] = enrollments.map(e => ({
           session_id: sessionId,
           learner_id: e.learner_id,
-          status: 'PRESENT'
+          status: 'NOT_YET'
         }));
 
         attendances = await SessionRepository.bulkUpsertAttendance(initialRecords);
@@ -56,12 +56,21 @@ export class SessionService {
       throw err;
     }
 
-    const recordsToUpsert: Attendance[] = updates.map(u => ({
-      session_id: sessionId,
-      learner_id: u.learner_id,
-      status: u.status,
-      notes: u.notes
-    }));
+    const validStatuses = ['NOT_YET', 'PRESENT', 'ABSENT_EXCUSED', 'ABSENT_UNEXCUSED'];
+
+    const recordsToUpsert: Attendance[] = updates.map(u => {
+      if (!validStatuses.includes(u.status)) {
+        const err: any = new Error(`Invalid status: ${u.status}`);
+        err.status = 400;
+        throw err;
+      }
+      return {
+        session_id: sessionId,
+        learner_id: u.learner_id,
+        status: u.status,
+        notes: u.notes
+      };
+    });
 
     return await SessionRepository.bulkUpsertAttendance(recordsToUpsert);
   }

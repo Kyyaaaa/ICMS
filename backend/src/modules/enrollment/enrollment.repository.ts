@@ -48,15 +48,17 @@ export class EnrollmentRepository {
         *,
         classes (
           id,
-          class_code,
+          name,
           start_date,
           end_date,
           status,
           courses (
             id,
             title,
-            tuition_fee
-          )
+            code
+          ),
+          tutor:account!tutor_id(id, full_name, email),
+          classroom:classroom!classroom_id(id, room_name)
         )
       `)
       .eq('learner_id', learnerId)

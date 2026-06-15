@@ -111,7 +111,7 @@ export const AttendanceSheet = ({
                                 const status = currentRecords[student.id] || 'absent';
                                 
                                 return (
-                                    <tr key={student.id} className="hover:bg-[#f8f9fa] transition-colors">
+                                    <tr key={student.id} className={`transition-colors ${status === 'not_yet' ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-[#f8f9fa]'}`}>
                                         <td className="p-4 text-xs font-bold text-[#181c1e] uppercase tracking-wide">{student.code}</td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
@@ -123,6 +123,11 @@ export const AttendanceSheet = ({
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center justify-end gap-2">
+                                                {status === 'not_yet' && (
+                                                    <span className="text-[10px] uppercase font-bold text-orange-600 bg-orange-200 px-2 py-1 rounded-md mr-2">
+                                                        Not Yet
+                                                    </span>
+                                                )}
                                                 <button 
                                                     disabled={isLocked}
                                                     onClick={() => onStatusChange(student.id, 'absent')}

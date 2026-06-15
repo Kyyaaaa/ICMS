@@ -51,7 +51,7 @@ router.get('/:session_id/attendance', verifyToken, requireRole(['TUTOR', 'STAFF'
  *                   type: string
  *                 status:
  *                   type: string
- *                   enum: [PRESENT, ABSENT_EXCUSED, ABSENT_UNEXCUSED]
+ *                   enum: [NOT_YET, PRESENT, ABSENT_EXCUSED, ABSENT_UNEXCUSED]
  *                 notes:
  *                   type: string
  *     responses:
