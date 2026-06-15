@@ -24,8 +24,8 @@ Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-  "name": "Khóa học ReactJS Cơ bản",
-  "description": "Nắm vững ReactJS từ con số 0",
+  "name": "Basic ReactJS Course",
+  "description": "Master ReactJS from scratch",
   "price": 500000,
   "duration_weeks": 8,
   "status": "ACTIVE"
@@ -40,7 +40,7 @@ Authorization: Bearer {{adminToken}}
 
 {
   "price": 600000,
-  "description": "Nắm vững ReactJS từ con số 0 (Cập nhật)"
+  "description": "Master ReactJS from scratch (Updated)"
 }
 
 ###

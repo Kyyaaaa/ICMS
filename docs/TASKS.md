@@ -149,6 +149,6 @@ Chịu trách nhiệm dịch toàn bộ các từ khóa, nút bấm, thông báo
   - Đổi toàn bộ các cột bảng (Tên, Mã, Trạng thái), nút bấm (Lưu, Đóng, Sửa), và Modal Confirm (Bạn có chắc chắn...) sang tiếng Anh tương ứng.
 
 ### 🕵️‍♂️ QA Agent
-- `[ ]` **QA-24: Rà soát lại chất lượng ngôn ngữ**
+- `[x]` **QA-24: Rà soát lại chất lượng ngôn ngữ**
   - Mở giao diện và kiểm tra ngẫu nhiên xem có sót chuỗi tiếng Việt nào không.
   - Sửa đổi nội dung payload trong các file `*.http` (ví dụ `consultation.http`, `class.http`) để sử dụng sample data bằng tiếng Anh (hoặc không chứa ký tự tiếng Việt báo lỗi).

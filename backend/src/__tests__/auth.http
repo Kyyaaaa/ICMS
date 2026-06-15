@@ -147,7 +147,7 @@ Content-Type: application/json
 
 {
   "email": "hoanglbp3300@gmail.com",
-  "otp": "mã_otp_đã_nhận"
+  "otp": "received_otp"
 }
 # KỲ VỌNG: Lỗi 400 - OTP đã hết hạn hoặc không hợp lệ
 
@@ -174,7 +174,7 @@ Content-Type: application/json
 
 {
   "email": "hoanglbp3300@gmail.com",
-  "otp": "mã_otp_lần_1"
+  "otp": "first_time_otp"
 }
 # KỲ VỌNG: Lỗi 400 - OTP không hợp lệ (do đã bị vô hiệu hóa khi có OTP mới)
 
@@ -186,7 +186,7 @@ Content-Type: application/json
 
 {
   "email": "hoanglbp3300@gmail.com",
-  "otp": "mã_otp_hợp_lệ"
+  "otp": "valid_otp"
 }
 
 ### Lấy Reset Token cho QA-05

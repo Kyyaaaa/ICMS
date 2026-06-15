@@ -69,7 +69,7 @@ export const LoginForm = () => {
             {sessionExpired && (
                 <div className="mb-6 flex items-center gap-3 bg-[#fff4ce] border border-[#e5c200] text-[#4a3800] px-4 py-3 rounded-xl animate-fade-in-up">
                     <Clock className="w-5 h-5 shrink-0 text-[#855e00]" />
-                    <p className="text-sm font-medium">Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.</p>
+                    <p className="text-sm font-medium">Your session has expired. Please log in again to continue.</p>
                 </div>
             )}
             <div className="mb-10 animate-fade-in-up">
