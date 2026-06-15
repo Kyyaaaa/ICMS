@@ -12,6 +12,12 @@ export class ClassService {
     return data;
   }
 
+  static async getClassStudents(id: string) {
+    const data = await ClassRepository.getClassById(id);
+    if (!data) throw new Error("Class not found");
+    return data.students;
+  }
+
   static async createClass(data: CreateClassDTO) {
     if (new Date(data.end_date) <= new Date(data.start_date)) {
       throw { status: 400, message: 'End date must be greater than start date' };

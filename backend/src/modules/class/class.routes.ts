@@ -172,4 +172,22 @@ router.patch('/:id', ClassController.updateClass);
  */
 router.patch('/:class_id/sessions/:session_id', ClassController.updateClassSession);
 
+/**
+ * @swagger
+ * /api/staff/classes/{id}/students:
+ *   get:
+ *     summary: Lấy danh sách học viên của lớp học
+ *     tags: [Class]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/:id/students', ClassController.getClassStudents);
+
 export default router;

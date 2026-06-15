@@ -12,6 +12,8 @@ import consultationRequestRoutes from './modules/consultation-request/consultati
 import courseRoutes from './modules/course/course.routes';
 import classroomRoutes from './modules/classroom/classroom.routes';
 import classRoutes from './modules/class/class.routes';
+import enrollmentRoutes from './modules/enrollment/enrollment.routes';
+import sessionRoutes from './modules/session/session.routes';
 const app = express();
 
 // Middlewares toàn cục
@@ -29,6 +31,8 @@ app.use('/api/consultations', consultationRequestRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/classrooms', classroomRoutes);
 app.use('/api/staff/classes', classRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/sessions', sessionRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -152,3 +152,41 @@ Chịu trách nhiệm dịch toàn bộ các từ khóa, nút bấm, thông báo
 - `[x]` **QA-24: Rà soát lại chất lượng ngôn ngữ**
   - Mở giao diện và kiểm tra ngẫu nhiên xem có sót chuỗi tiếng Việt nào không.
   - Sửa đổi nội dung payload trong các file `*.http` (ví dụ `consultation.http`, `class.http`) để sử dụng sample data bằng tiếng Anh (hoặc không chứa ký tự tiếng Việt báo lỗi).
+
+---
+
+## 🚀 14. Kế hoạch Vận hành Lớp học (Class Operations - Phase 1 & 3)
+
+Theo thống nhất, mảng Thanh toán (Payment) sẽ được lùi lại. Giai đoạn này tập trung đưa Học viên vào lớp (Ghi danh miễn phí/Công nợ) và thực hiện Điểm danh hàng ngày.
+
+### 🗄️ DB Agent
+- `[x]` **DB-05: Schema `Enrollment` và `Attendance`**
+  - Tạo bảng `Enrollment`: `id`, `learner_id` (FK Account), `class_id` (FK Class), `enrollment_date`, `status` (Enum: 'ACTIVE', 'CANCELED').
+  - Tạo bảng `Attendance`: `id`, `session_id` (FK Session), `learner_id` (FK Account), `status` (Enum: 'PRESENT', 'ABSENT_EXCUSED', 'ABSENT_UNEXCUSED'), `notes`.
+  - Đảm bảo Unique Constraint: Một học viên chỉ được enroll vào một lớp 1 lần. Một học viên chỉ có 1 record attendance trong 1 session.
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-28: API Ghi danh Lớp học (Enrollment)**
+  - `POST /api/learner/enrollments`: Bỏ qua check Payment, insert thẳng record vào `Enrollment` với status `ACTIVE`. Validate sĩ số tối đa của Class, nếu đầy ném lỗi.
+  - `GET /api/learner/enrollments`: Lấy danh sách lớp Learner đang học.
+- `[x]` **BE-29: API Lấy danh sách Lớp học cho chi tiết lớp**
+  - `GET /api/classes/:id/students`: Trả về danh sách Learner dựa theo `Enrollment` để Tutor/Staff xem.
+- `[x]` **BE-30: API Điểm danh (Attendance)**
+  - `GET /api/sessions/:session_id/attendance`: Lấy danh sách học viên trong buổi học. Tự động sinh records mặc định 'PRESENT' cho tất cả Learner nếu đây là lần đầu gọi.
+  - `PUT /api/sessions/:session_id/attendance`: API cho phép Tutor submit mảng dữ liệu điểm danh hàng loạt.
+
+### 🎨 Frontend Agent
+- `[ ]` **FE-30: Màn hình Học viên Ghi danh**
+  - Cập nhật `registration.tsx`: Nút "Đăng ký ngay" sẽ bỏ qua giỏ hàng, gọi thẳng API `BE-28` và hiện thông báo vào lớp thành công.
+  - Cập nhật `classes.tsx` (Learner): Gọi API hiển thị Lớp của tôi.
+- `[ ]` **FE-31: Cập nhật Màn hình Chi tiết Lớp (Staff/Tutor)**
+  - Mở tab "Students" trong `class-detail.tsx`, gọi API `BE-29` để hiển thị danh sách học viên hiện tại của lớp.
+- `[ ]` **FE-32: Giao diện Điểm danh (Tutor Screen)**
+  - Cập nhật `attendance.tsx`: Hiển thị danh sách các Session. Bấm vào 1 Session sẽ sổ ra dạng Grid danh sách Học viên.
+  - Có các Radio buttons (Present, Absent, Excused) và nút "Lưu điểm danh".
+
+### 🕵️‍♂️ QA Agent
+- `[ ]` **QA-25: Kiểm thử Sĩ số lớp (Capacity Limit)**
+  - Tạo lớp có Capacity = 1. Đưa 1 Learner vào lớp. Đưa Learner thứ 2 vào -> Kỳ vọng Backend văng lỗi 400 và FE hiển thị rõ "Lớp đã đầy".
+- `[ ]` **QA-26: Kiểm thử luồng Điểm danh End-to-End**
+  - Tutor truy cập đúng Session của mình -> Điểm danh "Vắng mặt" 1 Learner -> Gọi lại API Get Attendance xem dữ liệu có lưu đúng không.

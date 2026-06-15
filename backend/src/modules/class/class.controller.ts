@@ -66,4 +66,14 @@ export class ClassController {
       res.status(error.status || 500).json({ success: false, message: error.message });
     }
   }
+
+  static async getClassStudents(req: Request, res: Response): Promise<void> {
+    try {
+      const id = req.params.id as string;
+      const result = await ClassService.getClassStudents(id);
+      res.status(200).json({ success: true, data: result });
+    } catch (error: any) {
+      res.status(error.status || 500).json({ success: false, message: error.message });
+    }
+  }
 }
