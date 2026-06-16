@@ -63,7 +63,7 @@ const PaymentHistory = () => {
                                     <td className="py-5 px-6 font-bold text-[#002045]">{inv.id}</td>
                                     <td className="py-5 px-6 font-semibold text-slate-700">{inv.course}</td>
                                     <td className="py-5 px-6 text-slate-500 font-medium">{inv.date}</td>
-                                    <td className="py-5 px-6 font-black text-slate-900">{inv.amount.toLocaleString()} đ</td>
+                                    <td className="py-5 px-6 font-black text-slate-900">{inv.amount.toLocaleString('vi-VN')} đ</td>
                                     <td className="py-5 px-6">
                                         <div className="flex items-center gap-2">
                                             {getStatusBadge(inv.status)}

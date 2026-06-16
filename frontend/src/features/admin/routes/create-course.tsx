@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Plus, Trash2, X, Image as ImageIcon, BookOpen, Clock, Users, Target, Book, AlignLeft, Tags } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, X, Image as ImageIcon, BookOpen, Clock, Users, Target, Book, AlignLeft, Tags, Globe } from 'lucide-react';
 import { CoursesService } from '../../../shared/services/courses.service';
 
 const CreateCourse = () => {
@@ -22,7 +22,9 @@ const CreateCourse = () => {
         next_cohort: '',
         image_url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=600&h=400',
         status: 'Active',
-        maxSize: '15'
+        maxSize: '15',
+        location: 'London Center / Online',
+        language: 'English'
     });
 
     const [modules, setModules] = useState([
@@ -88,6 +90,14 @@ const CreateCourse = () => {
         e.preventDefault();
         setLoading(true);
         try {
+            if (formData.original_price && Number(formData.original_price) < Number(formData.price)) {
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { title: 'Validation Error', message: 'Original Price must be greater than or equal to the current Price.', mode: 'alert', type: 'warning' }
+                }));
+                setLoading(false);
+                return;
+            }
+
             if (modules.length === 0) {
                 window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
                     detail: { title: 'Validation Error', message: 'At least 1 Course Module is required.', mode: 'alert', type: 'warning' }
@@ -152,6 +162,8 @@ const CreateCourse = () => {
                 original_price: Number(formData.original_price),
                 max_size: Number(formData.maxSize),
                 sessions: calculatedTotalSessions,
+                location: formData.location,
+                language: formData.language,
                 modules: cleanedModules
             };
 
@@ -221,6 +233,31 @@ const CreateCourse = () => {
                             </div>
                         </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label className="flex items-center gap-2 text-[14px] font-bold text-[#43474e] mb-2">
+                                    <Globe size={18} className="text-[#0061a5]" /> Format
+                                </label>
+                                <select name="format" value={formData.format} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f8f9fa] font-medium border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] focus:bg-white outline-none transition-all">
+                                    <option value="Offline">Offline</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-2 text-[14px] font-bold text-[#43474e] mb-2">
+                                    <BookOpen size={18} className="text-[#0061a5]" /> Language
+                                </label>
+                                <input name="language" value={formData.language} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f8f9fa] font-medium border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] focus:bg-white outline-none transition-all" placeholder="e.g. English" />
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-2 text-[14px] font-bold text-[#43474e] mb-2">
+                                    <Tags size={18} className="text-[#0061a5]" /> Location
+                                </label>
+                                <input name="location" value={formData.location} onChange={handleInputChange} className="w-full px-4 py-3 bg-[#f8f9fa] font-medium border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] focus:bg-white outline-none transition-all" placeholder="e.g. London Center" />
+                            </div>
+                        </div>
+
                         {/* Stats grid, similar to the edit view */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5] hover:border-[#c4c6cf] transition-colors">
@@ -270,8 +307,8 @@ const CreateCourse = () => {
                             <input required type="number" name="price" value={formData.price} onChange={handleInputChange} className="w-full px-4 py-2 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] outline-none transition-all" />
                         </div>
                         <div>
-                            <label className="block text-[14px] font-bold text-[#43474e] mb-1">Original Price (VND) *</label>
-                            <input required type="number" name="original_price" value={formData.original_price} onChange={handleInputChange} className={`w-full px-4 py-2 bg-[#f7fafc] border ${formData.price && formData.original_price && Number(formData.original_price) < Number(formData.price) ? 'border-[#ba1a1a] focus:border-[#ba1a1a] focus:ring-1 focus:ring-[#ba1a1a]' : 'border-[#c4c6cf] focus:border-[#0061a5]'} rounded-xl outline-none transition-all`} />
+                            <label className="block text-[14px] font-bold text-[#43474e] mb-1">Original Price (VND)</label>
+                            <input type="number" name="original_price" value={formData.original_price} onChange={handleInputChange} className={`w-full px-4 py-2 bg-[#f7fafc] border ${formData.price && formData.original_price && Number(formData.original_price) < Number(formData.price) ? 'border-[#ba1a1a] focus:border-[#ba1a1a] focus:ring-1 focus:ring-[#ba1a1a]' : 'border-[#c4c6cf] focus:border-[#0061a5]'} rounded-xl outline-none transition-all`} />
                             {formData.price && formData.original_price && Number(formData.original_price) < Number(formData.price) && (
                                 <p className="text-[#ba1a1a] text-[13px] font-medium mt-1">Note: Original Price should be greater than Price.</p>
                             )}

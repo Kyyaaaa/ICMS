@@ -25,9 +25,16 @@ export class CourseService {
 
     static async deleteCourse(id: string) {
         if (!id) throw new Error('Course ID is required.');
-        const success = await CourseRepository.deleteCourse(id);
-        if (!success) throw new Error('Course not found or could not be deleted.');
-        return success;
+        try {
+            const success = await CourseRepository.deleteCourse(id);
+            if (!success) throw new Error('Course not found or could not be deleted.');
+            return success;
+        } catch (error: any) {
+            if (error.code === '23503') {
+                throw new Error('Cannot delete this course because it has associated classes or students.');
+            }
+            throw error;
+        }
     }
 
     static async updateCourse(id: string, courseData: any) {

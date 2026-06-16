@@ -34,7 +34,7 @@ export const CoursesService = {
         }
     },
 
-    createCourse: async (courseData: any): Promise<Course | null> => {
+    createCourse: async (courseData: Record<string, unknown>): Promise<Course | null> => {
         try {
             const response = await axios.post(API_URL, courseData, getAuthHeaders());
             return response.data.data;
@@ -44,7 +44,7 @@ export const CoursesService = {
         }
     },
 
-    updateCourse: async (id: string, courseData: any): Promise<Course | null> => {
+    updateCourse: async (id: string, courseData: Record<string, unknown>): Promise<Course | null> => {
         try {
             const response = await axios.put(`${API_URL}/${id}`, courseData, getAuthHeaders());
             return response.data.data;
@@ -58,9 +58,10 @@ export const CoursesService = {
         try {
             await axios.delete(`${API_URL}/${id}`, getAuthHeaders());
             return true;
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Error deleting course:', error);
-            return false;
+            const message = axios.isAxiosError(error) ? error.response?.data?.message : 'Failed to delete course';
+            throw new Error(message || 'Failed to delete course', { cause: error });
         }
     },
 

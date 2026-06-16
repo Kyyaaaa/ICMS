@@ -11,9 +11,11 @@ export interface Course {
     duration?: string;
     sessions?: number | string;
     format?: string;
+    location?: string;
+    language?: string;
     band?: string;
     original_price?: string | number;
     next_cohort?: string;
     image_url?: string;
-    modules?: any[];
+    modules?: Record<string, unknown>[];
 }

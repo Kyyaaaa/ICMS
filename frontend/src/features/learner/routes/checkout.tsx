@@ -53,7 +53,7 @@ const PaymentCheckout = () => {
                 </div>
                 <h2 className="text-3xl font-extrabold text-[#002045] mb-4">Payment Successful!</h2>
                 <p className="text-lg text-[#43474e] mb-8 max-w-lg mx-auto">
-                    Your payment of <strong>{initialPayment.toLocaleString()} đ</strong> for {course.title} has been processed. 
+                    Your payment of <strong>{initialPayment.toLocaleString('vi-VN')} đ</strong> for {course.title} has been processed. 
                     {paymentPlan === 'installment' && " The next installment will be automatically billed next month."}
                 </p>
                 <div className="bg-[#f7fafc] border border-[#e0e3e5] rounded-2xl p-6 mb-10 text-left max-w-md mx-auto">
@@ -125,7 +125,7 @@ const PaymentCheckout = () => {
                                     </div>
                                     <span className="text-lg font-bold text-[#002045]">Pay in Full</span>
                                 </div>
-                                <p className="text-sm text-[#43474e] ml-13">One-time payment of {priceValue.toLocaleString()} đ.</p>
+                                <p className="text-sm text-[#43474e] ml-13">One-time payment of {priceValue.toLocaleString('vi-VN')} đ.</p>
                             </label>
 
                             <label className={`relative p-5 border-2 rounded-2xl cursor-pointer transition-all ${paymentPlan === 'installment' ? 'border-[#0061a5] bg-[#f0f7ff]' : 'border-[#e0e3e5] hover:border-[#c4c6cf]'}`}>
@@ -136,7 +136,7 @@ const PaymentCheckout = () => {
                                     </div>
                                     <span className="text-lg font-bold text-[#002045]">3 Installments</span>
                                 </div>
-                                <p className="text-sm text-[#43474e] ml-13">Pay {(priceValue/3).toLocaleString()} đ today, and {(priceValue/3).toLocaleString()} đ monthly for 2 months.</p>
+                                <p className="text-sm text-[#43474e] ml-13">Pay {(priceValue/3).toLocaleString('vi-VN')} đ today, and {(priceValue/3).toLocaleString('vi-VN')} đ monthly for 2 months.</p>
                             </label>
                         </div>
                     </div>
@@ -152,7 +152,7 @@ const PaymentCheckout = () => {
                         <div className="flex flex-col gap-4 mb-6 text-sm">
                             <div className="flex justify-between items-center">
                                 <span className="text-[#adc7f7]">Course Tuition</span>
-                                <span className="font-bold">{priceValue.toLocaleString()} đ</span>
+                                <span className="font-bold">{priceValue.toLocaleString('vi-VN')} đ</span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-[#adc7f7]">Registration Fee</span>
@@ -169,7 +169,7 @@ const PaymentCheckout = () => {
                         <div className="border-t border-white/20 pt-6 mb-8">
                             <div className="flex justify-between items-end">
                                 <span className="text-base font-bold text-[#adc7f7]">Amount Due Today</span>
-                                <span className="text-4xl font-extrabold leading-none">{initialPayment.toLocaleString()} đ</span>
+                                <span className="text-4xl font-extrabold leading-none">{initialPayment.toLocaleString('vi-VN')} đ</span>
                             </div>
                             <div className="text-right text-xs text-[#adc7f7] mt-2">Includes all taxes and fees</div>
                         </div>
@@ -180,7 +180,7 @@ const PaymentCheckout = () => {
                             disabled={isProcessing}
                             className="w-full bg-[#0061a5] text-white font-bold py-4 rounded-xl shadow-md hover:bg-[#004a80] hover:shadow-lg disabled:opacity-50 transition-all flex justify-center items-center gap-2"
                         >
-                            {isProcessing ? 'Redirecting to Payment Gateway...' : `Proceed to Pay ${initialPayment.toLocaleString()} đ`}
+                            {isProcessing ? 'Redirecting to Payment Gateway...' : `Proceed to Pay ${initialPayment.toLocaleString('vi-VN')} đ`}
                         </button>
 
                         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-[#adc7f7]">

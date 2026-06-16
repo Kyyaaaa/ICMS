@@ -25,12 +25,13 @@ const AdminCourses = () => {
     const handleDelete = async (id: string) => {
         const isConfirmed = await showConfirmModal('Confirm Delete', 'Are you sure you want to delete this course?', 'warning');
         if (isConfirmed) {
-            const success = await CoursesService.deleteCourse(id);
-            if (success) {
+            try {
+                await CoursesService.deleteCourse(id);
                 setCourses(prev => prev.filter(c => c.id !== id));
-            } else {
+            } catch (error: unknown) {
+                const errorMessage = error instanceof Error ? error.message : 'Failed to delete course from server.';
                 window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
-                    detail: { title: 'Delete Failed', message: 'Failed to delete course from server.', mode: 'alert', type: 'error' }
+                    detail: { title: 'Delete Failed', message: errorMessage, mode: 'alert', type: 'error' }
                 }));
             }
         }

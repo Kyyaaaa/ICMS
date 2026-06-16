@@ -179,17 +179,17 @@ const PaymentDetail = () => {
                                     <p className="font-bold text-[#181c1e] text-sm">{invoice.course}</p>
                                     <p className="text-xs text-[#74777f] mt-1">Tuition Fee</p>
                                 </div>
-                                <p className="font-semibold text-[#181c1e] whitespace-nowrap">{invoice.amount.toLocaleString()} đ</p>
+                                <p className="font-semibold text-[#181c1e] whitespace-nowrap">{invoice.amount.toLocaleString('vi-VN')} đ</p>
                             </div>
                             
                             <div className="flex justify-between items-center text-sm text-[#74777f]">
                                 <span>Subtotal</span>
-                                <span>{(invoice.amount + (invoice.discount || 0)).toLocaleString()} đ</span>
+                                <span>{(invoice.amount + (invoice.discount || 0)).toLocaleString('vi-VN')} đ</span>
                             </div>
                             {invoice.discount && (
                                 <div className="flex justify-between items-center text-sm text-[#137333]">
                                     <span>Discount applied</span>
-                                    <span>-{invoice.discount.toLocaleString()} đ</span>
+                                    <span>-{invoice.discount.toLocaleString('vi-VN')} đ</span>
                                 </div>
                             )}
                             <div className="flex justify-between items-center text-sm text-[#74777f]">
@@ -199,7 +199,7 @@ const PaymentDetail = () => {
                             
                             <div className="pt-4 border-t border-[#eef0f4] flex justify-between items-center">
                                 <span className="font-bold text-[#002045] text-base">Total</span>
-                                <span className="font-black text-[#0061a5] text-2xl">{invoice.amount.toLocaleString()} đ</span>
+                                <span className="font-black text-[#0061a5] text-2xl">{invoice.amount.toLocaleString('vi-VN')} đ</span>
                             </div>
                         </div>
                     </div>
@@ -231,7 +231,7 @@ const PaymentDetail = () => {
                                                 {inst.dueDate}
                                                 {inst.paidDate && <span className="block text-xs text-[#137333] mt-0.5">Paid on {inst.paidDate}</span>}
                                             </td>
-                                            <td className="py-3 px-4 font-bold text-[#181c1e]">{inst.amount.toLocaleString()} đ</td>
+                                            <td className="py-3 px-4 font-bold text-[#181c1e]">{inst.amount.toLocaleString('vi-VN')} đ</td>
                                             <td className="py-3 px-4">
                                                 {inst.status === 'paid' ? (
                                                     <span className="px-2 py-1 bg-[#e6f4ea] text-[#137333] text-xs font-black rounded uppercase">Paid</span>

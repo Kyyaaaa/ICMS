@@ -25,8 +25,8 @@ export class CourseRepository {
             // Thêm khóa học mới vào bảng courses
             const insertCourseQuery = `
                 INSERT INTO courses (
-                    title, code, band, duration, sessions, format, category, type, price, original_price, description, next_cohort, image_url, status, max_size
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                    title, code, band, duration, sessions, format, category, type, price, original_price, description, next_cohort, image_url, status, max_size, location, language
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
                 RETURNING *;
             `;
             const courseValues = [
@@ -44,7 +44,9 @@ export class CourseRepository {
                 courseData.next_cohort,
                 courseData.image_url,
                 courseData.status || 'Draft',
-                courseData.max_size || 15
+                courseData.max_size || 15,
+                courseData.location || 'London Center / Online',
+                courseData.language || 'English'
             ];
             const courseRes = await client.query(insertCourseQuery, courseValues);
             const newCourse = courseRes.rows[0];
@@ -121,8 +123,36 @@ export class CourseRepository {
     }
 
     static async deleteCourse(id: string) {
-        const res = await pool.query('DELETE FROM courses WHERE id = $1', [id]);
-        return res.rowCount && res.rowCount > 0;
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            
+            // Check if there are any enrollments in any classes of this course
+            const enrollmentsCheck = await client.query(`
+                SELECT count(*) as count
+                FROM enrollments e
+                JOIN classes c ON e.class_id = c.id
+                WHERE c.course_id = $1
+            `, [id]);
+            
+            if (parseInt(enrollmentsCheck.rows[0].count) > 0) {
+                throw new Error('Cannot delete this course because it has enrolled students.');
+            }
+            
+            // It's safe to delete classes since there are no enrollments (this will also delete class_sessions via CASCADE)
+            await client.query('DELETE FROM classes WHERE course_id = $1', [id]);
+            
+            // Delete the course
+            const res = await client.query('DELETE FROM courses WHERE id = $1', [id]);
+            
+            await client.query('COMMIT');
+            return res.rowCount && res.rowCount > 0;
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 
     static async updateCourse(id: string, courseData: any, modules: any[] = []) {
@@ -147,8 +177,10 @@ export class CourseRepository {
                     image_url = COALESCE($13, image_url),
                     status = COALESCE($14, status),
                     max_size = COALESCE($15, max_size),
+                    location = COALESCE($16, location),
+                    language = COALESCE($17, language),
                     updated_at = CURRENT_TIMESTAMP
-                WHERE id = $16
+                WHERE id = $18
                 RETURNING *;
             `;
             const courseValues = [
@@ -167,6 +199,8 @@ export class CourseRepository {
                 courseData.image_url,
                 courseData.status,
                 courseData.max_size,
+                courseData.location,
+                courseData.language,
                 id
             ];
             const courseRes = await client.query(updateCourseQuery, courseValues);

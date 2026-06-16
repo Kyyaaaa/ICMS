@@ -91,7 +91,7 @@ const RefundRequest = () => {
                         <span className="font-semibold text-[#181c1e]">
                             {(installmentId && invoice.installments ? 
                                 (invoice.installments.find(i => i.id === installmentId)?.amount || invoice.amount) 
-                                : invoice.amount).toLocaleString()} đ
+                                : invoice.amount).toLocaleString('vi-VN')} đ
                         </span>
                         <span>Course:</span>
                         <span className="font-semibold text-[#181c1e]">{invoice.course}</span>

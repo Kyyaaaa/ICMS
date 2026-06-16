@@ -7,32 +7,35 @@ import type { Course } from '@/shared/types/course';
 import { CoursesService } from '@/shared/services/courses.service';
 
 const Courses = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userInfo, setUserInfo] = useState<Record<string, unknown> | undefined>(undefined);
-    const [userRole, setUserRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>('learner');
+    const [isLoggedIn, setIsLoggedIn] = useState(() => !!Cookies.get('access_token') && !!Cookies.get('user_info'));
+    const [userInfo] = useState<Record<string, unknown> | undefined>(() => {
+        const userStr = Cookies.get('user_info');
+        if (userStr) {
+            try { return JSON.parse(userStr); } catch { return undefined; }
+        }
+        return undefined;
+    });
+    const [userRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>(() => {
+        const userStr = Cookies.get('user_info');
+        if (userStr) {
+            try { return JSON.parse(userStr).role?.toLowerCase() || 'learner'; } catch { return 'learner'; }
+        }
+        return 'learner';
+    });
     const [courses, setCourses] = useState<Course[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        
-        const token = Cookies.get('access_token');
-        const userStr = Cookies.get('user_info');
-        if (token && userStr) {
-            setIsLoggedIn(true);
-            try {
-                const user = JSON.parse(userStr);
-                setUserInfo(user);
-                setUserRole(user.role ? user.role.toLowerCase() : 'learner');
-            } catch (e) {
-                // Ignore parse error
-            }
-        }
 
         const fetchCourses = async () => {
             try {
                 const data = await CoursesService.getCourses();
-                setCourses(data);
+                const visibleCourses = data.filter((c: Course & { status?: string }) => {
+                    const status = String(c.status || '').toLowerCase();
+                    return status !== 'draft' && status !== 'hidden';
+                });
+                setCourses(visibleCourses);
             } catch (e) {
                 console.error("Failed to fetch courses:", e);
             } finally {
@@ -151,8 +154,8 @@ const Courses = () => {
                             {filteredCourses.map(course => (
                                 <div key={course.id} className="bg-white rounded-2xl overflow-hidden border border-[#e0e3e5] shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full hover:-translate-y-1 cursor-pointer" onClick={() => navigate(`/courses/${course.id}`)}>
                                     <div className="relative h-50 overflow-hidden bg-[#e6f0fa]">
-                                        {(course as any).image_url || (course as any).image ? (
-                                            <img src={(course as any).image_url || (course as any).image} alt={course.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                        {(course as Course & { image_url?: string; image?: string }).image_url || (course as Course & { image_url?: string; image?: string }).image ? (
+                                            <img src={(course as Course & { image_url?: string; image?: string }).image_url || (course as Course & { image_url?: string; image?: string }).image} alt={course.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                         ) : (
                                             <div className="absolute inset-0 bg-linear-to-br from-[#002045] to-[#0061a5] transition-transform duration-500 group-hover:scale-105"></div>
                                         )}
@@ -177,7 +180,9 @@ const Courses = () => {
                                         </div>
 
                                         <div className="flex justify-between items-center mt-auto">
-                                            <span className="text-xl font-extrabold text-[#0061a5]">{course.price}</span>
+                                            <span className="text-xl font-extrabold text-[#0061a5]">
+                                                {course.price ? new Intl.NumberFormat('vi-VN').format(Number(course.price)) : '0'} đ
+                                            </span>
                                             <span className="text-sm font-bold text-[#002045] flex items-center gap-1 group-hover:text-[#0061a5] transition-colors">
                                                 View Details <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                                             </span>
