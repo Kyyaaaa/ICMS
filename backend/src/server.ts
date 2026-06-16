@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './configs/database';
 import app from './app';
 import './cron/classStatusCron';
+import './cron/supportTicketCron';
 
 // Cấu hình dotenv để đọc được file .env
 dotenv.config();

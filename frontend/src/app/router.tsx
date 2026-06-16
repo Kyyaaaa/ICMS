@@ -77,7 +77,7 @@ import AvailabilityRegistration from "@/features/tutor/routes/availability.tsx";
 import TeachingSchedule from "@/features/tutor/routes/schedule.tsx";
 import TutorChangeRequests from "@/features/tutor/routes/change-requests.tsx";
 import TutorSalaryHistory from "@/features/tutor/routes/salary.tsx";
-import { TutorSupportTickets } from "@/features/tutor/routes/support-tickets.tsx";
+// import { TutorSupportTickets } from "@/features/tutor/routes/support-tickets.tsx";
 import TutorClasses from "@/features/tutor/routes/classes";
 import TutorClassDetail from "@/features/tutor/routes/class-detail";
 import TutorAttendance from "@/features/tutor/routes/attendance.tsx";
@@ -230,7 +230,7 @@ export const AppRouter = () => {
           />
           <Route
             path="/tutor/support-tickets"
-            element={<TutorSupportTickets />}
+            element={<SupportTickets />}
           />
           <Route path="/tutor/salary" element={<TutorSalaryHistory />} />
         </Route>

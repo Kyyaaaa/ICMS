@@ -14,6 +14,7 @@ import classroomRoutes from './modules/classroom/classroom.routes';
 import classRoutes from './modules/class/class.routes';
 import enrollmentRoutes from './modules/enrollment/enrollment.routes';
 import sessionRoutes from './modules/session/session.routes';
+import supportTicketRoutes from './modules/support-ticket/support-ticket.routes';
 const app = express();
 
 // Middlewares toàn cục
@@ -33,6 +34,7 @@ app.use('/api/classrooms', classroomRoutes);
 app.use('/api/staff/classes', classRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/support-tickets', supportTicketRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
