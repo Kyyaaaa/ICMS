@@ -46,7 +46,7 @@ export const getTickets = async (req: Request, res: Response) => {
 
 export const getTicketMessages = async (req: Request, res: Response) => {
     try {
-        const ticket_id = req.params.id;
+        const ticket_id = req.params.id as string;
         const messages = await SupportTicketService.getTicketMessages(ticket_id);
         res.json(messages);
     } catch (error: any) {
@@ -56,7 +56,7 @@ export const getTicketMessages = async (req: Request, res: Response) => {
 
 export const replyToTicket = async (req: Request, res: Response) => {
     try {
-        const ticket_id = req.params.id;
+        const ticket_id = req.params.id as string;
         const user = (req as any).user;
         const sender_id = user?.id || req.body.sender_id;
         const sender_role = user?.role || req.body.sender_role;
@@ -80,7 +80,7 @@ export const replyToTicket = async (req: Request, res: Response) => {
 
 export const updateTicketStatus = async (req: Request, res: Response) => {
     try {
-        const ticket_id = req.params.id;
+        const ticket_id = req.params.id as string;
         const status = req.body.status;
         const updatedTicket = await SupportTicketService.updateTicketStatus(ticket_id, status);
         res.json(updatedTicket);

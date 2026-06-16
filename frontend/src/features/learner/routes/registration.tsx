@@ -9,7 +9,7 @@ const ClassRegistration = () => {
     const { courseId } = useParams();
     const [classOptions, setClassOptions] = useState<RegistrationClassOption[]>([]);
     const [selectedClass, setSelectedClass] = useState<number | string | null>(null);
-    const [invoicePreview, setInvoicePreview] = useState<RegistrationInvoicePreview | null>(null);
+    const [_invoicePreview, setInvoicePreview] = useState<RegistrationInvoicePreview | null>(null);
     const [loading, setLoading] = useState(true);
     
     const [isConfirming, setIsConfirming] = useState(false);

@@ -3,18 +3,18 @@ import type { Announcement, TargetAudience, AudienceScope } from '../types/annou
 
 interface AnnouncementCardProps {
     announcement: Announcement;
-    mockClasses: { id: string; name: string }[];
-    onEdit: (ann: Announcement) => void;
+    availableClasses: { id: string; name: string }[];
+    onEdit: (announcement: Announcement) => void;
     onDelete: (id: string) => void;
 }
 
-export const AnnouncementCard = ({ announcement, mockClasses, onEdit, onDelete }: AnnouncementCardProps) => {
+export const AnnouncementCard = ({ announcement, availableClasses, onEdit, onDelete }: AnnouncementCardProps) => {
     const formatAudienceText = (audience: TargetAudience) => {
         if (audience.scope === 'System Wide') return "All Users (System Wide)";
         if (audience.scope === 'Specific Roles') return audience.roles.length > 0 ? `Roles: ${audience.roles.join(', ')}` : "All Roles";
         if (audience.scope === 'Specific Classes') {
             if (audience.classes.length === 0) return "All Classes";
-            const classNames = audience.classes.map(cid => mockClasses.find(c => c.id === cid)?.name).filter(Boolean);
+            const classNames = audience.classes.map(cid => availableClasses.find(c => c.id === cid)?.name).filter(Boolean);
             return `Classes: ${classNames.join(', ')}`;
         }
         return "Unknown";

@@ -5,12 +5,13 @@ import type { Announcement, AudienceScope, Role } from '../types/announcement';
 interface AnnouncementFormModalProps {
     mode: 'create' | 'edit';
     initialData?: Announcement;
-    mockClasses: { id: string; name: string }[];
+    availableCourses: { id: string; name: string }[];
+    availableClasses: { id: string; name: string; course_id?: string }[];
     onClose: () => void;
     onSave: (data: Omit<Announcement, 'id' | 'date' | 'status'> & { publishMode: 'now' | 'schedule' }) => void;
 }
 
-export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose, onSave }: AnnouncementFormModalProps) => {
+export const AnnouncementFormModal = ({ mode, initialData, availableCourses, availableClasses, onClose, onSave }: AnnouncementFormModalProps) => {
     const [formData, setFormData] = useState<Omit<Announcement, 'id' | 'date' | 'status'>>({
         title: '',
         content: '',
@@ -18,10 +19,10 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
         scheduledFor: ''
     });
     const [publishMode, setPublishMode] = useState<'now' | 'schedule'>('now');
+    const [selectedCourseId, setSelectedCourseId] = useState<string>('');
 
     useEffect(() => {
         if (mode === 'edit' && initialData) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({
                 title: initialData.title,
                 content: initialData.content,
@@ -52,6 +53,10 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
         e.preventDefault();
         onSave({ ...formData, publishMode });
     };
+
+    const filteredClasses = selectedCourseId 
+        ? availableClasses.filter(c => c.course_id === selectedCourseId)
+        : availableClasses;
 
     return (
         <div className="fixed inset-0 bg-[#002045]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
@@ -95,7 +100,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                             required 
                                             value={formData.content}
                                             onChange={e => setFormData({...formData, content: e.target.value})}
-                                            className="w-full flex-1 min-h-75 px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors resize-none leading-relaxed" 
+                                            className="w-full flex-1 min-h-[300px] px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors resize-none leading-relaxed" 
                                             placeholder="Type the announcement message here..."
                                         ></textarea>
                                     </div>
@@ -172,9 +177,21 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                                 )}
 
                                                 {isSelected && scope === 'Specific Classes' && (
-                                                    <div className="pl-4 pr-1 py-2 animate-fade-in">
-                                                        <div className="space-y-2 max-h-45 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#c4c6cf]">
-                                                            {mockClasses.map(cls => {
+                                                    <div className="pl-4 pr-1 py-2 animate-fade-in space-y-3">
+                                                        <div>
+                                                            <select 
+                                                                value={selectedCourseId}
+                                                                onChange={e => setSelectedCourseId(e.target.value)}
+                                                                className="w-full px-3 py-2 bg-white border border-[#c4c6cf] rounded-lg text-sm focus:outline-none focus:border-[#0061a5] transition-colors"
+                                                            >
+                                                                <option value="">Filter by Course (All Courses)</option>
+                                                                {availableCourses.map(course => (
+                                                                    <option key={course.id} value={course.id}>{course.name}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#c4c6cf]">
+                                                            {filteredClasses.length > 0 ? filteredClasses.map(cls => {
                                                                 const classSelected = formData.audience.classes.includes(cls.id);
                                                                 return (
                                                                     <div 
@@ -194,13 +211,20 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                                                         </span>
                                                                     </div>
                                                                 );
-                                                            })}
+                                                            }) : (
+                                                                <div className="text-center py-4 text-xs text-[#74777f]">No classes found for the selected course.</div>
+                                                            )}
                                                         </div>
-                                                        {formData.audience.classes.length === 0 && (
-                                                            <p className="text-xs text-[#74777f] font-medium flex items-center gap-1 mt-2">
-                                                                💡 Leave empty to target ALL Classes
-                                                            </p>
-                                                        )}
+                                                        <div className="pt-2 border-t border-[#e0e3e5]">
+                                                            <div className="text-xs text-[#0061a5] font-bold">
+                                                                Selected Classes: {formData.audience.classes.length}
+                                                            </div>
+                                                            {formData.audience.classes.length === 0 && (
+                                                                <p className="text-xs text-[#74777f] font-medium mt-1">
+                                                                    💡 Leave empty to target ALL Classes
+                                                                </p>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 )}
                                             </div>
@@ -231,6 +255,7 @@ export const AnnouncementFormModal = ({ mode, initialData, mockClasses, onClose,
                                         <div className="pt-2 animate-fade-in">
                                             <input 
                                                 type="datetime-local" 
+                                                min={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                                                 value={formData.scheduledFor}
                                                 onChange={e => setFormData({...formData, scheduledFor: e.target.value})}
                                                 className="w-full px-4 py-2.5 bg-white border border-[#0061a5] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0061a5]/20 transition-all font-bold text-[#002045]"

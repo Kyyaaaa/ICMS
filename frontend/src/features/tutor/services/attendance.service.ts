@@ -1,5 +1,5 @@
 import axiosClient from '@/shared/services/axiosClient';
-import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceRecordMap } from '../types/attendance';
+import type { AttendanceClass } from '../types/attendance';
 import Cookies from 'js-cookie';
 
 export const AttendanceService = {

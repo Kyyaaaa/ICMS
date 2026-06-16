@@ -1,4 +1,4 @@
-import { Clock, CheckCircle, Edit, Calendar } from 'lucide-react';
+import { Clock, Edit } from 'lucide-react';
 import type { Session } from '../types/class';
 
 interface ClassScheduleTabProps {

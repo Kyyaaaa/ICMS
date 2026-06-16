@@ -1,18 +1,58 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { AnnouncementsService } from '@/features/admin/services/announcements.service';
+import { supabase } from '@/utils/supabase';
 import { LayoutDashboard, BookOpen, Calendar, MessageSquare, Bell, LogOut, Menu, X, Globe , Wallet, UserCog, FileText} from 'lucide-react';
 
 const LearnerLayout = () => {
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
-    const [notifications, setNotifications] = useState([
-        { id: 1, type: 'staff', title: 'Class Rescheduled', message: 'Your IE1601 class has been moved to Room 402.', time: '10 mins ago', unread: true },
-        { id: 2, type: 'admin', title: 'Payment Reminder', message: 'Tuition fee for next month is due in 3 days.', time: '2 hours ago', unread: true },
-        { id: 3, type: 'system', title: 'System Update', message: 'ICMS platform will have a scheduled maintenance this Sunday at 2 AM.', time: '1 day ago', unread: false },
-        { id: 4, type: 'tutor', title: 'Material Uploaded', message: 'Tutor Dr. Sarah Smith uploaded new materials for IELTS Mastery.', time: '2 days ago', unread: false },
-    ]);
+    type NotificationItem = {
+        id: string;
+        type: string;
+        title: string;
+        message: string;
+        time: string;
+        unread: boolean;
+    };
+
+    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
+    useEffect(() => {
+        const fetchNotifs = async () => {
+            try {
+                const anns = await AnnouncementsService.getNotifications('Learner');
+                const readSet = new Set(JSON.parse(localStorage.getItem('readNotifications') || '[]'));
+                
+                const mapped: NotificationItem[] = anns.map(ann => ({
+                    id: ann.id,
+                    title: ann.title,
+                    message: ann.content,
+                    time: ann.date,
+                    unread: !readSet.has(ann.id),
+                    type: ann.audience.scope === 'System Wide' ? 'system' : 'admin'
+                }));
+                
+                setNotifications(mapped);
+            } catch (err) {
+                console.error("Failed to fetch notifications", err);
+            }
+        };
+        fetchNotifs();
+
+        const channel = supabase
+            .channel('public:announcements')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => {
+                fetchNotifs();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, []);
 
     const getTagColor = (type: string) => {
         switch(type) {
@@ -28,6 +68,9 @@ const LearnerLayout = () => {
     const unreadCount = notifications.filter(n => n.unread).length;
 
     const markAllAsRead = () => {
+        const readList = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+        const updatedList = Array.from(new Set([...readList, ...notifications.map(n => n.id)]));
+        localStorage.setItem('readNotifications', JSON.stringify(updatedList));
         setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
     };
 

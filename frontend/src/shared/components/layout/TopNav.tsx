@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Search, BookOpen, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { AnnouncementsService } from '@/features/admin/services/announcements.service';
+import { supabase } from '@/utils/supabase';
 
 interface TopNavProps {
     isLoggedIn?: boolean;
@@ -15,7 +17,7 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
     const [showProfileMenu, setShowProfileMenu] = useState(false);
 
     interface Notification {
-        id: number;
+        id: string;
         title: string;
         desc: string;
         time: string;
@@ -23,24 +25,43 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
         type: string;
     }
 
-    const initialNotifs: Notification[] = [
-        { id: 1, title: 'System Maintenance', desc: 'Scheduled maintenance on Sunday 2AM.', time: '2 hours ago', read: false, type: 'system' },
-        { id: 2, title: 'New Course Added', desc: 'Check out our new IELTS Speaking Masterclass.', time: '1 day ago', read: true, type: 'admin' },
-        { id: 3, title: 'Class Reminder', desc: 'Your class starts in 1 hour.', time: 'Just now', read: false, type: 'staff' },
-        { id: 4, title: 'Notice', desc: 'New materials or tasks are available.', time: '5 hours ago', read: false, type: 'tutor' },
-    ];
-
-    const [allNotifs, setAllNotifs] = useState<Notification[]>(() => {
-        const saved = localStorage.getItem('notifications');
-        if (saved) {
-            return JSON.parse(saved);
-        }
-        return initialNotifs;
-    });
+    const [allNotifs, setAllNotifs] = useState<Notification[]>([]);
 
     React.useEffect(() => {
-        localStorage.setItem('notifications', JSON.stringify(allNotifs));
-    }, [allNotifs]);
+        const fetchNotifs = async () => {
+            try {
+                const roleStr = isLoggedIn && userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Guest';
+                const anns = await AnnouncementsService.getNotifications(roleStr);
+                
+                const readSet = new Set(JSON.parse(localStorage.getItem('readNotifications') || '[]'));
+                
+                const mapped: Notification[] = anns.map(ann => ({
+                    id: ann.id,
+                    title: ann.title,
+                    desc: ann.content,
+                    time: ann.date,
+                    read: readSet.has(ann.id),
+                    type: ann.audience.scope === 'System Wide' ? 'system' : 'admin'
+                }));
+                
+                setAllNotifs(mapped);
+            } catch (err) {
+                console.error("Failed to fetch notifications for top nav", err);
+            }
+        };
+        fetchNotifs();
+
+        const channel = supabase
+            .channel('public:announcements')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => {
+                fetchNotifs();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [isLoggedIn, userRole]);
 
     const getTagColor = (type: string) => {
         switch(type) {
@@ -57,6 +78,9 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
     const unreadCount = notifications.filter(n => !n.read).length;
 
     const markAllAsRead = () => {
+        const readList = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+        const updatedList = Array.from(new Set([...readList, ...allNotifs.map(n => n.id)]));
+        localStorage.setItem('readNotifications', JSON.stringify(updatedList));
         setAllNotifs(prev => prev.map(n => ({ ...n, read: true })));
     };
 

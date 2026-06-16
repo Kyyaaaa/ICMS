@@ -3,18 +3,15 @@ import { useState, useEffect } from 'react';
 import { Megaphone, Plus, Filter, Search } from 'lucide-react';
 import type { Announcement, AudienceScope } from '../types/announcement';
 import { AnnouncementsService } from '../services/announcements.service';
+import { CoursesService } from '@/shared/services/courses.service';
+import { ClassesService } from '@/features/staff/services/classes.service';
 import { AnnouncementCard } from '../components/AnnouncementCard';
 import { AnnouncementFormModal } from '../components/AnnouncementFormModal';
 
-const mockClasses = [
-    { id: 'c1', name: 'Math 101 - Fall 2026' },
-    { id: 'c2', name: 'Physics 201 - Fall 2026' },
-    { id: 'c3', name: 'Chemistry 101 - Fall 2026' },
-    { id: 'c4', name: 'English 102 - Fall 2026' },
-];
-
 const AdminAnnouncements = () => {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+    const [courses, setCourses] = useState<{id: string, name: string}[]>([]);
+    const [classes, setClasses] = useState<{id: string, name: string, course_id?: string}[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,13 +23,24 @@ const AdminAnnouncements = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        const fetchAnnouncements = async () => {
+        const fetchData = async () => {
             setLoading(true);
-            const data = await AnnouncementsService.getAnnouncements();
-            setAnnouncements(data);
-            setLoading(false);
+            try {
+                const [data, coursesData, classesData] = await Promise.all([
+                    AnnouncementsService.getAnnouncements(),
+                    CoursesService.getCourses(),
+                    ClassesService.getClasses()
+                ]);
+                setAnnouncements(data);
+                setCourses(coursesData.map((c: any) => ({ id: c.id, name: c.title || c.name })));
+                setClasses(classesData.map((c: any) => ({ id: c.id, name: c.name || `Class ${c.class_code || ''}`, course_id: c.course_id })));
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
         };
-        fetchAnnouncements();
+        fetchData();
     }, []);
 
     const handleOpenModal = (mode: 'create' | 'edit', ann?: Announcement) => {
@@ -60,27 +68,33 @@ const AdminAnnouncements = () => {
             finalAudience.roles = [];
         }
 
-        if (modalMode === 'create') {
-            const newAnn = await AnnouncementsService.createAnnouncement({
-                title: formData.title,
-                content: formData.content,
-                audience: finalAudience,
-                scheduledFor: formData.publishMode === 'schedule' ? formData.scheduledFor : undefined
-            });
-            setAnnouncements([newAnn, ...announcements]);
-        } else if (selectedAnnouncement) {
-            const updatedAnn = await AnnouncementsService.updateAnnouncement({
-                id: selectedAnnouncement.id,
-                title: formData.title,
-                content: formData.content,
-                audience: finalAudience,
-                scheduledFor: formData.publishMode === 'schedule' ? formData.scheduledFor : undefined
-            });
-            setAnnouncements(announcements.map(ann => ann.id === updatedAnn.id ? updatedAnn : ann));
-        }
+        try {
+            if (modalMode === 'create') {
+                const newAnn = await AnnouncementsService.createAnnouncement({
+                    title: formData.title,
+                    content: formData.content,
+                    audience: finalAudience,
+                    scheduledFor: formData.publishMode === 'schedule' ? formData.scheduledFor : undefined
+                });
+                setAnnouncements([newAnn, ...announcements]);
+            } else if (selectedAnnouncement) {
+                const updatedAnn = await AnnouncementsService.updateAnnouncement({
+                    id: selectedAnnouncement.id,
+                    title: formData.title,
+                    content: formData.content,
+                    audience: finalAudience,
+                    scheduledFor: formData.publishMode === 'schedule' ? formData.scheduledFor : undefined
+                });
+                setAnnouncements(announcements.map(ann => ann.id === updatedAnn.id ? updatedAnn : ann));
+            }
 
-        setIsModalOpen(false);
-        setSelectedAnnouncement(undefined);
+            setIsModalOpen(false);
+            setSelectedAnnouncement(undefined);
+            showAlertModal('Success', 'Announcement saved successfully.', 'success');
+        } catch (error: any) {
+            console.error("Save error:", error);
+            showAlertModal('Error', error.message || 'Failed to save announcement', 'error');
+        }
     };
 
     const handleDelete = async (id: string) => {
@@ -162,7 +176,7 @@ const AdminAnnouncements = () => {
                         <AnnouncementCard 
                             key={ann.id}
                             announcement={ann}
-                            mockClasses={mockClasses}
+                            availableClasses={classes}
                             onEdit={(ann) => handleOpenModal('edit', ann)}
                             onDelete={handleDelete}
                         />
@@ -180,7 +194,8 @@ const AdminAnnouncements = () => {
                 <AnnouncementFormModal 
                     mode={modalMode}
                     initialData={selectedAnnouncement}
-                    mockClasses={mockClasses}
+                    availableCourses={courses}
+                    availableClasses={classes}
                     onClose={() => setIsModalOpen(false)}
                     onSave={handleActualSave}
                 />

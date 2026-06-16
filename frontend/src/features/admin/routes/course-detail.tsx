@@ -410,7 +410,7 @@ const AdminCourseDetail = () => {
     value: string,
   ) => {
     const newModules = [...courseData.modules];
-    const newTopics = [...newModules[moduleIndex].topics];
+    const newTopics = [...(newModules[moduleIndex].topics || [])];
     newTopics[topicIndex] = value;
     newModules[moduleIndex] = { ...newModules[moduleIndex], topics: newTopics };
     setCourseData({ ...courseData, modules: newModules });
@@ -433,14 +433,14 @@ const AdminCourseDetail = () => {
 
   const handleAddTopic = (moduleIndex: number) => {
     const newModules = [...courseData.modules];
-    newModules[moduleIndex].topics.push("");
+    newModules[moduleIndex].topics = [...(newModules[moduleIndex].topics || []), ""];
     setCourseData({ ...courseData, modules: newModules });
   };
 
   const handleRemoveTopic = (moduleIndex: number, topicIndex: number) => {
     setCourseData((prev) => {
       const newModules = [...prev.modules];
-      newModules[moduleIndex].topics = newModules[moduleIndex].topics.filter(
+      newModules[moduleIndex].topics = (newModules[moduleIndex].topics || []).filter(
         (_: string, i: number) => i !== topicIndex,
       );
       return { ...prev, modules: newModules };

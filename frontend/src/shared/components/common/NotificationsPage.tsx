@@ -1,32 +1,60 @@
-import  { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, CheckCircle2, Circle, Clock, MailOpen } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { AnnouncementsService } from '@/features/admin/services/announcements.service';
+
+type NotificationItem = {
+    id: string;
+    type: 'system' | 'role';
+    title: string;
+    message: string;
+    time: string;
+    date: string;
+    unread: boolean;
+};
 
 export const NotificationsPage = () => {
     const location = useLocation();
     const isStaff = location.pathname.startsWith('/staff');
     const isLearner = location.pathname.startsWith('/learner');
-    const isGuest = !isStaff && !isLearner;
+    const isTutor = location.pathname.startsWith('/tutor');
+    const isGuest = !isStaff && !isLearner && !isTutor;
 
-    const allNotifications = useMemo(() => [
-        { id: 1, type: 'system', title: 'System Maintenance', message: 'ICMS platform will have a scheduled maintenance this Sunday at 2 AM. Expect downtime for up to 2 hours.', time: '1 day ago', unread: false, date: '2026-05-30' },
-        { id: 2, type: 'role', title: isStaff ? 'New Profile Verification' : 'Class Rescheduled', message: isStaff ? 'Tutor Ms. Emily Chen submitted documents for review.' : 'Your IE1601 class has been moved to Room 402.', time: '10 mins ago', unread: true, date: '2026-05-31' },
-        { id: 3, type: 'role', title: isStaff ? 'Consultation Request' : 'Payment Reminder', message: isStaff ? 'A new learner requested a consultation schedule for tomorrow.' : 'Tuition fee for next month is due in 3 days.', time: '2 hours ago', unread: true, date: '2026-05-31' },
-        { id: 4, type: 'role', title: isStaff ? 'Invoice Paid' : 'Material Uploaded', message: isStaff ? 'Payment for Invoice #INV-2026-10-01 has been confirmed via bank transfer.' : 'Tutor Dr. Sarah Smith uploaded new materials for IELTS Mastery.', time: '2 days ago', unread: false, date: '2026-05-29' },
-        { id: 5, type: 'system', title: 'Welcome to ICMS', message: 'Thank you for joining the platform. Check out the guide to get started.', time: '1 week ago', unread: false, date: '2026-05-24' },
-    ], [isStaff]);
+    const currentRole = isStaff ? 'Staff' : isLearner ? 'Learner' : isTutor ? 'Tutor' : 'Guest';
 
-    // Guests only see system notifications
-    const initialNotifications = isGuest ? allNotifications.filter(n => n.type === 'system') : allNotifications;
-
-    const [notifications, setNotifications] = useState(initialNotifications);
+    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+    const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'unread' | 'system' | 'role'>('all');
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setNotifications(isGuest ? allNotifications.filter(n => n.type === 'system') : allNotifications);
+        const fetchNotifications = async () => {
+            setLoading(true);
+            try {
+                const anns = await AnnouncementsService.getNotifications(currentRole);
+                const readSet = new Set(JSON.parse(localStorage.getItem('readNotifications') || '[]'));
+                
+                const mapped: NotificationItem[] = anns.map(ann => ({
+                    id: ann.id,
+                    type: ann.audience.scope === 'System Wide' ? 'system' : 'role',
+                    title: ann.title,
+                    message: ann.content,
+                    time: 'Recent', 
+                    date: ann.date,
+                    unread: !readSet.has(ann.id)
+                }));
+                
+                const initialNotifications = isGuest ? mapped.filter(n => n.type === 'system') : mapped;
+                setNotifications(initialNotifications);
+            } catch (error) {
+                console.error("Failed to fetch notifications:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchNotifications();
         setFilter('all');
-    }, [isGuest, allNotifications]);
+    }, [currentRole, isGuest]);
 
     const filteredNotifications = notifications.filter(n => {
         if (filter === 'unread') return n.unread;
@@ -36,10 +64,18 @@ export const NotificationsPage = () => {
     });
 
     const markAllAsRead = () => {
+        const readList = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+        const updatedList = Array.from(new Set([...readList, ...notifications.map(n => n.id)]));
+        localStorage.setItem('readNotifications', JSON.stringify(updatedList));
         setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
     };
 
-    const markAsRead = (id: number) => {
+    const markAsRead = (id: string) => {
+        const readList = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+        if (!readList.includes(id)) {
+            readList.push(id);
+            localStorage.setItem('readNotifications', JSON.stringify(readList));
+        }
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
     };
 
@@ -85,14 +121,18 @@ export const NotificationsPage = () => {
                                 onClick={() => setFilter('role')}
                                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${filter === 'role' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
                             >
-                                {isStaff ? 'Staff Alerts' : 'Learner Alerts'}
+                                {isStaff ? 'Staff Alerts' : isTutor ? 'Tutor Alerts' : 'Learner Alerts'}
                             </button>
                         </>
                     )}
                 </div>
 
                 <div className="divide-y divide-[#e0e3e5]">
-                    {filteredNotifications.length > 0 ? (
+                    {loading ? (
+                        <div className="py-16 flex justify-center">
+                            <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : filteredNotifications.length > 0 ? (
                         filteredNotifications.map(notif => (
                             <div key={notif.id} className={`p-5 flex flex-col md:flex-row gap-4 transition-colors ${notif.unread ? 'bg-[#f0f7ff]' : 'hover:bg-[#f8f9fa]'}`}>
                                 <div className="mt-1 shrink-0">
@@ -108,8 +148,8 @@ export const NotificationsPage = () => {
                                         {notif.type === 'system' ? (
                                             <span className="px-2 py-0.5 rounded text-xs font-bold bg-[#e6f0fa] text-[#0061a5] uppercase tracking-wide">System</span>
                                         ) : (
-                                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${isStaff ? 'bg-amber-100 text-amber-700' : 'bg-purple-100 text-purple-700'}`}>
-                                                {isStaff ? 'Staff' : 'Learner'}
+                                            <span className="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-[#e0e3e5] text-[#002045]">
+                                                Admin
                                             </span>
                                         )}
                                     </div>
