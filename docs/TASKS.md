@@ -245,3 +245,54 @@ Theo yêu cầu, gộp 2 loại `ABSENT_EXCUSED` và `ABSENT_UNEXCUSED` thành d
 - `[x]` **QA-28: Kiểm thử luồng Vắng mặt mới**
   - Dùng Tutor chấm `ABSENT` cho một Học viên, kiểm tra xem DB có lưu đúng `ABSENT` không.
   - Học viên đăng nhập và check màn hình tiến độ xem thống kê `ABSENT` có hoạt động chính xác không.
+
+---
+
+## 🚪 17. Quản lý Trạng thái Ghi danh Học viên (Cancel Enrollment)
+
+Tính năng cho phép Staff có thể đuổi/hủy ghi danh học viên khỏi một lớp học.
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-33: API Hủy ghi danh**
+  - Tạo endpoint `PATCH /api/staff/enrollments/:id/cancel` (Private, yêu cầu Role Staff/Admin).
+  - Đổi giá trị trường `status` của bản ghi Enrollment tương ứng thành `CANCELED`.
+- `[x]` **BE-34: Chỉ hiển thị học viên ACTIVE**
+  - Cập nhật logic của API `GET /api/classes/:id/students` (trong `ClassRepository`) để thêm câu lệnh `.eq('status', 'ACTIVE')`. Những học viên đã bị CANCELED sẽ không còn được trả về trong mảng danh sách nữa.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-35: Nút Xóa học viên trên giao diện Staff**
+  - Bổ sung hàm API Client gọi `PATCH /api/staff/enrollments/:id/cancel`.
+  - Cập nhật `ClassStudentsTab.tsx`: Bổ sung cột "Actions", chứa nút Thùng rác màu đỏ cho mỗi hàng.
+  - Bấm nút thùng rác -> Hiện Modal Confirm -> OK -> Gọi API và Load lại danh sách.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-29: Kiểm thử loại bỏ Học viên**
+  - Đăng nhập Staff, vào lớp, xóa Học viên A.
+  - Kỳ vọng: Học viên A biến mất khỏi danh sách (cả tab Students của Staff lẫn form Điểm danh của Tutor).
+  - Học viên A đăng nhập: Không còn thấy lớp đó trong mục My Classes.
+
+---
+
+## ➕ 18. Thêm Học viên thủ công (Manual Enrollment)
+
+Tính năng cho phép Staff có thể chủ động add trực tiếp Học viên vào lớp học.
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-35: API Ghi danh thủ công**
+  - Tạo endpoint `POST /api/enrollments/manual` (Private, yêu cầu Role `STAFF`, `ADMIN`).
+  - Payload yêu cầu: `learner_id` và `class_id`.
+  - Tái sử dụng `EnrollmentService.enrollLearner` để thực hiện ghi danh (tận dụng luôn logic check sức chứa và duplicate).
+
+### 🎨 Frontend Agent
+- `[x]` **FE-36: Nút Thêm học viên**
+  - Bổ sung hàm API Client `addStudentToClass` gọi tới `POST /api/enrollments/manual`.
+  - Bổ sung UI nút "+ Add Student" vào `ClassStudentsTab.tsx`.
+- `[x]` **FE-37: Xây dựng AddStudentModal**
+  - Modal chứa Select Dropdown để chọn tài khoản Học viên (Gọi API lấy danh sách Role = `LEARNER`).
+  - Bấm Save -> Xử lý API -> Đóng modal và Load lại danh sách.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-30: Kiểm thử Thêm Học viên**
+  - Staff thêm 1 học viên mới -> Danh sách nhảy số và hiển thị ngay.
+  - Test vi phạm: Thêm vào lớp đã Full -> Báo lỗi.
+  - Test vi phạm: Thêm người đã học lớp này (hoặc đã học lớp khác cùng khóa) -> Báo lỗi.

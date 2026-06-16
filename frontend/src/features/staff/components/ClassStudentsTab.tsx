@@ -1,19 +1,33 @@
+import { Trash2 } from 'lucide-react';
 import type { EnrolledStudent } from '../types/class-detail';
 
 interface ClassStudentsTabProps {
     students: EnrolledStudent[];
+    onRemoveStudent?: (studentId: string) => void;
 }
 
-export const ClassStudentsTab = ({ students }: ClassStudentsTabProps) => {
+export const ClassStudentsTab = ({ students, onRemoveStudent, onAddStudent }: ClassStudentsTabProps & { onAddStudent?: () => void }) => {
     return (
-        <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-                <thead className="bg-[#f8f9fa] border-b border-[#e0e3e5] text-[#43474e] text-sm">
+        <div className="flex flex-col">
+            <div className="p-4 border-b border-[#e0e3e5] flex justify-end">
+                {onAddStudent && (
+                    <button 
+                        onClick={onAddStudent}
+                        className="px-4 py-2 bg-[#0061a5] text-white rounded-lg font-bold text-sm hover:bg-[#004d84] transition-colors shadow-sm"
+                    >
+                        + Add Student
+                    </button>
+                )}
+            </div>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead className="bg-[#f8f9fa] border-b border-[#e0e3e5] text-[#43474e] text-sm">
                     <tr>
                         <th className="p-4 font-semibold">Student Name</th>
                         <th className="p-4 font-semibold">Email</th>
                         <th className="p-4 font-semibold">Joined Date</th>
                         <th className="p-4 font-semibold">Attendance</th>
+                        <th className="p-4 font-semibold text-center w-24">Actions</th>
                     </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -30,13 +44,25 @@ export const ClassStudentsTab = ({ students }: ClassStudentsTabProps) => {
                                     <span className="text-xs font-bold text-green-600">{student.attendanceRate}%</span>
                                 </div>
                             </td>
+                            <td className="p-4 text-center">
+                                {onRemoveStudent && (
+                                    <button 
+                                        onClick={() => onRemoveStudent(student.id.toString())}
+                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                        title="Remove student from class"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                )}
+                            </td>
                         </tr>
                     ))}
                     {students.length === 0 && (
-                        <tr><td colSpan={4} className="p-8 text-center text-[#74777f]">No enrolled students.</td></tr>
+                        <tr><td colSpan={5} className="p-8 text-center text-[#74777f]">No enrolled students.</td></tr>
                     )}
                 </tbody>
             </table>
+        </div>
         </div>
     );
 };

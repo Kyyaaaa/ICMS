@@ -95,5 +95,25 @@ export const ClassesService = {
             console.error('Error fetching class students:', error);
             return [];
         }
+    },
+
+    cancelEnrollment: async (enrollmentId: string): Promise<boolean> => {
+        try {
+            await axiosClient.patch(`/enrollments/${enrollmentId}/cancel`);
+            return true;
+        } catch (error) {
+            console.error('Error canceling enrollment:', error);
+            throw error;
+        }
+    },
+
+    addStudentToClass: async (learnerId: string, classId: string): Promise<any> => {
+        try {
+            const res = await axiosClient.post('/enrollments/manual', { learner_id: learnerId, class_id: classId });
+            return (res as any).data;
+        } catch (error) {
+            console.error('Error adding student to class:', error);
+            throw error;
+        }
     }
 };

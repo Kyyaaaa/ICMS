@@ -9,6 +9,7 @@ import type { Classroom } from '@/shared/services/classrooms.service';
 import { ClassScheduleTab } from '../components/ClassScheduleTab';
 import { ClassStudentsTab } from '../components/ClassStudentsTab';
 import { EditSessionModal } from '../components/EditSessionModal';
+import { AddStudentModal } from '../components/AddStudentModal';
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
 
 const StaffClassDetail = () => {
@@ -22,20 +23,24 @@ const StaffClassDetail = () => {
     
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+    const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
+    const [availableLearners, setAvailableLearners] = useState<any[]>([]);
 
     const loadData = async () => {
         if (!id) return;
         try {
-            const [cls, rooms, tutors, studentsData] = await Promise.all([
+            const [cls, rooms, tutors, studentsData, learnersRes] = await Promise.all([
                 ClassesService.getClassById(id),
                 ClassroomsService.getAll(),
                 AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' }),
-                ClassesService.getClassStudents(id)
+                ClassesService.getClassStudents(id),
+                AccountsService.getAccounts({ page: 1, limit: 100, role: 'LEARNER' })
             ]);
             setClassData(cls);
             setStudents(studentsData || []);
             setAvailableRooms(rooms);
             setAvailableTutors((tutors as any).data?.data || []);
+            setAvailableLearners((learnersRes as any).data?.data || []);
         } catch (err) {
             console.error("Failed to load class details", err);
         }
@@ -70,6 +75,17 @@ const StaffClassDetail = () => {
             loadData(); // reload
         } catch (err: any) {
             showAlertModal('Conflict', err.message || 'Error updating session', 'error');
+        }
+    };
+
+    const handleAddStudent = async (learnerId: string) => {
+        try {
+            await ClassesService.addStudentToClass(learnerId, id as string);
+            showAlertModal('Success', 'Student added successfully', 'success');
+            setIsAddStudentModalOpen(false);
+            loadData();
+        } catch (err: any) {
+            showAlertModal('Error', err.response?.data?.message || err.message || 'Failed to add student', 'error');
         }
     };
 
@@ -170,7 +186,26 @@ const StaffClassDetail = () => {
                 )}
 
                 {activeTab === 'students' && (
-                    <ClassStudentsTab students={students} />
+                    <ClassStudentsTab 
+                        students={students} 
+                        onRemoveStudent={async (studentId) => {
+                            const confirmed = await showConfirmModal(
+                                'Remove Student',
+                                'Are you sure you want to remove this student from the class? This action cannot be undone.',
+                                'warning'
+                            );
+                            if (confirmed) {
+                                try {
+                                    await ClassesService.cancelEnrollment(studentId);
+                                    showAlertModal('Success', 'Student removed successfully', 'success');
+                                    loadData();
+                                } catch (error: any) {
+                                    showAlertModal('Error', error.message || 'Failed to remove student', 'error');
+                                }
+                            }
+                        }}
+                        onAddStudent={() => setIsAddStudentModalOpen(true)}
+                    />
                 )}
             </div>
 
@@ -182,6 +217,14 @@ const StaffClassDetail = () => {
                     availableTutors={availableTutors}
                     onClose={() => setIsEditModalOpen(false)} 
                     onSave={handleSaveSession} 
+                />
+            )}
+
+            {isAddStudentModalOpen && (
+                <AddStudentModal
+                    availableLearners={availableLearners}
+                    onClose={() => setIsAddStudentModalOpen(false)}
+                    onSave={handleAddStudent}
                 />
             )}
         </div>

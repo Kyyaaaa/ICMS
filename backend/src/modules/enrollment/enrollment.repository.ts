@@ -3,6 +3,27 @@ import { Enrollment } from './enrollment.model';
 
 export class EnrollmentRepository {
   static async createEnrollment(learnerId: string, classId: string): Promise<Enrollment> {
+    // Check if any record exists (ACTIVE or CANCELED)
+    const { data: existing, error: existErr } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, status')
+      .eq('learner_id', learnerId)
+      .eq('class_id', classId)
+      .maybeSingle();
+
+    if (existing) {
+      if (existing.status === 'ACTIVE') throw new Error('Already enrolled');
+      // If CANCELED, update it back to ACTIVE
+      const { data, error } = await supabaseAdmin
+        .from('enrollments')
+        .update({ status: 'ACTIVE', enrollment_date: new Date().toISOString() })
+        .eq('id', existing.id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+
     const { data, error } = await supabaseAdmin
       .from('enrollments')
       .insert({
@@ -10,6 +31,18 @@ export class EnrollmentRepository {
         class_id: classId,
         status: 'ACTIVE'
       })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async updateEnrollmentStatus(id: string, status: 'ACTIVE' | 'CANCELED'): Promise<Enrollment> {
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .update({ status })
+      .eq('id', id)
       .select()
       .single();
 

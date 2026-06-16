@@ -60,4 +60,8 @@ export class EnrollmentService {
   static async getLearnerEnrollments(learnerId: string) {
     return await EnrollmentRepository.getLearnerEnrollments(learnerId);
   }
+
+  static async cancelEnrollment(id: string) {
+    return await EnrollmentRepository.updateEnrollmentStatus(id, 'CANCELED');
+  }
 }
