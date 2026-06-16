@@ -75,9 +75,7 @@ const ClassAttendance = () => {
                         name: acc.full_name || 'Unknown Learner'
                     });
                     let parsedStatus = (record.status || 'NOT_YET').toLowerCase();
-                    if (parsedStatus === 'absent_excused') parsedStatus = 'excused';
-                    else if (parsedStatus === 'absent_unexcused') parsedStatus = 'absent';
-                    else if (parsedStatus.includes('absent')) parsedStatus = 'absent';
+                    if (parsedStatus.includes('absent')) parsedStatus = 'absent';
                     recordMap[record.learner_id] = parsedStatus as AttendanceStatus;
                 });
                 
@@ -141,13 +139,9 @@ const ClassAttendance = () => {
             try {
                 const recordsToSubmit = Object.entries(currentRecords).map(([learner_id, status]) => {
                     const statusStr = (status as string).toUpperCase();
-                    let finalStatus = statusStr;
-                    if (statusStr === 'ABSENT') finalStatus = 'ABSENT_UNEXCUSED';
-                    else if (statusStr === 'EXCUSED') finalStatus = 'ABSENT_EXCUSED';
-                    
                     return {
                         learner_id,
-                        status: finalStatus,
+                        status: statusStr,
                         notes: ''
                     };
                 });

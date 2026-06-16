@@ -56,7 +56,7 @@ export class SessionService {
       throw err;
     }
 
-    const validStatuses = ['NOT_YET', 'PRESENT', 'ABSENT_EXCUSED', 'ABSENT_UNEXCUSED'];
+    const validStatuses = ['NOT_YET', 'PRESENT', 'ABSENT'];
 
     const recordsToUpsert: Attendance[] = updates.map(u => {
       if (!validStatuses.includes(u.status)) {

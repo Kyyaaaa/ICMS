@@ -63,26 +63,26 @@ describe('SessionService QA Tests', () => {
       expect(result[0].status).toBe('PRESENT');
     });
 
-    it('should successfully update attendance data (Mark Absent)', async () => {
+    it('QA-28: should successfully update attendance data (Mark Absent)', async () => {
       const sessionId = 'session-1';
       
       // Mock session exists
       (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({ id: sessionId, class_id: 'class-1' });
 
       const updateData: UpdateAttendanceDTO[] = [
-        { learner_id: 'learner-1', status: 'ABSENT_UNEXCUSED', notes: 'No show' }
+        { learner_id: 'learner-1', status: 'ABSENT', notes: 'No show' }
       ];
 
       (SessionRepository.bulkUpsertAttendance as jest.Mock).mockResolvedValue([
-        { session_id: sessionId, learner_id: 'learner-1', status: 'ABSENT_UNEXCUSED', notes: 'No show' }
+        { session_id: sessionId, learner_id: 'learner-1', status: 'ABSENT', notes: 'No show' }
       ]);
 
       const result = await SessionService.updateAttendance(sessionId, updateData);
 
       expect(SessionRepository.bulkUpsertAttendance).toHaveBeenCalledWith([
-        { session_id: sessionId, learner_id: 'learner-1', status: 'ABSENT_UNEXCUSED', notes: 'No show' }
+        { session_id: sessionId, learner_id: 'learner-1', status: 'ABSENT', notes: 'No show' }
       ]);
-      expect(result[0].status).toBe('ABSENT_UNEXCUSED');
+      expect(result[0].status).toBe('ABSENT');
     });
   });
 });

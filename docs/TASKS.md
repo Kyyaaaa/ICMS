@@ -217,3 +217,31 @@ Thay đổi logic điểm danh: Trạng thái mặc định khi Tutor chưa đi�
 - `[x]` **QA-27: Kiểm thử mặc định Điểm danh**
   - Tạo một buổi học mới -> Lần đầu Get Attendance -> Kỳ vọng BE trả về 100% học viên có status là `NOT_YET`.
   - Đảm bảo việc lưu `NOT_YET` (hoặc update từ NOT_YET sang PRESENT) qua API thành công không báo lỗi Enum.
+
+---
+
+## 🗑️ 16. Hợp nhất trạng thái Điểm danh (Gộp ABSENT)
+
+Theo yêu cầu, gộp 2 loại `ABSENT_EXCUSED` và `ABSENT_UNEXCUSED` thành duy nhất một trạng thái `ABSENT`. Các trạng thái điểm danh mới sẽ là: `NOT_YET`, `PRESENT`, `ABSENT`.
+
+### 🗄️ DB Agent
+- `[x]` **DB-07: Cập nhật Database Enum / Schema**
+  - Thực hiện thay thế/update database để xóa `ABSENT_EXCUSED` và `ABSENT_UNEXCUSED`, thay bằng `ABSENT`.
+  - Migrate các record cũ đang ở trạng thái `ABSENT_EXCUSED` / `ABSENT_UNEXCUSED` sang `ABSENT`.
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-32: Cập nhật Model và Validation**
+  - Cập nhật interface/types tại `backend/src/modules/session/session.model.ts` sang: `'NOT_YET' | 'PRESENT' | 'ABSENT'`.
+  - Cập nhật mảng validation tại `session.service.ts` (Dòng 59: `validStatuses`).
+  - Cập nhật `@swagger` Enum định nghĩa tại `session.routes.ts`.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-34: Cập nhật giao diện Điểm danh**
+  - Tìm tất cả các Radio buttons/Dropdown/Logic liên quan đến `ABSENT_EXCUSED` và `ABSENT_UNEXCUSED` trong màn hình `attendance.tsx` (của Tutor và Learner).
+  - Thay thế chúng bằng một option duy nhất là "Vắng mặt" (Value: `ABSENT`).
+  - Đảm bảo Payload gửi từ Client lên Server chỉ còn bắn đi `ABSENT`.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-28: Kiểm thử luồng Vắng mặt mới**
+  - Dùng Tutor chấm `ABSENT` cho một Học viên, kiểm tra xem DB có lưu đúng `ABSENT` không.
+  - Học viên đăng nhập và check màn hình tiến độ xem thống kê `ABSENT` có hoạt động chính xác không.

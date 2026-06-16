@@ -26,6 +26,7 @@ const CreateClass = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [capacity, setCapacity] = useState(20);
+    const [status, setStatus] = useState('UPCOMING');
 
     const [allCourses, setAllCourses] = useState<{id: string, title: string}[]>([]);
     const [allTutors, setAllTutors] = useState<{id: string, full_name: string}[]>([]);
@@ -51,6 +52,7 @@ const CreateClass = () => {
                     setStartDate(classData.start_date || '');
                     setEndDate(classData.end_date || '');
                     setCapacity(classData.capacity || 20);
+                    setStatus(classData.status || 'UPCOMING');
                     
                     if (classData.classroom_id) {
                         const room = roomsData.find(r => r.id === classData.classroom_id);
@@ -165,6 +167,17 @@ const CreateClass = () => {
                                 <label className="text-sm font-semibold text-[#181c1e]">Capacity <span className="text-red-500">*</span></label>
                                 <input type="number" min="1" value={capacity} onChange={(e) => setCapacity(parseInt(e.target.value))} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
                             </div>
+                            {isEdit && (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-[#181c1e]">Status <span className="text-red-500">*</span></label>
+                                    <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
+                                        <option value="UPCOMING">UPCOMING</option>
+                                        <option value="ONGOING">ONGOING</option>
+                                        <option value="COMPLETED">COMPLETED</option>
+                                        <option value="CANCELED">CANCELED</option>
+                                    </select>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -202,7 +215,8 @@ const CreateClass = () => {
                                         name: className,
                                         tutor_id: tutor || null,
                                         classroom_id: selectedRoom?.id || null,
-                                        capacity
+                                        capacity,
+                                        status
                                     });
                                     showAlertModal('Success', 'Class updated successfully!', 'success').then(() => {
                                         navigate('/staff/classes');
