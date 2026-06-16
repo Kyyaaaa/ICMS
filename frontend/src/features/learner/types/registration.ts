@@ -6,6 +6,7 @@ export interface RegistrationClassOption {
     time: string;
     room: string;
     sessions: number;
+    sessionList?: any[];
 }
 
 export interface RegistrationInvoicePreview {

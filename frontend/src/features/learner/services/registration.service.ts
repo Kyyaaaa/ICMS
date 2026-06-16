@@ -30,7 +30,8 @@ export const LearnerRegistrationService = {
                     schedule: scheduleStr,
                     time: 'TBD', // We'll just say TBD if not available
                     room: cls.classroom?.name || 'TBD',
-                    sessions: sessionsCount
+                    sessions: sessionsCount,
+                    sessionList: cls.sessions || []
                 };
             });
         } catch (error) {

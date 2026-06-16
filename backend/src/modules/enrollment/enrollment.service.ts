@@ -35,6 +35,16 @@ export class EnrollmentService {
       throw err;
     }
 
+    // 3.5 Kiểm tra xem học viên đã enroll vào lớp khác của cùng khoá học chưa
+    if (classData.course_id) {
+        const isEnrolledInCourse = await EnrollmentRepository.checkEnrollmentInCourse(learnerId, classData.course_id);
+        if (isEnrolledInCourse) {
+            const err: any = new Error('Learner is already enrolled in another class of this course');
+            err.status = 400;
+            throw err;
+        }
+    }
+
     // 4. Kiểm tra sức chứa (Capacity Limit)
     const currentEnrollments = await EnrollmentRepository.countClassEnrollments(class_id);
     if (currentEnrollments >= classData.capacity) {

@@ -34,6 +34,21 @@ export class EnrollmentRepository {
       .select('id')
       .eq('learner_id', learnerId)
       .eq('class_id', classId)
+      .eq('status', 'ACTIVE')
+      .maybeSingle();
+
+    if (error) throw error;
+    return !!data;
+  }
+
+  static async checkEnrollmentInCourse(learnerId: string, courseId: string): Promise<boolean> {
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, classes!inner(course_id)')
+      .eq('learner_id', learnerId)
+      .eq('classes.course_id', courseId)
+      .eq('status', 'ACTIVE')
+      .limit(1)
       .maybeSingle();
 
     if (error) throw error;
