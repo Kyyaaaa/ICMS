@@ -5,7 +5,8 @@ import { TopNav } from '@/shared/components/layout/TopNav';
 import Cookies from 'js-cookie';
 import { ConsultationsService } from '@/features/staff/services/consultations.service';
 import { showAlertModal } from '@/utils/modal';
-import axios from 'axios';
+import { CoursesService } from '@/shared/services/courses.service';
+import type { Course } from '@/shared/types/course';
 interface UserInfo {
     role?: 'learner' | 'tutor' | 'staff' | 'admin';
     name?: string;
@@ -46,13 +47,17 @@ const marqueeStyles = `
 const Homepage = () => {
     // Auth state initialized synchronously from cookies (no useEffect needed)
     const [{ loggedIn: isLoggedIn, role: userRole, info: userInfo }] = useState(parseUserFromCookies);
-    const [courses, setCourses] = useState<any[]>([]);
+    const [courses, setCourses] = useState<Course[]>([]);
 
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/courses');
-                setCourses((response.data.data || []).slice(0, 4));
+                const data = await CoursesService.getCourses();
+                const activeCourses = data.filter(c => {
+                    const status = String(c.status || '').toLowerCase();
+                    return status !== 'draft' && status !== 'hidden';
+                });
+                setCourses(activeCourses.slice(0, 4));
             } catch (error) {
                 console.error("Failed to fetch courses:", error);
             }
@@ -172,7 +177,9 @@ const Homepage = () => {
                                             <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">{course.band}</span></div>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-[20px] font-bold text-[#002045]">{course.price ? `${course.price} đ` : 'Free'}</span>
+                                            <span className="text-[20px] font-bold text-[#002045]">
+                                                {course.price ? `${new Intl.NumberFormat('vi-VN').format(Number(course.price))} đ` : 'Free'}
+                                            </span>
                                             <Link to={`/courses/${course.id}`} className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                         </div>
                                     </div>

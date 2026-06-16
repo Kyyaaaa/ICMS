@@ -485,7 +485,7 @@ const CourseDetailInner = () => {
 
               <div className="flex flex-col gap-5">
                 <div className="flex items-start gap-4">
-                  <div className="bg-[#f1f4f6] p-2 rounded-lg tex't-[#0061a5]">
+                  <div className="bg-[#f1f4f6] p-2 rounded-lg text-[#0061a5]">
                     <MapPin className="w-6 h-6" />
                   </div>
                   <div>
