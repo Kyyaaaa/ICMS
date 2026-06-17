@@ -18,7 +18,7 @@ export class SessionRepository {
       .from('attendances')
       .select(`
         *,
-        account:account!learner_id(id, full_name, email)
+        account:account!learner_id(id, full_name, email, account_code)
       `)
       .eq('session_id', sessionId);
 
@@ -31,7 +31,7 @@ export class SessionRepository {
       .from('enrollments')
       .select(`
         learner_id,
-        account:account!learner_id(id, full_name, email)
+        account:account!learner_id(id, full_name, email, account_code)
       `)
       .eq('class_id', classId)
       .eq('status', 'ACTIVE');
@@ -48,7 +48,7 @@ export class SessionRepository {
       .upsert(records, { onConflict: 'session_id,learner_id' })
       .select(`
         *,
-        account:account!learner_id(id, full_name, email)
+        account:account!learner_id(id, full_name, email, account_code)
       `);
 
     if (error) throw error;

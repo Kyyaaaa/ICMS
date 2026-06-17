@@ -60,7 +60,7 @@ const StaffAccountDetail = () => {
                         gender: data.data.gender || '',
                         role: data.data.role,
                         is_active: data.data.status === 'ACTIVE',
-                        created_at: new Date(data.data.created_at).toLocaleDateString(),
+                        created_at: new Date(data.data.created_at).toLocaleDateString('en-GB'),
                         avatar_url: data.data.avatar_url || ''
                     }));
                 } else {

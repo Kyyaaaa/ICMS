@@ -97,8 +97,38 @@ export class ClassService {
   }
 
   static async updateClass(id: string, updates: UpdateClassDTO) {
-    // Only updates tutor, classroom, status for the Class object (not individual sessions)
-    return ClassRepository.updateClass(id, updates);
+    const { sessions, ...classUpdates } = updates;
+
+    const updatedClass = await ClassRepository.updateClass(id, classUpdates);
+
+    // If sessions are provided, overwrite existing sessions
+    if (sessions && sessions.length > 0) {
+      await ClassRepository.deleteClassSessions(id);
+
+      const sessionsToInsert = [];
+      for (const config of sessions) {
+        sessionsToInsert.push({
+          class_id: id,
+          session_number: config.session_number,
+          title: `Session ${config.session_number}`,
+          date: config.date,
+          slot: config.slot,
+          tutor_id: classUpdates.tutor_id || updatedClass.tutor_id || null,
+          classroom_id: classUpdates.classroom_id || updatedClass.classroom_id || null
+        });
+      }
+
+      await ClassRepository.insertClassSessions(sessionsToInsert);
+    }
+
+    return updatedClass;
+  }
+
+  static async deleteClass(id: string) {
+    // Optionally check if class has students before deleting
+    // but the DB constraint or controller might handle this.
+    // The frontend checks if enrolledStudents > 0 already.
+    return await ClassRepository.deleteClass(id);
   }
 
   static async updateClassSession(classId: string, sessionId: string, updates: UpdateClassSessionDTO) {
@@ -123,5 +153,9 @@ export class ClassService {
     }
 
     return ClassRepository.updateClassSession(classId, sessionId, updates);
+  }
+
+  static async getOccupiedSessions(filters: { tutor_id?: string, classroom_id?: string, date?: string, slot?: string, start_date?: string, exclude_class_id?: string }) {
+    return ClassRepository.getOccupiedSessions(filters);
   }
 }

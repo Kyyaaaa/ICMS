@@ -23,7 +23,7 @@ const formatTimestamp = (dateString: string) => {
         return `Yesterday, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     }
     
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString('en-GB') + ', ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
 export const StaffSupportTickets = () => {

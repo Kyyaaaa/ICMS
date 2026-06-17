@@ -31,7 +31,7 @@ export const AuditLogTable = ({ logs }: AuditLogTableProps) => {
                     <tbody>
                         {logs.length > 0 ? logs.map(log => {
                             const dateObj = new Date(log.timestamp);
-                            const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                            const dateStr = dateObj.toLocaleDateString('en-GB');
                             const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                             
                             return (

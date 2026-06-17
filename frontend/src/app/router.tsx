@@ -37,6 +37,7 @@ import ConsultationList from "@/features/staff/routes/consultations.tsx";
 import ManageClasses from "@/features/staff/routes/classes.tsx";
 import CreateClass from "@/features/staff/routes/create-class.tsx";
 import StaffClassDetail from "@/features/staff/routes/class-detail.tsx";
+import StaffClassAttendance from "@/features/staff/routes/attendance.tsx";
 import MasterSchedule from "@/features/staff/routes/master-schedule.tsx";
 import ChangeRequests from "@/features/staff/routes/change-requests.tsx";
 import InvoiceList from "@/features/staff/routes/invoices.tsx";
@@ -161,6 +162,7 @@ export const AppRouter = () => {
           <Route path="/staff/classes/create" element={<CreateClass />} />
           <Route path="/staff/classes/edit/:id" element={<CreateClass />} />
           <Route path="/staff/classes/:id" element={<StaffClassDetail />} />
+          <Route path="/staff/classes/:id/attendance" element={<StaffClassAttendance />} />
           <Route path="/staff/master-schedule" element={<MasterSchedule />} />
           <Route
             path="/staff/tutor-availability"

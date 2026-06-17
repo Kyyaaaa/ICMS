@@ -33,6 +33,18 @@ router.get('/', ClassController.getClasses);
 
 /**
  * @swagger
+ * /api/staff/classes/sessions/occupied:
+ *   get:
+ *     summary: Lấy danh sách các session đã có lịch (để check trùng)
+ *     tags: [Class]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/sessions/occupied', ClassController.getOccupiedSessions);
+
+/**
+ * @swagger
  * /api/staff/classes/{id}:
  *   get:
  *     summary: Lấy chi tiết một lớp học kèm danh sách buổi học
@@ -189,5 +201,23 @@ router.patch('/:class_id/sessions/:session_id', ClassController.updateClassSessi
  *         description: OK
  */
 router.get('/:id/students', ClassController.getClassStudents);
+
+/**
+ * @swagger
+ * /api/staff/classes/{id}:
+ *   delete:
+ *     summary: Xóa một lớp học
+ *     tags: [Class]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.delete('/:id', ClassController.deleteClass);
 
 export default router;

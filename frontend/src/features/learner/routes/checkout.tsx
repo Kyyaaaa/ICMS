@@ -59,7 +59,7 @@ const PaymentCheckout = () => {
                 <div className="bg-[#f7fafc] border border-[#e0e3e5] rounded-2xl p-6 mb-10 text-left max-w-md mx-auto">
                     <div className="flex justify-between mb-3 text-sm"><span className="text-[#74777f]">Invoice ID:</span> <span className="font-bold text-[#002045]">{id || 'INV-10025'}</span></div>
                     <div className="flex justify-between mb-3 text-sm"><span className="text-[#74777f]">Payment Method:</span> <span className="font-bold text-[#002045]">Credit Card</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-[#74777f]">Date:</span> <span className="font-bold text-[#002045]">{new Date().toLocaleDateString()}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-[#74777f]">Date:</span> <span className="font-bold text-[#002045]">{new Date().toLocaleDateString('en-GB')}</span></div>
                 </div>
                 <Link to={`/learner/payments`} className="inline-block px-8 py-4 bg-[#0061a5] text-white rounded-xl font-bold hover:bg-[#004d80] transition-colors shadow-md hover:shadow-lg">
                     Return to Payments

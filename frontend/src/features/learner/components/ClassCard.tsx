@@ -24,26 +24,48 @@ export const ClassCard = ({ classItem }: ClassCardProps) => {
                 
                 <div className="space-y-3">
                     <div className="flex items-center gap-3 text-sm">
-                        <div className="w-8 h-8 rounded-full bg-[#f8f9fc] flex items-center justify-center shrink-0">
-                            <User className="w-4 h-4 text-[#0061a5]" />
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0061a5] flex items-center justify-center shrink-0">
+                            <User className="w-4 h-4" />
                         </div>
                         <p className="font-semibold text-[#181c1e]">{classItem.tutorName}</p>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
-                        <div className="w-8 h-8 rounded-full bg-[#f8f9fc] flex items-center justify-center shrink-0">
-                            <MapPin className="w-4 h-4 text-[#0061a5]" />
+                        <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                            <MapPin className="w-4 h-4" />
                         </div>
                         <p className="font-medium text-[#43474e]">{classItem.room}</p>
                     </div>
-                    <div className="flex items-center gap-3 text-sm">
-                        <div className="w-8 h-8 rounded-full bg-[#f8f9fc] flex items-center justify-center shrink-0">
-                            <Calendar className="w-4 h-4 text-[#0061a5]" />
+                    <div className="flex flex-col gap-2 pt-3 border-t border-[#eef0f4]">
+                        <div className="flex items-center gap-1.5 text-[#74777f]">
+                            <Calendar className="w-4 h-4 shrink-0" />
+                            <span className="font-medium text-[#181c1e] text-sm">Schedule</span>
                         </div>
-                        <p className="font-medium text-[#43474e]">{classItem.schedule} • {classItem.time}</p>
+                        {classItem.schedules && classItem.schedules.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                                {classItem.schedules.map((schedule, idx) => {
+                                    const match = schedule.match(/^(.*?) \((.*)\)$/);
+                                    if (match) {
+                                        return (
+                                            <div key={idx} className="flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2.5 py-1.5 w-full sm:w-auto">
+                                                <span className="text-[13px] font-bold text-[#0061a5]">{match[1]}</span>
+                                                <span className="text-xs text-[#0061a5]/80 mt-0.5">{match[2]}</span>
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <div key={idx} className="bg-blue-50/50 border border-blue-100 rounded-md px-2.5 py-1.5 text-xs text-[#0061a5] w-full sm:w-auto">
+                                            {schedule}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <span className="text-sm text-[#43474e]">TBA</span>
+                        )}
                     </div>
-                    <div className="flex items-center gap-3 text-sm">
-                        <div className="w-8 h-8 rounded-full bg-[#f8f9fc] flex items-center justify-center shrink-0">
-                            <CalendarDays className="w-4 h-4 text-[#0061a5]" />
+                    <div className="flex items-center gap-3 text-sm pt-3 border-t border-[#eef0f4]">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <CalendarDays className="w-4 h-4" />
                         </div>
                         <p className="font-medium text-[#43474e]">{classItem.startDate} - {classItem.endDate}</p>
                     </div>

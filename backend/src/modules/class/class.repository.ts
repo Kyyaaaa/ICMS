@@ -34,6 +34,15 @@ export class ClassRepository {
     return data;
   }
 
+  static async deleteClassSessions(classId: string) {
+    const { error } = await supabase
+      .from('class_sessions')
+      .delete()
+      .eq('class_id', classId);
+      
+    if (error) throw new Error(error.message);
+  }
+
   static async getCourseById(courseId: string) {
     const { data, error } = await supabase
       .from('courses')
@@ -52,7 +61,8 @@ export class ClassRepository {
                 *,
                 courses(id, title, code),
                 tutor:account!tutor_id(id, full_name, email),
-                classroom:classroom!classroom_id(id, room_name)
+                classroom:classroom!classroom_id(id, room_name),
+                class_sessions(slot, date)
             `, { count: 'exact' });
 
         if (statusFilter) {
@@ -109,7 +119,7 @@ export class ClassRepository {
             .select(`
                 id,
                 enrollment_date,
-                account:account!learner_id(id, full_name, email)
+                account:account!learner_id(id, full_name, email, account_code)
             `)
             .eq('class_id', id)
             .eq('status', 'ACTIVE');
@@ -127,6 +137,16 @@ export class ClassRepository {
 
     if (error) throw new Error(error.message);
     return data;
+  }
+
+  static async deleteClass(id: string) {
+    const { error } = await supabase
+      .from('classes')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw new Error(error.message);
+    return true;
   }
 
   static async updateClassSession(classId: string, sessionId: string, updates: UpdateClassSessionDTO) {
@@ -176,5 +196,23 @@ export class ClassRepository {
     if (error) throw new Error(error.message);
     
     return data && data.length > 0;
+  }
+
+  static async getOccupiedSessions(filters: { tutor_id?: string, classroom_id?: string, date?: string, slot?: string, start_date?: string, exclude_class_id?: string }) {
+    let query = supabase
+      .from('class_sessions')
+      .select('id, class_id, date, slot, tutor_id, classroom_id');
+
+    if (filters.tutor_id) query = query.eq('tutor_id', filters.tutor_id);
+    if (filters.classroom_id) query = query.eq('classroom_id', filters.classroom_id);
+    if (filters.date) query = query.eq('date', filters.date);
+    if (filters.slot) query = query.eq('slot', filters.slot);
+    if (filters.start_date) query = query.gte('date', filters.start_date);
+    if (filters.exclude_class_id) query = query.neq('class_id', filters.exclude_class_id);
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    
+    return data || [];
   }
 }

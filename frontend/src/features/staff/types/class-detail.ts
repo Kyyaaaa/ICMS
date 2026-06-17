@@ -10,6 +10,7 @@ export interface ClassSession {
 
 export interface EnrolledStudent {
     id: number | string;
+    code?: string;
     name: string;
     email: string;
     joinedDate: string;

@@ -14,11 +14,11 @@ export class AvailableTimeSlotService {
       throw new Error('Invalid input: slots must be an array');
     }
 
-    // Validate slot format (e.g., Mon-S1)
-    const slotRegex = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)-S[1-6]$/;
+    // Validate slot format (e.g., Monday-M1)
+    const slotRegex = /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)-(M1|M2|A1|A2|E1|E2)$/;
     for (const slot of slots) {
       if (!slotRegex.test(slot)) {
-        throw new Error(`Invalid slot format: ${slot}. Expected format like Mon-S1.`);
+        throw new Error(`Invalid slot format: ${slot}. Expected format like Monday-M1.`);
       }
     }
 

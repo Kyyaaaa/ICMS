@@ -4,7 +4,7 @@ import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceS
 interface AttendanceSheetProps {
     selectedClass: AttendanceClass;
     selectedSession: AttendanceSession;
-    students: AttendanceStudent[];
+    learners: AttendanceStudent[];
     currentRecords: Record<string, AttendanceStatus>;
     searchQuery: string;
     isLocked: boolean;
@@ -16,10 +16,10 @@ interface AttendanceSheetProps {
 }
 
 export const AttendanceSheet = ({
-    selectedClass, selectedSession, students, currentRecords, searchQuery, isLocked,
+    selectedClass, selectedSession, learners, currentRecords, searchQuery, isLocked,
     onBack, setSearchQuery, onMarkAll, onStatusChange, onSubmit
 }: AttendanceSheetProps) => {
-    const filteredStudents = students.filter(s => 
+    const filteredLearners = learners.filter(s => 
         s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
         s.code.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -41,7 +41,7 @@ export const AttendanceSheet = ({
                         <span className="text-[#43474e] text-base font-semibold">{selectedSession.name}</span>
                     </h2>
                     <div className="flex items-center gap-6 text-[#74777f] text-xs font-medium mt-2">
-                        <span className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {new Date(selectedSession.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                        <span className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {new Date(selectedSession.date).toLocaleDateString('en-GB')}</span>
                         <span className="flex items-center gap-2"><Clock className="w-4 h-4" /> {selectedSession.time}</span>
                     </div>
                 </div>
@@ -79,7 +79,7 @@ export const AttendanceSheet = ({
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
                     <input 
                         type="text" 
-                        placeholder="Search student name or ID..." 
+                        placeholder="Search learner name or ID..." 
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         className="w-full h-10 pl-9 pr-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-xs"
@@ -95,30 +95,30 @@ export const AttendanceSheet = ({
                 )}
             </div>
 
-            {/* Student List */}
+            {/* Learner List */}
             <div className="flex-1 overflow-y-auto">
-                {filteredStudents.length > 0 ? (
+                {filteredLearners.length > 0 ? (
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-white sticky top-0 z-10 shadow-sm">
                             <tr>
                                 <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5] w-30">ID</th>
-                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Student</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5]">Learner</th>
                                 <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider border-b border-[#e0e3e5] text-right">Attendance Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#e0e3e5]">
-                            {filteredStudents.map(student => {
-                                const status = currentRecords[student.id] || 'absent';
+                            {filteredLearners.map(learner => {
+                                const status = currentRecords[learner.id] || 'absent';
                                 
                                 return (
-                                    <tr key={student.id} className={`transition-colors ${status === 'not_yet' ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-[#f8f9fa]'}`}>
-                                        <td className="p-4 text-xs font-bold text-[#181c1e] uppercase tracking-wide">{student.code}</td>
+                                <tr key={learner.id} className={`transition-colors ${status === 'not_yet' ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-[#f8f9fa]'}`}>
+                                        <td className="p-4 text-xs font-bold text-[#181c1e] uppercase tracking-wide">{learner.code}</td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-[#e3f2fd] text-[#0061a5] flex items-center justify-center font-bold text-xs">
-                                                    {student.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
+                                                    {learner.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
                                                 </div>
-                                                <span className="font-bold text-[#181c1e] text-sm">{student.name}</span>
+                                                <span className="font-bold text-[#181c1e] text-sm">{learner.name}</span>
                                             </div>
                                         </td>
                                         <td className="p-4">
@@ -130,7 +130,7 @@ export const AttendanceSheet = ({
                                                 )}
                                                 <button 
                                                     disabled={isLocked}
-                                                    onClick={() => onStatusChange(student.id, 'absent')}
+                                                    onClick={() => onStatusChange(learner.id, 'absent')}
                                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
                                                         status === 'absent' 
                                                             ? 'bg-rose-500 text-white border-rose-600 shadow-sm' 
@@ -143,7 +143,7 @@ export const AttendanceSheet = ({
                                                 
                                                 <button 
                                                     disabled={isLocked}
-                                                    onClick={() => onStatusChange(student.id, 'present')}
+                                                    onClick={() => onStatusChange(learner.id, 'present')}
                                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
                                                         status === 'present' 
                                                             ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm' 
@@ -163,7 +163,7 @@ export const AttendanceSheet = ({
                 ) : (
                     <div className="p-12 text-center text-[#74777f]">
                         <Search className="w-10 h-10 mx-auto text-[#c4c6cf] mb-3" />
-                        <p className="text-sm font-medium text-[#43474e]">No students found matching your search.</p>
+                        <p className="text-sm font-medium text-[#43474e]">No learners found matching your search.</p>
                     </div>
                 )}
             </div>

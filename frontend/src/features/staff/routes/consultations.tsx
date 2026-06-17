@@ -111,7 +111,7 @@ const ConsultationList = () => {
                                     <td className="p-4 font-bold text-[#002045]">{item.guest_name}</td>
                                     <td className="p-4 text-[#43474e]">{item.guest_phone}</td>
                                     <td className="p-4 text-[#43474e]">{item.guest_email || '-'}</td>
-                                    <td className="p-4 text-[#74777f]">{new Date(item.created_at).toLocaleDateString('vi-VN')}</td>
+                                    <td className="p-4 text-[#74777f]">{new Date(item.created_at).toLocaleDateString('en-GB')}</td>
                                     <td className="p-4">
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                             item.status === 'Pending' ? 'bg-blue-100 text-[#0061a5]' : 

@@ -5,8 +5,7 @@ export interface LearnerClass {
     classCode: string;
     tutorName: string;
     room: string;
-    schedule: string;
-    time: string;
+    schedules: string[];
     startDate: string;
     endDate: string;
     status: 'Ongoing' | 'Completed';

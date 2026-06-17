@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, MapPin, Calendar, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { BookOpen, MapPin, Calendar, Clock, CheckCircle2 } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { TopNav } from '@/shared/components/layout/TopNav';
@@ -71,8 +71,9 @@ const ClassRegistration = () => {
         try {
             await LearnerRegistrationService.confirmRegistration(courseId, selectedClass);
             setIsSuccess(true);
-        } catch (error: any) {
-            const errorMsg = error.response?.data?.message || error.message || 'An unexpected error occurred.';
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } }, message?: string };
+            const errorMsg = err.response?.data?.message || err.message || 'An unexpected error occurred.';
             showAlertModal('Registration Failed', errorMsg, 'error');
         } finally {
             setIsConfirming(false);
@@ -114,47 +115,85 @@ const ClassRegistration = () => {
                 <h2 className="text-lg font-bold text-[#181c1e] mb-4">Available Classes</h2>
                 
                 <div className="space-y-4 mb-8">
-                    {classOptions.map((opt) => (
-                        <label key={opt.id} className={`block border ${selectedClass === opt.id ? 'border-[#0061a5] bg-[#f7fafc]' : 'border-[#e0e3e5]'} rounded-lg p-4 cursor-pointer hover:border-[#0061a5] transition-colors`}>
-                            <div className="flex items-start gap-4">
-                                <input type="radio" name="class" className="mt-1" checked={selectedClass === opt.id} onChange={() => setSelectedClass(opt.id)} />
-                                <div className="flex-1">
-                                    <div className="flex justify-between">
-                                        <h3 className="font-bold text-[#181c1e]">{opt.name}</h3>
-                                        <span className="text-[#0061a5] font-semibold text-sm">{opt.availableSeats} seats left</span>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2 mt-3 text-sm text-[#43474e]">
-                                        <span className="flex items-center gap-2"><Calendar className="w-4 h-4"/> {opt.schedule}</span>
-                                        <span className="flex items-center gap-2"><Clock className="w-4 h-4"/> {opt.time}</span>
-                                        <span className="flex items-center gap-2"><MapPin className="w-4 h-4"/> {opt.room}</span>
-                                        <span className="flex items-center gap-2"><BookOpen className="w-4 h-4"/> {opt.sessions} Sessions</span>
-                                    </div>
-                                    <div className="mt-3">
-                                        <button 
-                                            type="button"
-                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setViewScheduleModal({isOpen: true, classOpt: opt}); }}
-                                            className="text-[#0061a5] hover:underline text-sm font-semibold inline-flex items-center gap-1"
-                                        >
-                                            View Full Schedule <ArrowRight className="w-3 h-3"/>
-                                        </button>
+                    {classOptions.map((opt) => {
+                        const isLearner = userRole === 'learner';
+                        const isSelected = selectedClass === opt.id;
+                        return (
+                            <div 
+                                key={opt.id} 
+                                className={`block border ${isSelected && isLearner ? 'border-[#0061a5] bg-[#f7fafc]' : 'border-[#e0e3e5]'} rounded-lg p-4 ${isLearner ? 'cursor-pointer hover:border-[#0061a5] transition-colors' : ''}`}
+                                onClick={() => isLearner && setSelectedClass(opt.id)}
+                            >
+                                <div className="flex items-start gap-4">
+                                    {isLearner && (
+                                        <input type="radio" name="class" className="mt-1" checked={isSelected} readOnly />
+                                    )}
+                                    <div className="flex-1">
+                                        <div className="flex justify-between">
+                                            <h3 className="font-bold text-[#181c1e]">{opt.name}</h3>
+                                            <span className="text-[#0061a5] font-semibold text-sm">{opt.availableSeats} seats left</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-x-6 gap-y-3 mt-3 pt-3 border-t border-[#f0f4f8] text-sm text-[#43474e]">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                                                    <MapPin className="w-4 h-4"/>
+                                                </div>
+                                                <span className="font-semibold text-[#181c1e]">{opt.room}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                                                    <BookOpen className="w-4 h-4"/>
+                                                </div>
+                                                <span className="font-semibold text-[#181c1e]">{opt.sessions} Sessions</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[#f0f4f8]">
+                                            <div className="flex items-center gap-1.5 text-[#74777f]">
+                                                <Calendar className="w-4 h-4 shrink-0" />
+                                                <span className="font-medium text-[#181c1e] text-sm">Schedule</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2 pl-0 sm:pl-5">
+                                                {opt.schedule.split(' | ').map((s, i) => {
+                                                    if (s === 'TBD') {
+                                                        return <span key={i} className="text-sm text-[#43474e]">TBD</span>;
+                                                    }
+                                                    const match = s.match(/^(.*?) \((.*)\)$/);
+                                                    if (match) {
+                                                        return (
+                                                            <div key={i} className="flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2.5 py-1.5 w-full sm:w-auto">
+                                                                <span className="text-[13px] font-bold text-[#0061a5]">{match[1]}</span>
+                                                                <span className="text-xs text-[#0061a5]/80 mt-0.5">{match[2]}</span>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return (
+                                                        <div key={i} className="bg-blue-50/50 border border-blue-100 rounded-md px-2.5 py-1.5 text-xs text-[#0061a5] w-full sm:w-auto">
+                                                            {s}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </label>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 {/* Invoice Preview is hidden for Phase 1 & 3 */}
 
-                <div className="mt-8 flex justify-end">
-                    <button 
-                        onClick={handleConfirm}
-                        disabled={!selectedClass || isConfirming}
-                        className="bg-[#002045] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0061a5] transition-colors disabled:opacity-50"
-                    >
-                        {isConfirming ? 'Processing...' : 'Confirm Registration'}
-                    </button>
-                </div>
+                {userRole === 'learner' && (
+                    <div className="mt-8 flex justify-end">
+                        <button 
+                            onClick={handleConfirm}
+                            disabled={!selectedClass || isConfirming}
+                            className="bg-[#002045] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0061a5] transition-colors disabled:opacity-50"
+                        >
+                            {isConfirming ? 'Processing...' : 'Confirm Registration'}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* View Schedule Modal */}
@@ -172,7 +211,7 @@ const ClassRegistration = () => {
                                         <div key={session.id || idx} className="flex justify-between p-3 border border-[#e0e3e5] rounded-lg bg-[#f8f9fa]">
                                             <div className="font-semibold text-[#181c1e]">Session {session.session_number}</div>
                                             <div className="text-sm text-[#43474e] flex gap-4">
-                                                <span><Calendar className="w-4 h-4 inline mr-1"/> {session.date ? new Date(session.date).toLocaleDateString() : 'TBA'}</span>
+                                                <span><Calendar className="w-4 h-4 inline mr-1"/> {session.date ? new Date(session.date).toLocaleDateString('en-GB') : 'TBA'}</span>
                                                 <span><Clock className="w-4 h-4 inline mr-1"/> {session.slot || 'TBA'}</span>
                                             </div>
                                         </div>

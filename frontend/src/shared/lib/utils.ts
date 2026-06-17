@@ -1,6 +1,15 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+export const SLOT_LABELS: Record<string, string> = {
+  'slot1': 'Slot 1 (07:30 - 09:30)',
+  'slot2': 'Slot 2 (09:30 - 11:30)',
+  'slot3': 'Slot 3 (13:30 - 15:30)',
+  'slot4': 'Slot 4 (15:30 - 17:30)',
+  'slot5': 'Slot 5 (18:00 - 20:00)',
+  'slot6': 'Slot 6 (20:00 - 22:00)'
+};
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

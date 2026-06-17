@@ -8,6 +8,12 @@ interface AttendanceSessionListProps {
 }
 
 export const AttendanceSessionList = ({ selectedClass, classSessions, onSelectSession }: AttendanceSessionListProps) => {
+    const getFormattedDate = (dateString: string) => {
+        const date = new Date(dateString);
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return `${dayNames[date.getDay()]}, ${date.toLocaleDateString('en-GB')}`;
+    };
+
     if (!selectedClass) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-[#74777f]">
@@ -28,7 +34,14 @@ export const AttendanceSessionList = ({ selectedClass, classSessions, onSelectSe
             </div>
             
             <div className="p-6 flex flex-col gap-3 overflow-y-auto">
-                {classSessions.map((session, index) => (
+                {classSessions.map((session, index) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const sessionDate = new Date(session.date);
+                    sessionDate.setHours(0, 0, 0, 0);
+                    const isFuture = sessionDate > today;
+
+                    return (
                     <div 
                         key={session.id}
                         onClick={() => onSelectSession(session.id)}
@@ -41,7 +54,7 @@ export const AttendanceSessionList = ({ selectedClass, classSessions, onSelectSe
                             <div>
                                 <h3 className="font-bold text-sm text-[#181c1e] mb-1.5 group-hover:text-[#0061a5]">{session.name}</h3>
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-xs text-[#43474e]">
-                                    <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-[#74777f]" /> {new Date(session.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                                    <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-[#74777f]" /> {getFormattedDate(session.date)}</span>
                                     <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-[#74777f]" /> {session.time}</span>
                                 </div>
                             </div>
@@ -49,16 +62,18 @@ export const AttendanceSessionList = ({ selectedClass, classSessions, onSelectSe
 
                         <div className="flex items-center gap-4 shrink-0">
                             <div className={`text-xs font-bold px-3 py-1 rounded-md ${
-                                session.status === 'submitted' 
-                                    ? 'bg-[#e0e3e5] text-[#43474e]' 
-                                    : 'bg-amber-100 text-amber-800'
+                                isFuture 
+                                    ? 'bg-[#eef0f4] text-[#74777f]' 
+                                    : session.status === 'submitted' 
+                                        ? 'bg-[#e0e3e5] text-[#43474e]' 
+                                        : 'bg-amber-100 text-amber-800'
                             }`}>
-                                {session.status === 'submitted' ? 'SUBMITTED' : 'PENDING'}
+                                {isFuture ? 'NOT YET' : session.status === 'submitted' ? 'SUBMITTED' : 'PENDING'}
                             </div>
                             <ChevronRight className="w-5 h-5 text-[#c4c6cf] group-hover:text-[#0061a5] hidden sm:block" />
                         </div>
                     </div>
-                ))}
+                )})}
                 {classSessions.length === 0 && (
                     <div className="col-span-full py-12 text-center text-[#74777f]">
                         No sessions scheduled for this class yet.

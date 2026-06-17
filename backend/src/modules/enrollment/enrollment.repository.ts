@@ -106,7 +106,8 @@ export class EnrollmentRepository {
             code
           ),
           tutor:account!tutor_id(id, full_name, email),
-          classroom:classroom!classroom_id(id, room_name)
+          classroom:classroom!classroom_id(id, room_name),
+          class_sessions:class_sessions(slot, date)
         )
       `)
       .eq('learner_id', learnerId)

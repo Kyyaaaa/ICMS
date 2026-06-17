@@ -12,8 +12,6 @@ import {
   Image as ImageIcon,
   Star,
   Globe,
-  CheckCircle2,
-  ShieldCheck,
   MapPin,
 } from "lucide-react";
 
@@ -124,16 +122,8 @@ const AdminCourseDetail = () => {
           const parsedModules = data.modules
             ? data.modules.map((m: ApiModule) => ({
                 ...m,
-                sessions: m.sessions
-                  ? parseInt(String(m.sessions).replace(/[^\d]/g, "")) || 1
-                  : 1,
-                topics: Array.isArray(m.topics)
-                  ? m.topics
-                  : typeof m.topics === "string"
-                    ? m.topics
-                        .split("\n")
-                        .filter((t: string) => t.trim() !== "")
-                    : [],
+                sessions: 1, // Enforce 1 session per item in new format
+                topics: [],  // Remove topics
                 isExisting: true,
               }))
             : [];
@@ -167,10 +157,7 @@ const AdminCourseDetail = () => {
     fetchCourse();
   }, [id]);
 
-  const calculatedTotalSessions = courseData.modules.reduce(
-    (acc, mod) => acc + (Number(mod.sessions) || 0),
-    0,
-  );
+  const calculatedTotalSessions = courseData.modules.length;
 
   const handleSave = async () => {
     if (id && id !== "new") {
@@ -216,7 +203,7 @@ const AdminCourseDetail = () => {
           new CustomEvent("SHOW_GLOBAL_MODAL", {
             detail: {
               title: "Validation Error",
-              message: "At least 1 Course Module is required.",
+              message: "At least 1 Session is required in the Syllabus.",
               mode: "alert",
               type: "warning",
             },
@@ -237,13 +224,8 @@ const AdminCourseDetail = () => {
 
         const cleanedModules = courseData.modules.map((m) => ({
           ...m,
-          sessions: `${m.sessions} Sessions`,
-          topics:
-            m.topics && Array.isArray(m.topics)
-              ? m.topics.filter(
-                  (t: unknown) => typeof t === "string" && t.trim() !== "",
-                )
-              : [],
+          sessions: "1 Session", // Each syllabus item represents 1 session
+          topics: [],
         }));
 
         // map frontend fields to backend fields
@@ -404,24 +386,12 @@ const AdminCourseDetail = () => {
     }
   }
 
-  const handleTopicChange = (
-    moduleIndex: number,
-    topicIndex: number,
-    value: string,
-  ) => {
-    const newModules = [...courseData.modules];
-    const newTopics = [...(newModules[moduleIndex].topics || [])];
-    newTopics[topicIndex] = value;
-    newModules[moduleIndex] = { ...newModules[moduleIndex], topics: newTopics };
-    setCourseData({ ...courseData, modules: newModules });
-  };
-
   const handleAddModule = () => {
     setCourseData({
       ...courseData,
       modules: [
         ...courseData.modules,
-        { title: "New Module", sessions: 1, description: "", topics: [""] },
+        { title: `Session ${courseData.modules.length + 1}: `, sessions: 1, description: "", topics: [] },
       ],
     });
   };
@@ -429,22 +399,6 @@ const AdminCourseDetail = () => {
   const handleRemoveModule = (index: number) => {
     const newModules = courseData.modules.filter((_, i) => i !== index);
     setCourseData({ ...courseData, modules: newModules });
-  };
-
-  const handleAddTopic = (moduleIndex: number) => {
-    const newModules = [...courseData.modules];
-    newModules[moduleIndex].topics = [...(newModules[moduleIndex].topics || []), ""];
-    setCourseData({ ...courseData, modules: newModules });
-  };
-
-  const handleRemoveTopic = (moduleIndex: number, topicIndex: number) => {
-    setCourseData((prev) => {
-      const newModules = [...prev.modules];
-      newModules[moduleIndex].topics = (newModules[moduleIndex].topics || []).filter(
-        (_: string, i: number) => i !== topicIndex,
-      );
-      return { ...prev, modules: newModules };
-    });
   };
 
   if (loading) {
@@ -746,11 +700,11 @@ const AdminCourseDetail = () => {
               <div className="flex justify-between items-center mb-4">
                 <div>
                   <h3 className="text-lg font-bold text-[#181c1e]">
-                    Course Modules
+                    Syllabus
                   </h3>
                   {isCohortLocked && (
                     <p className="text-xs text-[#ba1a1a] mt-1">
-                      Note: adding modules should be accompanied by an increase
+                      Note: adding sessions should be accompanied by an increase
                       in duration.
                     </p>
                   )}
@@ -759,7 +713,7 @@ const AdminCourseDetail = () => {
                   onClick={handleAddModule}
                   className="text-sm text-[#0061a5] font-bold hover:underline"
                 >
-                  + Add Module
+                  + Add Session
                 </button>
               </div>
               <div className="space-y-6">
@@ -781,27 +735,8 @@ const AdminCourseDetail = () => {
                           }
                           readOnly={isCohortLocked && module.isExisting}
                           className={`flex-1 font-bold text-[#181c1e] px-3 py-1.5 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
-                          placeholder="Module Title"
+                          placeholder="Session Title"
                         />
-                        <div className="flex items-center gap-1 shrink-0">
-                          <input
-                            type="number"
-                            min="1"
-                            value={module.sessions}
-                            onChange={(e) =>
-                              handleModuleChange(
-                                mIndex,
-                                "sessions",
-                                e.target.value,
-                              )
-                            }
-                            readOnly={isCohortLocked && module.isExisting}
-                            className={`w-16 text-sm font-bold text-[#0061a5] px-2 py-1.5 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
-                          />
-                          <span className="text-xs font-bold text-[#74777f]">
-                            Sessions
-                          </span>
-                        </div>
                       </div>
                       <button
                         onClick={() => handleRemoveModule(mIndex)}
@@ -823,54 +758,9 @@ const AdminCourseDetail = () => {
                         }
                         readOnly={isCohortLocked && module.isExisting}
                         className={`w-full text-sm text-[#43474e] px-3 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
-                        placeholder="Module Description"
-                        rows={2}
+                        placeholder="Session Description"
+                        rows={3}
                       />
-
-                      <div className="space-y-2">
-                        <div className="text-xs font-bold text-[#43474e] mb-2 flex justify-between items-center">
-                          <span>Key Topics</span>
-                          <button
-                            onClick={() => handleAddTopic(mIndex)}
-                            disabled={isCohortLocked && module.isExisting}
-                            className={`text-[#0061a5] ${isCohortLocked && module.isExisting ? "opacity-50 cursor-not-allowed" : "hover:underline"}`}
-                          >
-                            + Add Topic
-                          </button>
-                        </div>
-                        {module.topics &&
-                          module.topics.map((topic: string, tIndex: number) => (
-                            <div
-                              key={tIndex}
-                              className="flex items-center gap-2"
-                            >
-                              <CheckCircle2 className="text-[#0061a5] w-4 h-4 shrink-0" />
-                              <input
-                                type="text"
-                                value={topic}
-                                onChange={(e) =>
-                                  handleTopicChange(
-                                    mIndex,
-                                    tIndex,
-                                    e.target.value,
-                                  )
-                                }
-                                readOnly={isCohortLocked && module.isExisting}
-                                className={`flex-1 text-sm text-[#181c1e] px-2 py-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
-                                placeholder="Topic point"
-                              />
-                              <button
-                                onClick={() =>
-                                  handleRemoveTopic(mIndex, tIndex)
-                                }
-                                disabled={isCohortLocked && module.isExisting}
-                                className={`text-[#ba1a1a] p-1 rounded shrink-0 ${isCohortLocked && module.isExisting ? "opacity-50 cursor-not-allowed" : "hover:bg-[#fceeee]"}`}
-                              >
-                                <X size={14} />
-                              </button>
-                            </div>
-                          ))}
-                      </div>
                     </div>
                   </div>
                 ))}
@@ -1040,7 +930,7 @@ const AdminCourseDetail = () => {
                   {courseData.status}
                 </span>
                 <span className="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" /> {courseData.duration}
+                  <Clock className="w-3.5 h-3.5" /> {courseData.duration} Weeks
                 </span>
               </div>
               <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">
@@ -1089,8 +979,16 @@ const AdminCourseDetail = () => {
 
             {/* Enrollment Action Box */}
             <div className="bg-white rounded-2xl p-8 shadow-xl w-full md:w-85 z-10 flex flex-col border border-[#e0e3e5]">
-              <div className="flex justify-between items-end mb-4 gap-2">
-                <span className="text-4xl font-extrabold text-[#002045] leading-none whitespace-nowrap">
+              <div className="flex flex-col mb-6">
+                {courseData.originalPrice && (
+                  <span className="text-base text-[#74777f] line-through font-medium mb-1 whitespace-nowrap">
+                    {new Intl.NumberFormat("vi-VN").format(
+                      Number(courseData.originalPrice),
+                    )}{" "}
+                    đ
+                  </span>
+                )}
+                <span className="text-4xl font-extrabold text-[#002045] leading-none tracking-tight whitespace-nowrap">
                   {courseData.price
                     ? new Intl.NumberFormat("vi-VN").format(
                         Number(courseData.price),
@@ -1098,14 +996,6 @@ const AdminCourseDetail = () => {
                     : "0"}{" "}
                   đ
                 </span>
-                {courseData.originalPrice && (
-                  <span className="text-lg text-[#74777f] line-through font-medium mb-1 whitespace-nowrap text-right">
-                    {new Intl.NumberFormat("vi-VN").format(
-                      Number(courseData.originalPrice),
-                    )}{" "}
-                    đ
-                  </span>
-                )}
               </div>
               <div className="flex items-center gap-3 bg-[#f7fafc] rounded-xl p-4 mb-6 border border-[#e0e3e5]">
                 <Clock className="text-[#0061a5] w-6 h-6" />
@@ -1122,14 +1012,10 @@ const AdminCourseDetail = () => {
               </div>
               <button
                 disabled
-                className="w-full bg-[#e0e3e5] text-[#74777f] font-bold py-4 rounded-xl flex justify-center items-center gap-2 mb-4 cursor-not-allowed"
+                className="w-full bg-[#e0e3e5] text-[#74777f] font-bold py-4 rounded-xl flex justify-center items-center gap-2 cursor-not-allowed"
               >
                 Enroll Now (Preview)
               </button>
-              <div className="flex items-center justify-center gap-2 text-xs font-medium text-[#74777f]">
-                <ShieldCheck className="w-4 h-4 text-[#0061a5]" /> 14-day
-                money-back guarantee
-              </div>
             </div>
           </div>
 
@@ -1157,59 +1043,31 @@ const AdminCourseDetail = () => {
               {activeTab === "syllabus" && (
                 <div className="flex flex-col gap-6 animate-fade-in">
                   <h2 className="text-2xl font-bold text-[#002045]">
-                    Course Modules
+                    Syllabus
                   </h2>
 
-                  {courseData.modules &&
-                    courseData.modules.map((module, index) => (
-                      <div
-                        key={index}
-                        className={`bg-white border border-[#c4c6cf] rounded-2xl overflow-hidden shadow-sm ${index > 0 ? "opacity-70" : ""}`}
-                      >
-                        <div className="bg-[#f7fafc] px-6 py-4 flex justify-between items-center border-b border-[#e0e3e5]">
-                          <div className="flex items-center gap-4">
-                            <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${index === 0 ? "bg-[#0061a5] text-white" : "bg-[#e0e3e5] text-[#43474e]"}`}
-                            >
-                              {index + 1}
-                            </div>
-                            <h3
-                              className={`text-lg font-bold ${index === 0 ? "text-[#002045]" : "text-[#43474e]"}`}
-                            >
+                  <div className="relative border-l-2 border-[#e0e3e5] ml-4 space-y-6 pb-4 mt-4">
+                    {courseData.modules &&
+                      courseData.modules.map((module, index) => (
+                        <div key={index} className="relative pl-8 animate-fade-in">
+                          {/* Timeline Dot */}
+                          <div className="absolute -left-4.25 top-1 w-8 h-8 rounded-full bg-[#e6f0fa] border-4 border-white text-[#0061a5] flex items-center justify-center text-sm font-bold shadow-sm">
+                            {index + 1}
+                          </div>
+                          {/* Content Card */}
+                          <div className="bg-white border border-[#e0e3e5] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                            <h3 className="text-lg font-bold text-[#002045] mb-2">
                               {module.title}
                             </h3>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <span
-                              className={`text-xs font-bold px-3 py-1 rounded-full ${index === 0 ? "text-[#0061a5] bg-[#e6f0fa]" : "text-[#74777f] bg-white border border-[#c4c6cf]"}`}
-                            >
-                              {module.sessions} Sessions
-                            </span>
+                            {module.description && (
+                              <p className="text-sm text-[#43474e] leading-relaxed">
+                                {module.description}
+                              </p>
+                            )}
                           </div>
                         </div>
-                        {index === 0 && (
-                          <div className="p-6 flex flex-col gap-4">
-                            <p className="text-[#43474e]">
-                              {module.description}
-                            </p>
-                            <ul className="flex flex-col gap-3 mt-2">
-                              {module.topics &&
-                                module.topics.map(
-                                  (topic: string, tIndex: number) => (
-                                    <li
-                                      key={tIndex}
-                                      className="flex items-start gap-3 text-[#181c1e] font-medium"
-                                    >
-                                      <CheckCircle2 className="text-[#0061a5] w-5 h-5 shrink-0" />{" "}
-                                      {topic}
-                                    </li>
-                                  ),
-                                )}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </div>
               )}
 

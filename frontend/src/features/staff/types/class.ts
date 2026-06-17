@@ -13,6 +13,9 @@ export interface Class {
     courses?: { id: string; title: string; code: string };
     tutor?: { id: string; full_name: string; email: string };
     classroom?: { id: string; room_name: string };
+    sessions?: Session[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    students?: any[];
 }
 
 export interface Session {
@@ -52,6 +55,9 @@ export interface UpdateClassDTO {
     classroom_id?: string | null;
     capacity?: number;
     status?: string;
+    start_date?: string;
+    end_date?: string;
+    sessions?: SessionConfig[];
 }
 
 export interface UpdateClassSessionDTO {

@@ -2,11 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { X, Users, MapPin, ChevronDown, Save, Calendar, Clock } from 'lucide-react';
 import type { Session } from '../types/class';
 import type { Classroom } from '@/shared/services/classrooms.service';
+import { ClassesService } from '../services/classes.service';
 
 interface EditSessionModalProps {
     session: Session;
     availableRooms: Classroom[];
-    availableTutors: any[];
+    availableTutors: { id: string; full_name: string }[];
     onClose: () => void;
     onSave: (session: Partial<Session>) => void;
 }
@@ -18,6 +19,33 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
     const [date, setDate] = useState(session.date);
     const [slot, setSlot] = useState(session.slot);
     const editRoomDropdownRef = useRef<HTMLDivElement>(null);
+
+    const [occupiedTutorIds, setOccupiedTutorIds] = useState<string[]>([]);
+    const [occupiedRoomIds, setOccupiedRoomIds] = useState<string[]>([]);
+
+    useEffect(() => {
+        const fetchOccupied = async () => {
+            if (date && slot) {
+                const sessions = await ClassesService.getOccupiedSessions({
+                    date,
+                    slot,
+                    exclude_class_id: session.class_id
+                });
+                const tIds = sessions.map(s => s.tutor_id).filter(Boolean);
+                const rIds = sessions.map(s => s.classroom_id).filter(Boolean);
+                setOccupiedTutorIds(tIds);
+                setOccupiedRoomIds(rIds);
+
+                if (selectedTutor && tIds.includes(selectedTutor)) {
+                    setSelectedTutor('');
+                }
+                if (selectedEditRoom && rIds.includes(selectedEditRoom.id)) {
+                    setSelectedEditRoom(null);
+                }
+            }
+        };
+        fetchOccupied();
+    }, [date, slot, session.class_id, selectedEditRoom, selectedTutor]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -56,8 +84,8 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                 </div>
                 
                 <div className="p-6 space-y-5">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                    <div className="grid grid-cols-5 gap-4">
+                        <div className="col-span-2 space-y-2">
                             <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
                                 <Calendar className="w-4 h-4 text-gray-500"/> Date
                             </label>
@@ -68,7 +96,7 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                                 onChange={(e) => setDate(e.target.value)}
                             />
                         </div>
-                        <div className="space-y-2">
+                        <div className="col-span-3 space-y-2">
                             <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
                                 <Clock className="w-4 h-4 text-gray-500"/> Slot
                             </label>
@@ -77,12 +105,12 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                                 value={slot}
                                 onChange={(e) => setSlot(e.target.value)}
                             >
-                                <option value="slot1">Slot 1 (07:30 - 09:50)</option>
-                                <option value="slot2">Slot 2 (10:00 - 12:20)</option>
-                                <option value="slot3">Slot 3 (12:50 - 15:10)</option>
-                                <option value="slot4">Slot 4 (15:20 - 17:40)</option>
-                                <option value="slot5">Slot 5 (18:00 - 20:20)</option>
-                                <option value="slot6">Slot 6 (20:30 - 22:50)</option>
+                                <option value="slot1">Slot 1 (07:30 - 09:30)</option>
+                                <option value="slot2">Slot 2 (09:30 - 11:30)</option>
+                                <option value="slot3">Slot 3 (13:30 - 15:30)</option>
+                                <option value="slot4">Slot 4 (15:30 - 17:30)</option>
+                                <option value="slot5">Slot 5 (18:00 - 20:00)</option>
+                                <option value="slot6">Slot 6 (20:00 - 22:00)</option>
                             </select>
                         </div>
                     </div>
@@ -97,7 +125,7 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                             onChange={(e) => setSelectedTutor(e.target.value)}
                         >
                             <option value="">-- No Tutor --</option>
-                            {availableTutors.map(t => (
+                            {availableTutors.filter(t => !occupiedTutorIds.includes(t.id)).map(t => (
                                 <option key={t.id} value={t.id}>{t.full_name}</option>
                             ))}
                         </select>
@@ -132,7 +160,7 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                                 >
                                     -- Keep Current --
                                 </button>
-                                {availableRooms.map((room) => (
+                                {availableRooms.filter(room => !occupiedRoomIds.includes(room.id)).map((room) => (
                                     <button 
                                         key={room.id}
                                         className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors truncate"

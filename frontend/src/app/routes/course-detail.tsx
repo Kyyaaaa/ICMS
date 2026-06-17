@@ -5,13 +5,11 @@ import {
   Compass,
   ArrowRight,
   Star,
-  CheckCircle2,
   ChevronRight,
   Clock,
   MapPin,
   Globe,
   Users,
-  ShieldCheck,
   Ticket,
 } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -277,10 +275,6 @@ const CourseDetailInner = () => {
               Enroll Now
               <ArrowRight className="w-5 h-5" />
             </button>
-            <div className="flex items-center justify-center gap-2 text-xs font-medium text-[#74777f]">
-              <ShieldCheck className="w-4 h-4 text-[#0061a5]" /> 14-day
-              money-back guarantee
-            </div>
           </div>
         </div>
 
@@ -308,51 +302,28 @@ const CourseDetailInner = () => {
             {activeTab === "syllabus" && (
               <div className="flex flex-col gap-6 animate-fade-in">
                 <h2 className="text-2xl font-bold text-[#002045]">
-                  Course Modules
+                  Syllabus
                 </h2>
 
-                {/* Dynamic Syllabus Content */}
-                <div className="space-y-4">
+                <div className="relative border-l-2 border-[#e0e3e5] ml-4 space-y-6 pb-4 mt-4">
                   {Array.isArray(course.modules) &&
                     course.modules.map((module, index) => (
-                      <div
-                        key={index}
-                        className={`bg-white border border-[#e0e3e5] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow ${index > 0 ? "opacity-70" : ""}`}
-                      >
-                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
-                          <h3 className="text-xl font-bold text-[#002045] flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#e6f0fa] text-[#0061a5] flex items-center justify-center text-sm">
-                              {index + 1}
-                            </div>
+                      <div key={index} className="relative pl-8 animate-fade-in">
+                        {/* Timeline Dot */}
+                        <div className="absolute -left-4.25 top-1 w-8 h-8 rounded-full bg-[#e6f0fa] border-4 border-white text-[#0061a5] flex items-center justify-center text-sm font-bold shadow-sm">
+                          {index + 1}
+                        </div>
+                        {/* Content Card */}
+                        <div className="bg-white border border-[#e0e3e5] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                          <h3 className="text-lg font-bold text-[#002045] mb-2">
                             {module.title}
                           </h3>
-                          <span className="bg-[#f7fafc] text-[#43474e] text-xs font-bold px-3 py-1 rounded-full border border-[#e0e3e5] whitespace-nowrap w-fit">
-                            {module.sessions} Sessions
-                          </span>
-                        </div>
-                        {index === 0 && (
-                          <>
-                            <p className="text-[#43474e] mb-4 leading-relaxed">
+                          {module.description && (
+                            <p className="text-sm text-[#43474e] leading-relaxed">
                               {module.description}
                             </p>
-                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                              {Array.isArray(module.topics) &&
-                                module.topics.map((topic, tIndex) => (
-                                  <li
-                                    key={tIndex}
-                                    className="flex items-start gap-2 text-sm text-[#43474e]"
-                                  >
-                                    <CheckCircle2 className="w-5 h-5 text-[#0061a5] shrink-0 mt-0.5" />
-                                    <span>
-                                      {typeof topic === "object"
-                                        ? JSON.stringify(topic)
-                                        : String(topic)}
-                                    </span>
-                                  </li>
-                                ))}
-                            </ul>
-                          </>
-                        )}
+                          )}
+                        </div>
                       </div>
                     ))}
                 </div>

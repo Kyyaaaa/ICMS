@@ -122,7 +122,7 @@ const StaffCertificates = () => {
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "N/A";
     const date = new Date(dateStr);
-    return date.toLocaleDateString();
+    return date.toLocaleDateString('en-GB');
   };
 
   return (

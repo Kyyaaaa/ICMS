@@ -17,14 +17,15 @@ const StaffClassDetail = () => {
     
     const [activeTab, setActiveTab] = useState('schedule');
     const [classData, setClassData] = useState<Class | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [students, setStudents] = useState<any[]>([]);
     const [availableRooms, setAvailableRooms] = useState<Classroom[]>([]);
-    const [availableTutors, setAvailableTutors] = useState<any[]>([]);
+    const [availableTutors, setAvailableTutors] = useState<{ id: string; full_name: string }[]>([]);
     
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedSession, setSelectedSession] = useState<Session | null>(null);
     const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
-    const [availableLearners, setAvailableLearners] = useState<any[]>([]);
+    const [availableLearners, setAvailableLearners] = useState<unknown[]>([]);
 
     const loadData = async () => {
         if (!id) return;
@@ -39,7 +40,9 @@ const StaffClassDetail = () => {
             setClassData(cls);
             setStudents(studentsData || []);
             setAvailableRooms(rooms);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setAvailableTutors((tutors as any).data?.data || []);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setAvailableLearners((learnersRes as any).data?.data || []);
         } catch (err) {
             console.error("Failed to load class details", err);
@@ -47,7 +50,11 @@ const StaffClassDetail = () => {
     };
 
     useEffect(() => {
-        loadData();
+        const fetchAll = async () => {
+            await loadData();
+        };
+        fetchAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     const enrolledStudents = students.length;
@@ -73,8 +80,8 @@ const StaffClassDetail = () => {
             showAlertModal('Success', 'Session updated successfully', 'success');
             setIsEditModalOpen(false);
             loadData(); // reload
-        } catch (err: any) {
-            showAlertModal('Conflict', err.message || 'Error updating session', 'error');
+        } catch (err: unknown) {
+            showAlertModal('Conflict', (err as Error).message || 'Error updating session', 'error');
         }
     };
 
@@ -84,8 +91,9 @@ const StaffClassDetail = () => {
             showAlertModal('Success', 'Student added successfully', 'success');
             setIsAddStudentModalOpen(false);
             loadData();
-        } catch (err: any) {
-            showAlertModal('Error', err.response?.data?.message || err.message || 'Failed to add student', 'error');
+        } catch (err: unknown) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            showAlertModal('Error', (err as any).response?.data?.message || (err as Error).message || 'Failed to add student', 'error');
         }
     };
 
@@ -103,7 +111,7 @@ const StaffClassDetail = () => {
                 <ChevronRight className="w-4 h-4" />
                 <span>{courseName}</span>
                 <ChevronRight className="w-4 h-4" />
-                <span className="font-semibold text-[#002045]">Class #{id || '101'}</span>
+                <span className="font-semibold text-[#002045]">{classNameStr}</span>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -119,7 +127,14 @@ const StaffClassDetail = () => {
                                 } else {
                                     const isConfirmed = await showConfirmModal('Confirm Delete', 'Are you sure you want to delete this class?', 'warning');
                                     if (isConfirmed) {
-                                        // Delete logic
+                                        try {
+                                            await ClassesService.deleteClass(id as string);
+                                            showAlertModal('Success', 'Class deleted successfully', 'success').then(() => {
+                                                window.location.href = '/staff/classes';
+                                            });
+                                        } catch (error: unknown) {
+                                            showAlertModal('Error', (error as Error).message || 'Failed to delete class', 'error');
+                                        }
                                     }
                                 }
                             }} 
@@ -175,33 +190,30 @@ const StaffClassDetail = () => {
                     onClick={() => setActiveTab('students')}
                     className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors ${activeTab === 'students' ? 'border-[#0061a5] text-[#0061a5]' : 'border-transparent text-[#74777f] hover:text-[#002045]'}`}
                 >
-                    Enrolled Students ({enrolledStudents}/20)
+                    Enrolled Learners ({enrolledStudents}/20)
                 </button>
             </div>
 
             {/* Tab Content */}
             <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden">
                 {activeTab === 'schedule' && (
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     <ClassScheduleTab scheduleData={(classData as any).sessions || []} onEditSession={handleEditSession} />
                 )}
 
                 {activeTab === 'students' && (
                     <ClassStudentsTab 
+                        classId={id}
                         students={students} 
                         onRemoveStudent={async (studentId) => {
-                            const confirmed = await showConfirmModal(
-                                'Remove Student',
-                                'Are you sure you want to remove this student from the class? This action cannot be undone.',
-                                'warning'
-                            );
-                            if (confirmed) {
-                                try {
-                                    await ClassesService.cancelEnrollment(studentId);
-                                    showAlertModal('Success', 'Student removed successfully', 'success');
-                                    loadData();
-                                } catch (error: any) {
-                                    showAlertModal('Error', error.message || 'Failed to remove student', 'error');
-                                }
+                            const isConfirmed = await showConfirmModal('Confirm Remove', 'Are you sure you want to remove this learner from the class?', 'warning');
+                            if (!isConfirmed) return;
+                            try {
+                                await ClassesService.cancelEnrollment(studentId);
+                                showAlertModal('Success', 'Learner removed successfully', 'success');
+                                loadData();
+                            } catch (err: unknown) {
+                                showAlertModal('Error', (err as Error).message || 'Failed to remove learner', 'error');
                             }
                         }}
                         onAddStudent={() => setIsAddStudentModalOpen(true)}

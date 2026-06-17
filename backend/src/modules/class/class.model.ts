@@ -21,6 +21,9 @@ export interface UpdateClassDTO {
   classroom_id?: string | null;
   capacity?: number;
   status?: string;
+  start_date?: string;
+  end_date?: string;
+  sessions?: SessionConfig[];
 }
 
 export interface UpdateClassSessionDTO {

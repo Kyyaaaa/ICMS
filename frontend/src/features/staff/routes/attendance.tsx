@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { AttendanceService } from '../services/attendance.service';
-import { ClassesService } from '@/features/staff/services/classes.service';
-import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceRecordMap, AttendanceStatus } from '../types/attendance';
-import { AttendanceSessionList } from '../components/AttendanceSessionList';
-import { AttendanceSheet } from '../components/AttendanceSheet';
-import { showConfirmModal, showAlertModal } from '@/utils/modal';
+import { AttendanceService } from '../../tutor/services/attendance.service';
+import { ClassesService } from '../services/classes.service';
 import { formatAccountID, SLOT_LABELS } from '@/shared/lib/utils';
+import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceRecordMap, AttendanceStatus } from '../../tutor/types/attendance';
+import { AttendanceSessionList } from '../../tutor/components/AttendanceSessionList';
+import { AttendanceSheet } from '../../tutor/components/AttendanceSheet';
+import { showConfirmModal, showAlertModal } from '@/utils/modal';
 
 const ClassAttendance = () => {
     const { id: classId } = useParams<{ id: string }>();
@@ -100,12 +100,11 @@ const ClassAttendance = () => {
     
     const currentRecords = selectedSessionId ? (attendanceRecords[selectedSessionId] || {}) : {};
     
-    const today = new Date();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const isLocked = selectedSession?.date !== todayStr;
+    const isLocked = false; // Staff can always edit
+    
     
     const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
-        if (isLocked || !selectedSessionId) return;
+        if (!selectedSessionId) return;
         setAttendanceRecords(prev => ({
             ...prev,
             [selectedSessionId]: {
@@ -116,7 +115,7 @@ const ClassAttendance = () => {
     };
 
     const handleMarkAll = (status: AttendanceStatus) => {
-        if (isLocked || !selectedSessionId) return;
+        if (!selectedSessionId) return;
         const newRecords: Record<string, AttendanceStatus> = { ...currentRecords };
         students.forEach(stu => {
             newRecords[stu.id] = status;

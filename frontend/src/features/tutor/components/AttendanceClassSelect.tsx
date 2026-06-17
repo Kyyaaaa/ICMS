@@ -25,7 +25,7 @@ export const AttendanceClassSelect = ({ classes, selectedClass, isDropdownOpen, 
                         <div>
                             <div className="font-bold text-sm text-[#002045] leading-none mb-1">{selectedClass.name}</div>
                             <div className="text-xs font-medium text-[#74777f]">
-                                {selectedClass.id.toUpperCase()} • {selectedClass.students} students
+                                {selectedClass.id.toUpperCase()} • {selectedClass.students} learners
                             </div>
                         </div>
                     </div>
@@ -53,7 +53,7 @@ export const AttendanceClassSelect = ({ classes, selectedClass, isDropdownOpen, 
                                         <div className={`font-bold text-xs leading-none mb-1 ${selectedClass?.id === cls.id ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>
                                             {cls.name}
                                         </div>
-                                        <div className="text-xs text-[#74777f] leading-none">{cls.students} students</div>
+                                        <div className="text-xs text-[#74777f] leading-none">{cls.students} learners</div>
                                     </div>
                                 </button>
                             ))}

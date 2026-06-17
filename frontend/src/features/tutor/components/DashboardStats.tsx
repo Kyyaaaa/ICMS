@@ -10,7 +10,7 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
         { title: 'Active Classes', value: stats.activeClasses, icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-100' },
         { title: 'Upcoming Sessions', value: stats.upcomingSessions, icon: Calendar, color: 'text-emerald-600', bg: 'bg-emerald-100' },
         { title: 'Pending Requests', value: stats.pendingRequests, icon: RefreshCcw, color: 'text-amber-600', bg: 'bg-amber-100' },
-        { title: 'Total Students', value: stats.totalStudents, icon: Users, color: 'text-purple-600', bg: 'bg-purple-100' }
+        { title: 'Total Learners', value: stats.totalStudents, icon: Users, color: 'text-purple-600', bg: 'bg-purple-100' }
     ];
 
     return (

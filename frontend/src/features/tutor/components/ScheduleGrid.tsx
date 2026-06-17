@@ -57,7 +57,7 @@ export const ScheduleGrid = ({ weekDates, schedule }: ScheduleGridProps) => {
                         <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5] w-32.5">Time</th>
                         <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5]">Class</th>
                         <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5] w-40">Room</th>
-                        <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5] w-35">Students</th>
+                        <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider border-r border-[#e0e3e5] w-35">Learners</th>
                         <th className="p-4 font-bold text-[#43474e] text-xs uppercase tracking-wider w-35">Status</th>
                     </tr>
                 </thead>
@@ -122,7 +122,7 @@ export const ScheduleGrid = ({ weekDates, schedule }: ScheduleGridProps) => {
                                     <td className="p-4 border-r border-[#e0e3e5] align-middle w-35">
                                         <div className="flex items-center gap-1.5 text-xs text-[#43474e]">
                                             <Users className="w-3.5 h-3.5 text-[#74777f]" />
-                                            <span className="font-medium">{session.students} Students</span>
+                                            <span className="font-medium">{session.students} Learners</span>
                                         </div>
                                     </td>
                                     <td className="p-4 align-middle w-35">

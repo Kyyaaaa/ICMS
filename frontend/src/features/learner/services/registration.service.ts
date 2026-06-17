@@ -1,26 +1,66 @@
 import type { RegistrationClassOption, RegistrationInvoicePreview } from '../types/registration';
 import axiosClient from '@/shared/services/axiosClient';
+import { SLOT_LABELS } from '@/shared/lib/utils';
+
+interface StaffClassResponse {
+    id: string;
+    name: string;
+    class_code?: string;
+    capacity: number;
+    current_enrollments?: number;
+    class_sessions?: { slot: string; date: string }[];
+    sessions?: { slot: string; date: string }[];
+    classroom?: { room_name: string };
+}
 
 export const LearnerRegistrationService = {
     getAvailableClasses: async (courseId: string): Promise<RegistrationClassOption[]> => {
         try {
             // Fetch upcoming classes for this course
-            const res = await axiosClient.get<{success: boolean, data: any[]}>('/staff/classes', {
+            const res = await axiosClient.get<unknown, {success: boolean, data: StaffClassResponse[]}>('/staff/classes', {
                 params: { course_id: courseId, status: 'UPCOMING' }
             });
-            const classes = (res as any).data || [];
+            const classes = res.data || [];
             
             // Map to RegistrationClassOption
-            return classes.map((cls: any) => {
-                const sessionsCount = cls.sessions ? cls.sessions.length : 24; // fallback to 24 if no sessions array
+            return classes.map((cls) => {
+                const sessions = cls.class_sessions || cls.sessions || [];
+                const sessionsCount = sessions.length > 0 ? sessions.length : 24;
                 
-                // Estimate schedule from sessions if available
                 let scheduleStr = 'TBD';
-                if (cls.sessions && cls.sessions.length > 0) {
-                    const uniqueDays = Array.from(new Set(cls.sessions.map((s: any) => s.slot)));
-                    if (uniqueDays.length > 0) {
-                        scheduleStr = uniqueDays.slice(0, 2).join(', ') + (uniqueDays.length > 2 ? '...' : '');
-                    }
+                let timeStr = 'TBD';
+                
+                if (sessions.length > 0) {
+                    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    const slotToDays = new Map<string, Set<number>>();
+                    
+                    sessions.forEach((s) => {
+                        const day = new Date(s.date).getDay();
+                        const slot = s.slot || 'TBA';
+                        if (!slotToDays.has(slot)) {
+                            slotToDays.set(slot, new Set());
+                        }
+                        slotToDays.get(slot)!.add(day);
+                    });
+                    
+                    const scheduleObjects: { minDay: number; text: string }[] = [];
+                    slotToDays.forEach((days, slot) => {
+                        const sortedDays = Array.from(days).sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
+                        const dayList = sortedDays.map(d => dayNames[d]).join(', ');
+                        const timeStr = SLOT_LABELS[slot] || slot;
+                        scheduleObjects.push({
+                            minDay: sortedDays[0] === 0 ? 7 : sortedDays[0],
+                            text: `${dayList} (${timeStr})`
+                        });
+                    });
+                    
+                    const schedules: string[] = [];
+                    scheduleObjects.sort((a, b) => a.minDay - b.minDay).forEach(obj => {
+                        schedules.push(obj.text);
+                    });
+                    
+                    scheduleStr = schedules.join(' | ');
+                    timeStr = 'Detailed in schedule';
                 }
 
                 return {
@@ -28,8 +68,8 @@ export const LearnerRegistrationService = {
                     name: cls.name || `Class ${cls.class_code || 'Unknown'}`,
                     availableSeats: Math.max(0, (cls.capacity || 15) - (cls.current_enrollments || 0)),
                     schedule: scheduleStr,
-                    time: 'TBD', // We'll just say TBD if not available
-                    room: cls.classroom?.name || 'TBD',
+                    time: timeStr,
+                    room: cls.classroom?.room_name || 'TBD',
                     sessions: sessionsCount,
                     sessionList: cls.sessions || []
                 };
@@ -49,12 +89,7 @@ export const LearnerRegistrationService = {
     },
 
     confirmRegistration: async (_courseId: string, classId: number | string): Promise<boolean> => {
-        try {
-            await axiosClient.post('/enrollments', { class_id: classId });
-            return true;
-        } catch (error: any) {
-            // Throw the actual error so the UI can display it
-            throw error;
-        }
+        await axiosClient.post('/enrollments', { class_id: classId });
+        return true;
     }
 };
