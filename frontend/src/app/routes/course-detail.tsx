@@ -270,11 +270,7 @@ const CourseDetailInner = () => {
             </div>
             <button
               onClick={() => {
-                if (!isLoggedIn) {
-                  navigate("/login");
-                } else {
-                  navigate(`/courses/${id}/register`);
-                }
+                navigate(`/courses/${id}/register`);
               }}
               className="w-full bg-[#0061a5] text-white font-bold py-4 rounded-xl shadow-md hover:bg-[#004a80] hover:shadow-lg hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2 mb-4"
             >
