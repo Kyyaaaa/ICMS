@@ -38,6 +38,7 @@ export class AnnouncementRepository {
                 )
             `)
             .or(orQuery)
+            .eq('status', 'Published')
             .order('created_at', { ascending: false });
 
         if (error) throw error;

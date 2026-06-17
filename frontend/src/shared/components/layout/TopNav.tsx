@@ -29,8 +29,9 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
 
     React.useEffect(() => {
         const fetchNotifs = async () => {
+            if (!isLoggedIn) return;
             try {
-                const roleStr = isLoggedIn && userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Guest';
+                const roleStr = userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Guest';
                 const anns = await AnnouncementsService.getNotifications(roleStr);
                 
                 const readSet = new Set(JSON.parse(localStorage.getItem('readNotifications') || '[]'));
