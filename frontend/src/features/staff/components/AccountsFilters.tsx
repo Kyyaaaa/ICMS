@@ -27,8 +27,6 @@ export const AccountsFilters = ({ searchTerm, setSearchTerm, roleFilter, setRole
                 onChange={(e) => setRoleFilter(e.target.value as Role | 'All')}
             >
                 <option value="All">All Roles</option>
-                <option value="ADMIN">Admin</option>
-                <option value="STAFF">Staff</option>
                 <option value="TUTOR">Tutor</option>
                 <option value="LEARNER">Learner</option>
             </select>

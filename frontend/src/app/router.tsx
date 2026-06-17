@@ -105,6 +105,7 @@ export const AppRouter = () => {
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/courses" element={<Courses />} />
       <Route path="/courses/:id" element={<CourseDetail />} />
+      <Route path="/courses/:courseId/register" element={<ClassRegistration />} />
       <Route path="/notifications" element={<PublicNotifications />} />
 
       {/* Learner Routes wrapped in Layout */}
@@ -132,10 +133,6 @@ export const AppRouter = () => {
 
           <Route path="/learner/schedules" element={<LearnerSchedules />} />
 
-          <Route
-            path="/courses/:courseId/register"
-            element={<ClassRegistration />}
-          />
 
           <Route path="/learner/payments" element={<PaymentHistory />} />
           <Route path="/learner/payments/:id" element={<PaymentDetail />} />

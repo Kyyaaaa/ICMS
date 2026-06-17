@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, MapPin, Calendar, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import { TopNav } from '@/shared/components/layout/TopNav';
 import type { RegistrationClassOption, RegistrationInvoicePreview } from '../types/registration';
 import { LearnerRegistrationService } from '../services/registration.service';
 import { showAlertModal } from '@/utils/modal';
@@ -8,9 +10,23 @@ import { showAlertModal } from '@/utils/modal';
 const ClassRegistration = () => {
     const { courseId } = useParams();
     const [classOptions, setClassOptions] = useState<RegistrationClassOption[]>([]);
-    const [selectedClass, setSelectedClass] = useState<number | string | null>(null);
+    const [selectedClass, setSelectedClass] = useState<number | string | null>(() => {
+        const pending = localStorage.getItem('pending_registration_class');
+        if (pending) {
+            localStorage.removeItem('pending_registration_class');
+            return isNaN(Number(pending)) ? pending : Number(pending);
+        }
+        return null;
+    });
     const [_invoicePreview, setInvoicePreview] = useState<RegistrationInvoicePreview | null>(null);
     const [loading, setLoading] = useState(true);
+    
+    const [isLoggedIn, setIsLoggedIn] = useState(() => !!Cookies.get('access_token'));
+    const [userRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>(() => {
+        try { return JSON.parse(Cookies.get('user_info') || '{}').role?.toLowerCase() || 'learner'; } catch { return 'learner'; }
+    });
+    const navigate = useNavigate();
+    
     
     const [isConfirming, setIsConfirming] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -43,6 +59,14 @@ const ClassRegistration = () => {
 
     const handleConfirm = async () => {
         if (!courseId || !selectedClass) return;
+        
+        if (!isLoggedIn) {
+            localStorage.setItem('pending_registration_course', courseId);
+            localStorage.setItem('pending_registration_class', selectedClass.toString());
+            navigate('/login');
+            return;
+        }
+
         setIsConfirming(true);
         try {
             await LearnerRegistrationService.confirmRegistration(courseId, selectedClass);
@@ -77,8 +101,10 @@ const ClassRegistration = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 animate-fade-in-up">
-            <div className="flex items-center gap-4">
+        <div className="bg-[#f7fafc] min-h-screen flex flex-col">
+            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole} />
+            <div className="max-w-4xl mx-auto space-y-6 animate-fade-in-up py-10 px-4 w-full grow">
+                <div className="flex items-center gap-4">
                 <Link to={`/courses/${courseId}`} className="text-[#0061a5] hover:underline font-medium text-sm">← Back to Course</Link>
             </div>
             
@@ -164,6 +190,7 @@ const ClassRegistration = () => {
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 };

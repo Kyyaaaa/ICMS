@@ -42,7 +42,13 @@ export const LoginForm = () => {
                         Cookies.set('refresh_token', responseData.refresh_token, { path: '/' });
                     }
                 }
-                window.location.href = '/homepage';
+                const pendingCourse = localStorage.getItem('pending_registration_course');
+                if (pendingCourse) {
+                    localStorage.removeItem('pending_registration_course');
+                    window.location.href = `/courses/${pendingCourse}/register`;
+                } else {
+                    window.location.href = '/homepage';
+                }
             } else {
                 throw new Error('Invalid response structure');
             }
