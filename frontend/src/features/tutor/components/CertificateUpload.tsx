@@ -1,5 +1,5 @@
 import { Upload, X } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { CertificatesService } from "../services/certificates.service";
 
 interface CertificateUploadProps {
@@ -18,8 +18,16 @@ export const CertificateUpload = ({
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const todayString = new Date().toISOString().split('T')[0];
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const validateFile = (selectedFile: File): string | null => {
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -44,10 +52,14 @@ export const CertificateUpload = ({
       const validationError = validateFile(selectedFile);
       if (validationError) {
         setError(validationError);
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
         setFile(null);
         if (fileInputRef.current) fileInputRef.current.value = ""; // Reset input
         return;
       }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(URL.createObjectURL(selectedFile));
       setFile(selectedFile);
       setError("");
     }
@@ -125,27 +137,43 @@ export const CertificateUpload = ({
               className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm"
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#43474e]">
-              Issue Date <span className="text-rose-600">*</span>
-            </label>
-            <input
-              type="date"
-              value={issueDate}
-              onChange={(e) => setIssueDate(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm text-[#181c1e]"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#43474e]">
-              Expiration Date (if applicable)
-            </label>
-            <input
-              type="date"
-              value={expDate}
-              onChange={(e) => setExpDate(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm text-[#181c1e]"
-            />
+          <div className="flex gap-4">
+            <div className="space-y-2 flex-1">
+              <label className="text-xs font-bold text-[#43474e]">
+                Issue Date <span className="text-rose-600">*</span>
+              </label>
+              <input
+                type="date"
+                max={todayString}
+                value={issueDate}
+                onChange={(e) => setIssueDate(e.target.value)}
+                onBlur={(e) => {
+                  const val = e.target.value;
+                  if (val && val > todayString) setIssueDate(todayString);
+                  if (val && expDate && val >= expDate) setExpDate("");
+                }}
+                className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm text-[#181c1e]"
+              />
+            </div>
+            <div className="space-y-2 flex-1">
+              <label className="text-xs font-bold text-[#43474e]">
+                Expiration Date <span className="text-[#74777f] font-normal">(Optional)</span>
+              </label>
+              <input
+                type="date"
+                min={issueDate ? new Date(new Date(issueDate).getTime() + 86400000).toISOString().split('T')[0] : undefined}
+                max="2099-12-31"
+                value={expDate}
+                onChange={(e) => setExpDate(e.target.value)}
+                onBlur={(e) => {
+                  const val = e.target.value;
+                  const minDate = issueDate ? new Date(new Date(issueDate).getTime() + 86400000).toISOString().split('T')[0] : "";
+                  if (val && minDate && val < minDate) setExpDate(minDate);
+                  else if (val && val > "2099-12-31") setExpDate("2099-12-31");
+                }}
+                className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm text-[#181c1e]"
+              />
+            </div>
           </div>
         </div>
 
@@ -171,13 +199,13 @@ export const CertificateUpload = ({
               <>
                 {file.type.startsWith("image/") ? (
                   <img
-                    src={URL.createObjectURL(file)}
+                    src={previewUrl!}
                     alt="Preview"
                     className="w-full h-full absolute inset-0 object-contain bg-black/5"
                   />
                 ) : file.type === "application/pdf" ? (
                   <iframe
-                    src={`${URL.createObjectURL(file)}#toolbar=0&navpanes=0&view=FitH`}
+                    src={`${previewUrl}#toolbar=0&navpanes=0&view=FitH`}
                     className="w-full h-full absolute inset-0 border-0 bg-white"
                     title="PDF Preview"
                   />
@@ -197,6 +225,8 @@ export const CertificateUpload = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (previewUrl) URL.revokeObjectURL(previewUrl);
+                    setPreviewUrl(null);
                     setFile(null);
                     if (fileInputRef.current) fileInputRef.current.value = "";
                   }}

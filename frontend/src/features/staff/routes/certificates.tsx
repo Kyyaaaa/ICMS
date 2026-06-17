@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { Eye, Search, CheckCircle, XCircle, X, ShieldAlert, ShieldCheck, ShieldX } from "lucide-react";
+import { Eye, Search, CheckCircle, XCircle, X, ShieldAlert, ShieldCheck, ShieldX, Download } from "lucide-react";
 import { StaffCertificatesService } from "../services/certificates.service";
 import type { StaffCertificate } from "../services/certificates.service";
-
 const StaffCertificates = () => {
   const [Certificates, setCertificates] = useState<StaffCertificate[]>([]);
   const [selectedQual, setSelectedQual] = useState<StaffCertificate | null>(
@@ -18,6 +17,41 @@ const StaffCertificates = () => {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectError, setRejectError] = useState<string | null>(null);
   const [shakeKey, setShakeKey] = useState(0);
+
+  // We no longer need to fetch PDFs as blobs because Supabase Storage allows direct embedding.
+  // The iframe can directly load the Supabase public URL.
+
+  const handleDownload = async (url: string) => {
+    try {
+      const secureUrl = url.replace(/^http:\/\//i, 'https://');
+      
+      // Fetch as blob and trigger download
+      const response = await fetch(secureUrl, {
+          method: 'GET',
+          headers: { 'Accept': '*/*' }
+      });
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      
+      let filename = secureUrl.split('/').pop()?.split('?')[0] || 'document';
+      if (!filename.includes('.')) {
+          if (blob.type.includes('png')) filename += '.png';
+          else if (blob.type.includes('jpeg') || blob.type.includes('jpg')) filename += '.jpg';
+          else if (blob.type.includes('pdf')) filename += '.pdf';
+      }
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Error triggering download:", error);
+      window.open(url, '_blank');
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -247,28 +281,21 @@ const StaffCertificates = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-2xl w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[90vh] animate-scale-in">
             {/* Document View - Left Side */}
-            <div className="flex-1 bg-[#f8f9fa] flex items-center justify-center border-r border-[#e0e3e5] relative overflow-hidden">
-              {selectedQual.file_url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                <img
-                  src={selectedQual.file_url}
-                  alt="Document"
-                  className="w-full h-full object-contain"
-                />
-              ) : selectedQual.file_url.match(/\.pdf$/i) ? (
+            <div className="flex-1 bg-[#f8f9fa] overflow-y-hidden border-r border-[#e0e3e5] relative flex flex-col p-4">
+              {selectedQual.file_url.toLowerCase().includes('.pdf') ? (
                 <iframe
-                  src={`${selectedQual.file_url}#toolbar=0&navpanes=0&view=FitH`}
-                  className="w-full h-full border-0"
-                  title="PDF Preview"
+                  src={`${selectedQual.file_url}#toolbar=0`}
+                  className="w-full h-full flex-1 border rounded-lg"
+                  title="Certificate Preview"
                 />
               ) : (
-                <a
-                  href={selectedQual.file_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#0061a5] font-bold hover:underline"
-                >
-                  Click to view/download document
-                </a>
+                <div className="flex-1 flex items-center justify-center h-full overflow-y-auto custom-scrollbar">
+                  <img 
+                    src={selectedQual.file_url} 
+                    alt="Certificate Preview" 
+                    className="max-w-full rounded-lg border object-contain max-h-full"
+                  />
+                </div>
               )}
             </div>
 
@@ -366,6 +393,16 @@ const StaffCertificates = () => {
                   >
                     {selectedQual.status}
                   </span>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-[#e0e3e5]">
+                  <button
+                    onClick={() => handleDownload(selectedQual.file_url)}
+                    className="flex items-center justify-center gap-2 w-full py-2 bg-[#f8f9fa] hover:bg-[#e0e3e5] text-[#0061a5] font-bold rounded-lg transition-colors border border-[#c4c6cf] text-sm cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Document
+                  </button>
                 </div>
               </div>
 
