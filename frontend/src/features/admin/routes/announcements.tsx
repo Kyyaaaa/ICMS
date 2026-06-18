@@ -74,7 +74,7 @@ const AdminAnnouncements = () => {
                     title: formData.title,
                     content: formData.content,
                     audience: finalAudience,
-                    scheduledFor: formData.publishMode === 'schedule' ? formData.scheduledFor : undefined
+                    scheduledFor: formData.publishMode === 'schedule' && formData.scheduledFor ? new Date(formData.scheduledFor).toISOString() : undefined
                 });
                 setAnnouncements([newAnn, ...announcements]);
             } else if (selectedAnnouncement) {
@@ -83,7 +83,7 @@ const AdminAnnouncements = () => {
                     title: formData.title,
                     content: formData.content,
                     audience: finalAudience,
-                    scheduledFor: formData.publishMode === 'schedule' ? formData.scheduledFor : undefined
+                    scheduledFor: formData.publishMode === 'schedule' && formData.scheduledFor ? new Date(formData.scheduledFor).toISOString() : undefined
                 });
                 setAnnouncements(announcements.map(ann => ann.id === updatedAnn.id ? updatedAnn : ann));
             }

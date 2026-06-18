@@ -1,7 +1,7 @@
 import pool from '../../configs/database';
 
 export class CourseRepository {
-    static async createCourse(courseData: any, modules: any[] = []) {
+    static async createCourse(courseData: any, sessionsList: any[] = []) {
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
@@ -51,28 +51,28 @@ export class CourseRepository {
             const courseRes = await client.query(insertCourseQuery, courseValues);
             const newCourse = courseRes.rows[0];
 
-            // Thêm các học phần (modules) nếu có
-            if (modules && modules.length > 0) {
-                const insertModuleQuery = `
-                    INSERT INTO course_modules (course_id, title, sessions, description, topics)
-                    VALUES ($1, $2, $3, $4, $5)
+            // Thêm các sessions nếu có
+            if (sessionsList && sessionsList.length > 0) {
+                const insertSessionQuery = `
+                    INSERT INTO course_sessions (course_id, session_number, title, description)
+                    VALUES ($1, $2, $3, $4)
                     RETURNING *;
                 `;
-                const createdModules = [];
-                for (const mod of modules) {
-                    const modValues = [
+                const createdSessions = [];
+                for (let i = 0; i < sessionsList.length; i++) {
+                    const sess = sessionsList[i];
+                    const sessValues = [
                         newCourse.id,
-                        mod.title,
-                        mod.sessions,
-                        mod.description,
-                        JSON.stringify(mod.topics || [])
+                        i + 1, // Auto generate session_number based on index
+                        sess.title,
+                        sess.description || ''
                     ];
-                    const modRes = await client.query(insertModuleQuery, modValues);
-                    createdModules.push(modRes.rows[0]);
+                    const sessRes = await client.query(insertSessionQuery, sessValues);
+                    createdSessions.push(sessRes.rows[0]);
                 }
-                newCourse.modules = createdModules;
+                newCourse.sessions_list = createdSessions;
             } else {
-                newCourse.modules = [];
+                newCourse.sessions_list = [];
             }
 
             await client.query('COMMIT');
@@ -101,23 +101,10 @@ export class CourseRepository {
 
         const course = courseRes.rows[0];
 
-        const modulesQuery = `SELECT * FROM course_modules WHERE course_id = $1 ORDER BY id ASC;`;
-        const modulesRes = await pool.query(modulesQuery, [id]);
+        const sessionsQuery = `SELECT * FROM course_sessions WHERE course_id = $1 ORDER BY session_number ASC;`;
+        const sessionsRes = await pool.query(sessionsQuery, [id]);
         
-        course.modules = modulesRes.rows.map(m => {
-            let parsedTopics = m.topics;
-            if (typeof m.topics === 'string') {
-                try {
-                    parsedTopics = JSON.parse(m.topics);
-                } catch (e) {
-                    parsedTopics = [];
-                }
-            }
-            return {
-                ...m,
-                topics: parsedTopics
-            };
-        });
+        course.sessions_list = sessionsRes.rows;
 
         return course;
     }
@@ -155,7 +142,7 @@ export class CourseRepository {
         }
     }
 
-    static async updateCourse(id: string, courseData: any, modules: any[] = []) {
+    static async updateCourse(id: string, courseData: any, sessionsList: any[] = []) {
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
@@ -206,29 +193,29 @@ export class CourseRepository {
             const courseRes = await client.query(updateCourseQuery, courseValues);
             const updatedCourse = courseRes.rows[0];
 
-            if (modules && modules.length > 0) {
-                await client.query('DELETE FROM course_modules WHERE course_id = $1', [id]);
-                const insertModuleQuery = `
-                    INSERT INTO course_modules (course_id, title, sessions, description, topics)
-                    VALUES ($1, $2, $3, $4, $5)
+            if (sessionsList && sessionsList.length > 0) {
+                await client.query('DELETE FROM course_sessions WHERE course_id = $1', [id]);
+                const insertSessionQuery = `
+                    INSERT INTO course_sessions (course_id, session_number, title, description)
+                    VALUES ($1, $2, $3, $4)
                     RETURNING *;
                 `;
-                const createdModules = [];
-                for (const mod of modules) {
-                    const modValues = [
+                const createdSessions = [];
+                for (let i = 0; i < sessionsList.length; i++) {
+                    const sess = sessionsList[i];
+                    const sessValues = [
                         id,
-                        mod.title,
-                        mod.sessions,
-                        mod.description,
-                        JSON.stringify(mod.topics || [])
+                        i + 1,
+                        sess.title,
+                        sess.description || ''
                     ];
-                    const modRes = await client.query(insertModuleQuery, modValues);
-                    createdModules.push(modRes.rows[0]);
+                    const sessRes = await client.query(insertSessionQuery, sessValues);
+                    createdSessions.push(sessRes.rows[0]);
                 }
-                updatedCourse.modules = createdModules;
-            } else if (modules && modules.length === 0) {
-                await client.query('DELETE FROM course_modules WHERE course_id = $1', [id]);
-                updatedCourse.modules = [];
+                updatedCourse.sessions_list = createdSessions;
+            } else if (sessionsList && sessionsList.length === 0) {
+                await client.query('DELETE FROM course_sessions WHERE course_id = $1', [id]);
+                updatedCourse.sessions_list = [];
             }
 
             await client.query('COMMIT');

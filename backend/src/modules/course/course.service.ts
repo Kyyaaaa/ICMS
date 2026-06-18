@@ -2,14 +2,14 @@ import { CourseRepository } from './course.repository';
 
 export class CourseService {
     static async createCourse(data: any) {
-        const { modules, ...courseData } = data;
+        const { sessions_list, ...courseData } = data;
         
         // Kiểm tra tính hợp lệ cơ bản của dữ liệu đầu vào
         if (!courseData.title || !courseData.band) {
             throw new Error('Title and band are required fields.');
         }
 
-        return await CourseRepository.createCourse(courseData, modules);
+        return await CourseRepository.createCourse(courseData, sessions_list);
     }
 
     static async getAllCourses() {
@@ -60,8 +60,8 @@ export class CourseService {
             }
         }
 
-        const { modules, ...data } = courseData;
-        const updatedCourse = await CourseRepository.updateCourse(id, data, modules);
+        const { sessions_list, ...data } = courseData;
+        const updatedCourse = await CourseRepository.updateCourse(id, data, sessions_list);
         return updatedCourse;
     }
 }

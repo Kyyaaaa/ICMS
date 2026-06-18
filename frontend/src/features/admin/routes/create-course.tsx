@@ -27,15 +27,25 @@ const CreateCourse = () => {
         language: 'English'
     });
 
-    const [modules, setModules] = useState([
-        { title: '', sessions: 1, description: '', topics: [''] }
-    ]);
+    const [sessionsList, setSessionsList] = useState(
+        Array.from({ length: 24 }).map(() => ({ title: '', description: '' })) // default 12 weeks * 2
+    );
+
+    React.useEffect(() => {
+        const minSessions = (Number(formData.duration) || 0) * 2;
+        if (sessionsList.length < minSessions) {
+            const needed = minSessions - sessionsList.length;
+            const newSessions = Array.from({ length: needed }).map(() => ({ title: '', description: '' }));
+            setSessionsList(prev => [...prev, ...newSessions]);
+        }
+    }, [formData.duration]);
 
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const minDateStr = tomorrow.toISOString().split('T')[0];
 
-    const calculatedTotalSessions = modules.reduce((acc, mod) => acc + (Number(mod.sessions) || 0), 0);
+    const minSessions = (Number(formData.duration) || 0) * 2;
+    const calculatedTotalSessions = sessionsList.length;
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -58,32 +68,21 @@ const CreateCourse = () => {
         }
     };
 
-    const handleAddModule = () => {
-        setModules(prev => [...prev, { title: '', sessions: 1, description: '', topics: [''] }]);
+    const handleAddSession = () => {
+        setSessionsList(prev => [...prev, { title: '', description: '' }]);
     };
 
-    const handleModuleChange = (index: number, field: string, value: string) => {
-        const newModules = [...modules];
-        newModules[index] = { ...newModules[index], [field]: value };
-        setModules(newModules);
+    const handleSessionChange = (index: number, field: string, value: string) => {
+        const newSessions = [...sessionsList];
+        newSessions[index] = { ...newSessions[index], [field]: value };
+        setSessionsList(newSessions);
     };
 
-    const handleAddTopic = (moduleIndex: number) => {
-        const newModules = [...modules];
-        newModules[moduleIndex].topics.push('');
-        setModules(newModules);
-    };
-
-    const handleTopicChange = (moduleIndex: number, topicIndex: number, value: string) => {
-        const newModules = [...modules];
-        newModules[moduleIndex].topics[topicIndex] = value;
-        setModules(newModules);
-    };
-
-    const handleRemoveTopic = (moduleIndex: number, topicIndex: number) => {
-        const newModules = [...modules];
-        newModules[moduleIndex].topics.splice(topicIndex, 1);
-        setModules(newModules);
+    const handleRemoveSession = (index: number) => {
+        if (sessionsList.length <= minSessions) return;
+        const newSessions = [...sessionsList];
+        newSessions.splice(index, 1);
+        setSessionsList(newSessions);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -98,52 +97,24 @@ const CreateCourse = () => {
                 return;
             }
 
-            if (modules.length === 0) {
+            if (sessionsList.length < minSessions) {
                 window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
-                    detail: { title: 'Validation Error', message: 'At least 1 Course Module is required.', mode: 'alert', type: 'warning' }
-                }));
-                setLoading(false);
-                return;
-            }
-            if (formData.minBand && formData.maxBand && parseFloat(formData.minBand) > parseFloat(formData.maxBand)) {
-                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
-                    detail: { title: 'Validation Error', message: 'Maximum band must be greater than or equal to minimum band.', mode: 'alert', type: 'warning' }
+                    detail: { title: 'Validation Error', message: `Minimum ${minSessions} sessions required for ${formData.duration} weeks.`, mode: 'alert', type: 'warning' }
                 }));
                 setLoading(false);
                 return;
             }
 
-            for (let i = 0; i < modules.length; i++) {
-                const m = modules[i];
-                if (!m.title.trim()) {
+            for (let i = 0; i < sessionsList.length; i++) {
+                const s = sessionsList[i];
+                if (!s.title.trim()) {
                     window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
-                        detail: { title: 'Validation Error', message: `Module ${i + 1} requires a Module Title.`, mode: 'alert', type: 'warning' }
-                    }));
-                    setLoading(false);
-                    return;
-                }
-                if (!m.sessions) {
-                    window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
-                        detail: { title: 'Validation Error', message: `Module ${i + 1} requires Sessions.`, mode: 'alert', type: 'warning' }
-                    }));
-                    setLoading(false);
-                    return;
-                }
-                if (m.topics.filter(t => t.trim() !== '').length === 0) {
-                    window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
-                        detail: { title: 'Validation Error', message: `Module ${i + 1} requires at least 1 Topic.`, mode: 'alert', type: 'warning' }
+                        detail: { title: 'Validation Error', message: `Session ${i + 1} requires a Title.`, mode: 'alert', type: 'warning' }
                     }));
                     setLoading(false);
                     return;
                 }
             }
-
-            // Remove empty topics
-            const cleanedModules = modules.map(m => ({
-                ...m,
-                sessions: `${m.sessions} Sessions`,
-                topics: m.topics.filter(t => t.trim() !== '')
-            }));
 
             let formattedDate = formData.next_cohort;
             if (formattedDate && formattedDate.includes('-')) {
@@ -164,7 +135,7 @@ const CreateCourse = () => {
                 sessions: calculatedTotalSessions,
                 location: formData.location,
                 language: formData.language,
-                modules: cleanedModules
+                sessions_list: sessionsList
             };
 
             await CoursesService.createCourse(payload);
@@ -348,56 +319,39 @@ const CreateCourse = () => {
                     </div>
                 </div>
 
-                {/* Modules */}
+                {/* Sessions */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#e0e3e5]">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-[18px] font-bold text-[#002045]">Course Modules</h2>
-                        <button type="button" onClick={handleAddModule} className="text-[#0061a5] font-bold text-[14px] flex items-center gap-1 hover:underline">
-                            <Plus size={16} /> Add Module
-                        </button>
+                        <h2 className="text-[18px] font-bold text-[#002045]">Course Sessions</h2>
                     </div>
+                    <p className="text-[13px] text-[#74777f] mb-6">Minimum required sessions: {minSessions} (2 per week).</p>
                     
-                    <div className="space-y-6">
-                        {modules.map((module, mIndex) => (
-                            <div key={mIndex} className="p-4 border border-[#c4c6cf] rounded-xl bg-[#f7fafc]">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-4">
+                        {sessionsList.map((session, sIndex) => (
+                            <div key={sIndex} className="p-4 border border-[#c4c6cf] rounded-xl bg-[#f7fafc] relative">
+                                {sessionsList.length > minSessions && (
+                                    <button type="button" onClick={() => handleRemoveSession(sIndex)} className="absolute top-4 right-4 text-[#ba1a1a] hover:bg-[#ffdad6] p-1.5 rounded-lg transition-colors" title="Remove Session">
+                                        <Trash2 size={16} />
+                                    </button>
+                                )}
+                                <div className="grid grid-cols-1 gap-4 mb-4 pr-8">
                                     <div>
-                                        <label className="block text-[13px] font-bold text-[#43474e] mb-1">Module Title *</label>
-                                        <input required value={module.title} onChange={(e) => handleModuleChange(mIndex, 'title', e.target.value)} className="w-full px-3 py-1.5 border border-[#c4c6cf] rounded-lg outline-none focus:border-[#0061a5]" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[13px] font-bold text-[#43474e] mb-1">Sessions *</label>
-                                        <div className="flex items-center gap-2">
-                                            <input required type="number" min="1" value={module.sessions} onChange={(e) => handleModuleChange(mIndex, 'sessions', e.target.value)} className="w-full px-3 py-1.5 border border-[#c4c6cf] rounded-lg outline-none focus:border-[#0061a5]" />
-                                            <span className="font-bold text-[#74777f]">Sessions</span>
-                                        </div>
+                                        <label className="block text-[13px] font-bold text-[#43474e] mb-1">Session {sIndex + 1} Title *</label>
+                                        <input required value={session.title} onChange={(e) => handleSessionChange(sIndex, 'title', e.target.value)} className="w-full px-3 py-1.5 border border-[#c4c6cf] rounded-lg outline-none focus:border-[#0061a5]" placeholder={`e.g. Session ${sIndex + 1}`} />
                                     </div>
                                 </div>
-                                <div className="mb-4">
-                                    <label className="block text-[13px] font-bold text-[#43474e] mb-1">Module Description</label>
-                                    <textarea rows={2} value={module.description} onChange={(e) => handleModuleChange(mIndex, 'description', e.target.value)} className="w-full px-3 py-1.5 border border-[#c4c6cf] rounded-lg outline-none focus:border-[#0061a5] resize-none"></textarea>
-                                </div>
-                                
                                 <div>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <label className="block text-[13px] font-bold text-[#43474e]">Topics</label>
-                                        <button type="button" onClick={() => handleAddTopic(mIndex)} className="text-[#0061a5] text-[12px] font-bold flex items-center gap-1">
-                                            <Plus size={14} /> Add Topic
-                                        </button>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {module.topics.map((topic, tIndex) => (
-                                            <div key={tIndex} className="flex gap-2">
-                                                <input required value={topic} onChange={(e) => handleTopicChange(mIndex, tIndex, e.target.value)} className="flex-1 px-3 py-1.5 border border-[#c4c6cf] rounded-lg outline-none focus:border-[#0061a5]" placeholder="Enter topic..." />
-                                                <button type="button" onClick={() => handleRemoveTopic(mIndex, tIndex)} className="text-[#ba1a1a] hover:bg-[#ffdad6] p-1.5 rounded-lg transition-colors">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <label className="block text-[13px] font-bold text-[#43474e] mb-1">Description</label>
+                                    <textarea rows={2} value={session.description} onChange={(e) => handleSessionChange(sIndex, 'description', e.target.value)} className="w-full px-3 py-1.5 border border-[#c4c6cf] rounded-lg outline-none focus:border-[#0061a5] resize-none" placeholder="What will be covered in this session..."></textarea>
                                 </div>
                             </div>
                         ))}
+                    </div>
+
+                    <div className="mt-6 flex justify-center">
+                        <button type="button" onClick={handleAddSession} className="px-6 py-2.5 bg-[#f1f4f6] text-[#0061a5] font-bold text-[14px] rounded-xl flex items-center gap-2 hover:bg-[#e6f0fa] transition-colors border border-[#c4c6cf] hover:border-[#0061a5]">
+                            <Plus size={18} /> Add New Session
+                        </button>
                     </div>
                 </div>
 

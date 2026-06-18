@@ -13,6 +13,7 @@ import {
   Star,
   Globe,
   MapPin,
+  Plus,
 } from "lucide-react";
 
 import { CoursesService } from "../../../shared/services/courses.service";
@@ -40,7 +41,7 @@ interface ApiCourse {
   original_price?: number | string;
   next_cohort?: string;
   image_url?: string;
-  modules?: ApiModule[];
+  sessions_list?: ApiModule[];
 }
 
 const AdminCourseDetail = () => {
@@ -65,12 +66,9 @@ const AdminCourseDetail = () => {
     price: "",
     originalPrice: "",
     nextCohort: "",
-    imageUrl: "",
-    modules: [] as {
+    sessionsList: [] as {
       title?: string;
-      sessions?: number | string;
       description?: string;
-      topics?: string[];
       isExisting?: boolean;
     }[],
   });
@@ -119,11 +117,9 @@ const AdminCourseDetail = () => {
             }
           }
 
-          const parsedModules = data.modules
-            ? data.modules.map((m: ApiModule) => ({
+          const parsedSessions = data.sessions_list
+            ? data.sessions_list.map((m: ApiModule) => ({
                 ...m,
-                sessions: 1, // Enforce 1 session per item in new format
-                topics: [],  // Remove topics
                 isExisting: true,
               }))
             : [];
@@ -146,7 +142,7 @@ const AdminCourseDetail = () => {
             originalPrice: String(data.original_price || ""),
             nextCohort: parsedNextCohort,
             imageUrl: data.image_url || "",
-            modules: parsedModules,
+            sessionsList: parsedSessions,
           };
           setCourseData(initialState);
           setOriginalCourseData(JSON.parse(JSON.stringify(initialState)));
@@ -157,7 +153,20 @@ const AdminCourseDetail = () => {
     fetchCourse();
   }, [id]);
 
-  const calculatedTotalSessions = courseData.modules.length;
+  useEffect(() => {
+    const minSessions = (Number(courseData.duration) || 0) * 2;
+    if (courseData.sessionsList && courseData.sessionsList.length < minSessions && isEditing) {
+      const needed = minSessions - courseData.sessionsList.length;
+      const newSessions = Array.from({ length: needed }).map(() => ({ title: '', description: '' }));
+      setCourseData(prev => ({
+        ...prev,
+        sessionsList: [...prev.sessionsList, ...newSessions]
+      }));
+    }
+  }, [courseData.duration, isEditing]);
+
+  const minSessions = (Number(courseData.duration) || 0) * 2;
+  const calculatedTotalSessions = courseData.sessionsList.length;
 
   const handleSave = async () => {
     if (id && id !== "new") {
@@ -198,12 +207,12 @@ const AdminCourseDetail = () => {
         return;
       }
 
-      if (courseData.modules.length === 0) {
+      if (courseData.sessionsList.length < minSessions) {
         window.dispatchEvent(
           new CustomEvent("SHOW_GLOBAL_MODAL", {
             detail: {
               title: "Validation Error",
-              message: "At least 1 Session is required in the Syllabus.",
+              message: `Minimum ${minSessions} sessions required for ${courseData.duration} weeks.`,
               mode: "alert",
               type: "warning",
             },
@@ -222,10 +231,8 @@ const AdminCourseDetail = () => {
           }
         }
 
-        const cleanedModules = courseData.modules.map((m) => ({
+        const cleanedSessions = courseData.sessionsList.map((m) => ({
           ...m,
-          sessions: "1 Session", // Each syllabus item represents 1 session
-          topics: [],
         }));
 
         // map frontend fields to backend fields
@@ -251,7 +258,7 @@ const AdminCourseDetail = () => {
           language: courseData.language,
           next_cohort: formattedDate,
           image_url: courseData.imageUrl,
-          modules: cleanedModules,
+          sessions_list: cleanedSessions,
         };
         await CoursesService.updateCourse(id, backendData);
         window.dispatchEvent(
@@ -365,10 +372,10 @@ const AdminCourseDetail = () => {
     }
   };
 
-  const handleModuleChange = (index: number, field: string, value: string) => {
-    const newModules = [...courseData.modules];
-    newModules[index] = { ...newModules[index], [field]: value };
-    setCourseData({ ...courseData, modules: newModules });
+  const handleSessionChange = (index: number, field: string, value: string) => {
+    const newSessions = [...courseData.sessionsList];
+    newSessions[index] = { ...newSessions[index], [field]: value };
+    setCourseData({ ...courseData, sessionsList: newSessions });
   };
 
   const tomorrow = new Date();
@@ -386,19 +393,20 @@ const AdminCourseDetail = () => {
     }
   }
 
-  const handleAddModule = () => {
+  const handleAddSession = () => {
     setCourseData({
       ...courseData,
-      modules: [
-        ...courseData.modules,
-        { title: `Session ${courseData.modules.length + 1}: `, sessions: 1, description: "", topics: [] },
+      sessionsList: [
+        ...courseData.sessionsList,
+        { title: `Session ${courseData.sessionsList.length + 1}: `, description: "" },
       ],
     });
   };
 
-  const handleRemoveModule = (index: number) => {
-    const newModules = courseData.modules.filter((_, i) => i !== index);
-    setCourseData({ ...courseData, modules: newModules });
+  const handleRemoveSession = (index: number) => {
+    if (courseData.sessionsList.length <= minSessions) return;
+    const newSessions = courseData.sessionsList.filter((_, i) => i !== index);
+    setCourseData({ ...courseData, sessionsList: newSessions });
   };
 
   if (loading) {
@@ -709,55 +717,53 @@ const AdminCourseDetail = () => {
                     </p>
                   )}
                 </div>
-                <button
-                  onClick={handleAddModule}
-                  className="text-sm text-[#0061a5] font-bold hover:underline"
-                >
-                  + Add Session
-                </button>
+
               </div>
+              {isEditing && (
+                  <p className="text-[13px] text-[#74777f] mb-4">Minimum required sessions: {minSessions} (2 per week).</p>
+              )}
               <div className="space-y-6">
-                {courseData.modules.map((module, mIndex) => (
+                {courseData.sessionsList.map((session, sIndex) => (
                   <div
-                    key={mIndex}
+                    key={sIndex}
                     className="p-4 border border-[#e0e3e5] rounded-xl bg-[#f7fafc]"
                   >
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3 w-full pr-4">
                         <div className="w-8 h-8 bg-[#0061a5] text-white rounded-full flex items-center justify-center font-bold shrink-0">
-                          {mIndex + 1}
+                          {sIndex + 1}
                         </div>
                         <input
                           type="text"
-                          value={module.title}
+                          value={session.title}
                           onChange={(e) =>
-                            handleModuleChange(mIndex, "title", e.target.value)
+                            handleSessionChange(sIndex, "title", e.target.value)
                           }
-                          readOnly={isCohortLocked && module.isExisting}
-                          className={`flex-1 font-bold text-[#181c1e] px-3 py-1.5 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
+                          readOnly={isCohortLocked && session.isExisting}
+                          className={`flex-1 font-bold text-[#181c1e] px-3 py-1.5 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked && session.isExisting ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
                           placeholder="Session Title"
                         />
                       </div>
                       <button
-                        onClick={() => handleRemoveModule(mIndex)}
-                        disabled={isCohortLocked && module.isExisting}
-                        className={`text-[#ba1a1a] p-1.5 rounded-lg shrink-0 mt-1 ${isCohortLocked && module.isExisting ? "opacity-50 cursor-not-allowed" : "hover:bg-[#fceeee]"}`}
+                        onClick={() => handleRemoveSession(sIndex)}
+                        disabled={(isCohortLocked && session.isExisting) || courseData.sessionsList.length <= minSessions}
+                        className={`text-[#ba1a1a] p-1.5 rounded-lg shrink-0 mt-1 ${((isCohortLocked && session.isExisting) || courseData.sessionsList.length <= minSessions) ? "opacity-50 cursor-not-allowed" : "hover:bg-[#fceeee]"}`}
                       >
                         <X size={16} />
                       </button>
                     </div>
                     <div className="pl-11 space-y-4">
                       <textarea
-                        value={module.description}
+                        value={session.description}
                         onChange={(e) =>
-                          handleModuleChange(
-                            mIndex,
+                          handleSessionChange(
+                            sIndex,
                             "description",
                             e.target.value,
                           )
                         }
-                        readOnly={isCohortLocked && module.isExisting}
-                        className={`w-full text-sm text-[#43474e] px-3 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked && module.isExisting ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
+                        readOnly={isCohortLocked && session.isExisting}
+                        className={`w-full text-sm text-[#43474e] px-3 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked && session.isExisting ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
                         placeholder="Session Description"
                         rows={3}
                       />
@@ -765,6 +771,17 @@ const AdminCourseDetail = () => {
                   </div>
                 ))}
               </div>
+
+              {isEditing && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={handleAddSession}
+                    className="px-6 py-2.5 bg-[#f1f4f6] text-[#0061a5] font-bold text-[14px] rounded-xl flex items-center gap-2 hover:bg-[#e6f0fa] transition-colors border border-[#c4c6cf] hover:border-[#0061a5]"
+                  >
+                    <Plus size={18} /> Add New Session
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1047,8 +1064,8 @@ const AdminCourseDetail = () => {
                   </h2>
 
                   <div className="relative border-l-2 border-[#e0e3e5] ml-4 space-y-6 pb-4 mt-4">
-                    {courseData.modules &&
-                      courseData.modules.map((module, index) => (
+                    {courseData.sessionsList &&
+                      courseData.sessionsList.map((session, index) => (
                         <div key={index} className="relative pl-8 animate-fade-in">
                           {/* Timeline Dot */}
                           <div className="absolute -left-4.25 top-1 w-8 h-8 rounded-full bg-[#e6f0fa] border-4 border-white text-[#0061a5] flex items-center justify-center text-sm font-bold shadow-sm">
@@ -1057,11 +1074,11 @@ const AdminCourseDetail = () => {
                           {/* Content Card */}
                           <div className="bg-white border border-[#e0e3e5] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
                             <h3 className="text-lg font-bold text-[#002045] mb-2">
-                              {module.title}
+                              {session.title}
                             </h3>
-                            {module.description && (
+                            {session.description && (
                               <p className="text-sm text-[#43474e] leading-relaxed">
-                                {module.description}
+                                {session.description}
                               </p>
                             )}
                           </div>

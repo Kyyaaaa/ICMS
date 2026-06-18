@@ -136,11 +136,9 @@ const CourseDetailInner = () => {
 
   // Tab state and Modal state moved to top
 
-  interface CourseModule {
+  interface CourseSession {
     title: string;
-    sessions: string;
-    description: string;
-    topics: string[];
+    description?: string;
   }
 
   interface Course {
@@ -160,7 +158,7 @@ const CourseDetailInner = () => {
     description: string;
     nextCohort?: string;
     next_cohort?: string;
-    modules?: CourseModule[];
+    sessions_list?: CourseSession[];
   }
 
   return (
@@ -306,8 +304,8 @@ const CourseDetailInner = () => {
                 </h2>
 
                 <div className="relative border-l-2 border-[#e0e3e5] ml-4 space-y-6 pb-4 mt-4">
-                  {Array.isArray(course.modules) &&
-                    course.modules.map((module, index) => (
+                  {Array.isArray(course.sessions_list) &&
+                    course.sessions_list.map((session, index) => (
                       <div key={index} className="relative pl-8 animate-fade-in">
                         {/* Timeline Dot */}
                         <div className="absolute -left-4.25 top-1 w-8 h-8 rounded-full bg-[#e6f0fa] border-4 border-white text-[#0061a5] flex items-center justify-center text-sm font-bold shadow-sm">
@@ -316,11 +314,11 @@ const CourseDetailInner = () => {
                         {/* Content Card */}
                         <div className="bg-white border border-[#e0e3e5] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
                           <h3 className="text-lg font-bold text-[#002045] mb-2">
-                            {module.title}
+                            {session.title}
                           </h3>
-                          {module.description && (
+                          {session.description && (
                             <p className="text-sm text-[#43474e] leading-relaxed">
-                              {module.description}
+                              {session.description}
                             </p>
                           )}
                         </div>

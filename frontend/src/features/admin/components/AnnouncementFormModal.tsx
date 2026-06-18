@@ -51,6 +51,21 @@ export const AnnouncementFormModal = ({ mode, initialData, availableCourses, ava
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (formData.audience.scope === 'Specific Roles' && formData.audience.roles.length === 0) {
+            alert('Please select at least one role for the target audience.');
+            return;
+        }
+
+        if (publishMode === 'schedule') {
+            const selectedTime = new Date(formData.scheduledFor).getTime();
+            const now = new Date().getTime();
+            if (selectedTime < now) {
+                alert('Please select a date and time in the future.');
+                return;
+            }
+        }
+        
         onSave({ ...formData, publishMode });
     };
 
@@ -169,8 +184,8 @@ export const AnnouncementFormModal = ({ mode, initialData, availableCourses, ava
                                                             })}
                                                         </div>
                                                         {formData.audience.roles.length === 0 && (
-                                                            <p className="text-xs text-[#74777f] font-medium flex items-center gap-1 mt-2">
-                                                                💡 Leave empty to target ALL Roles
+                                                            <p className="text-xs text-[#ba1a1a] font-medium flex items-center gap-1 mt-2">
+                                                                ⚠️ Please select at least one role.
                                                             </p>
                                                         )}
                                                     </div>

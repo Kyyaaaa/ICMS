@@ -29,6 +29,8 @@ export class AnnouncementRepository {
             }
         }
 
+        const now = new Date().toISOString();
+
         const { data, error } = await supabaseAdmin
             .from('announcements')
             .select(`
@@ -38,7 +40,7 @@ export class AnnouncementRepository {
                 )
             `)
             .or(orQuery)
-            .eq('status', 'Published')
+            .or(`status.eq.Published,and(status.eq.Scheduled,scheduled_for.lte.${now})`)
             .order('created_at', { ascending: false });
 
         if (error) throw error;

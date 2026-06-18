@@ -1,4 +1,5 @@
 import { ClassRepository } from './class.repository';
+import { CourseRepository } from '../course/course.repository';
 import { CreateClassDTO, UpdateClassDTO, UpdateClassSessionDTO, ALLOWED_SLOTS, SessionConfig } from './class.model';
 
 export class ClassService {
@@ -26,7 +27,7 @@ export class ClassService {
       throw { status: 400, message: 'Capacity must be greater than 0' };
     }
 
-    const course = await ClassRepository.getCourseById(data.course_id);
+    const course = await CourseRepository.getCourseById(data.course_id);
     if (!course) {
       throw { status: 404, message: 'Course not found' };
     }
@@ -36,6 +37,7 @@ export class ClassService {
     if (numSessions <= 0) {
       throw { status: 400, message: 'Course has invalid number of sessions' };
     }
+    const courseSessionsList = course.sessions_list || [];
 
     // Validate provided sessions payload
     if (data.sessions && data.sessions.length > 0) {
@@ -77,10 +79,13 @@ export class ClassService {
         sessSlot = config.slot;
       }
 
+      const courseSessionTemplate = courseSessionsList.find((cs: any) => cs.session_number === i);
+      const sessionTitle = courseSessionTemplate ? courseSessionTemplate.title : `Session ${i}`;
+
       sessionsToInsert.push({
         class_id: newClass.id,
         session_number: i,
-        title: `Session ${i}`,
+        title: sessionTitle,
         date: sessDate,
         slot: sessSlot,
         tutor_id: data.tutor_id || null,
@@ -104,13 +109,22 @@ export class ClassService {
     // If sessions are provided, overwrite existing sessions
     if (sessions && sessions.length > 0) {
       await ClassRepository.deleteClassSessions(id);
+      
+      let courseSessionsList: any[] = [];
+      if (updatedClass && updatedClass.course_id) {
+          const course = await CourseRepository.getCourseById(updatedClass.course_id);
+          courseSessionsList = course ? course.sessions_list || [] : [];
+      }
 
       const sessionsToInsert = [];
       for (const config of sessions) {
+        const courseSessionTemplate = courseSessionsList.find((cs: any) => cs.session_number === config.session_number);
+        const sessionTitle = courseSessionTemplate ? courseSessionTemplate.title : `Session ${config.session_number}`;
+
         sessionsToInsert.push({
           class_id: id,
           session_number: config.session_number,
-          title: `Session ${config.session_number}`,
+          title: sessionTitle,
           date: config.date,
           slot: config.slot,
           tutor_id: classUpdates.tutor_id || updatedClass.tutor_id || null,
