@@ -121,7 +121,7 @@ export const NotificationsPage = () => {
                                 onClick={() => setFilter('role')}
                                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${filter === 'role' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
                             >
-                                {isStaff ? 'Staff Alerts' : isTutor ? 'Tutor Alerts' : 'Learner Alerts'}
+                                Admin Announcements
                             </button>
                         </>
                     )}

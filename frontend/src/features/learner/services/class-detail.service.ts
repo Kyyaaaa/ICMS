@@ -1,56 +1,105 @@
 import type { ClassDetailData } from '../types/class-detail';
-
-const MOCK_CLASS_DETAIL: Record<string, ClassDetailData> = {
-    '1': {
-        id: '1',
-        courseName: 'IELTS Academic - Reading',
-        status: 'Ongoing',
-        description: 'A rigorous program designed to push your academic English to the highest level. Focuses on complex reading passages and advanced essay structuring.',
-        schedule: 'Tue, Thu',
-        time: '18:00 - 20:00',
-        classroom: 'Room 302',
-        totalSessions: 24,
-        tutor: {
-            name: 'Sarah Jenkins',
-            title: 'Senior IELTS Tutor',
-            rating: 4.9,
-            initials: 'SJ'
-        },
-        progress: {
-            completed: 12,
-            percentage: 50
-        },
-        curriculum: [
-            { sessionNumber: 1, title: 'Introduction to IELTS Reading', description: 'Test format, scoring, and essential Skimming & Scanning techniques.', status: 'completed' },
-            { sessionNumber: 2, title: 'Vocabulary Building in Context', description: 'Strategies for guessing unknown words and identifying synonyms/paraphrases.', status: 'completed' },
-            { sessionNumber: 3, title: 'True/False/Not Given (Part 1)', description: 'Understanding the difference between False and Not Given with factual texts.', status: 'completed' },
-            { sessionNumber: 4, title: 'True/False/Not Given (Part 2)', description: 'Advanced practice with complex sentences and hidden traps.', status: 'completed' },
-            { sessionNumber: 5, title: 'Yes/No/Not Given', description: 'Identifying writer\'s claims and views in discursive texts.', status: 'completed' },
-            { sessionNumber: 6, title: 'Matching Headings', description: 'Techniques for finding the main idea of a paragraph efficiently.', status: 'completed' },
-            { sessionNumber: 7, title: 'Matching Features & Information', description: 'Locating specific details, names, and dates across multiple paragraphs.', status: 'completed' },
-            { sessionNumber: 8, title: 'Multiple Choice Questions', description: 'Eliminating distractors and tackling multiple-answer formats.', status: 'completed' },
-            { sessionNumber: 9, title: 'Sentence & Summary Completion', description: 'Grammar prediction and finding precise words from the passage.', status: 'completed' },
-            { sessionNumber: 10, title: 'Diagram, Table & Flow-chart', description: 'Visual data interpretation and labeling processes.', status: 'completed' },
-            { sessionNumber: 11, title: 'Time Management Strategies', description: 'How to allocate 60 minutes across 3 passages effectively.', status: 'completed' },
-            { sessionNumber: 12, title: 'Mid-term Mock Test', description: 'Full 1-hour Reading Test under exam conditions.', status: 'completed' },
-            { sessionNumber: 13, title: 'Mid-term Review & Error Analysis', description: 'Reviewing the mock test and identifying individual weak points.', status: 'ongoing' },
-            { sessionNumber: 14, title: 'Tackling Complex Sentences', description: 'Breaking down long, multi-clause sentences for exact meaning.', status: 'upcoming' },
-            { sessionNumber: 15, title: 'Inference & Implication', description: 'Reading between the lines and answering indirect questions.', status: 'upcoming' },
-            { sessionNumber: 16, title: 'Advanced Paraphrasing', description: 'Recognizing highly modified language in Passage 3.', status: 'upcoming' },
-            { sessionNumber: 17, title: 'Mixed Practice: Passage 1 & 2', description: 'Speed drills for the first two easier passages.', status: 'upcoming' },
-            { sessionNumber: 18, title: 'Mixed Practice: Passage 3', description: 'Deep-dive into academic and abstract texts.', status: 'upcoming' },
-            { sessionNumber: 19, title: 'Common Traps & Distractors', description: 'Analyzing how IELTS test makers design tricky options.', status: 'upcoming' },
-            { sessionNumber: 20, title: 'Full Mock Test 1', description: 'First comprehensive practice test.', status: 'upcoming' },
-            { sessionNumber: 21, title: 'Mock Test 1 Review', description: 'Detailed breakdown of challenging questions.', status: 'upcoming' },
-            { sessionNumber: 22, title: 'Full Mock Test 2', description: 'Second comprehensive practice test.', status: 'upcoming' },
-            { sessionNumber: 23, title: 'Mock Test 2 Review', description: 'Final error analysis and personalized advice.', status: 'upcoming' },
-            { sessionNumber: 24, title: 'Final Strategies & Exam Tips', description: 'Mental preparation and final checklist before test day.', status: 'upcoming' }
-        ]
-    }
-};
+import axiosClient from '@/shared/services/axiosClient';
+import { SLOT_LABELS } from '@/shared/lib/utils';
 
 export const LearnerClassDetailService = {
     getClassDetail: async (id: string): Promise<ClassDetailData | undefined> => {
-        return new Promise(resolve => setTimeout(() => resolve(MOCK_CLASS_DETAIL[id] || MOCK_CLASS_DETAIL['1']), 200));
+        try {
+            const res = await axiosClient.get(`/staff/classes/${id}`);
+            const data = (res as any).data?.data || (res as any).data;
+            if (!data) return undefined;
+
+            const sessions = data.sessions || [];
+            
+            const curriculum = sessions.map((session: any) => {
+                let status: 'completed' | 'ongoing' | 'upcoming' = 'upcoming';
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const sDate = new Date(session.date);
+                sDate.setHours(0, 0, 0, 0);
+                
+                if (sDate.getTime() < today.getTime()) status = 'completed';
+                else if (sDate.getTime() === today.getTime()) status = 'ongoing';
+                else status = 'upcoming';
+
+                return {
+                    sessionNumber: session.session_number,
+                    title: session.title || `Session ${session.session_number}`,
+                    description: '', // Will be filled below
+                    status
+                };
+            });
+
+            // Map descriptions from course's syllabus (sessions_list)
+            const courseSessions = data.courses?.sessions_list || [];
+            curriculum.forEach((c: any) => {
+                const cSession = courseSessions.find((cs: any) => cs.session_number === c.sessionNumber || cs.title === c.title);
+                if (cSession && cSession.description) {
+                    c.description = cSession.description;
+                }
+            });
+
+            let completed = curriculum.filter((c: any) => c.status === 'completed').length;
+            let percentage = sessions.length ? Math.round((completed / sessions.length) * 100) : 0;
+
+            const tutorName = data.tutor?.full_name || 'TBA';
+            const initials = tutorName !== 'TBA' 
+                ? tutorName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
+                : 'TB';
+
+            const schedules: string[] = [];
+            const times: string[] = [];
+            if (sessions.length > 0) {
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const slotToDays = new Map<string, Set<number>>();
+                
+                sessions.forEach((s: any) => {
+                    if (s.date) {
+                        const day = new Date(s.date).getDay();
+                        const slot = s.slot || 'TBA';
+                        if (!slotToDays.has(slot)) {
+                            slotToDays.set(slot, new Set());
+                        }
+                        slotToDays.get(slot)!.add(day);
+                    }
+                });
+                
+                slotToDays.forEach((days, slot) => {
+                    const sortedDays = Array.from(days).sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
+                    const dayList = sortedDays.map(d => dayNames[d]).join(', ');
+                    schedules.push(dayList);
+                    if (SLOT_LABELS[slot as keyof typeof SLOT_LABELS]) {
+                        times.push(SLOT_LABELS[slot as keyof typeof SLOT_LABELS]);
+                    } else {
+                        times.push(slot);
+                    }
+                });
+            }
+
+            return {
+                id: data.id,
+                courseName: data.courses?.title || 'Unknown Course',
+                status: data.status === 'COMPLETED' ? 'Completed' : 'Ongoing',
+                description: data.courses?.description || '',
+                schedule: schedules.length > 0 ? Array.from(new Set(schedules)).join(' & ') : 'TBA',
+                time: times.length > 0 ? Array.from(new Set(times)).join(' & ') : 'TBA',
+                classroom: data.classroom?.room_name || 'TBA',
+                totalSessions: sessions.length || 0,
+                tutor: {
+                    name: tutorName,
+                    title: 'Tutor',
+                    rating: 5.0, // Assuming static for now or fetched if available
+                    initials
+                },
+                progress: {
+                    completed,
+                    percentage
+                },
+                curriculum
+            };
+        } catch (error) {
+            console.error('Error fetching class details:', error);
+            return undefined;
+        }
     }
 };
