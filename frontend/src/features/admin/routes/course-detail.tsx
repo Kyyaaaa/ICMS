@@ -66,6 +66,7 @@ const AdminCourseDetail = () => {
     price: "",
     originalPrice: "",
     nextCohort: "",
+    imageUrl: "",
     sessionsList: [] as {
       title?: string;
       description?: string;
@@ -153,17 +154,7 @@ const AdminCourseDetail = () => {
     fetchCourse();
   }, [id]);
 
-  useEffect(() => {
-    const minSessions = (Number(courseData.duration) || 0) * 2;
-    if (courseData.sessionsList && courseData.sessionsList.length < minSessions && isEditing) {
-      const needed = minSessions - courseData.sessionsList.length;
-      const newSessions = Array.from({ length: needed }).map(() => ({ title: '', description: '' }));
-      setCourseData(prev => ({
-        ...prev,
-        sessionsList: [...prev.sessionsList, ...newSessions]
-      }));
-    }
-  }, [courseData.duration, isEditing]);
+
 
   const minSessions = (Number(courseData.duration) || 0) * 2;
   const calculatedTotalSessions = courseData.sessionsList.length;
@@ -346,7 +337,27 @@ const AdminCourseDetail = () => {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
-    setCourseData({ ...courseData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "duration" && isEditing) {
+      const minSessions = (Number(value) || 0) * 2;
+      setCourseData((prev) => {
+        if (prev.sessionsList.length < minSessions) {
+          const needed = minSessions - prev.sessionsList.length;
+          const newSessions = Array.from({ length: needed }).map((_, i) => ({ 
+            title: `Session ${prev.sessionsList.length + i + 1}: `, 
+            description: '' 
+          }));
+          return {
+            ...prev,
+            [name]: value,
+            sessionsList: [...prev.sessionsList, ...newSessions]
+          };
+        }
+        return { ...prev, [name]: value };
+      });
+    } else {
+      setCourseData({ ...courseData, [name]: value });
+    }
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
