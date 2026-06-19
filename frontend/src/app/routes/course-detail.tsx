@@ -195,7 +195,7 @@ const CourseDetailInner = () => {
                 {course.type}
               </span>
               <span className="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" /> {course.duration}
+                <Clock className="w-3.5 h-3.5" /> {course.sessions} Sessions
               </span>
             </div>
             <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">

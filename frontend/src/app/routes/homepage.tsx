@@ -173,7 +173,7 @@ const Homepage = () => {
                                         <h3 className="text-[20px] font-bold text-[#002045] mb-3">{course.title}</h3>
                                         <p className="text-[14px] text-[#43474e] mb-6 grow line-clamp-2">{course.description}</p>
                                         <div className="bg-white rounded-xl p-4 mb-6 border border-[#e0e3e5] flex flex-col gap-2 shadow-sm text-[14px]">
-                                            <div className="flex justify-between"><span className="text-[#43474e]">Duration</span><span className="font-bold text-[#002045]">{course.duration}</span></div>
+                                            <div className="flex justify-between"><span className="text-[#43474e]">Sessions</span><span className="font-bold text-[#002045]">{course.sessions}</span></div>
                                             <div className="flex justify-between"><span className="text-[#43474e]">Target</span><span className="font-bold text-[#0061a5]">{course.band}</span></div>
                                         </div>
                                         <div className="flex justify-between items-center">

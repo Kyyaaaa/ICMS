@@ -175,7 +175,7 @@ const Courses = () => {
                                         
                                         <div className="flex items-center gap-4 mb-4">
                                             <div className="flex items-center gap-1.5 text-xs text-[#43474e] font-medium">
-                                                <Clock className="w-4 h-4 text-[#0061a5]" /> {course.duration}
+                                                <Clock className="w-4 h-4 text-[#0061a5]" /> {course.sessions} Sessions
                                             </div>
                                         </div>
 

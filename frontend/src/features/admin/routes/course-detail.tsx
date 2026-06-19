@@ -101,12 +101,6 @@ const AdminCourseDetail = () => {
               minB = data.band;
             }
           }
-          let dur = "";
-          if (data.duration) {
-            dur = data.duration.replace(/[^\d]/g, "");
-            setInitialDuration(parseInt(dur) || 1);
-          }
-
           let parsedNextCohort = "";
           if (data.next_cohort) {
             // Backend returns DD/MM/YYYY
@@ -131,7 +125,7 @@ const AdminCourseDetail = () => {
             category: data.category || "",
             status: data.status || "Draft",
             description: data.description || "",
-            duration: dur,
+            duration: "N/A",
             sessions: String(data.sessions || ""),
             maxSize: String(data.max_size || ""),
             format: data.format || "",
@@ -156,7 +150,6 @@ const AdminCourseDetail = () => {
 
 
 
-  const minSessions = (Number(courseData.duration) || 0) * 2;
   const calculatedTotalSessions = courseData.sessionsList.length;
 
   const handleSave = async () => {
@@ -198,12 +191,12 @@ const AdminCourseDetail = () => {
         return;
       }
 
-      if (courseData.sessionsList.length < minSessions) {
+      if (courseData.sessionsList.length === 0) {
         window.dispatchEvent(
           new CustomEvent("SHOW_GLOBAL_MODAL", {
             detail: {
               title: "Validation Error",
-              message: `Minimum ${minSessions} sessions required for ${courseData.duration} weeks.`,
+              message: `Minimum 1 session is required.`,
               mode: "alert",
               type: "warning",
             },
@@ -233,7 +226,7 @@ const AdminCourseDetail = () => {
           category: courseData.category,
           status: courseData.status,
           description: courseData.description,
-          duration: `${courseData.duration} Weeks`,
+          duration: "N/A",
           sessions: calculatedTotalSessions,
           format: courseData.format,
           band:
@@ -338,26 +331,7 @@ const AdminCourseDetail = () => {
     >,
   ) => {
     const { name, value } = e.target;
-    if (name === "duration" && isEditing) {
-      const minSessions = (Number(value) || 0) * 2;
-      setCourseData((prev) => {
-        if (prev.sessionsList.length < minSessions) {
-          const needed = minSessions - prev.sessionsList.length;
-          const newSessions = Array.from({ length: needed }).map((_, i) => ({ 
-            title: `Session ${prev.sessionsList.length + i + 1}: `, 
-            description: '' 
-          }));
-          return {
-            ...prev,
-            [name]: value,
-            sessionsList: [...prev.sessionsList, ...newSessions]
-          };
-        }
-        return { ...prev, [name]: value };
-      });
-    } else {
-      setCourseData({ ...courseData, [name]: value });
-    }
+    setCourseData({ ...courseData, [name]: value });
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -415,7 +389,7 @@ const AdminCourseDetail = () => {
   };
 
   const handleRemoveSession = (index: number) => {
-    if (courseData.sessionsList.length <= minSessions) return;
+    if (courseData.sessionsList.length <= 1) return;
     const newSessions = courseData.sessionsList.filter((_, i) => i !== index);
     setCourseData({ ...courseData, sessionsList: newSessions });
   };
@@ -596,26 +570,7 @@ const AdminCourseDetail = () => {
                   ></textarea>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5]">
-                    <Clock className="text-[#0061a5] mb-2" size={24} />
-                    <h4 className="text-xs text-[#74777f] font-bold uppercase mb-1">
-                      Duration
-                    </h4>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        min={isCohortLocked ? initialDuration : 1}
-                        name="duration"
-                        value={courseData.duration}
-                        onChange={handleChange}
-                        className="w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5]"
-                      />
-                      <span className="text-xs font-bold text-[#74777f]">
-                        Weeks
-                      </span>
-                    </div>
-                  </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5]">
                     <Users className="text-[#0061a5] mb-2" size={24} />
                     <h4 className="text-xs text-[#74777f] font-bold uppercase mb-1">
@@ -721,17 +676,11 @@ const AdminCourseDetail = () => {
                   <h3 className="text-lg font-bold text-[#181c1e]">
                     Syllabus
                   </h3>
-                  {isCohortLocked && (
-                    <p className="text-xs text-[#ba1a1a] mt-1">
-                      Note: adding sessions should be accompanied by an increase
-                      in duration.
-                    </p>
-                  )}
                 </div>
 
               </div>
               {isEditing && (
-                  <p className="text-[13px] text-[#74777f] mb-4">Minimum required sessions: {minSessions} (2 per week).</p>
+                  <p className="text-[13px] text-[#74777f] mb-4">Create the curriculum by adding sessions below.</p>
               )}
               <div className="space-y-6">
                 {courseData.sessionsList.map((session, sIndex) => (
@@ -757,8 +706,8 @@ const AdminCourseDetail = () => {
                       </div>
                       <button
                         onClick={() => handleRemoveSession(sIndex)}
-                        disabled={(isCohortLocked && session.isExisting) || courseData.sessionsList.length <= minSessions}
-                        className={`text-[#ba1a1a] p-1.5 rounded-lg shrink-0 mt-1 ${((isCohortLocked && session.isExisting) || courseData.sessionsList.length <= minSessions) ? "opacity-50 cursor-not-allowed" : "hover:bg-[#fceeee]"}`}
+                        disabled={(isCohortLocked && session.isExisting) || courseData.sessionsList.length <= 1}
+                        className={`text-[#ba1a1a] p-1.5 rounded-lg shrink-0 mt-1 ${((isCohortLocked && session.isExisting) || courseData.sessionsList.length <= 1) ? "opacity-50 cursor-not-allowed" : "hover:bg-[#fceeee]"}`}
                       >
                         <X size={16} />
                       </button>

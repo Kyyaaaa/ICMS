@@ -94,7 +94,7 @@ const PaymentCheckout = () => {
                                 <h3 className="text-xl font-extrabold text-[#002045] leading-tight mb-2">{course.title}</h3>
                                 <div className="flex flex-wrap items-center gap-3 text-sm text-[#43474e]">
                                     <span className="bg-[#f1f4f6] px-3 py-1 rounded-full font-bold text-[#0061a5]">{course.band} Target</span>
-                                    <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {course.duration}</span>
+                                    <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {course.sessions} Sessions</span>
                                     <span className="flex items-center gap-1"><BookOpen className="w-4 h-4" /> {course.format}</span>
                                 </div>
                             </div>

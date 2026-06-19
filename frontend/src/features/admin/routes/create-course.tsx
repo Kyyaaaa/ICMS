@@ -28,23 +28,13 @@ const CreateCourse = () => {
     });
 
     const [sessionsList, setSessionsList] = useState(
-        Array.from({ length: 24 }).map(() => ({ title: '', description: '' })) // default 12 weeks * 2
+        Array.from({ length: 1 }).map(() => ({ title: '', description: '' })) // default 1 session
     );
-
-    React.useEffect(() => {
-        const minSessions = (Number(formData.duration) || 0) * 2;
-        if (sessionsList.length < minSessions) {
-            const needed = minSessions - sessionsList.length;
-            const newSessions = Array.from({ length: needed }).map(() => ({ title: '', description: '' }));
-            setSessionsList(prev => [...prev, ...newSessions]);
-        }
-    }, [formData.duration]);
 
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const minDateStr = tomorrow.toISOString().split('T')[0];
 
-    const minSessions = (Number(formData.duration) || 0) * 2;
     const calculatedTotalSessions = sessionsList.length;
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -79,7 +69,12 @@ const CreateCourse = () => {
     };
 
     const handleRemoveSession = (index: number) => {
-        if (sessionsList.length <= minSessions) return;
+        if (sessionsList.length <= 1) {
+            window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                detail: { title: 'Action Denied', message: 'A course must have at least 1 session.', mode: 'alert', type: 'warning' }
+            }));
+            return;
+        }
         const newSessions = [...sessionsList];
         newSessions.splice(index, 1);
         setSessionsList(newSessions);
@@ -97,9 +92,9 @@ const CreateCourse = () => {
                 return;
             }
 
-            if (sessionsList.length < minSessions) {
+            if (sessionsList.length === 0) {
                 window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
-                    detail: { title: 'Validation Error', message: `Minimum ${minSessions} sessions required for ${formData.duration} weeks.`, mode: 'alert', type: 'warning' }
+                    detail: { title: 'Validation Error', message: `Minimum 1 session is required.`, mode: 'alert', type: 'warning' }
                 }));
                 setLoading(false);
                 return;
@@ -128,7 +123,7 @@ const CreateCourse = () => {
                 ...formData,
                 next_cohort: formattedDate,
                 band: formData.minBand && formData.maxBand ? (formData.minBand === formData.maxBand ? formData.minBand : `${formData.minBand} - ${formData.maxBand}`) : formData.minBand,
-                duration: `${formData.duration} Weeks`,
+                duration: "N/A",
                 price: Number(formData.price),
                 original_price: Number(formData.original_price),
                 max_size: Number(formData.maxSize),
@@ -230,16 +225,7 @@ const CreateCourse = () => {
                         </div>
 
                         {/* Stats grid, similar to the edit view */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5] hover:border-[#c4c6cf] transition-colors">
-                                <Clock className="text-[#0061a5] mb-2" size={24} />
-                                <h4 className="text-[12px] text-[#74777f] font-bold uppercase mb-2">Duration</h4>
-                                <div className="flex items-center gap-2">
-                                    <input type="number" min="1" name="duration" value={formData.duration} onChange={handleInputChange} className="w-20 px-3 py-2 text-[16px] font-bold text-[#181c1e] bg-white border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]" placeholder="12" />
-                                    <span className="text-[14px] font-bold text-[#74777f]">Weeks</span>
-                                </div>
-                            </div>
-                            
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e3e5] hover:border-[#c4c6cf] transition-colors">
                                 <Users className="text-[#0061a5] mb-2" size={24} />
                                 <h4 className="text-[12px] text-[#74777f] font-bold uppercase mb-2">Max Students</h4>
@@ -324,12 +310,12 @@ const CreateCourse = () => {
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-[18px] font-bold text-[#002045]">Course Sessions</h2>
                     </div>
-                    <p className="text-[13px] text-[#74777f] mb-6">Minimum required sessions: {minSessions} (2 per week).</p>
+                    <p className="text-[13px] text-[#74777f] mb-6">Create the curriculum by adding sessions below.</p>
                     
                     <div className="space-y-4">
                         {sessionsList.map((session, sIndex) => (
                             <div key={sIndex} className="p-4 border border-[#c4c6cf] rounded-xl bg-[#f7fafc] relative">
-                                {sessionsList.length > minSessions && (
+                                {sessionsList.length > 1 && (
                                     <button type="button" onClick={() => handleRemoveSession(sIndex)} className="absolute top-4 right-4 text-[#ba1a1a] hover:bg-[#ffdad6] p-1.5 rounded-lg transition-colors" title="Remove Session">
                                         <Trash2 size={16} />
                                     </button>
