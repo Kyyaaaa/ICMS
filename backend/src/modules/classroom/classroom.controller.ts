@@ -41,6 +41,7 @@ export const ClassroomController = {
   async delete(req: Request, res: Response) {
     try {
       await ClassroomService.deleteClassroom(req.params.id as string);
+
       res.status(204).send();
     } catch (error: any) {
       res.status(500).json({ message: error.message });
