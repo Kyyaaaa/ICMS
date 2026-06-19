@@ -26,7 +26,7 @@ const ManageClasses = () => {
                 AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' })
             ]);
             setAllCourses(coursesData);
-            setAllTutors((tutorsData as any).data?.data || []);
+            setAllTutors((tutorsData as { data?: { data?: { id: string, full_name: string }[] } }).data?.data || []);
         };
         loadFiltersData();
     }, []);

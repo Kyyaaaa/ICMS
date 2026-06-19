@@ -14,7 +14,6 @@ const ConsultationList = () => {
     const [statusFilter, setStatusFilter] = useState('All');
 
     const loadData = async () => {
-        setIsLoading(true);
         try {
             const data = await ConsultationsService.getConsultations();
             setConsultations(data);
@@ -27,6 +26,7 @@ const ConsultationList = () => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line
         loadData();
     }, []);
 
@@ -35,9 +35,10 @@ const ConsultationList = () => {
             await ConsultationsService.updateConsultation(id, { status, call_notes });
             setSelectedConsultation(null);
             loadData(); // Reload to get fresh data and updated staff assignment
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
-            if (error?.response?.status === 409) {
+            const err = error as { response?: { status?: number } };
+            if (err?.response?.status === 409) {
                 showAlertModal('Conflict', 'This request has been taken by another staff.', 'error');
                 setSelectedConsultation(null);
                 loadData(); // Refresh the list

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { X, UserPlus, Save, Search } from 'lucide-react';
 
 interface AddStudentModalProps {
-    availableLearners: any[];
+    availableLearners: { id: string; full_name: string; email: string; }[];
     onClose: () => void;
     onSave: (learnerId: string) => void;
 }

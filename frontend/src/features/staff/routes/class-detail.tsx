@@ -25,7 +25,7 @@ const StaffClassDetail = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedSession, setSelectedSession] = useState<Session | null>(null);
     const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
-    const [availableLearners, setAvailableLearners] = useState<unknown[]>([]);
+    const [availableLearners, setAvailableLearners] = useState<{ id: string; full_name: string; email: string; }[]>([]);
 
     const loadData = async () => {
         if (!id) return;
