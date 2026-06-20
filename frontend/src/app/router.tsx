@@ -20,7 +20,6 @@ import LearnerDashboard from "@/features/learner/routes/dashboard.tsx";
 import LearnerProfile from "@/features/learner/routes/profile.tsx";
 import LearnerClasses from "@/features/learner/routes/classes.tsx";
 import ClassDetail from "@/features/learner/routes/class-detail.tsx";
-import ClassFeedback from "@/features/learner/routes/class-feedback.tsx";
 import AttendanceProgress from "@/features/learner/routes/attendance.tsx";
 import LearnerSchedules from "@/features/learner/routes/schedules.tsx";
 import ClassRegistration from "@/features/learner/routes/registration.tsx";
@@ -124,10 +123,6 @@ export const AppRouter = () => {
 
           <Route path="/learner/classes" element={<LearnerClasses />} />
           <Route path="/learner/classes/:id" element={<ClassDetail />} />
-          <Route
-            path="/learner/classes/:id/feedback"
-            element={<ClassFeedback />}
-          />
           <Route
             path="/learner/classes/:id/attendance"
             element={<AttendanceProgress />}

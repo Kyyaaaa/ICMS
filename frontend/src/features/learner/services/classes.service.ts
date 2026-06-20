@@ -31,7 +31,7 @@ export const ClassesService = {
             const res = await axiosClient.get<unknown, { data: EnrollmentResponse[] }>('/enrollments');
             const data = res.data || [];
             
-            return data.map((enrollment) => {
+            const mappedData = data.map((enrollment) => {
                 const cls = enrollment.classes;
                 if (!cls) return null;
                 const course = cls.courses || { title: 'Unknown Course' };
@@ -82,6 +82,8 @@ export const ClassesService = {
                     status: cls.status === 'COMPLETED' ? 'Completed' : 'Ongoing'
                 };
             }).filter(Boolean) as LearnerClass[];
+
+            return mappedData;
         } catch (error) {
             console.error('Failed to fetch enrollments:', error);
             return [];

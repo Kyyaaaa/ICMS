@@ -3,12 +3,23 @@ import { BookOpen, MapPin, Calendar, Clock, ChevronDown, ChevronUp } from 'lucid
 import { Link, useParams } from 'react-router-dom';
 import type { ClassDetailData } from '../types/class-detail';
 import { LearnerClassDetailService } from '../services/class-detail.service';
+import { TutorFeedbackModal } from '../components/TutorFeedbackModal';
+import { CourseFeedbackModal } from '../components/CourseFeedbackModal';
+import { FeedbackService } from '../services/feedback.service';
 
 const ClassDetail = () => {
     const { id } = useParams();
     const [classData, setClassData] = useState<ClassDetailData | null>(null);
     const [loading, setLoading] = useState(true);
     const [expandedSessions, setExpandedSessions] = useState<Record<number, boolean>>({});
+    
+    // Tutor Feedback Modal State
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [currentFeedback, setCurrentFeedback] = useState<{rating: number, review: string} | null>(null);
+
+    // Course Feedback Modal State
+    const [showCourseFeedbackModal, setShowCourseFeedbackModal] = useState(false);
+    const [currentCourseFeedback, setCurrentCourseFeedback] = useState<{rating: number, review: string} | null>(null);
 
     useEffect(() => {
         const fetchClassDetail = async () => {
@@ -24,6 +35,15 @@ const ClassDetail = () => {
                     });
                     setExpandedSessions(initialExpanded);
                 }
+
+                // Fetch existing feedbacks
+                const [tutorReview, courseReview] = await Promise.all([
+                    FeedbackService.getTutorFeedback(id),
+                    FeedbackService.getCourseFeedback(id)
+                ]);
+                
+                if (tutorReview) setCurrentFeedback({ rating: tutorReview.rating, review: tutorReview.review });
+                if (courseReview) setCurrentCourseFeedback({ rating: courseReview.rating, review: courseReview.review });
             }
             setLoading(false);
         };
@@ -48,14 +68,26 @@ const ClassDetail = () => {
     const isCompleted = classData.status === 'Completed';
 
     return (
-        <div className="space-y-6 max-w-5xl animate-fade-in-up">
+        <div className="space-y-6 max-w-5xl animate-fade-in-up relative">
             <div className="flex items-center gap-4">
                 <Link to="/learner/classes" className="text-[#0061a5] hover:underline font-medium text-sm">← Back to Classes</Link>
             </div>
             
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h1 className="text-2xl md:text-3xl font-bold text-[#002045]">{classData.courseName}</h1>
-                <span className={`px-3 py-1 text-sm font-bold rounded uppercase tracking-wide ${isCompleted ? 'bg-[#d3e3fd] text-[#004a77]' : 'bg-[#d2e4ff] text-[#0061a5]'}`}>{classData.status}</span>
+                <div className="flex items-center gap-3">
+                    <span className={`px-3 py-1 text-sm font-bold rounded uppercase tracking-wide ${isCompleted ? 'bg-[#d3e3fd] text-[#004a77]' : 'bg-[#d2e4ff] text-[#0061a5]'}`}>
+                        {classData.status}
+                    </span>
+                    {isCompleted && (
+                        <button 
+                            onClick={() => setShowCourseFeedbackModal(true)}
+                            className="px-5 py-2 bg-[#0061a5] text-white rounded-lg text-sm font-bold hover:bg-[#004a80] hover:shadow-md transition-all shadow-sm"
+                        >
+                            {currentCourseFeedback ? 'Update Course Feedback' : 'Evaluate Course'}
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -183,14 +215,21 @@ const ClassDetail = () => {
                         <div className="flex items-center justify-center gap-1 text-[#c9a82c] mb-4">
                             ★ ★ ★ ★ ★ <span className="text-xs text-[#74777f] ml-1">({classData.tutor.rating})</span>
                         </div>
+                        
                         {isCompleted ? (
-                            <Link to={`/learner/classes/${id}/feedback`} className="block w-full py-2 bg-[#002045] text-white rounded-lg text-sm font-semibold hover:bg-[#0061a5] transition-colors">
-                                Leave Feedback
-                            </Link>
+                            <button 
+                                onClick={() => setShowFeedbackModal(true)}
+                                className="block w-full py-2 bg-[#002045] text-white rounded-lg text-sm font-semibold hover:bg-[#0061a5] transition-colors"
+                            >
+                                {currentFeedback ? 'Update Feedback' : 'Leave Feedback'}
+                            </button>
                         ) : (
-                            <div className="w-full py-2 bg-[#f8f9fa] text-[#74777f] rounded-lg text-sm font-semibold cursor-not-allowed border border-[#e0e3e5]" title="Feedback will be available after completing all sessions">
-                                Leave Feedback
-                            </div>
+                            <button 
+                                disabled
+                                className="block w-full py-2 bg-[#f0f2f5] text-[#a8aeb4] rounded-lg text-sm font-semibold cursor-not-allowed border border-[#e0e3e5]"
+                            >
+                                Available after completion
+                            </button>
                         )}
                     </div>
 
@@ -210,6 +249,32 @@ const ClassDetail = () => {
                     </div>
                 </div>
             </div>
+
+            <TutorFeedbackModal 
+                isOpen={showFeedbackModal}
+                onClose={() => setShowFeedbackModal(false)}
+                onSubmit={async (rating, review) => {
+                    await FeedbackService.submitFeedback({ rating, review, classId: id || '', tutorId: classData.tutor.id });
+                    setCurrentFeedback({ rating, review });
+                }}
+                tutorName={classData.tutor.name}
+                tutorTitle={classData.tutor.title}
+                tutorInitials={classData.tutor.initials}
+                existingRating={currentFeedback?.rating}
+                existingReview={currentFeedback?.review}
+            />
+
+            <CourseFeedbackModal 
+                isOpen={showCourseFeedbackModal}
+                onClose={() => setShowCourseFeedbackModal(false)}
+                onSubmit={async (rating, review) => {
+                    await FeedbackService.submitCourseFeedback({ rating, review, classId: id || '', courseId: classData.courseId });
+                    setCurrentCourseFeedback({ rating, review });
+                }}
+                courseName={classData.courseName}
+                existingRating={currentCourseFeedback?.rating}
+                existingReview={currentCourseFeedback?.review}
+            />
         </div>
     );
 };
