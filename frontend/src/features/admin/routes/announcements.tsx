@@ -32,8 +32,8 @@ const AdminAnnouncements = () => {
                     ClassesService.getClasses()
                 ]);
                 setAnnouncements(data);
-                setCourses(coursesData.map((c: any) => ({ id: c.id, name: c.title || c.name })));
-                setClasses(classesData.map((c: any) => ({ id: c.id, name: c.name || `Class ${c.class_code || ''}`, course_id: c.course_id })));
+                setCourses(coursesData.map((c: { id: string; title?: string; name?: string }) => ({ id: c.id, name: c.title || c.name })));
+                setClasses(classesData.map((c: { id: string; name?: string; class_code?: string; course_id?: string }) => ({ id: c.id, name: c.name || `Class ${c.class_code || ''}`, course_id: c.course_id })));
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -91,9 +91,9 @@ const AdminAnnouncements = () => {
             setIsModalOpen(false);
             setSelectedAnnouncement(undefined);
             showAlertModal('Success', 'Announcement saved successfully.', 'success');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Save error:", error);
-            showAlertModal('Error', error.message || 'Failed to save announcement', 'error');
+            showAlertModal('Error', (error as Error).message || 'Failed to save announcement', 'error');
         }
     };
 

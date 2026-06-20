@@ -1,72 +1,67 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, ArrowLeft, Clock, Calendar, ShieldCheck, CheckCircle2, MapPin, CalendarDays } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import type { PaymentCourseInfo, PaymentClassInfo } from '../types/payment';
+
 import { LearnerPaymentsService } from '../services/payments.service';
 
 const PaymentCheckout = () => {
     const { id } = useParams(); // Using invoice id or course id based on route
 
-    const [course, setCourse] = useState<PaymentCourseInfo | null>(null);
-    const [selectedClass, setSelectedClass] = useState<PaymentClassInfo | null>(null);
+    const [invoiceData, setInvoiceData] = useState<{ amount: number, classes?: { courses?: { title: string, price: number, band?: number, sessions?: number, format?: string, allow_installments?: boolean, number_of_installments?: number }, name: string } } | null>(null);
     const [loading, setLoading] = useState(true);
 
     const [paymentPlan, setPaymentPlan] = useState<'full' | 'installment'>('full');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
 
     useEffect(() => {
         const fetchDetails = async () => {
-            const [courseData, classData] = await Promise.all([
-                LearnerPaymentsService.getCourseInfo(),
-                LearnerPaymentsService.getClassInfo()
-            ]);
-            setCourse(courseData);
-            setSelectedClass(classData);
-            setLoading(false);
+            try {
+                if (id) {
+                    const data = await LearnerPaymentsService.getCheckoutInvoice(id);
+                    setInvoiceData(data);
+                }
+            } catch (error) {
+                console.error("Failed to load invoice:", error);
+                setErrorMsg('Failed to load invoice details.');
+            } finally {
+                setLoading(false);
+            }
         };
         fetchDetails();
     }, [id]);
 
-    if (loading || !course || !selectedClass) {
+    if (loading) {
         return <div className="text-center py-10">Loading checkout details...</div>;
     }
 
-    const priceValue = course.price;
-    const initialPayment = paymentPlan === 'full' ? priceValue : priceValue / 3;
+    if (errorMsg || !invoiceData) {
+        return <div className="text-center py-10 text-red-500">{errorMsg || 'Invoice not found'}</div>;
+    }
 
-    const handlePay = async (e: React.FormEvent) => {
+    const courseData = invoiceData.classes?.courses;
+    const classData = invoiceData.classes;
+    const allowInstallments = courseData?.allow_installments;
+    const numInstallments = courseData?.number_of_installments || 3;
+
+    const priceValue = invoiceData.amount || 0;
+    const initialPayment = paymentPlan === 'full' ? priceValue : Math.round(priceValue / numInstallments);
+
+        const handlePay = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsProcessing(true);
-        const success = await LearnerPaymentsService.processPayment(id || '', initialPayment);
-        if (success) {
-            setIsSuccess(true);
+        try {
+            const vnpayUrl = await LearnerPaymentsService.getVnpayUrl(id || '', paymentPlan === 'installment' ? 'installments' : 'full');
+            if (vnpayUrl) {
+                window.location.href = vnpayUrl;
+            } else {
+                throw new Error("Failed to generate payment link");
+            }
+        } catch (error: unknown) {
+            alert(error instanceof Error ? error.message : 'Error processing payment');
+            setIsProcessing(false);
         }
-        setIsProcessing(false);
     };
-
-    if (isSuccess) {
-        return (
-            <div className="max-w-3xl mx-auto mt-10 bg-white rounded-3xl shadow-sm border border-[#e0e3e5] p-10 md:p-15 text-center animate-fade-in-up">
-                <div className="w-24 h-24 rounded-full bg-[#e8f5e9] flex items-center justify-center mx-auto mb-8">
-                    <CheckCircle2 className="w-12 h-12 text-[#2e7d32]" />
-                </div>
-                <h2 className="text-3xl font-extrabold text-[#002045] mb-4">Payment Successful!</h2>
-                <p className="text-lg text-[#43474e] mb-8 max-w-lg mx-auto">
-                    Your payment of <strong>{initialPayment.toLocaleString('vi-VN')} đ</strong> for {course.title} has been processed. 
-                    {paymentPlan === 'installment' && " The next installment will be automatically billed next month."}
-                </p>
-                <div className="bg-[#f7fafc] border border-[#e0e3e5] rounded-2xl p-6 mb-10 text-left max-w-md mx-auto">
-                    <div className="flex justify-between mb-3 text-sm"><span className="text-[#74777f]">Invoice ID:</span> <span className="font-bold text-[#002045]">{id || 'INV-10025'}</span></div>
-                    <div className="flex justify-between mb-3 text-sm"><span className="text-[#74777f]">Payment Method:</span> <span className="font-bold text-[#002045]">Credit Card</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-[#74777f]">Date:</span> <span className="font-bold text-[#002045]">{new Date().toLocaleDateString('en-GB')}</span></div>
-                </div>
-                <Link to={`/learner/payments`} className="inline-block px-8 py-4 bg-[#0061a5] text-white rounded-xl font-bold hover:bg-[#004d80] transition-colors shadow-md hover:shadow-lg">
-                    Return to Payments
-                </Link>
-            </div>
-        );
-    }
 
     return (
         <div className="animate-fade-in-up max-w-300 mx-auto pb-12">
@@ -91,11 +86,11 @@ const PaymentCheckout = () => {
                                 <BookOpen className="w-10 h-10 text-[#0061a5] opacity-50" />
                             </div>
                             <div className="flex flex-col justify-center flex-1">
-                                <h3 className="text-xl font-extrabold text-[#002045] leading-tight mb-2">{course.title}</h3>
+                                <h3 className="text-xl font-extrabold text-[#002045] leading-tight mb-2">{courseData?.title}</h3>
                                 <div className="flex flex-wrap items-center gap-3 text-sm text-[#43474e]">
-                                    <span className="bg-[#f1f4f6] px-3 py-1 rounded-full font-bold text-[#0061a5]">{course.band} Target</span>
-                                    <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {course.sessions} Sessions</span>
-                                    <span className="flex items-center gap-1"><BookOpen className="w-4 h-4" /> {course.format}</span>
+                                    <span className="bg-[#f1f4f6] px-3 py-1 rounded-full font-bold text-[#0061a5]">{courseData?.band} Target</span>
+                                    <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {courseData?.sessions} Sessions</span>
+                                    <span className="flex items-center gap-1"><BookOpen className="w-4 h-4" /> {courseData?.format}</span>
                                 </div>
                             </div>
                         </div>
@@ -103,11 +98,11 @@ const PaymentCheckout = () => {
                         <div className="bg-[#f8f9fa] rounded-2xl p-5 border border-[#e0e3e5]">
                             <div className="flex items-center gap-3 mb-4">
                                 <Calendar className="w-5 h-5 text-[#0061a5]" />
-                                <span className="font-bold text-[#002045] text-base">{selectedClass.name}</span>
+                                <span className="font-bold text-[#002045] text-base">{classData?.name}</span>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-[#43474e]">
-                                <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-[#74777f]" /> {selectedClass.schedule}</div>
-                                <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-[#74777f]" /> {selectedClass.room}</div>
+                                <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-[#74777f]" /> Detailed schedule provided after enrollment</div>
+                                <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-[#74777f]" /> ICMS Campus</div>
                             </div>
                         </div>
                     </div>
@@ -128,16 +123,18 @@ const PaymentCheckout = () => {
                                 <p className="text-sm text-[#43474e] ml-13">One-time payment of {priceValue.toLocaleString('vi-VN')} đ.</p>
                             </label>
 
-                            <label className={`relative p-5 border-2 rounded-2xl cursor-pointer transition-all ${paymentPlan === 'installment' ? 'border-[#0061a5] bg-[#f0f7ff]' : 'border-[#e0e3e5] hover:border-[#c4c6cf]'}`}>
-                                <input type="radio" name="plan" value="installment" checked={paymentPlan === 'installment'} onChange={() => setPaymentPlan('installment')} className="absolute top-6 right-5 w-5 h-5 accent-[#0061a5]" />
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentPlan === 'installment' ? 'bg-[#0061a5] text-white' : 'bg-gray-100 text-[#74777f]'}`}>
-                                        <CalendarDays className="w-5 h-5" />
+                            {allowInstallments && (
+                                <label className={`relative p-5 border-2 rounded-2xl cursor-pointer transition-all ${paymentPlan === 'installment' ? 'border-[#0061a5] bg-[#f0f7ff]' : 'border-[#e0e3e5] hover:border-[#c4c6cf]'}`}>
+                                    <input type="radio" name="plan" value="installment" checked={paymentPlan === 'installment'} onChange={() => setPaymentPlan('installment')} className="absolute top-6 right-5 w-5 h-5 accent-[#0061a5]" />
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentPlan === 'installment' ? 'bg-[#0061a5] text-white' : 'bg-gray-100 text-[#74777f]'}`}>
+                                            <CalendarDays className="w-5 h-5" />
+                                        </div>
+                                        <span className="text-lg font-bold text-[#002045]">{numInstallments} Installments</span>
                                     </div>
-                                    <span className="text-lg font-bold text-[#002045]">3 Installments</span>
-                                </div>
-                                <p className="text-sm text-[#43474e] ml-13">Pay {(priceValue/3).toLocaleString('vi-VN')} đ today, and {(priceValue/3).toLocaleString('vi-VN')} đ monthly for 2 months.</p>
-                            </label>
+                                    <p className="text-sm text-[#43474e] ml-13">Pay {Math.round(priceValue/numInstallments).toLocaleString('vi-VN')} đ today, and {Math.round(priceValue/numInstallments).toLocaleString('vi-VN')} đ periodically for {numInstallments - 1} terms.</p>
+                                </label>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -25,8 +25,8 @@ export class CourseRepository {
             // Thêm khóa học mới vào bảng courses
             const insertCourseQuery = `
                 INSERT INTO courses (
-                    title, code, band, duration, sessions, format, category, type, price, original_price, description, next_cohort, image_url, status, max_size, location, language
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+                    title, code, band, duration, sessions, format, category, type, price, original_price, description, next_cohort, image_url, status, max_size, location, language, allow_installments, number_of_installments
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
                 RETURNING *;
             `;
             const courseValues = [
@@ -46,7 +46,9 @@ export class CourseRepository {
                 courseData.status || 'Draft',
                 courseData.max_size || 15,
                 courseData.location || 'London Center / Online',
-                courseData.language || 'English'
+                courseData.language || 'English',
+                courseData.allow_installments || false,
+                courseData.number_of_installments || 1
             ];
             const courseRes = await client.query(insertCourseQuery, courseValues);
             const newCourse = courseRes.rows[0];
@@ -114,20 +116,7 @@ export class CourseRepository {
         try {
             await client.query('BEGIN');
             
-            // Check if there are any enrollments in any classes of this course
-            const enrollmentsCheck = await client.query(`
-                SELECT count(*) as count
-                FROM enrollments e
-                JOIN classes c ON e.class_id = c.id
-                WHERE c.course_id = $1
-            `, [id]);
-            
-            if (parseInt(enrollmentsCheck.rows[0].count) > 0) {
-                throw new Error('Cannot delete this course because it has enrolled students.');
-            }
-            
-            // It's safe to delete classes since there are no enrollments (this will also delete class_sessions via CASCADE)
-            await client.query('DELETE FROM classes WHERE course_id = $1', [id]);
+            // Deletion of classes and enrollment checks are now handled in CourseService via ClassService and EnrollmentService.
             
             // Delete the course
             const res = await client.query('DELETE FROM courses WHERE id = $1', [id]);
@@ -166,8 +155,10 @@ export class CourseRepository {
                     max_size = COALESCE($15, max_size),
                     location = COALESCE($16, location),
                     language = COALESCE($17, language),
+                    allow_installments = COALESCE($18, allow_installments),
+                    number_of_installments = COALESCE($19, number_of_installments),
                     updated_at = CURRENT_TIMESTAMP
-                WHERE id = $18
+                WHERE id = $20
                 RETURNING *;
             `;
             const courseValues = [
@@ -188,6 +179,8 @@ export class CourseRepository {
                 courseData.max_size,
                 courseData.location,
                 courseData.language,
+                courseData.allow_installments,
+                courseData.number_of_installments,
                 id
             ];
             const courseRes = await client.query(updateCourseQuery, courseValues);

@@ -1,41 +1,54 @@
 import { CourseRepository } from './course.repository';
 
+import { ClassService } from '../class/class.service';
+import { EnrollmentService } from '../enrollment/enrollment.service';
+
 export class CourseService {
-    static async createCourse(data: any) {
-        const { sessions_list, ...courseData } = data;
-        
-        // Kiểm tra tính hợp lệ cơ bản của dữ liệu đầu vào
-        if (!courseData.title || !courseData.band) {
-            throw new Error('Title and band are required fields.');
+  static async createCourse(data: any) {
+    const { sessions_list, ...courseData } = data;
+    
+    // Kiểm tra tính hợp lệ cơ bản của dữ liệu đầu vào
+    if (!courseData.title || !courseData.band) {
+        throw new Error('Title and band are required fields.');
+    }
+
+    return await CourseRepository.createCourse(courseData, sessions_list);
+  }
+
+  static async getAllCourses() {
+    return await CourseRepository.getAllCourses();
+  }
+
+  static async getCourseById(id: string) {
+    if (!id) throw new Error('Course ID is required.');
+    const course = await CourseRepository.getCourseById(id);
+    if (!course) throw new Error('Course not found.');
+    return course;
+  }
+
+  static async deleteCourse(id: string) {
+    if (!id) throw new Error('Course ID is required.');
+    
+    // Check if there are any enrollments via EnrollmentService
+    const enrollmentCount = await EnrollmentService.countEnrollmentsByCourseId(id);
+    if (enrollmentCount > 0) {
+        throw new Error('Cannot delete this course because it has enrolled students.');
+    }
+
+    // Delete classes via ClassService
+    await ClassService.deleteClassesByCourseId(id);
+
+    try {
+        const success = await CourseRepository.deleteCourse(id);
+        if (!success) throw new Error('Course not found or could not be deleted.');
+        return success;
+    } catch (error: any) {
+        if (error.code === '23503') {
+            throw new Error('Cannot delete this course because it has associated records.');
         }
-
-        return await CourseRepository.createCourse(courseData, sessions_list);
+        throw error;
     }
-
-    static async getAllCourses() {
-        return await CourseRepository.getAllCourses();
-    }
-
-    static async getCourseById(id: string) {
-        if (!id) throw new Error('Course ID is required.');
-        const course = await CourseRepository.getCourseById(id);
-        if (!course) throw new Error('Course not found.');
-        return course;
-    }
-
-    static async deleteCourse(id: string) {
-        if (!id) throw new Error('Course ID is required.');
-        try {
-            const success = await CourseRepository.deleteCourse(id);
-            if (!success) throw new Error('Course not found or could not be deleted.');
-            return success;
-        } catch (error: any) {
-            if (error.code === '23503') {
-                throw new Error('Cannot delete this course because it has associated classes or students.');
-            }
-            throw error;
-        }
-    }
+  }
 
     static async updateCourse(id: string, courseData: any) {
         if (!id) throw new Error('Course ID is required.');

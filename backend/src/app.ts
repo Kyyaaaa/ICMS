@@ -16,6 +16,9 @@ import enrollmentRoutes from './modules/enrollment/enrollment.routes';
 import sessionRoutes from './modules/session/session.routes';
 import supportTicketRoutes from './modules/support-ticket/support-ticket.routes';
 import announcementRoutes from './modules/announcement/announcement.routes';
+import invoiceRoutes from './modules/invoice/invoice.routes';
+import paymentRoutes from './modules/payment/payment.routes';
+
 const app = express();
 
 // Middlewares toàn cục
@@ -37,6 +40,8 @@ app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/support-tickets', supportTicketRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

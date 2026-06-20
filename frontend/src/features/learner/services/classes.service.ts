@@ -1,7 +1,7 @@
 import type { LearnerClass } from '../types/class';
 
 import axiosClient from '@/shared/services/axiosClient';
-import { SLOT_LABELS } from '@/shared/lib/utils';
+import { getSlotLabel } from '@/shared/lib/utils';
 
 interface EnrollmentResponse {
     classes: {
@@ -57,7 +57,7 @@ export const ClassesService = {
                     slotToDays.forEach((days, slot) => {
                         const sortedDays = Array.from(days).sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
                         const dayList = sortedDays.map(d => dayNames[d]).join(', ');
-                        const timeStr = SLOT_LABELS[slot] || slot;
+                        const timeStr = getSlotLabel(slot);
                         scheduleObjects.push({
                             minDay: sortedDays[0] === 0 ? 7 : sortedDays[0],
                             text: `${dayList} (${timeStr})`

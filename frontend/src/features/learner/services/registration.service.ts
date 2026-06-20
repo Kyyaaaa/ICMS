@@ -1,6 +1,6 @@
 import type { RegistrationClassOption, RegistrationInvoicePreview } from '../types/registration';
 import axiosClient from '@/shared/services/axiosClient';
-import { SLOT_LABELS } from '@/shared/lib/utils';
+import { getSlotLabel } from '@/shared/lib/utils';
 
 interface StaffClassResponse {
     id: string;
@@ -47,7 +47,7 @@ export const LearnerRegistrationService = {
                     slotToDays.forEach((days, slot) => {
                         const sortedDays = Array.from(days).sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
                         const dayList = sortedDays.map(d => dayNames[d]).join(', ');
-                        const timeStr = SLOT_LABELS[slot] || slot;
+                        const timeStr = getSlotLabel(slot);
                         scheduleObjects.push({
                             minDay: sortedDays[0] === 0 ? 7 : sortedDays[0],
                             text: `${dayList} (${timeStr})`
@@ -91,5 +91,12 @@ export const LearnerRegistrationService = {
     confirmRegistration: async (_courseId: string, classId: number | string): Promise<boolean> => {
         await axiosClient.post('/enrollments', { class_id: classId });
         return true;
+    },
+
+    createInvoice: async (_courseId: string, classId: number | string): Promise<string> => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const res = await axiosClient.post('/enrollments', { class_id: classId }) as any;
+        const invoiceId = res?.data?.data?.invoice_id || res?.data?.invoice_id || res?.data?.data?.id || res?.data?.id;
+        return invoiceId || '';
     }
 };

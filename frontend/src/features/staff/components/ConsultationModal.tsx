@@ -83,7 +83,7 @@ export const ConsultationModal = ({ consultation, onClose, onSave }: Consultatio
                         <select 
                             className="px-4 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] font-semibold text-[#002045]"
                             value={tempStatus}
-                            onChange={(e) => setTempStatus(e.target.value as any)}
+                            onChange={(e) => setTempStatus(e.target.value as ConsultationRequest['status'])}
                         >
                             <option value="Pending">Pending</option>
                             <option value="Contacted">Contacted</option>

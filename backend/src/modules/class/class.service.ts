@@ -145,6 +145,10 @@ export class ClassService {
     return await ClassRepository.deleteClass(id);
   }
 
+  static async deleteClassesByCourseId(courseId: string) {
+    return await ClassRepository.deleteClassesByCourseId(courseId);
+  }
+
   static async updateClassSession(classId: string, sessionId: string, updates: UpdateClassSessionDTO) {
     if (updates.slot && !ALLOWED_SLOTS.includes(updates.slot)) {
       throw { status: 400, message: `Invalid slot: ${updates.slot}` };

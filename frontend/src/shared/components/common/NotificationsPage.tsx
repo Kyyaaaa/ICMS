@@ -53,6 +53,7 @@ export const NotificationsPage = () => {
         };
         
         fetchNotifications();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFilter('all');
     }, [currentRole, isGuest]);
 

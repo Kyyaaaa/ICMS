@@ -1,26 +1,29 @@
 import type { ClassDetailData } from '../types/class-detail';
 import axiosClient from '@/shared/services/axiosClient';
-import { SLOT_LABELS } from '@/shared/lib/utils';
+import { getSlotLabel } from '@/shared/lib/utils';
 
 export const LearnerClassDetailService = {
     getClassDetail: async (id: string): Promise<ClassDetailData | undefined> => {
         try {
-            const res = await axiosClient.get(`/staff/classes/${id}`);
-            const data = (res as any).data?.data || (res as any).data;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const res = await axiosClient.get(`/staff/classes/${id}`) as { data?: { data?: any } | any };
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const data: any = res.data && typeof res.data === 'object' && 'data' in res.data ? res.data.data : res.data;
             if (!data) return undefined;
 
             const sessions = data.sessions || [];
             
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const curriculum = sessions.map((session: any) => {
-                let status: 'completed' | 'ongoing' | 'upcoming' = 'upcoming';
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 const sDate = new Date(session.date);
                 sDate.setHours(0, 0, 0, 0);
                 
-                if (sDate.getTime() < today.getTime()) status = 'completed';
-                else if (sDate.getTime() === today.getTime()) status = 'ongoing';
-                else status = 'upcoming';
+                const status: 'completed' | 'ongoing' | 'upcoming' = 
+                    sDate.getTime() < today.getTime() ? 'completed' 
+                    : sDate.getTime() === today.getTime() ? 'ongoing' 
+                    : 'upcoming';
 
                 return {
                     sessionNumber: session.session_number,
@@ -32,15 +35,18 @@ export const LearnerClassDetailService = {
 
             // Map descriptions from course's syllabus (sessions_list)
             const courseSessions = data.courses?.sessions_list || [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             curriculum.forEach((c: any) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const cSession = courseSessions.find((cs: any) => cs.session_number === c.sessionNumber || cs.title === c.title);
                 if (cSession && cSession.description) {
                     c.description = cSession.description;
                 }
             });
 
-            let completed = curriculum.filter((c: any) => c.status === 'completed').length;
-            let percentage = sessions.length ? Math.round((completed / sessions.length) * 100) : 0;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const completed = curriculum.filter((c: any) => c.status === 'completed').length;
+            const percentage = sessions.length ? Math.round((completed / sessions.length) * 100) : 0;
 
             const tutorName = data.tutor?.full_name || 'TBA';
             const initials = tutorName !== 'TBA' 
@@ -53,6 +59,7 @@ export const LearnerClassDetailService = {
                 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                 const slotToDays = new Map<string, Set<number>>();
                 
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 sessions.forEach((s: any) => {
                     if (s.date) {
                         const day = new Date(s.date).getDay();
@@ -68,11 +75,7 @@ export const LearnerClassDetailService = {
                     const sortedDays = Array.from(days).sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
                     const dayList = sortedDays.map(d => dayNames[d]).join(', ');
                     schedules.push(dayList);
-                    if (SLOT_LABELS[slot as keyof typeof SLOT_LABELS]) {
-                        times.push(SLOT_LABELS[slot as keyof typeof SLOT_LABELS]);
-                    } else {
-                        times.push(slot);
-                    }
+                    times.push(getSlotLabel(slot));
                 });
             }
 

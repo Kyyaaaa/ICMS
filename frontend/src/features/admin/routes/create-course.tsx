@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Plus, Trash2, X, Image as ImageIcon, BookOpen, Clock, Users, Target, Book, AlignLeft, Tags, Globe } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, X, Image as ImageIcon, BookOpen, Users, Target, Book, AlignLeft, Tags, Globe } from 'lucide-react';
 import { CoursesService } from '../../../shared/services/courses.service';
 
 const CreateCourse = () => {
@@ -24,7 +24,9 @@ const CreateCourse = () => {
         status: 'Active',
         maxSize: '15',
         location: 'London Center / Online',
-        language: 'English'
+        language: 'English',
+        allow_installments: false,
+        number_of_installments: 3
     });
 
     const [sessionsList, setSessionsList] = useState(
@@ -130,6 +132,8 @@ const CreateCourse = () => {
                 sessions: calculatedTotalSessions,
                 location: formData.location,
                 language: formData.language,
+                allow_installments: formData.allow_installments,
+                number_of_installments: Number(formData.number_of_installments),
                 sessions_list: sessionsList
             };
 
@@ -273,6 +277,24 @@ const CreateCourse = () => {
                         <div>
                             <label className="block text-[14px] font-bold text-[#43474e] mb-1">Next Cohort *</label>
                             <input required type="date" min={minDateStr} name="next_cohort" value={formData.next_cohort} onChange={handleInputChange} className="w-full px-4 py-2 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] outline-none transition-all" />
+                        </div>
+                        
+                        <div className="col-span-1 md:col-span-2 pt-2 pb-2 border-t border-[#e0e3e5] mt-2">
+                            <label className="flex items-center gap-3 cursor-pointer mb-3">
+                                <div className="relative">
+                                    <input type="checkbox" name="allow_installments" checked={formData.allow_installments} onChange={(e) => setFormData(prev => ({...prev, allow_installments: e.target.checked}))} className="sr-only peer" />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0061a5]"></div>
+                                </div>
+                                <span className="text-[14px] font-bold text-[#181c1e]">Enable Installment Payments</span>
+                            </label>
+                            
+                            {formData.allow_installments && (
+                                <div className="ml-14 animate-fade-in-up">
+                                    <label className="block text-[13px] font-bold text-[#43474e] mb-1">Number of Installments (Max 12) *</label>
+                                    <input required={formData.allow_installments} type="number" min="2" max="12" name="number_of_installments" value={formData.number_of_installments} onChange={handleInputChange} className="w-1/3 px-4 py-2 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] outline-none transition-all" />
+                                    <p className="text-[12px] text-[#74777f] mt-1">Specify how many terms the student can split the payment into.</p>
+                                </div>
+                            )}
                         </div>
                         <div className="col-span-1 md:col-span-2">
                             <label className="block text-[14px] font-bold text-[#43474e] mb-2">Cover Image</label>

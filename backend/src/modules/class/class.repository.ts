@@ -149,6 +149,17 @@ export class ClassRepository {
     return true;
   }
 
+  static async deleteClassesByCourseId(courseId: string) {
+    // This will also delete class_sessions via CASCADE constraint in DB
+    const { error } = await supabase
+      .from('classes')
+      .delete()
+      .eq('course_id', courseId);
+
+    if (error) throw new Error(error.message);
+    return true;
+  }
+
   static async updateClassSession(classId: string, sessionId: string, updates: UpdateClassSessionDTO) {
     const { data, error } = await supabase
       .from('class_sessions')

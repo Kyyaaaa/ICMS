@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-
 export const SLOT_LABELS: Record<string, string> = {
   'slot1': 'Slot 1 (07:30 - 09:30)',
   'slot2': 'Slot 2 (09:30 - 11:30)',
@@ -10,6 +9,24 @@ export const SLOT_LABELS: Record<string, string> = {
   'slot6': 'Slot 6 (20:00 - 22:00)'
 };
 
+/**
+ * Lookup slot label from DB value.
+ * Supports both old format ("slot1") and new format ("Monday-Slot2").
+ * For new format, extracts the slot part after the dash.
+ */
+export function getSlotLabel(slot: string | undefined): string {
+    if (!slot) return 'TBA';
+    // Try direct lookup first (old format: "slot1")
+    const directKey = slot.toLowerCase().trim();
+    if (SLOT_LABELS[directKey]) return SLOT_LABELS[directKey];
+    // New format: "Monday-Slot2" → extract "Slot2" → lookup "slot2"
+    const dashIdx = slot.indexOf('-');
+    if (dashIdx !== -1) {
+        const slotPart = slot.substring(dashIdx + 1).toLowerCase().trim();
+        if (SLOT_LABELS[slotPart]) return SLOT_LABELS[slotPart];
+    }
+    return slot;
+}
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

@@ -6,7 +6,6 @@ dotenv.config();
 // Create a new connection pool using the connection string from .env
 // This string should point to your Supabase session pooler URL
 
-console.log("DATABASE_URL =", process.env.DATABASE_URL);
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

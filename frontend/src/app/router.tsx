@@ -91,6 +91,8 @@ import { SupportTickets } from "@/shared/components/common/SupportTickets.tsx";
 import { ProtectedRoute } from "@/features/auth/components/ProtectedRoute.tsx";
 import { GuestRoute } from "@/features/auth/components/GuestRoute.tsx";
 
+import PaymentResult from "@/features/learner/routes/payment-result.tsx";
+
 export const AppRouter = () => {
   return (
     <Routes>
@@ -108,6 +110,7 @@ export const AppRouter = () => {
       <Route path="/courses/:id" element={<CourseDetail />} />
       <Route path="/courses/:courseId/register" element={<ClassRegistration />} />
       <Route path="/notifications" element={<PublicNotifications />} />
+      <Route path="/payment/result" element={<PaymentResult />} />
 
       {/* Learner Routes wrapped in Layout */}
       <Route element={<ProtectedRoute allowedRoles={["LEARNER"]} />}>

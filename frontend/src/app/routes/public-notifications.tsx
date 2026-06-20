@@ -4,25 +4,25 @@ import { NotificationsPage } from '@/shared/components/common/NotificationsPage.
 import Cookies from 'js-cookie';
 
 const PublicNotifications = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userInfo, setUserInfo] = useState<Record<string, unknown> | undefined>(undefined);
-    const [userRole, setUserRole] = useState<'learner' | 'tutor' | 'staff' | 'admin'>('learner');
+    const [isLoggedIn, setIsLoggedIn] = useState(() => {
+        return !!Cookies.get('access_token') && !!Cookies.get('user_info');
+    });
+    const [userInfo] = useState<Record<string, unknown> | null>(() => {
+        const userStr = Cookies.get('user_info');
+        if (userStr) {
+            try { return JSON.parse(userStr); } catch { return null; }
+        }
+        return null;
+    });
+    const [userRole] = useState<'tutor' | 'learner' | 'staff' | 'admin'>(() => {
+        if (userInfo && typeof (userInfo as Record<string, unknown>).role === 'string') {
+            return ((userInfo as Record<string, unknown>).role as string).toLowerCase() as 'tutor' | 'learner' | 'staff' | 'admin';
+        }
+        return 'learner';
+    });
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        
-        const token = Cookies.get('access_token');
-        const userStr = Cookies.get('user_info');
-        if (token && userStr) {
-            setIsLoggedIn(true);
-            try {
-                const user = JSON.parse(userStr);
-                setUserInfo(user);
-                setUserRole(user.role ? user.role.toLowerCase() : 'learner');
-            } catch (e) {
-                // Ignore parse error
-            }
-        }
     }, []);
 
     return (

@@ -6,7 +6,7 @@ import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceR
 import { AttendanceSessionList } from '../components/AttendanceSessionList';
 import { AttendanceSheet } from '../components/AttendanceSheet';
 import { showConfirmModal, showAlertModal } from '@/utils/modal';
-import { formatAccountID, SLOT_LABELS } from '@/shared/lib/utils';
+import { formatAccountID, getSlotLabel } from '@/shared/lib/utils';
 
 const ClassAttendance = () => {
     const { id: classId } = useParams<{ id: string }>();
@@ -45,7 +45,7 @@ const ClassAttendance = () => {
                         classId: classData.id,
                         name: `Session ${s.session_number}`,
                         date: s.date ? new Date(s.date).toISOString().split('T')[0] : '',
-                        time: (s as { slot?: string }).slot ? SLOT_LABELS[(s as { slot?: string }).slot!] || (s as { slot?: string }).slot : 'TBD',
+                        time: getSlotLabel((s as { slot?: string }).slot),
                         status: 'pending'
                     })));
                 }

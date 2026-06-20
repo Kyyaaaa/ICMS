@@ -19,20 +19,20 @@ export const ConsultationsService = {
                 params: { status }
             });
             // axiosClient interceptor returns response.data directly
-            return (res as any).data;
+            return (res as unknown as GetConsultationsResponse).data || (res as unknown as ConsultationRequest[]);
         } catch (error) {
             console.error('Error fetching consultations', error);
-            throw error;
+            throw new Error('Error fetching consultations', { cause: error });
         }
     },
 
     updateConsultation: async (id: string, data: UpdateConsultationData): Promise<ConsultationRequest> => {
         try {
             const res = await axiosClient.patch<{success: boolean, data: ConsultationRequest}>(`/consultations/staff/${id}`, data);
-            return (res as any).data;
+            return (res as unknown as { data: ConsultationRequest }).data;
         } catch (error) {
             console.error('Error updating consultation', error);
-            throw error;
+            throw new Error('Error updating consultation', { cause: error });
         }
     },
 
@@ -41,7 +41,7 @@ export const ConsultationsService = {
             await axiosClient.post('/consultations', data);
         } catch (error) {
             console.error('Error creating public consultation', error);
-            throw error;
+            throw new Error('Error creating public consultation', { cause: error });
         }
     }
 };

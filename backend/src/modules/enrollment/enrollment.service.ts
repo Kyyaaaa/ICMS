@@ -61,7 +61,19 @@ export class EnrollmentService {
     return await EnrollmentRepository.getLearnerEnrollments(learnerId);
   }
 
+  static async countEnrollmentsByCourseId(courseId: string) {
+    return await EnrollmentRepository.countEnrollmentsByCourseId(courseId);
+  }
+
   static async cancelEnrollment(id: string) {
     return await EnrollmentRepository.updateEnrollmentStatus(id, 'CANCELED');
+  }
+
+  static async checkRegistrationConflicts(learnerId: string, classId: string, targetCourseId: string) {
+    return await EnrollmentRepository.checkRegistrationConflicts(learnerId, classId, targetCourseId);
+  }
+
+  static async cancelEnrollmentByLearnerAndClass(learnerId: string, classId: string) {
+    return await EnrollmentRepository.cancelEnrollmentByLearnerAndClass(learnerId, classId);
   }
 }

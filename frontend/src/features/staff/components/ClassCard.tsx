@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { User, Clock, MapPin, CalendarDays } from 'lucide-react';
-import { SLOT_LABELS } from '@/shared/lib/utils';
+import { getSlotLabel } from '@/shared/lib/utils';
 import type { Class } from '../types/class';
 
 interface ClassCardProps {
@@ -31,7 +31,7 @@ export const ClassCard = ({ cls }: ClassCardProps) => {
             const days = Array.from(daysSet).sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
             const daysString = days.map(d => dayNames[d]).join(', ');
             
-            const label = SLOT_LABELS[slot] || slot;
+            const label = getSlotLabel(slot);
             scheduleObjects.push({
                 minDay: days[0] === 0 ? 7 : days[0],
                 text: `${daysString} (${label})`
@@ -51,12 +51,12 @@ export const ClassCard = ({ cls }: ClassCardProps) => {
                     <div>
                         <h3 className="text-lg font-bold text-[#002045] group-hover:text-[#0061a5] transition-colors">{cls.name}</h3>
                     </div>
-                    <span className="px-3 py-1 text-xs font-bold rounded-full bg-blue-50 text-[#0061a5]">
-                        {cls.capacity} Max Students
+                    <span className="px-3 py-1 text-[11px] sm:text-xs font-bold rounded-full bg-blue-50 text-[#0061a5] whitespace-nowrap">
+                        {cls.students?.length || 0}/{cls.capacity} Students
                     </span>
                 </div>
                 
-                <div className="flex flex-col mt-auto">
+                <div className="flex flex-col flex-1">
                     <div className="flex flex-col gap-3 text-[#43474e] text-sm mt-2 mb-4">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0061a5] flex items-center justify-center shrink-0">
@@ -77,20 +77,33 @@ export const ClassCard = ({ cls }: ClassCardProps) => {
                             <span className="truncate"><span className="text-[#74777f]">Room:</span> <span className="font-semibold text-[#181c1e]">{cls.classroom?.room_name || 'TBA'}</span></span>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-2 pt-3 border-t border-[#f0f4f8]">
+                    <div className="flex flex-col gap-2 pt-3 border-t border-[#f0f4f8] mt-auto">
                         <div className="flex items-center gap-1.5 text-[#74777f]">
                             <CalendarDays className="w-4 h-4 shrink-0" />
                             <span className="font-medium text-[#181c1e] text-sm">Schedule</span>
                         </div>
                         {schedules.length > 0 ? (
-                            <div className="flex flex-wrap gap-2 pl-0 sm:pl-5">
+                            <div className="grid grid-cols-2 gap-2 pl-0 sm:pl-2">
                                 {schedules.map((schedule, idx) => {
                                     const match = schedule.match(/^(.*?) \((.*)\)$/);
                                     if (match) {
+                                        const slotMatch = match[2].match(/(Slot \d+) \((.*)\)/);
+                                        if (slotMatch) {
+                                            return (
+                                                <div key={idx} className="flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2 py-1.5 w-full min-w-0">
+                                                    <span className="text-xs font-bold text-[#0061a5] truncate">{match[1]} • {slotMatch[1]}</span>
+                                                    <span className="text-[11px] font-medium tracking-tight text-[#0061a5]/80 mt-0.5 whitespace-nowrap">
+                                                        {slotMatch[2]}
+                                                    </span>
+                                                </div>
+                                            );
+                                        }
                                         return (
-                                            <div key={idx} className="flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2.5 py-1.5 w-full sm:w-auto">
-                                                <span className="text-[13px] font-bold text-[#0061a5]">{match[1]}</span>
-                                                <span className="text-xs text-[#0061a5]/80 mt-0.5">{match[2]}</span>
+                                            <div key={idx} className="flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2 py-1.5 w-full min-w-0">
+                                                <span className="text-[13px] font-bold text-[#0061a5] truncate">{match[1]}</span>
+                                                <span className="text-[11.5px] font-medium tracking-tight text-[#0061a5]/80 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis" title={match[2]}>
+                                                    {match[2]}
+                                                </span>
                                             </div>
                                         );
                                     }

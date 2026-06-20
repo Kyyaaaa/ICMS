@@ -89,9 +89,16 @@ const RefundRequest = () => {
                         </span>
                         <span>Amount Paid:</span>
                         <span className="font-semibold text-[#181c1e]">
-                            {(installmentId && invoice.installments ? 
-                                (invoice.installments.find(i => i.id === installmentId)?.amount || invoice.amount) 
-                                : invoice.amount).toLocaleString('vi-VN')} đ
+                            {(() => {
+                                if (installmentId && invoice.installments) {
+                                    return (invoice.installments.find(i => i.id === installmentId)?.amount || invoice.amount).toLocaleString('vi-VN');
+                                }
+                                if (invoice.status === 'partial' && invoice.installments) {
+                                    const paidAmount = invoice.installments.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.amount, 0);
+                                    return paidAmount.toLocaleString('vi-VN');
+                                }
+                                return invoice.amount.toLocaleString('vi-VN');
+                            })()} đ
                         </span>
                         <span>Course:</span>
                         <span className="font-semibold text-[#181c1e]">{invoice.course}</span>

@@ -23,6 +23,7 @@ export const AnnouncementFormModal = ({ mode, initialData, availableCourses, ava
 
     useEffect(() => {
         if (mode === 'edit' && initialData) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({
                 title: initialData.title,
                 content: initialData.content,
@@ -119,7 +120,7 @@ export const AnnouncementFormModal = ({ mode, initialData, availableCourses, ava
                                             required 
                                             value={formData.content}
                                             onChange={e => setFormData({...formData, content: e.target.value})}
-                                            className="w-full flex-1 min-h-[300px] px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors resize-none leading-relaxed" 
+                                            className="w-full flex-1 min-h-75 px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors resize-none leading-relaxed" 
                                             placeholder="Type the announcement message here..."
                                         ></textarea>
                                     </div>

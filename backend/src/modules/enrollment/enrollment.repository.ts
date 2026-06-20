@@ -61,6 +61,17 @@ export class EnrollmentRepository {
     return count || 0;
   }
 
+  static async countEnrollmentsByCourseId(courseId: string): Promise<number> {
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, classes!inner(course_id)')
+      .eq('classes.course_id', courseId)
+      .eq('status', 'ACTIVE');
+
+    if (error) throw error;
+    return data ? data.length : 0;
+  }
+
   static async checkEnrollmentExists(learnerId: string, classId: string): Promise<boolean> {
     const { data, error } = await supabaseAdmin
       .from('enrollments')
@@ -111,9 +122,78 @@ export class EnrollmentRepository {
         )
       `)
       .eq('learner_id', learnerId)
+      .eq('status', 'ACTIVE')
       .order('enrollment_date', { ascending: false });
 
     if (error) throw error;
     return data;
+  }
+
+  static async checkRegistrationConflicts(learnerId: string, classId: string, targetCourseId: string) {
+    // Fetch all active enrollments for the learner
+    const { data: activeEnrollments, error: enrollError } = await supabaseAdmin
+      .from('enrollments')
+      .select(`
+        class_id,
+        classes (
+          name,
+          course_id,
+          class_sessions (
+            date,
+            slot
+          )
+        )
+      `)
+      .eq('learner_id', learnerId)
+      .eq('status', 'ACTIVE');
+
+    if (enrollError) throw new Error(enrollError.message);
+
+    if (!activeEnrollments || activeEnrollments.length === 0) return;
+
+    for (const enrollment of activeEnrollments) {
+      if (enrollment.class_id === classId) {
+        throw new Error('You are already enrolled in this class.');
+      }
+      
+      const enrolledClass = enrollment.classes as any;
+      if (enrolledClass?.course_id === targetCourseId) {
+        throw new Error('You are already enrolled in another class for this course.');
+      }
+    }
+
+    // Fetch sessions of the target class to check schedule overlaps
+    const { data: targetSessions, error: sessionError } = await supabaseAdmin
+      .from('class_sessions')
+      .select('date, slot')
+      .eq('class_id', classId);
+
+    if (sessionError) throw new Error(sessionError.message);
+    if (!targetSessions || targetSessions.length === 0) return;
+
+    // Check for overlaps
+    for (const targetSession of targetSessions) {
+      for (const enrollment of activeEnrollments) {
+        const enrolledClass = enrollment.classes as any;
+        const enrolledSessions = enrolledClass?.class_sessions || [];
+        
+        for (const enrolledSession of enrolledSessions) {
+          if (targetSession.date === enrolledSession.date && targetSession.slot === enrolledSession.slot) {
+            throw new Error(`Schedule overlap: This class overlaps with your enrolled class '${enrolledClass.name}' on ${targetSession.date} at slot ${targetSession.slot}.`);
+          }
+        }
+      }
+    }
+  }
+
+  static async cancelEnrollmentByLearnerAndClass(learnerId: string, classId: string): Promise<boolean> {
+    const { error } = await supabaseAdmin
+      .from('enrollments')
+      .update({ status: 'CANCELED' })
+      .eq('learner_id', learnerId)
+      .eq('class_id', classId);
+
+    if (error) throw error;
+    return true;
   }
 }

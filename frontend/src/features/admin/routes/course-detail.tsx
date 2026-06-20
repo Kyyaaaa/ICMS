@@ -41,6 +41,8 @@ interface ApiCourse {
   original_price?: number | string;
   next_cohort?: string;
   image_url?: string;
+  allow_installments?: boolean;
+  number_of_installments?: number;
   sessions_list?: ApiModule[];
 }
 
@@ -48,7 +50,6 @@ const AdminCourseDetail = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(id !== "new");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [courseData, setCourseData] = useState({
     title: "",
     code: "",
@@ -72,6 +73,8 @@ const AdminCourseDetail = () => {
       description?: string;
       isExisting?: boolean;
     }[],
+    allowInstallments: false,
+    numberOfInstallments: 3,
   });
   const [originalCourseData, setOriginalCourseData] = useState<
     typeof courseData | null
@@ -137,6 +140,8 @@ const AdminCourseDetail = () => {
             originalPrice: String(data.original_price || ""),
             nextCohort: parsedNextCohort,
             imageUrl: data.image_url || "",
+            allowInstallments: !!data.allow_installments,
+            numberOfInstallments: Number(data.number_of_installments) || 3,
             sessionsList: parsedSessions,
           };
           setCourseData(initialState);
@@ -242,6 +247,8 @@ const AdminCourseDetail = () => {
           language: courseData.language,
           next_cohort: formattedDate,
           image_url: courseData.imageUrl,
+          allow_installments: courseData.allowInstallments,
+          number_of_installments: Number(courseData.numberOfInstallments),
           sessions_list: cleanedSessions,
         };
         await CoursesService.updateCourse(id, backendData);
@@ -838,6 +845,23 @@ const AdminCourseDetail = () => {
                     </p>
                   )}
                 </div>
+                <div className="pt-2 pb-2 border-t border-[#e0e3e5] mt-2">
+                  <label className="flex items-center gap-3 cursor-pointer mb-3">
+                    <div className="relative">
+                      <input type="checkbox" name="allowInstallments" checked={courseData.allowInstallments} onChange={(e) => setCourseData(prev => ({...prev, allowInstallments: e.target.checked}))} className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0061a5]"></div>
+                    </div>
+                    <span className="text-[14px] font-bold text-[#181c1e]">Enable Installment Payments</span>
+                  </label>
+                  
+                  {courseData.allowInstallments && (
+                    <div className="ml-14 animate-fade-in-up">
+                      <label className="block text-[13px] font-bold text-[#43474e] mb-1">Number of Installments (Max 12)</label>
+                      <input type="number" min="2" max="12" name="numberOfInstallments" value={courseData.numberOfInstallments} onChange={handleChange} className="w-1/3 px-4 py-2 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] outline-none transition-all" />
+                      <p className="text-[12px] text-[#74777f] mt-1">Specify how many terms the student can split the payment into.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -1023,27 +1047,29 @@ const AdminCourseDetail = () => {
                     Syllabus
                   </h2>
 
-                  <div className="relative border-l-2 border-[#e0e3e5] ml-4 space-y-6 pb-4 mt-4">
-                    {courseData.sessionsList &&
-                      courseData.sessionsList.map((session, index) => (
-                        <div key={index} className="relative pl-8 animate-fade-in">
-                          {/* Timeline Dot */}
-                          <div className="absolute -left-4.25 top-1 w-8 h-8 rounded-full bg-[#e6f0fa] border-4 border-white text-[#0061a5] flex items-center justify-center text-sm font-bold shadow-sm">
-                            {index + 1}
+                  <div className="max-h-125 overflow-y-auto pr-4">
+                    <div className="relative border-l-2 border-[#e0e3e5] ml-4 space-y-6 pb-4 mt-4">
+                      {courseData.sessionsList &&
+                        courseData.sessionsList.map((session, index) => (
+                          <div key={index} className="relative pl-8 animate-fade-in">
+                            {/* Timeline Dot */}
+                            <div className="absolute -left-4.25 top-1 w-8 h-8 rounded-full bg-[#e6f0fa] border-4 border-white text-[#0061a5] flex items-center justify-center text-sm font-bold shadow-sm">
+                              {index + 1}
+                            </div>
+                            {/* Content Card */}
+                            <div className="bg-white border border-[#e0e3e5] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                              <h3 className="text-lg font-bold text-[#002045] mb-2">
+                                {session.title}
+                              </h3>
+                              {session.description && (
+                                <p className="text-sm text-[#43474e] leading-relaxed">
+                                  {session.description}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                          {/* Content Card */}
-                          <div className="bg-white border border-[#e0e3e5] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
-                            <h3 className="text-lg font-bold text-[#002045] mb-2">
-                              {session.title}
-                            </h3>
-                            {session.description && (
-                              <p className="text-sm text-[#43474e] leading-relaxed">
-                                {session.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                    </div>
                   </div>
                 </div>
               )}

@@ -1,5 +1,5 @@
 import { Clock, Edit } from 'lucide-react';
-import { SLOT_LABELS } from '@/shared/lib/utils';
+import { getSlotLabel } from '@/shared/lib/utils';
 import type { Session } from '../types/class';
 
 interface ClassScheduleTabProps {
@@ -8,7 +8,7 @@ interface ClassScheduleTabProps {
 }
 
 export const ClassScheduleTab = ({ scheduleData, onEditSession }: ClassScheduleTabProps) => {
-    const slotLabels = SLOT_LABELS;
+
 
     const formatDate = (dateStr: string) => {
         if (!dateStr) return '';
@@ -44,7 +44,7 @@ export const ClassScheduleTab = ({ scheduleData, onEditSession }: ClassScheduleT
                             </td>
                             <td className="p-4 text-[#43474e] font-medium whitespace-nowrap">
                                 <div className="flex items-center gap-1">
-                                    <Clock className="w-4 h-4 text-gray-500" /> {slotLabels[item.slot] || item.slot}
+                                    <Clock className="w-4 h-4 text-gray-500" /> {getSlotLabel(item.slot)}
                                 </div>
                             </td>
                             <td className="p-4 text-[#43474e] font-medium">{item.classroom?.room_name || 'Not Assigned'}</td>

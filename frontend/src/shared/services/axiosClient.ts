@@ -151,7 +151,21 @@ axiosClient.interceptors.response.use(
         }
 
         // Các lỗi khác (400, 403, 500, ...) → trả về để nơi gọi tự xử lý
-        return Promise.reject(error.response?.data || error);
+        
+        // --- Bắt đầu: Global Error Handling ---
+        // Tại đây bạn có thể tích hợp thư viện như react-toastify hoặc Sentry 
+        // để hiển thị lỗi/log lỗi tập trung mà không cần console.error() thủ công ở mọi file.
+        const errorData = error.response?.data || error;
+        const errorMessage = errorData?.message || error.message || 'Lỗi hệ thống không xác định';
+        
+        // Ví dụ: Tự động hiển thị Modal nếu là lỗi Server (500) hoặc lỗi chung
+        if (error.response?.status >= 500) {
+            console.warn(`[Global Interceptor] Server Error: ${errorMessage}`);
+            // showAlertModal('Lỗi máy chủ', 'Đã xảy ra lỗi hệ thống, vui lòng thử lại sau.', 'error');
+        }
+        // --- Kết thúc ---
+
+        return Promise.reject(errorData);
     }
 );
 

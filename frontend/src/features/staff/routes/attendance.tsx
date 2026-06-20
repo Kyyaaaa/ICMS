@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { AttendanceService } from '../../tutor/services/attendance.service';
 import { ClassesService } from '../services/classes.service';
-import { formatAccountID, SLOT_LABELS } from '@/shared/lib/utils';
+import { formatAccountID, getSlotLabel } from '@/shared/lib/utils';
 import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceRecordMap, AttendanceStatus } from '../../tutor/types/attendance';
 import { AttendanceSessionList } from '../../tutor/components/AttendanceSessionList';
 import { AttendanceSheet } from '../../tutor/components/AttendanceSheet';
@@ -45,7 +45,7 @@ const ClassAttendance = () => {
                         classId: classData.id,
                         name: `Session ${s.session_number}`,
                         date: s.date ? new Date(s.date).toISOString().split('T')[0] : '',
-                        time: (s as { slot?: string }).slot ? SLOT_LABELS[(s as { slot?: string }).slot!] || (s as { slot?: string }).slot : 'TBD',
+                        time: getSlotLabel((s as { slot?: string }).slot),
                         status: 'pending'
                     })));
                 }

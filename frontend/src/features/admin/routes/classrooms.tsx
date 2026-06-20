@@ -57,8 +57,8 @@ const AdminClassrooms = () => {
                 setRooms([...rooms, created]);
             }
             setIsModalOpen(false);
-        } catch (error: any) {
-            const msg = error.response?.data?.message || error.message || 'Failed to save classroom.';
+        } catch (error: unknown) {
+            const msg = (error as Error).message || 'Failed to save classroom.';
             await showAlertModal('Error', msg, 'error');
         }
     };
