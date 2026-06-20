@@ -95,8 +95,8 @@ export const LearnerRegistrationService = {
 
     createInvoice: async (_courseId: string, classId: number | string): Promise<string> => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const res = await axiosClient.post('/enrollments', { class_id: classId }) as any;
-        const invoiceId = res?.data?.data?.invoice_id || res?.data?.invoice_id || res?.data?.data?.id || res?.data?.id;
+        const res = await axiosClient.post('/invoices/checkout', { class_id: classId, payment_plan: 'full' }) as any;
+        const invoiceId = res?.data?.data?.invoice_code || res?.data?.data?.id || res?.data?.id;
         return invoiceId || '';
     }
 };

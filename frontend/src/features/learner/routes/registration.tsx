@@ -42,6 +42,13 @@ const ClassRegistration = () => {
       return "learner";
     }
   });
+  const [userInfo] = useState(() => {
+    try {
+      return JSON.parse(Cookies.get("user_info") || "null");
+    } catch {
+      return null;
+    }
+  });
   const navigate = useNavigate();
 
   const [isConfirming, setIsConfirming] = useState(false);
@@ -126,6 +133,7 @@ const ClassRegistration = () => {
         isLoggedIn={isLoggedIn}
         setIsLoggedIn={setIsLoggedIn}
         userRole={userRole}
+        userInfo={userInfo || undefined}
       />
       <div className="max-w-4xl mx-auto space-y-6 animate-fade-in-up py-10 px-4 w-full grow">
         <div className="flex items-center gap-4">
