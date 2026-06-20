@@ -58,6 +58,10 @@ export const AnnouncementFormModal = ({ mode, initialData, availableCourses, ava
         }
 
         if (publishMode === 'schedule') {
+            if (!formData.scheduledFor) {
+                alert('Please select a date and time.');
+                return;
+            }
             const selectedTime = new Date(formData.scheduledFor).getTime();
             const now = new Date().getTime();
             if (selectedTime < now) {

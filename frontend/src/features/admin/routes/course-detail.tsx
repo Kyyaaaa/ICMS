@@ -48,7 +48,7 @@ const AdminCourseDetail = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(id !== "new");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [initialDuration, setInitialDuration] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [courseData, setCourseData] = useState({
     title: "",
     code: "",

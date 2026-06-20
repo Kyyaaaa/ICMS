@@ -17,7 +17,7 @@ export class AnnouncementRepository {
         return data;
     }
 
-    static async getNotificationsByRole(role: string, userId: string) {
+    static async getNotificationsByRole(role: string, userId?: string) {
         // Build an OR query based on the role
         // For example: scope.eq.System Wide OR (scope.eq.Specific Roles AND roles.cs.{Role}) OR (scope.eq.Specific Classes)
         let orQuery = `scope.eq.System Wide`;

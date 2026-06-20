@@ -16,8 +16,9 @@ export const AnnouncementsService = {
     
     getNotifications: async (role: string): Promise<Announcement[]> => {
         try {
-            const response: any = await axiosClient.get(`${API_URL}/notifications?role=${encodeURIComponent(role)}`);
-            return response.data || [];
+            const endpoint = role === 'Guest' ? `${API_URL}/public/notifications` : `${API_URL}/notifications?role=${encodeURIComponent(role)}`;
+            const response: any = await axiosClient.get(endpoint);
+            return Array.isArray(response) ? response : (response.data || []);
         } catch (error) {
             console.error('Error fetching notifications:', error);
             return [];

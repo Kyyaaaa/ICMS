@@ -29,9 +29,8 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
 
     React.useEffect(() => {
         const fetchNotifs = async () => {
-            if (!isLoggedIn) return;
             try {
-                const roleStr = userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Guest';
+                const roleStr = isLoggedIn ? (userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Guest') : 'Guest';
                 const anns = await AnnouncementsService.getNotifications(roleStr);
                 
                 const readSet = new Set(JSON.parse(localStorage.getItem('readNotifications') || '[]'));
@@ -143,7 +142,7 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
                                     )}
                                 </div>
                                 <div className="p-2 bg-[#f7fafc] border-t border-[#e0e3e5] text-center">
-                                    <Link to={isLoggedIn ? "/learner/notifications" : "/notifications"} onClick={() => setShowNotifications(false)} className="text-xs text-[#0061a5] font-bold cursor-pointer hover:underline block w-full">View all</Link>
+                                    <Link to={isLoggedIn ? (userRole === 'admin' ? "/admin/announcements" : `/${userRole.toLowerCase()}/notifications`) : "/notifications"} onClick={() => setShowNotifications(false)} className="text-xs text-[#0061a5] font-bold cursor-pointer hover:underline block w-full">View all</Link>
                                 </div>
                             </div>
                         )}

@@ -27,6 +27,18 @@ router.get('/', verifyToken, AnnouncementController.getAnnouncements);
 
 /**
  * @swagger
+ * /api/announcements/public/notifications:
+ *   get:
+ *     summary: Lấy danh sách thông báo cho Guest (public)
+ *     tags: [Announcement]
+ *     responses:
+ *       200:
+ *         description: Thành công
+ */
+router.get('/public/notifications', AnnouncementController.getPublicNotifications);
+
+/**
+ * @swagger
  * /api/announcements/notifications:
  *   get:
  *     summary: Lấy danh sách thông báo theo role của user
