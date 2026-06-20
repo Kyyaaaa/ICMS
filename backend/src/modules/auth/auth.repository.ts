@@ -184,10 +184,26 @@ export class AuthRepository {
       .maybeSingle();
 
     if (existingAcc) {
-      // Merge account: update avatar nếu có thay đổi
+      const updateData: any = {
+        avatar_url: avatarUrl || existingAcc.avatar_url,
+      };
+
+      if (!existingAcc.role_id) {
+        const { data: roleData } = await supabaseAdmin
+          .from("roles")
+          .select("id")
+          .eq("name", "LEARNER")
+          .single();
+        
+        if (roleData) {
+          updateData.role_id = roleData.id;
+        }
+      }
+
+      // Merge account: update avatar (and role if missing)
       await supabaseAdmin
         .from("account")
-        .update({ avatar_url: avatarUrl || existingAcc.avatar_url })
+        .update(updateData)
         .eq("id", existingAcc.id);
 
       // Re-fetch with roles join
