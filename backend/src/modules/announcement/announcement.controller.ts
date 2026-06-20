@@ -14,10 +14,14 @@ export class AnnouncementController {
     static async getNotifications(req: Request, res: Response) {
         try {
             const { role } = req.query;
+            const userId = (req as any).user?.id;
             if (!role || typeof role !== 'string') {
                 return res.status(400).json({ success: false, message: 'Role query parameter is required' });
             }
-            const data = await AnnouncementService.getNotificationsByRole(role);
+            if (!userId) {
+                return res.status(401).json({ success: false, message: 'Unauthorized' });
+            }
+            const data = await AnnouncementService.getNotificationsByRole(role, userId);
             res.status(200).json({ success: true, data });
         } catch (error: any) {
             res.status(500).json({ success: false, message: error.message });

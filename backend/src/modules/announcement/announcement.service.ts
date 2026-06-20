@@ -7,9 +7,10 @@ export class AnnouncementService {
         return rawData.map(this.mapToFrontend);
     }
 
-    static async getNotificationsByRole(role: string) {
+    static async getNotificationsByRole(role: string, userId: string) {
         if (!role) throw new Error("Role is required");
-        const rawData = await AnnouncementRepository.getNotificationsByRole(role);
+        if (!userId) throw new Error("User ID is required");
+        const rawData = await AnnouncementRepository.getNotificationsByRole(role, userId);
         return rawData.map(this.mapToFrontend);
     }
 

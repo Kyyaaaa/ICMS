@@ -17,7 +17,7 @@ export class AnnouncementRepository {
         return data;
     }
 
-    static async getNotificationsByRole(role: string) {
+    static async getNotificationsByRole(role: string, userId: string) {
         // Build an OR query based on the role
         // For example: scope.eq.System Wide OR (scope.eq.Specific Roles AND roles.cs.{Role}) OR (scope.eq.Specific Classes)
         let orQuery = `scope.eq.System Wide`;
@@ -25,7 +25,38 @@ export class AnnouncementRepository {
         if (role) {
             orQuery += `,and(scope.eq.Specific Roles,roles.cs.{${role}})`;
             if (role === 'Learner' || role === 'Tutor') {
-                orQuery += `,scope.eq.Specific Classes`;
+                let classIds: string[] = [];
+
+                if (role === 'Learner') {
+                    const { data: enrollments } = await supabaseAdmin
+                        .from('enrollments')
+                        .select('class_id')
+                        .eq('learner_id', userId)
+                        .eq('status', 'ACTIVE');
+                    if (enrollments) {
+                        classIds = enrollments.map(e => e.class_id);
+                    }
+                } else if (role === 'Tutor') {
+                    const { data: tutorClasses } = await supabaseAdmin
+                        .from('classes')
+                        .select('id')
+                        .eq('tutor_id', userId);
+                    if (tutorClasses) {
+                        classIds = tutorClasses.map(c => c.id);
+                    }
+                }
+
+                if (classIds.length > 0) {
+                    const { data: annClasses } = await supabaseAdmin
+                        .from('announcement_classes')
+                        .select('announcement_id')
+                        .in('class_id', classIds);
+                    
+                    if (annClasses && annClasses.length > 0) {
+                        const annIds = annClasses.map(a => a.announcement_id);
+                        orQuery += `,and(scope.eq.Specific Classes,id.in.(${annIds.join(',')}))`;
+                    }
+                }
             }
         }
 
