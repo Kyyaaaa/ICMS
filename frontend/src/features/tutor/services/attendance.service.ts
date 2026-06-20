@@ -9,8 +9,8 @@ export const AttendanceService = {
             if (!userInfoStr) return [];
             const user = JSON.parse(userInfoStr);
             const res = await axiosClient.get(`/staff/classes`, { params: { tutor_id: user.id } });
-            const data = (res as unknown as { data?: unknown[] }).data || [];
-            return data.map((cls: { id: string, name?: string, class_code?: string, capacity?: number }) => ({
+            const data = (res as unknown as { data?: { id: string, name?: string, class_code?: string, capacity?: number }[] }).data || [];
+            return data.map(cls => ({
                 id: cls.id,
                 name: cls.name || `Class ${cls.class_code || ''}`,
                 students: cls.capacity || 0

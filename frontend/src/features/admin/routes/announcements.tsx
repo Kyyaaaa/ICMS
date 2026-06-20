@@ -32,7 +32,7 @@ const AdminAnnouncements = () => {
                     ClassesService.getClasses()
                 ]);
                 setAnnouncements(data);
-                setCourses(coursesData.map((c: { id: string; title?: string; name?: string }) => ({ id: c.id, name: c.title || c.name })));
+                setCourses(coursesData.map((c: { id: string; title?: string; name?: string }) => ({ id: c.id, name: c.title || c.name || '' })));
                 setClasses(classesData.map((c: { id: string; name?: string; class_code?: string; course_id?: string }) => ({ id: c.id, name: c.name || `Class ${c.class_code || ''}`, course_id: c.course_id })));
             } catch (error) {
                 console.error("Error fetching data:", error);

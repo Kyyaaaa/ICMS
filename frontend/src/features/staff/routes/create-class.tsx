@@ -149,7 +149,7 @@ const CreateClass = () => {
         if (numSessions <= 0) return;
 
         const current = new Date(startDate);
-        const sessions = [];
+        const sessions: {session_number: number, date: string, slot: string}[] = [];
         let sessionCount = 1;
         
         while(sessionCount <= numSessions) {

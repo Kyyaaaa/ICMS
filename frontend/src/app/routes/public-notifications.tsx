@@ -27,7 +27,7 @@ const PublicNotifications = () => {
 
     return (
         <div className="bg-[#f7fafc] min-h-screen text-[#181c1e] text-base leading-6 font-sans flex flex-col">
-            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userInfo={userInfo} userRole={userRole} />
+            <TopNav isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userInfo={userInfo || undefined} userRole={userRole} />
             <main className="grow w-full max-w-360 mx-auto px-4 lg:px-8 py-8 md:py-12">
                 <NotificationsPage />
             </main>

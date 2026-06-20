@@ -217,10 +217,10 @@ const PaymentDetail = () => {
                                 <span>Subtotal</span>
                                 <span>{(invoice.amount + (invoice.discount || 0)).toLocaleString('vi-VN')} đ</span>
                             </div>
-                            {invoice.discount > 0 && (
+                            {(invoice.discount || 0) > 0 && (
                                 <div className="flex justify-between items-center text-sm text-[#137333]">
                                     <span>Discount applied</span>
-                                    <span>-{invoice.discount.toLocaleString('vi-VN')} đ</span>
+                                    <span>-{(invoice.discount || 0).toLocaleString('vi-VN')} đ</span>
                                 </div>
                             )}
                             <div className="flex justify-between items-center text-sm text-[#74777f]">

@@ -31,8 +31,8 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                     slot,
                     exclude_class_id: session.class_id
                 });
-                const tIds = sessions.map(s => s.tutor_id).filter(Boolean);
-                const rIds = sessions.map(s => s.classroom_id).filter(Boolean);
+                const tIds = sessions.map(s => s.tutor_id).filter(Boolean) as string[];
+                const rIds = sessions.map(s => s.classroom_id).filter(Boolean) as string[];
                 setOccupiedTutorIds(tIds);
                 setOccupiedRoomIds(rIds);
 
