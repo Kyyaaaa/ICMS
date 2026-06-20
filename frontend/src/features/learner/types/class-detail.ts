@@ -7,6 +7,7 @@ export interface CurriculumSession {
 
 export interface ClassDetailData {
     id: string;
+    courseId?: string;
     courseName: string;
     status: 'Ongoing' | 'Completed';
     description: string;
@@ -15,6 +16,7 @@ export interface ClassDetailData {
     classroom: string;
     totalSessions: number;
     tutor: {
+        id?: string;
         name: string;
         title: string;
         rating: number;
