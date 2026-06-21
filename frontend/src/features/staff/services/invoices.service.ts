@@ -1,101 +1,145 @@
-import type { Invoice, DetailedInvoice } from '../types/invoice';
+import axiosClient from '@/shared/services/axiosClient';
+import type { Invoice, DetailedInvoice, Installment } from '../types/invoice';
 
-const MOCK_INVOICES: Invoice[] = [
-    {
-        id: 'INV-10024',
-        learner: 'Alex Johnson',
-        course: 'IELTS Intensive Mastery',
-        paymentMethod: 'Full',
-        progress: '1/1',
-        totalAmount: '500 đ',
-        paidAmount: '500 đ',
-        date: '24-10-2026',
-        status: 'Paid',
-        installments: [
-            { id: '1', term: 'Full Payment', dueDate: '24-10-2026', status: 'Paid', method: 'Credit Card (*4421)', paidDate: '24-10-2026', amount: 500.00 }
-        ],
-        rawPaid: 500,
-        rawTotal: 500,
-        rawRemaining: 0
-    },
-    {
-        id: 'INV-10025',
-        learner: 'Sarah Connor',
-        course: 'TOEIC Target 700+',
-        paymentMethod: 'Installment',
-        progress: '2/3',
-        totalAmount: '300 đ',
-        paidAmount: '200 đ',
-        date: '22-10-2026',
-        status: 'Partial',
-        installments: [
-            { id: '1', term: '1st Installment (Deposit)', dueDate: '01-10-2026', status: 'Paid', method: 'Credit Card (*4421)', paidDate: '01-10-2026', amount: 100.00 },
-            { id: '2', term: '2nd Installment', dueDate: '01-11-2026', status: 'Paid', method: 'Bank Transfer', paidDate: '22-10-2026', amount: 100.00 },
-            { id: '3', term: '3rd Installment (Final)', dueDate: '01-12-2026', status: 'Pending', method: '', paidDate: null, amount: 100.00 }
-        ],
-        rawPaid: 200,
-        rawTotal: 300,
-        rawRemaining: 100
-    },
-    {
-        id: 'INV-10026',
-        learner: 'Michael Smith',
-        course: 'Basic Communication',
-        paymentMethod: 'Installment',
-        progress: '1/2',
-        totalAmount: '200 đ',
-        paidAmount: '100 đ',
-        date: '10-09-2026',
-        status: 'Overdue',
-        installments: [
-            { id: '1', term: '1st Installment (Deposit)', dueDate: '01-09-2026', status: 'Paid', method: 'Bank Transfer', paidDate: '10-09-2026', amount: 100.00 },
-            { id: '2', term: '2nd Installment', dueDate: '01-10-2026', status: 'Overdue', method: '', paidDate: null, amount: 100.00 }
-        ],
-        rawPaid: 100,
-        rawTotal: 200,
-        rawRemaining: 100
-    }
-];
+type ApiInstallment = {
+    id: string;
+    status: string;
+    amount: number;
+    installment_number: number;
+    due_date: string;
+    payment_method?: string;
+    payment_date?: string;
+};
 
-const MOCK_DETAILED_INVOICE: DetailedInvoice = {
-    id: 'INV-10025',
-    status: 'Partial',
-    issueDate: '01-10-2026',
-    dueDate: '01-12-2026',
-    
-    learner: {
-        name: 'Sarah Connor',
-        email: 'sarah.c@example.com',
-        phone: '+1 987 654 321',
-        id: 'L-8842'
-    },
-    
-    course: {
-        name: 'TOEIC Target 700+',
-        code: 'TOEIC-B01',
-        duration: '16 Weeks',
-        startDate: '15-10-2026'
-    },
-    
-    payment: {
-        method: 'Installment (3 Terms)',
-        totalAmount: 300.00,
-        paidAmount: 200.00,
-        remainingAmount: 100.00,
-        installments: [
-            { id: '1', term: '1st Installment (Deposit)', amount: 100.00, dueDate: '01-10-2026', paidDate: '01-10-2026', status: 'Paid', method: 'Credit Card (*4421)' },
-            { id: '2', term: '2nd Installment', amount: 100.00, dueDate: '01-11-2026', paidDate: '22-10-2026', status: 'Paid', method: 'Bank Transfer' },
-            { id: '3', term: '3rd Installment (Final)', amount: 100.00, dueDate: '01-12-2026', paidDate: null, status: 'Pending', method: '-' },
-        ]
-    }
+type ApiInvoice = {
+    id: string;
+    invoice_code?: string;
+    amount?: number;
+    status: string;
+    created_at: string;
+    invoice_installments?: ApiInstallment[];
+    account?: { full_name?: string; email?: string; phone?: string; id?: string };
+    classes?: { name?: string; courses?: { title?: string; sessions?: number } };
 };
 
 export const InvoicesService = {
     getInvoices: async (): Promise<Invoice[]> => {
-        return new Promise(resolve => setTimeout(() => resolve([...MOCK_INVOICES]), 200));
+        try {
+            const res = await axiosClient.get<unknown>('/invoices/all');
+            const rawInvoices = (Array.isArray(res) ? res : ((res as { data?: unknown[] }).data || [])) as ApiInvoice[];
+            
+            return rawInvoices.map((inv) => {
+                const totalAmount = inv.amount || 0;
+                let paidAmount = 0;
+                let paidInstallments = 0;
+                
+                const installments: Installment[] = (inv.invoice_installments || []).map((inst) => {
+                    if (inst.status === 'PAID') {
+                        paidAmount += inst.amount;
+                        paidInstallments++;
+                    }
+                    return {
+                        id: inst.id,
+                        term: `${inst.installment_number}${inst.installment_number === 1 ? 'st' : inst.installment_number === 2 ? 'nd' : inst.installment_number === 3 ? 'rd' : 'th'} Installment`,
+                        dueDate: new Date(inst.due_date).toLocaleDateString('en-GB'),
+                        status: inst.status === 'PENDING' ? 'Pending' : inst.status === 'PAID' ? 'Paid' : inst.status === 'OVERDUE' ? 'Overdue' : 'Cancelled',
+                        method: inst.payment_method || '-',
+                        paidDate: inst.payment_date ? new Date(inst.payment_date).toLocaleDateString('en-GB') : null,
+                        amount: inst.amount
+                    };
+                });
+                
+                // Fix for full payments which do not generate installments
+                if (inv.status === 'PAID' && installments.length === 0) {
+                    paidAmount = totalAmount;
+                    paidInstallments = 1;
+                }
+
+                const progress = `${paidInstallments}/${inv.invoice_installments?.length || 1}`;
+                const paymentMethod = (inv.invoice_installments?.length || 0) > 1 ? 'Installment' : 'Full';
+                
+                const displayStatus = inv.status === 'PENDING' ? 'Pending' : inv.status === 'PARTIAL' ? 'Partial' : inv.status === 'PAID' ? 'Paid' : inv.status === 'OVERDUE' ? 'Overdue' : 'Cancelled';
+                
+                return {
+                    id: inv.invoice_code || inv.id,
+                    learner: inv.account?.full_name || 'Unknown Learner',
+                    course: inv.classes?.courses?.title || 'Unknown Course',
+                    paymentMethod,
+                    progress,
+                    totalAmount: totalAmount.toLocaleString('vi-VN') + ' đ',
+                    paidAmount: paidAmount.toLocaleString('vi-VN') + ' đ',
+                    date: new Date(inv.created_at).toLocaleDateString('en-GB'),
+                    status: displayStatus,
+                    installments,
+                    rawPaid: paidAmount,
+                    rawTotal: totalAmount,
+                    rawRemaining: totalAmount - paidAmount
+                };
+            });
+        } catch (error) {
+            console.error('Error fetching invoices', error);
+            throw error;
+        }
     },
+    
     getInvoiceById: async (id: string): Promise<DetailedInvoice | undefined> => {
-        return new Promise(resolve => setTimeout(() => resolve({ ...MOCK_DETAILED_INVOICE, id }), 200));
+        try {
+            const res = await axiosClient.get<unknown>(`/invoices/${id}`);
+            const inv = ((res as { data?: unknown }).data || res) as ApiInvoice;
+            
+            if (!inv) return undefined;
+            
+            let paidAmount = 0;
+            const installments: Installment[] = (inv.invoice_installments || []).map((inst) => {
+                if (inst.status === 'PAID') paidAmount += inst.amount;
+                return {
+                    id: inst.id,
+                    term: `${inst.installment_number}${inst.installment_number === 1 ? 'st' : inst.installment_number === 2 ? 'nd' : inst.installment_number === 3 ? 'rd' : 'th'} Installment`,
+                    dueDate: new Date(inst.due_date).toLocaleDateString('en-GB'),
+                    status: inst.status === 'PENDING' ? 'Pending' : inst.status === 'PAID' ? 'Paid' : inst.status === 'OVERDUE' ? 'Overdue' : 'Cancelled',
+                    method: inst.payment_method || '-',
+                    paidDate: inst.payment_date ? new Date(inst.payment_date).toLocaleDateString('en-GB') : null,
+                    amount: inst.amount
+                };
+            });
+            
+            // Fix for full payments which do not generate installments
+            const totalAmount = inv.amount || 0;
+            if (inv.status === 'PAID' && installments.length === 0) {
+                paidAmount = totalAmount;
+            }
+
+            const displayStatus = inv.status === 'PENDING' ? 'Pending' : inv.status === 'PARTIAL' ? 'Partial' : inv.status === 'PAID' ? 'Paid' : inv.status === 'OVERDUE' ? 'Overdue' : 'Cancelled';
+            
+            return {
+                id: inv.invoice_code || inv.id,
+                status: displayStatus,
+                issueDate: new Date(inv.created_at).toLocaleDateString('en-GB'),
+                dueDate: installments.length > 0 ? installments[installments.length - 1].dueDate : new Date(inv.created_at).toLocaleDateString('en-GB'),
+                learner: {
+                    name: inv.account?.full_name || 'Unknown Learner',
+                    email: inv.account?.email || 'N/A',
+                    phone: inv.account?.phone || 'N/A',
+                    id: inv.account?.id || 'Unknown ID'
+                },
+                course: {
+                    name: inv.classes?.courses?.title || 'Unknown Course',
+                    code: inv.classes?.name || 'N/A',
+                    duration: `${inv.classes?.courses?.sessions || 0} Sessions`,
+                    startDate: 'N/A'
+                },
+                payment: {
+                    method: installments.length > 1 ? `Installment (${installments.length} Terms)` : 'Full Payment',
+                    totalAmount,
+                    paidAmount,
+                    remainingAmount: totalAmount - paidAmount,
+                    installments
+                }
+            };
+        } catch (error) {
+            console.error('Error fetching invoice by id', error);
+            throw error;
+        }
     }
 };
 

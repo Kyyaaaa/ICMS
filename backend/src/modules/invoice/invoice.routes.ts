@@ -6,6 +6,7 @@ const router = Router();
 
 router.get('/', verifyToken, requireRole(['LEARNER', 'learner', 'Learner']), InvoiceController.getMyInvoices);
 router.post('/checkout', verifyToken, requireRole(['LEARNER', 'learner', 'Learner']), InvoiceController.checkout);
+router.get('/all', verifyToken, requireRole(['STAFF', 'ADMIN']), InvoiceController.getAllInvoices);
 router.get('/:id', verifyToken, InvoiceController.getInvoice);
 router.put('/:id/cancel', verifyToken, requireRole(['LEARNER', 'learner', 'Learner']), InvoiceController.cancel);
 

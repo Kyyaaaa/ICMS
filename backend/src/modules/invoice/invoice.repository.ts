@@ -160,6 +160,32 @@ export class InvoiceRepository {
     return data;
   }
 
+  static async getAllInvoices() {
+    const { data, error } = await supabaseAdmin
+      .from('invoices')
+      .select(`
+        *,
+        classes (
+          id,
+          name,
+          courses (
+            id,
+            title
+          )
+        ),
+        account:learner_id (
+          id,
+          full_name,
+          email
+        ),
+        invoice_installments(*)
+      `)
+      .order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+
+    return data;
+  }
+
   static async cancelInvoice(invoiceId: string, learnerId: string) {
     const query = invoiceId.startsWith('IN') 
       ? { column: 'invoice_code', value: invoiceId }

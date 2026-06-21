@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Eye, Search } from 'lucide-react';
 import type { ConsultationRequest } from '../types/consultation';
 import { ConsultationsService } from '../services/consultations.service';
@@ -17,7 +17,7 @@ const ConsultationList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const limit = 10;
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         setIsLoading(true);
         try {
             const response = await ConsultationsService.getConsultations({
@@ -33,12 +33,12 @@ const ConsultationList = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [currentPage, statusFilter]);
 
     useEffect(() => {
         // eslint-disable-next-line
         loadData();
-    }, [currentPage, statusFilter]);
+    }, [loadData]);
 
     const handleStatusChange = (newStatus: string) => {
         setStatusFilter(newStatus);

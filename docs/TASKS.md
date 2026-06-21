@@ -296,3 +296,30 @@ Tính năng cho phép Staff có thể chủ động add trực tiếp Học viê
   - Staff thêm 1 học viên mới -> Danh sách nhảy số và hiển thị ngay.
   - Test vi phạm: Thêm vào lớp đã Full -> Báo lỗi.
   - Test vi phạm: Thêm người đã học lớp này (hoặc đã học lớp khác cùng khóa) -> Báo lỗi.
+
+---
+
+## 🧾 19. Tích hợp Dữ liệu thật cho Quản lý Hóa đơn (Staff Invoices)
+
+Thay thế dữ liệu Mock trên giao diện quản lý hóa đơn của Staff bằng dữ liệu thật từ Backend (Supabase).
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-36: API Lấy tất cả Hóa đơn cho Staff**
+  - Thêm phương thức `getAllInvoices()` trong `InvoiceRepository`. Fetch dữ liệu từ bảng `invoices`, join với `classes`, `courses` (để lấy tên khóa), `account` (để lấy tên Learner), và `invoice_installments` (để tính toán tiến độ).
+  - Thêm hàm xử lý vào `InvoiceController`.
+  - Định nghĩa route `GET /api/invoices/all` trong `invoice.routes.ts` với bảo mật Role `['STAFF', 'ADMIN']`.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-38: Cập nhật Service Invoice**
+  - Trong `frontend/src/features/staff/services/invoices.service.ts`: Xóa bỏ toàn bộ dữ liệu mock cứng (`MOCK_INVOICES`, `MOCK_DETAILED_INVOICE`).
+  - Gọi API thực tế `axiosClient.get('/api/invoices/all')` cho danh sách.
+  - Gọi API thực tế `axiosClient.get('/api/invoices/:id')` cho chi tiết một hóa đơn.
+- `[x]` **FE-39: Ánh xạ Dữ liệu (Data Mapping)**
+  - Chuyển đổi payload JSON từ Supabase sang chuẩn cấu trúc `Invoice` và `DetailedInvoice` của giao diện hiện tại.
+  - Tính toán các giá trị hiển thị: Tổng tiền (`totalAmount`), Đã trả (`paidAmount`), Tiến độ (`progress` dạng `X/Y`), Ngày giao dịch gần nhất, Trạng thái (Paid, Partial, Overdue, Pending).
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-31: Kiểm thử Hiển thị Hóa đơn thật**
+  - Truy cập route `/staff/invoices` với tài khoản Staff. Kiểm tra xem các dòng hóa đơn có hiển thị chính xác không.
+  - Soi kỹ cột "Progress" và "Amount" xem có khớp với số lượng installment thực tế trong database không.
+  - Kiểm tra xem các bộ lọc (Status) và tìm kiếm (Search) trên giao diện có hoạt động đúng với dữ liệu thật hay không.

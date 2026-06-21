@@ -57,6 +57,15 @@ export class InvoiceController {
     }
   }
 
+  static async getAllInvoices(req: Request, res: Response): Promise<void> {
+    try {
+      const invoices = await InvoiceRepository.getAllInvoices();
+      res.status(200).json({ success: true, data: invoices });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
   static async cancel(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id as string;
