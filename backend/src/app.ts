@@ -19,6 +19,8 @@ import announcementRoutes from './modules/announcement/announcement.routes';
 import invoiceRoutes from './modules/invoice/invoice.routes';
 import paymentRoutes from './modules/payment/payment.routes';
 import tutorReviewRoutes from './modules/tutor-review/tutor-review.routes';
+import adminTutorReviewRoutes from './modules/tutor-review/admin-tutor-review.routes';
+
 const app = express();
 
 // Middlewares toàn cục
@@ -43,6 +45,7 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/learner/classes', tutorReviewRoutes);
+app.use('/api/admin/reviews', adminTutorReviewRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

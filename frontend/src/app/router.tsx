@@ -55,6 +55,8 @@ import AdminDashboard from "@/features/admin/routes/dashboard.tsx";
 import AdminCourses from "@/features/admin/routes/courses.tsx";
 import CreateCourse from "@/features/admin/routes/create-course.tsx";
 import AdminCourseDetail from "@/features/admin/routes/course-detail.tsx";
+import AdminManageReviews from "@/features/admin/routes/manage-reviews.tsx";
+import AdminTutorReviewDetail from "@/features/admin/routes/tutor-review-detail.tsx";
 import AdminDiscountCodes from "@/features/admin/routes/discount-codes.tsx";
 import AdminClassrooms from "@/features/admin/routes/classrooms.tsx";
 import AdminAccounts from "@/features/admin/routes/accounts.tsx";
@@ -187,6 +189,8 @@ export const AppRouter = () => {
           <Route path="/admin/courses" element={<AdminCourses />} />
           <Route path="/admin/courses/new" element={<CreateCourse />} />
           <Route path="/admin/courses/:id" element={<AdminCourseDetail />} />
+          <Route path="/admin/manage-reviews" element={<AdminManageReviews />} />
+          <Route path="/admin/manage-reviews/:id" element={<AdminTutorReviewDetail />} />
           <Route path="/admin/finance" element={<AdminFinance />} />
           <Route
             path="/admin/discount-codes"
