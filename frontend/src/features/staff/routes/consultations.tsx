@@ -12,11 +12,21 @@ const ConsultationList = () => {
     
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
+    
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const limit = 10;
 
     const loadData = async () => {
+        setIsLoading(true);
         try {
-            const data = await ConsultationsService.getConsultations();
-            setConsultations(data);
+            const response = await ConsultationsService.getConsultations({
+                status: statusFilter,
+                page: currentPage,
+                limit: limit
+            });
+            setConsultations(response.data);
+            setTotalPages(Math.ceil(response.total / limit));
         } catch (error) {
             console.error(error);
             showAlertModal('Error', 'Cannot load consultation requests.', 'error');
@@ -28,7 +38,12 @@ const ConsultationList = () => {
     useEffect(() => {
         // eslint-disable-next-line
         loadData();
-    }, []);
+    }, [currentPage, statusFilter]);
+
+    const handleStatusChange = (newStatus: string) => {
+        setStatusFilter(newStatus);
+        setCurrentPage(1); // Reset to first page when filtering
+    };
 
     const handleSave = async (id: string, status: string, call_notes: string) => {
         try {
@@ -51,9 +66,8 @@ const ConsultationList = () => {
     const filteredConsultations = consultations.filter(c => {
         const name = c.guest_name || '';
         const phone = c.guest_phone || '';
-        const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) || phone.includes(searchTerm);
-        const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
-        return matchesSearch && matchesStatus;
+        // Status is already filtered on backend, just filter local search term
+        return name.toLowerCase().includes(searchTerm.toLowerCase()) || phone.includes(searchTerm);
     });
 
     return (
@@ -74,7 +88,7 @@ const ConsultationList = () => {
                     <select 
                         className="px-4 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0061a5] font-medium bg-white text-[#181c1e]"
                         value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
+                        onChange={(e) => handleStatusChange(e.target.value)}
                     >
                         <option value="All">All Statuses</option>
                         <option value="Pending">Pending</option>
@@ -137,6 +151,29 @@ const ConsultationList = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-[#e0e3e5] shadow-sm">
+                    <span className="text-sm text-[#43474e] font-medium">Page {currentPage} of {totalPages}</span>
+                    <div className="flex gap-2">
+                        <button 
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className="px-4 py-2 border border-[#c4c6cf] rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors font-semibold text-sm text-[#43474e] bg-white shadow-sm"
+                        >
+                            Previous
+                        </button>
+                        <button 
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            className="px-4 py-2 border border-[#c4c6cf] rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors font-semibold text-sm text-[#43474e] bg-white shadow-sm"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {selectedConsultation && (
                 <ConsultationModal 

@@ -13,13 +13,17 @@ interface UpdateConsultationData {
 }
 
 export const ConsultationsService = {
-    getConsultations: async (status?: string): Promise<ConsultationRequest[]> => {
+    getConsultations: async (params?: { status?: string; page?: number; limit?: number }): Promise<GetConsultationsResponse> => {
         try {
             const res = await axiosClient.get<GetConsultationsResponse>('/consultations/staff', {
-                params: { status }
+                params: { 
+                    status: params?.status === 'All' ? undefined : params?.status,
+                    page: params?.page || 1,
+                    limit: params?.limit || 10
+                }
             });
             // axiosClient interceptor returns response.data directly
-            return (res as unknown as GetConsultationsResponse).data || (res as unknown as ConsultationRequest[]);
+            return res as unknown as GetConsultationsResponse;
         } catch (error) {
             console.error('Error fetching consultations', error);
             throw new Error('Error fetching consultations', { cause: error });
