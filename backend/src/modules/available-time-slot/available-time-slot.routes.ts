@@ -4,6 +4,26 @@ import { verifyToken, requireRole } from '../../middlewares/auth.middleware';
 
 const router = Router();
 
+// Cycles management
+router.get(
+  '/cycles',
+  verifyToken,
+  AvailableTimeSlotController.getCycles
+);
+
+router.get(
+  '/cycles/by-month',
+  verifyToken,
+  AvailableTimeSlotController.getOrCreateCycleByMonth
+);
+
+router.patch(
+  '/cycles/:id/status',
+  verifyToken,
+  requireRole(['STAFF', 'ACADEMIC_MANAGER']),
+  AvailableTimeSlotController.updateCycleStatus
+);
+
 // Routes for Tutors to manage their own availability
 router.get(
   '/my-availability',

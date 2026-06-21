@@ -1,4 +1,13 @@
+export interface AvailabilityCycle {
+  id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  status: 'OPEN' | 'SCHEDULING' | 'ACTIVE' | 'COMPLETED';
+}
+
 export interface SubmitAvailabilityDTO {
+  cycle_id: string;
   slots: string[];
   status?: 'draft' | 'submitted';
 }
@@ -18,6 +27,7 @@ export interface TutorAvailabilityProfile {
 }
 
 export interface StaffUpdateTutorAvailabilityDTO {
+  cycle_id: string;
   status: 'draft' | 'submitted';
   slots: string[];
 }

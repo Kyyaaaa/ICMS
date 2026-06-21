@@ -71,11 +71,15 @@ const CreateClass = () => {
     useEffect(() => {
         const loadData = async () => {
             try {
+                const cyclesData = await TutorAvailabilityService.getCycles();
+                const defaultCycle = cyclesData.find(c => c.status === 'OPEN') || cyclesData[0];
+                const cycleId = defaultCycle ? defaultCycle.id : '';
+
                 const [coursesData, tutorsData, roomsData, availabilityData] = await Promise.all([
                     CoursesService.getCourses(),
                     AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' }),
                     ClassroomsService.getAll(),
-                    TutorAvailabilityService.getTutors()
+                    cycleId ? TutorAvailabilityService.getTutors(cycleId) : Promise.resolve([])
                 ]);
                 setAllCourses(coursesData);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any

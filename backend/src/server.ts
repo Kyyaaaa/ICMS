@@ -1,14 +1,22 @@
 import dotenv from 'dotenv';
 import { connectDB } from './configs/database';
 import app from './app';
-import './cron/classStatusCron';
-import './cron/supportTicketCron';
+
 
 // Cấu hình dotenv để đọc được file .env
 dotenv.config();
 
+import { initCycleLockingCron } from './modules/available-time-slot/cron/cycle-locking.cron';
+import { initClassStatusCron } from './modules/class/cron/class-status.cron';
+import { initSupportTicketCron } from './modules/support-ticket/cron/support-ticket.cron';
+
 // Khởi tạo kết nối tới database
 connectDB();
+
+// Khởi tạo cron jobs
+initCycleLockingCron();
+initClassStatusCron();
+initSupportTicketCron();
 
 const PORT = process.env.PORT || 5000;
 

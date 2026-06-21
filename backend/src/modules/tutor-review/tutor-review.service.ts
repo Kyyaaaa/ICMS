@@ -21,4 +21,9 @@ export class TutorReviewService {
 
         return await TutorReviewRepository.upsertReview(learnerId, dto);
     }
+
+    static async getTutorStats(tutorId: string) {
+        if (!tutorId) throw new Error('Tutor ID is required');
+        return await TutorReviewRepository.getTutorStats(tutorId);
+    }
 }

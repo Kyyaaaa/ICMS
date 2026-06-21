@@ -15,6 +15,7 @@ export class CourseService {
     return await CourseRepository.createCourse(courseData, sessions_list);
   }
 
+
   static async getAllCourses() {
     return await CourseRepository.getAllCourses();
   }

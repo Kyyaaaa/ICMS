@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Lock, Unlock, Users, Loader2 } from 'lucide-react';
+import { Lock, Unlock, Users, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SHIFTS, DAYS, type TutorAvailabilityProfile } from '../types/tutor-availability';
-import { TutorAvailabilityService } from '../services/tutor-availability.service';
+import { TutorAvailabilityService, type AvailabilityCycle } from '../services/tutor-availability.service';
 import { TutorSelector } from '../components/TutorSelector';
 import { AvailabilityGrid } from '../components/AvailabilityGrid';
 
@@ -13,13 +13,39 @@ const StaffTutorAvailability = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [isLocking, setIsLocking] = useState(false);
 
+    const [currentDate, setCurrentDate] = useState<Date>(new Date());
+    const [currentCycle, setCurrentCycle] = useState<AvailabilityCycle | null>(null);
+
     useEffect(() => {
-        const loadTutors = async () => {
-            const data = await TutorAvailabilityService.getTutors();
-            setTutors(data);
+        const loadData = async () => {
+            try {
+                const month = currentDate.getMonth() + 1;
+                const year = currentDate.getFullYear();
+                
+                const cycle = await TutorAvailabilityService.getCycleByMonth(month, year);
+                setCurrentCycle(cycle);
+
+                const data = await TutorAvailabilityService.getTutors(cycle.id);
+                setTutors(data);
+                setSelectedTutorId((prevId) => {
+                    if (prevId) {
+                        const tutorInNewCycle = data.find(t => t.id === prevId);
+                        if (tutorInNewCycle) {
+                            setDraftSlots(new Set(tutorInNewCycle.slots));
+                            return prevId;
+                        }
+                    }
+                    setDraftSlots(new Set());
+                    return '';
+                });
+                
+                setHasUnsavedChanges(false);
+            } catch (error) {
+                console.error("Failed to load data", error);
+            }
         };
-        loadTutors();
-    }, []);
+        loadData();
+    }, [currentDate]);
 
     const selectedTutor = tutors.find(t => t.id === selectedTutorId);
 
@@ -71,12 +97,12 @@ const StaffTutorAvailability = () => {
     };
 
     const handleToggleLock = async () => {
-        if (!selectedTutor) return;
+        if (!selectedTutor || !currentCycle) return;
         setIsLocking(true);
         try {
             const newStatus = selectedTutor.status === 'submitted' ? 'draft' : 'submitted';
             const updatedTutor = { ...selectedTutor, status: newStatus };
-            await TutorAvailabilityService.updateTutor(updatedTutor);
+            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor);
             setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
         } finally {
             setIsLocking(false);
@@ -84,11 +110,11 @@ const StaffTutorAvailability = () => {
     };
 
     const handleSaveChanges = async () => {
-        if (!selectedTutor) return;
+        if (!selectedTutor || !currentCycle) return;
         setIsSaving(true);
         try {
             const updatedTutor = { ...selectedTutor, slots: Array.from(draftSlots) };
-            await TutorAvailabilityService.updateTutor(updatedTutor);
+            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor);
             setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
             setHasUnsavedChanges(false);
         } finally {
@@ -111,12 +137,98 @@ const StaffTutorAvailability = () => {
         }
     };
 
+    const handleToggleCycleStatus = async () => {
+        if (!currentCycle) return;
+        
+        setIsLocking(true);
+        try {
+            const newStatus = currentCycle.status === 'OPEN' ? 'SCHEDULING' : 'OPEN';
+            const updatedCycle = await TutorAvailabilityService.updateCycleStatus(currentCycle.id, newStatus);
+            setCurrentCycle(updatedCycle);
+        } catch (error) {
+            console.error('Failed to update cycle status', error);
+            alert('Lỗi: Không thể thay đổi trạng thái.');
+        } finally {
+            setIsLocking(false);
+        }
+    };
+
     return (
         <div className="p-6 lg:p-8 max-w-400 mx-auto animate-fade-in-up space-y-6">
             
+            {/* Cycle Selector */}
+            <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#e3f2fd] flex items-center justify-center text-[#0061a5] shrink-0">
+                        <Users className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-[#002045]">
+                            Manage Tutor Availability
+                        </h1>
+                        <p className="text-[#43474e] text-sm">
+                            Select an availability cycle to view and manage.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-1 bg-white border border-[#c4c6cf] rounded-lg p-1 shadow-sm">
+                        <button 
+                            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
+                            className="p-1.5 text-[#43474e] hover:bg-[#f0f4f8] rounded-md transition-colors"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        
+                        <div className="px-2 py-1.5 text-sm font-bold text-[#002045] min-w-35 text-center flex items-center justify-center gap-2 max-w-full">
+                            <span>{currentDate.toLocaleString('default', { month: 'long' })} - {currentDate.getFullYear()}</span>
+                            {currentCycle && (
+                                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                                    currentCycle.status === 'ACTIVE' ? 'bg-[#e3f2fd] text-[#0061a5]' : 
+                                    currentCycle.status === 'OPEN' ? 'bg-green-100 text-green-700' :
+                                    'bg-gray-100 text-gray-600'
+                                }`}>
+                                    {currentCycle.status}
+                                </span>
+                            )}
+                        </div>
+                        
+                        <button 
+                            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
+                            className="p-1.5 text-[#43474e] hover:bg-[#f0f4f8] rounded-md transition-colors"
+                        >
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    {/* Staff Lock/Unlock Action */}
+                    {currentCycle && (currentCycle.status === 'OPEN' || currentCycle.status === 'SCHEDULING') && (
+                        <button
+                            onClick={handleToggleCycleStatus}
+                            disabled={isLocking}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed ${
+                                currentCycle.status === 'OPEN' 
+                                ? 'bg-white text-amber-700 border border-amber-200 hover:bg-amber-50' 
+                                : 'bg-white text-green-700 border border-green-200 hover:bg-green-50'
+                            }`}
+                        >
+                            {isLocking ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : currentCycle.status === 'OPEN' ? (
+                                <Lock className="w-4 h-4" />
+                            ) : (
+                                <Unlock className="w-4 h-4" />
+                            )}
+                            {currentCycle.status === 'OPEN' ? 'Lock Registration' : 'Unlock Registration'}
+                        </button>
+                    )}
+                </div>
+            </div>
+
             {/* Unified Top Bar */}
             <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-                <TutorSelector 
+                <TutorSelector  
                     tutors={tutors} 
                     selectedTutorId={selectedTutorId} 
                     hasUnsavedChanges={hasUnsavedChanges} 
