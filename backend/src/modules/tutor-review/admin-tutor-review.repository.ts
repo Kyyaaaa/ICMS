@@ -81,16 +81,16 @@ export class AdminTutorReviewRepository {
 
         // Fetch learner names
         const learnerIds = [...new Set(reviews.map((r: any) => r.learner_id))];
-        let learnersMap: Record<string, string> = {};
+        let learnersMap: Record<string, any> = {};
         if (learnerIds.length > 0) {
             const { data: learners } = await supabaseAdmin
                 .from('account')
-                .select('id, full_name')
+                .select('id, full_name, avatar_url')
                 .in('id', learnerIds);
             
             if (learners) {
                 learnersMap = learners.reduce((acc: any, l: any) => {
-                    acc[l.id] = l.full_name;
+                    acc[l.id] = { full_name: l.full_name, avatar_url: l.avatar_url };
                     return acc;
                 }, {});
             }
@@ -121,7 +121,8 @@ export class AdminTutorReviewRepository {
             rating: r.rating,
             review: r.review,
             created_at: r.created_at,
-            learner_name: learnersMap[r.learner_id] || 'Unknown Learner',
+            learner_name: learnersMap[r.learner_id]?.full_name || 'Unknown Learner',
+            learner_avatar_url: learnersMap[r.learner_id]?.avatar_url || null,
             course_name: classesMap[r.class_id]?.course_name || 'Unknown Course'
         }));
 
