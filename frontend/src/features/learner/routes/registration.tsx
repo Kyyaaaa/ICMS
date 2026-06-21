@@ -161,86 +161,44 @@ const ClassRegistration = () => {
               return (
                 <div
                   key={opt.id}
-                  className={`block border ${isSelected && isLearner ? "border-[#0061a5] bg-[#f7fafc]" : "border-[#e0e3e5]"} rounded-lg p-4 ${isLearner ? "cursor-pointer hover:border-[#0061a5] transition-colors" : ""}`}
+                  className={`block border ${isSelected && isLearner ? "border-[#0061a5] bg-[#f7fafc]" : "border-[#e0e3e5]"} rounded-lg p-3 ${isLearner ? "cursor-pointer hover:border-[#0061a5] transition-colors" : ""}`}
                   onClick={() => isLearner && setSelectedClass(opt.id)}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-center gap-3">
                     {isLearner && (
                       <input
                         type="radio"
                         name="class"
-                        className="mt-1"
                         checked={isSelected}
                         readOnly
+                        className="w-4 h-4 text-[#0061a5] shrink-0"
                       />
                     )}
-                    <div className="flex-1">
-                      <div className="flex justify-between">
-                        <h3 className="font-bold text-[#181c1e]">{opt.name}</h3>
-                        <span className="text-[#0061a5] font-semibold text-sm">
-                          {opt.availableSeats} seats left
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-x-6 gap-y-3 mt-3 pt-3 border-t border-[#f0f4f8] text-sm text-[#43474e]">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-                            <MapPin className="w-4 h-4" />
-                          </div>
-                          <span className="font-semibold text-[#181c1e]">
-                            {opt.room}
+                    <div className="flex-1 flex flex-col gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-[#181c1e] text-base">{opt.name}</h3>
+                          <span className="bg-[#e3f2fd] text-[#0061a5] text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
+                            {opt.availableSeats} seats left
                           </span>
                         </div>
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                            <BookOpen className="w-4 h-4" />
-                          </div>
-                          <span className="font-semibold text-[#181c1e]">
-                            {opt.sessions} Sessions
-                          </span>
+                        <div className="flex items-center gap-4 text-xs text-[#43474e] mt-1.5">
+                          <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-[#74777f]" /> {opt.room}</span>
+                          <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-[#74777f]" /> {opt.sessions} Sessions</span>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[#f0f4f8]">
-                        <div className="flex items-center gap-1.5 text-[#74777f]">
-                          <Calendar className="w-4 h-4 shrink-0" />
-                          <span className="font-medium text-[#181c1e] text-sm">
-                            Schedule
-                          </span>
+                      
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-[#74777f]">
+                          <Calendar className="w-3.5 h-3.5" /> Schedule
                         </div>
-                        <div className="flex flex-wrap gap-2 pl-0 sm:pl-5">
+                        <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap">
                           {opt.schedule.split(" | ").map((s, i) => {
-                            if (s === "TBD") {
-                              return (
-                                <span
-                                  key={i}
-                                  className="text-sm text-[#43474e]"
-                                >
-                                  TBD
-                                </span>
-                              );
-                            }
-                            const match = s.match(/^(.*?) \((.*)\)$/);
-                            if (match) {
-                              return (
-                                <div
-                                  key={i}
-                                  className="flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2.5 py-1.5 w-full sm:w-auto"
-                                >
-                                  <span className="text-[13px] font-bold text-[#0061a5]">
-                                    {match[1]}
-                                  </span>
-                                  <span className="text-xs text-[#0061a5]/80 mt-0.5">
-                                    {match[2]}
-                                  </span>
-                                </div>
-                              );
-                            }
+                            if (s === "TBD") return <span key={i} className="text-xs text-[#43474e]">TBD</span>;
                             return (
-                              <div
-                                key={i}
-                                className="bg-blue-50/50 border border-blue-100 rounded-md px-2.5 py-1.5 text-xs text-[#0061a5] w-full sm:w-auto"
-                              >
+                              <span key={i} className="bg-blue-50/50 border border-blue-100 rounded text-xs px-2 py-1 text-[#0061a5] font-medium w-fit">
                                 {s}
-                              </div>
+                              </span>
                             );
                           })}
                         </div>

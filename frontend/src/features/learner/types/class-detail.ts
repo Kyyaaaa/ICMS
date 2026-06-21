@@ -19,7 +19,8 @@ export interface ClassDetailData {
         id?: string;
         name: string;
         title: string;
-        rating: number;
+        rating: number | null;
+        reviewCount: number;
         initials: string;
     };
     progress: {

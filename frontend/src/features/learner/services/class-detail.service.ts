@@ -89,7 +89,8 @@ export const LearnerClassDetailService = {
                     id: data.tutor_id || data.tutor?.id || '',
                     name: tutorName,
                     title: 'Tutor',
-                    rating: 5.0, // Assuming static for now or fetched if available
+                    rating: data.tutor?.rating ?? null,
+                    reviewCount: data.tutor?.reviewCount ?? 0,
                     initials
                 },
                 progress: {

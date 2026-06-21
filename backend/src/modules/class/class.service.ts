@@ -1,7 +1,7 @@
 import { ClassRepository } from './class.repository';
 import { CourseRepository } from '../course/course.repository';
+import { TutorReviewRepository } from '../tutor-review/tutor-review.repository';
 import { CreateClassDTO, UpdateClassDTO, UpdateClassSessionDTO, ALLOWED_SLOTS, SessionConfig } from './class.model';
-
 export class ClassService {
   static async getClasses(statusFilter?: string, courseId?: string, tutorId?: string, page: number = 1, limit: number = 50) {
     return await ClassRepository.getClasses(statusFilter, courseId, tutorId, page, limit);
@@ -10,6 +10,13 @@ export class ClassService {
   static async getClassById(id: string) {
     const data = await ClassRepository.getClassById(id);
     if (!data) throw new Error("Class not found");
+
+    if (data.tutor && data.tutor.id) {
+      const stats = await TutorReviewRepository.getTutorStats(data.tutor.id);
+      data.tutor.rating = stats.averageRating;
+      data.tutor.reviewCount = stats.reviewCount;
+    }
+
     return data;
   }
 

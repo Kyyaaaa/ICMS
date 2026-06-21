@@ -35,4 +35,21 @@ export class TutorReviewRepository {
         if (error) throw error;
         return data;
     }
+
+    static async getTutorStats(tutorId: string) {
+        const { data, error } = await supabaseAdmin
+            .from('tutor_reviews')
+            .select('rating')
+            .eq('tutor_id', tutorId);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            return { averageRating: null, reviewCount: 0 };
+        }
+
+        const sum = data.reduce((acc, review) => acc + review.rating, 0);
+        const averageRating = sum / data.length;
+        return { averageRating, reviewCount: data.length };
+    }
 }

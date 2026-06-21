@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, MapPin, Calendar, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { BookOpen, MapPin, Calendar, Clock, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import type { ClassDetailData } from '../types/class-detail';
 import { LearnerClassDetailService } from '../services/class-detail.service';
 import { TutorFeedbackModal } from '../components/TutorFeedbackModal';
-import { CourseFeedbackModal } from '../components/CourseFeedbackModal';
 import { FeedbackService } from '../services/feedback.service';
 
 const ClassDetail = () => {
@@ -16,10 +15,6 @@ const ClassDetail = () => {
     // Tutor Feedback Modal State
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [currentFeedback, setCurrentFeedback] = useState<{rating: number, review: string} | null>(null);
-
-    // Course Feedback Modal State
-    const [showCourseFeedbackModal, setShowCourseFeedbackModal] = useState(false);
-    const [currentCourseFeedback, setCurrentCourseFeedback] = useState<{rating: number, review: string} | null>(null);
 
     useEffect(() => {
         const fetchClassDetail = async () => {
@@ -37,13 +32,8 @@ const ClassDetail = () => {
                 }
 
                 // Fetch existing feedbacks
-                const [tutorReview, courseReview] = await Promise.all([
-                    FeedbackService.getTutorFeedback(id),
-                    FeedbackService.getCourseFeedback(id)
-                ]);
-                
+                const tutorReview = await FeedbackService.getTutorFeedback(id);
                 if (tutorReview) setCurrentFeedback({ rating: tutorReview.rating, review: tutorReview.review });
-                if (courseReview) setCurrentCourseFeedback({ rating: courseReview.rating, review: courseReview.review });
             }
             setLoading(false);
         };
@@ -79,14 +69,6 @@ const ClassDetail = () => {
                     <span className={`px-3 py-1 text-sm font-bold rounded uppercase tracking-wide ${isCompleted ? 'bg-[#d3e3fd] text-[#004a77]' : 'bg-[#d2e4ff] text-[#0061a5]'}`}>
                         {classData.status}
                     </span>
-                    {isCompleted && (
-                        <button 
-                            onClick={() => setShowCourseFeedbackModal(true)}
-                            className="px-5 py-2 bg-[#0061a5] text-white rounded-lg text-sm font-bold hover:bg-[#004a80] hover:shadow-md transition-all shadow-sm"
-                        >
-                            {currentCourseFeedback ? 'Update Course Feedback' : 'Evaluate Course'}
-                        </button>
-                    )}
                 </div>
             </div>
 
@@ -212,8 +194,34 @@ const ClassDetail = () => {
                         </div>
                         <h2 className="text-lg font-bold text-[#181c1e]">{classData.tutor.name}</h2>
                         <p className="text-sm text-[#74777f] mb-4">{classData.tutor.title}</p>
-                        <div className="flex items-center justify-center gap-1 text-[#c9a82c] mb-4">
-                            ★ ★ ★ ★ ★ <span className="text-xs text-[#74777f] ml-1">({classData.tutor.rating})</span>
+                        <div className="flex items-center justify-center gap-1 mb-4">
+                            {classData.tutor.reviewCount > 0 ? (
+                                <>
+                                    {[1, 2, 3, 4, 5].map((star) => {
+                                        const rating = classData.tutor.rating || 0;
+                                        const fillPercentage = Math.min(100, Math.max(0, (rating - star + 1) * 100));
+                                        return (
+                                            <div key={star} className="relative w-4 h-4">
+                                                <Star className="w-4 h-4 text-[#e0e3e5] absolute top-0 left-0" />
+                                                <div 
+                                                    className="absolute top-0 left-0 h-4 overflow-hidden" 
+                                                    style={{ width: `${fillPercentage}%` }}
+                                                >
+                                                    <Star className="w-4 h-4 fill-[#c9a82c] text-[#c9a82c]" />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    <span className="text-xs text-[#74777f] ml-1">({classData.tutor.rating?.toFixed(1)})</span>
+                                </>
+                            ) : (
+                                <>
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star key={star} className="w-4 h-4 text-[#e0e3e5]" />
+                                    ))}
+                                    <span className="text-xs text-[#74777f] ml-1 italic">No reviews yet</span>
+                                </>
+                            )}
                         </div>
                         
                         {isCompleted ? (
@@ -256,24 +264,18 @@ const ClassDetail = () => {
                 onSubmit={async (rating, review) => {
                     await FeedbackService.submitFeedback({ rating, review, classId: id || '', tutorId: classData.tutor.id });
                     setCurrentFeedback({ rating, review });
+                    if (id) {
+                        const updatedData = await LearnerClassDetailService.getClassDetail(id);
+                        if (updatedData) {
+                            setClassData(updatedData);
+                        }
+                    }
                 }}
                 tutorName={classData.tutor.name}
                 tutorTitle={classData.tutor.title}
                 tutorInitials={classData.tutor.initials}
                 existingRating={currentFeedback?.rating}
                 existingReview={currentFeedback?.review}
-            />
-
-            <CourseFeedbackModal 
-                isOpen={showCourseFeedbackModal}
-                onClose={() => setShowCourseFeedbackModal(false)}
-                onSubmit={async (rating, review) => {
-                    await FeedbackService.submitCourseFeedback({ rating, review, classId: id || '', courseId: classData.courseId });
-                    setCurrentCourseFeedback({ rating, review });
-                }}
-                courseName={classData.courseName}
-                existingRating={currentCourseFeedback?.rating}
-                existingReview={currentCourseFeedback?.review}
             />
         </div>
     );
