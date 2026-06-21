@@ -23,12 +23,20 @@ type ApiInvoice = {
 };
 
 export const InvoicesService = {
-    getInvoices: async (): Promise<Invoice[]> => {
+    getInvoices: async (params?: { page?: number; limit?: number; status?: string }): Promise<{ data: Invoice[]; total: number }> => {
         try {
-            const res = await axiosClient.get<unknown>('/invoices/all');
-            const rawInvoices = (Array.isArray(res) ? res : ((res as { data?: unknown[] }).data || [])) as ApiInvoice[];
+            const res = await axiosClient.get<unknown>('/invoices/all', {
+                params: {
+                    page: params?.page || 1,
+                    limit: params?.limit || 10,
+                    status: params?.status === 'All' ? undefined : params?.status
+                }
+            });
+            const responseData = (res as { data?: unknown[], total?: number });
+            const rawInvoices = (Array.isArray(res) ? res : (responseData.data || [])) as ApiInvoice[];
+            const total = responseData.total || rawInvoices.length;
             
-            return rawInvoices.map((inv) => {
+            const data = rawInvoices.map((inv) => {
                 const totalAmount = inv.amount || 0;
                 let paidAmount = 0;
                 let paidInstallments = 0;
@@ -76,6 +84,8 @@ export const InvoicesService = {
                     rawRemaining: totalAmount - paidAmount
                 };
             });
+            
+            return { data, total };
         } catch (error) {
             console.error('Error fetching invoices', error);
             throw error;

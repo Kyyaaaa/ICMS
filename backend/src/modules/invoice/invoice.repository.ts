@@ -160,8 +160,8 @@ export class InvoiceRepository {
     return data;
   }
 
-  static async getAllInvoices() {
-    const { data, error } = await supabaseAdmin
+  static async getAllInvoices(page: number = 1, limit: number = 10, statusFilter?: string) {
+    let query = supabaseAdmin
       .from('invoices')
       .select(`
         *,
@@ -179,11 +179,22 @@ export class InvoiceRepository {
           email
         ),
         invoice_installments(*)
-      `)
-      .order('created_at', { ascending: false });
+      `, { count: 'exact' });
+
+    if (statusFilter && statusFilter !== 'All') {
+      query = query.eq('status', statusFilter.toUpperCase());
+    }
+
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await query
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
     if (error) throw new Error(error.message);
 
-    return data;
+    return { data, total: count || 0 };
   }
 
   static async cancelInvoice(invoiceId: string, learnerId: string) {
