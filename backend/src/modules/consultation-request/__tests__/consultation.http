@@ -1,0 +1,28 @@
+@baseUrl = http://localhost:5000/api
+@accessToken = YOUR_BEARER_TOKEN
+
+### 1. Gửi yêu cầu tư vấn (Public)
+POST {{baseUrl}}/consultations
+Content-Type: application/json
+
+{
+    "guest_name": "Test User",
+    "guest_phone": "0123456789",
+    "guest_email": "test@gmail.com",
+    "inquiry_details": "I would like to ask about the course"
+}
+
+### 2. Lấy danh sách yêu cầu tư vấn (Staff)
+GET {{baseUrl}}/consultations/staff?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+### 3. Cập nhật yêu cầu tư vấn (Staff)
+PATCH {{baseUrl}}/consultations/staff/REPLACE_WITH_UUID
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+    "status": "Contacted",
+    "call_notes": "Called and consulted about the course details"
+}

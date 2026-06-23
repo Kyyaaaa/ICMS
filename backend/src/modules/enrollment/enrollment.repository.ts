@@ -1,0 +1,199 @@
+import { supabaseAdmin } from '../../configs/supabase';
+import { Enrollment } from './enrollment.model';
+
+export class EnrollmentRepository {
+  static async createEnrollment(learnerId: string, classId: string): Promise<Enrollment> {
+    // Check if any record exists (ACTIVE or CANCELED)
+    const { data: existing, error: existErr } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, status')
+      .eq('learner_id', learnerId)
+      .eq('class_id', classId)
+      .maybeSingle();
+
+    if (existing) {
+      if (existing.status === 'ACTIVE') throw new Error('Already enrolled');
+      // If CANCELED, update it back to ACTIVE
+      const { data, error } = await supabaseAdmin
+        .from('enrollments')
+        .update({ status: 'ACTIVE', enrollment_date: new Date().toISOString() })
+        .eq('id', existing.id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .insert({
+        learner_id: learnerId,
+        class_id: classId,
+        status: 'ACTIVE'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async updateEnrollmentStatus(id: string, status: 'ACTIVE' | 'CANCELED'): Promise<Enrollment> {
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .update({ status })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async countClassEnrollments(classId: string): Promise<number> {
+    const { count, error } = await supabaseAdmin
+      .from('enrollments')
+      .select('*', { count: 'exact', head: true })
+      .eq('class_id', classId)
+      .eq('status', 'ACTIVE');
+
+    if (error) throw error;
+    return count || 0;
+  }
+
+  static async countEnrollmentsByCourseId(courseId: string): Promise<number> {
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, classes!inner(course_id)')
+      .eq('classes.course_id', courseId)
+      .eq('status', 'ACTIVE');
+
+    if (error) throw error;
+    return data ? data.length : 0;
+  }
+
+  static async checkEnrollmentExists(learnerId: string, classId: string): Promise<boolean> {
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .select('id')
+      .eq('learner_id', learnerId)
+      .eq('class_id', classId)
+      .eq('status', 'ACTIVE')
+      .maybeSingle();
+
+    if (error) throw error;
+    return !!data;
+  }
+
+  static async checkEnrollmentInCourse(learnerId: string, courseId: string): Promise<boolean> {
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, classes!inner(course_id)')
+      .eq('learner_id', learnerId)
+      .eq('classes.course_id', courseId)
+      .eq('status', 'ACTIVE')
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return !!data;
+  }
+
+  static async getLearnerEnrollments(learnerId: string): Promise<any[]> {
+    // Join với bảng classes để lấy thông tin lớp học, và course để lấy tên khoá học
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .select(`
+        *,
+        classes (
+          id,
+          name,
+          start_date,
+          end_date,
+          status,
+          courses (
+            id,
+            title,
+            code
+          ),
+          tutor:account!tutor_id(id, full_name, email),
+          classroom:classroom!classroom_id(id, room_name),
+          class_sessions:class_sessions(slot, date)
+        )
+      `)
+      .eq('learner_id', learnerId)
+      .eq('status', 'ACTIVE')
+      .order('enrollment_date', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async checkRegistrationConflicts(learnerId: string, classId: string, targetCourseId: string) {
+    // Fetch all active enrollments for the learner
+    const { data: activeEnrollments, error: enrollError } = await supabaseAdmin
+      .from('enrollments')
+      .select(`
+        class_id,
+        classes (
+          name,
+          course_id,
+          class_sessions (
+            date,
+            slot
+          )
+        )
+      `)
+      .eq('learner_id', learnerId)
+      .eq('status', 'ACTIVE');
+
+    if (enrollError) throw new Error(enrollError.message);
+
+    if (!activeEnrollments || activeEnrollments.length === 0) return;
+
+    for (const enrollment of activeEnrollments) {
+      if (enrollment.class_id === classId) {
+        throw new Error('You are already enrolled in this class.');
+      }
+      
+      const enrolledClass = enrollment.classes as any;
+      if (enrolledClass?.course_id === targetCourseId) {
+        throw new Error('You are already enrolled in another class for this course.');
+      }
+    }
+
+    // Fetch sessions of the target class to check schedule overlaps
+    const { data: targetSessions, error: sessionError } = await supabaseAdmin
+      .from('class_sessions')
+      .select('date, slot')
+      .eq('class_id', classId);
+
+    if (sessionError) throw new Error(sessionError.message);
+    if (!targetSessions || targetSessions.length === 0) return;
+
+    // Check for overlaps
+    for (const targetSession of targetSessions) {
+      for (const enrollment of activeEnrollments) {
+        const enrolledClass = enrollment.classes as any;
+        const enrolledSessions = enrolledClass?.class_sessions || [];
+        
+        for (const enrolledSession of enrolledSessions) {
+          if (targetSession.date === enrolledSession.date && targetSession.slot === enrolledSession.slot) {
+            throw new Error(`Schedule overlap: This class overlaps with your enrolled class '${enrolledClass.name}' on ${targetSession.date} at slot ${targetSession.slot}.`);
+          }
+        }
+      }
+    }
+  }
+
+  static async cancelEnrollmentByLearnerAndClass(learnerId: string, classId: string): Promise<boolean> {
+    const { error } = await supabaseAdmin
+      .from('enrollments')
+      .update({ status: 'CANCELED' })
+      .eq('learner_id', learnerId)
+      .eq('class_id', classId);
+
+    if (error) throw error;
+    return true;
+  }
+}

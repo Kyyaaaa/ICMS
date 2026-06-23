@@ -1,0 +1,229 @@
+@baseUrl = http://localhost:5000/api
+@email = testuser1@example.com
+@password = Password@123
+@newPassword = NewPassword@123
+@fullName = Test User
+@phoneNumber = 0912345678
+
+### 1. Đăng ký tài khoản (Register)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "full_name": "{{fullName}}",
+  "phone_number": "{{phoneNumber}}"
+}
+
+### 2. Đăng nhập (Login)
+# @name loginRequest
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com",
+  "password": "321321321@As"
+}
+
+### Lấy Access Token từ kết quả đăng nhập (Nếu cần dùng cho các API khác)
+@accessToken = {{loginRequest.response.body.data.access_token}}
+
+### 3. Quên mật khẩu (Forgot Password) - Gửi OTP
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com"
+}
+
+### 4. Xác thực OTP (Verify OTP)
+# Thay đổi biến @otp bằng mã gồm 6 số nhận được từ email/console
+@otp = 123456
+
+# @name verifyOtpRequest
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "otp": "{{otp}}"
+}
+
+### Lấy Reset Token từ kết quả verify OTP
+@resetToken = {{verifyOtpRequest.response.body.reset_token}}
+
+### 5. Đặt lại mật khẩu (Reset Password)
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "reset_token": "{{resetToken}}",
+  "new_password": "{{newPassword}}"
+}
+
+### 6. Đăng nhập lại với mật khẩu mới
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{newPassword}}"
+}
+
+### ------------------------------------------------------------------------
+### EDGE CASES (UNHAPPY PATHS) - TƯ DUY ZERO TRUST (QA AGENT)
+### ------------------------------------------------------------------------
+
+### 7. Quên mật khẩu - Email chưa đăng ký (Edge Case)
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "notfound_email@example.com"
+}
+
+### 8. Quên mật khẩu - Email sai định dạng (Edge Case)
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "invalid-email-format"
+}
+
+### 9. Xác thực OTP - OTP bị sai (Edge Case)
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com",
+  "otp": "000000"
+}
+
+### 10. Xác thực OTP - Thiếu email (Edge Case)
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "otp": "595932"
+}
+
+### 11. Đặt lại mật khẩu - Token không hợp lệ hoặc bịa đặt (Edge Case)
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "reset_token": "invalid_or_expired_token_here",
+  "new_password": "NewPassword@123"
+}
+
+### 12. Đặt lại mật khẩu - Sử dụng lại Token cũ đã dùng thành công (Edge Case)
+# Thử lại với reset_token cũ để đảm bảo token đã bị vô hiệu hóa
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "reset_token": "{{resetToken}}",
+  "new_password": "AnotherPassword@123"
+}
+
+### ------------------------------------------------------------------------
+### NEW EDGE CASES (TASKS QA-04 & QA-05)
+### ------------------------------------------------------------------------
+
+### 13. QA-04 - Kịch bản 1: Ràng buộc thời gian OTP (Quá 5 phút)
+# Bước 1: Gửi yêu cầu lấy OTP
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com"
+}
+# BƯỚC 2: CHỜ QUÁ 5 PHÚT (hoặc chỉnh sửa created_at trong database lùi lại 6 phút)
+
+# Bước 3: Verify OTP sau khi đã hết hạn
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com",
+  "otp": "received_otp"
+}
+# KỲ VỌNG: Lỗi 400 - OTP đã hết hạn hoặc không hợp lệ
+
+### 14. QA-04 - Kịch bản 2: Hủy OTP cũ khi tạo OTP mới
+# Bước 1: Gửi OTP lần 1 (Nhận mã OTP 1)
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com"
+}
+
+# Bước 2: Gửi OTP lần 2 (Nhận mã OTP 2)
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com"
+}
+
+# Bước 3: Lấy OTP 1 (của lần 1) để Verify
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com",
+  "otp": "first_time_otp"
+}
+# KỲ VỌNG: Lỗi 400 - OTP không hợp lệ (do đã bị vô hiệu hóa khi có OTP mới)
+
+### 15. QA-05 - Kịch bản: Đặt lại mật khẩu trùng lặp
+# Bước 1: Verify OTP thành công (điền otp thực tế vào)
+# @name verifyOtpQA05
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com",
+  "otp": "valid_otp"
+}
+
+### Lấy Reset Token cho QA-05
+@resetTokenQA05 = {{verifyOtpQA05.response.body.reset_token}}
+
+# Bước 2: Đổi mật khẩu với mật khẩu giống hệt mật khẩu hiện tại
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "reset_token": "{{resetTokenQA05}}",
+  "new_password": "321321321@As" 
+}
+# KỲ VỌNG: Lỗi 400 - Mật khẩu mới không được trùng với mật khẩu cũ
+
+### ------------------------------------------------------------------------
+### GOOGLE LOGIN (TASKS QA-06)
+### ------------------------------------------------------------------------
+
+### 16. QA-06 - Kịch bản 1, 2, 3: Đăng nhập Google (Tạo mới / Merge / Đăng nhập lại)
+# Yêu cầu truyền access_token được sinh ra từ Supabase OAuth
+# Lưu ý: Lấy access_token thực tế từ frontend hoặc Supabase Dashboard khi test
+POST {{baseUrl}}/auth/google-sync
+Content-Type: application/json
+
+{
+  "access_token": "supabase_google_access_token_here"
+}
+# KỲ VỌNG (Lần 1 - User chưa có tài khoản): Tạo user mới trong DB.
+# KỲ VỌNG (Lần 1 - User đã có tài khoản email/pass): Tự động Merge Account (Cập nhật google_id, avatar), không văng lỗi duplicate email.
+# KỲ VỌNG (Lần 2 trở đi): Đăng nhập thành công trơn tru.
+
+### 17. QA-06 - Edge Case: Token không hợp lệ
+POST {{baseUrl}}/auth/google-sync
+Content-Type: application/json
+
+{
+  "access_token": "invalid_or_expired_token_here"
+}
+# KỲ VỌNG: Lỗi báo Invalid or expired Google access token

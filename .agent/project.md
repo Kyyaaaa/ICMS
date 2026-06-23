@@ -1,5 +1,3 @@
-**
-
 ## 1. Overall Requirements
 
 ### 1.1 Context Diagram
@@ -26,67 +24,74 @@ The context diagram below shows the external actors and main data flows interact
 
 #### 1.3.2 Use Cases (UC)
 
-|       |                                 |                                     |                          |                                                                                                                                                                                                           |
-| ----- | ------------------------------- | ----------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ID    | Use Case                        | Actor                               | Feature                  | Use Case Description                                                                                                                                                                                      |
-| UC-01 | Register Account                | Guest                               | Authentication           | Allows an unregistered guest to provide personal information (name, email, phone number) to create a new Learner account in the system.                                                                   |
-| UC-02 | Log In                          | Guest, Learner, Tutor, Staff, Admin | Authentication           | Allows users to authenticate their credentials using a registered system account (username and password) or via Google Single Sign-On (SSO) to access authorized features.                                |
-| UC-03 | Log Out                         | Learner, Tutor, Staff, Admin        | Authentication           | Allows authenticated users to safely terminate their current active session and clear authentication tokens to secure the account.                                                                        |
-| UC-04 | Reset Password                  | Guest, Learner, Tutor, Staff, Admin | Authentication           | Allows users to request a password reset link or OTP via their registered email address in case they forget their login credentials.                                                                      |
-| UC-05 | View Personal Profile           | Learner, Tutor, Staff, Admin        | Profile Management       | Allows logged-in users to view their own detailed personal information, contact details, and account settings.                                                                                            |
-| UC-06 | Update Personal Profile         | Learner, Tutor, Staff, Admin        | Profile Management       | Allows logged-in users to modify their personal contact information, address, and upload a new avatar image.                                                                                              |
-| UC-07 | Change Password                 | Learner, Tutor, Staff, Admin        | Profile Management       | Allows logged-in users to change their current login password by providing the old password and confirming a new one.                                                                                     |
-| UC-08 | View All Accounts               | Admin                               | Account Management       | Allows the Administrator to view, search, and filter the complete list of all registered accounts (Learners, Tutors, Staff, and Admins) across the system.                                                |
-| UC-09 | Create System Account           | Admin                               | Account Management       | Allows the Administrator to manually create a new account for any role, bypassing the standard public registration flow.                                                                                  |
-| UC-10 | Update Account Details          | Admin                               | Account Management       | Allows the Administrator to modify an existing user's information, force a password reset, or reassign the user's role/permissions.                                                                       |
-| UC-11 | Change Account Status           | Admin                               | Account Management       | Allows the Administrator to suspend (ban), activate, or permanently delete a user's account to control system access.                                                                                     |
-| UC-12 | View Learner/Tutor Accounts     | Staff                               | Account Management       | Allows Staff members to view, search, and filter the list of user accounts restricted only to Learner and Tutor roles.                                                                                    |
-| UC-13 | Create Learner/Tutor Account    | Staff                               | Account Management       | Allows Staff members to quickly register a new Learner or Tutor account directly from the management dashboard to support operational tasks. (Note: This is now the only way Tutor accounts are created). |
-| UC-14 | View Classrooms                 | Admin, Staff                        | Facility Management      | Allows Admin and Staff to view the list of physical classrooms at the center, including details like room name and maximum student capacity.                                                              |
-| UC-15 | Add Classroom                   | Admin                               | Facility Management      | Allows the Administrator to register a new physical classroom into the system, specifying the room identifier and seating capacity.                                                                       |
-| UC-16 | Update Classroom Status         | Admin, Staff                        | Facility Management      | Allows Admin or Staff to edit classroom details or change its operational status (e.g., Available, Under Maintenance).                                                                                    |
-| UC-17 | View Courses                    | Guest, Learner, Staff, Admin        | Course Management        | Allows users to browse, search, and filter the catalog of available offline IELTS training courses offered by the center.                                                                                 |
-| UC-18 | View Course Details             | Guest, Learner, Staff, Admin        | Course Management        | Allows users to view specific information about a selected course, including the curriculum description, target band score, total sessions, and tuition fee.                                              |
-| UC-19 | Create Course                   | Admin                               | Course Management        | Allows the Administrator to define and publish a new IELTS course program, configuring its standard price, total duration, and description.                                                               |
-| UC-20 | Update Course Details           | Admin                               | Course Management        | Allows the Administrator to modify an existing course's syllabus, adjust the tuition fee, or change the total number of required sessions.                                                                |
-| UC-21 | Change Course Visibility        | Admin                               | Course Management        | Allows the Administrator to toggle the display status of a course (Show/Hide) on the public-facing guest portal.                                                                                          |
-| UC-22 | Update Qualifications           | Tutor                               | Tutor Profile Management | Allows a Tutor to upload digital copies of their academic degrees, IELTS certificates, and update their teaching experience for Staff verification.                                                       |
-| UC-23 | View Tutor Profiles             | Staff                               | Tutor Profile Management | Allows Staff members to browse the list of Tutors and review their uploaded qualifications and current verification status.                                                                               |
-| UC-24 | Approve Tutor Profile           | Staff                               | Tutor Profile Management | Allows Staff members to verify the authenticity of a Tutor's uploaded certificates and officially approve or reject their teaching profile.                                                               |
-| UC-25 | View Classes                    | Staff, Admin                        | Class Management         | Allows Staff and Admin to view the list of all currently active, upcoming, or completed offline classes.                                                                                                  |
-| UC-26 | Create Class                    | Staff                               | Class Management         | Allows Staff to initialize a new offline class linked to a specific course, assigning a physical classroom, a default Tutor, and setting a maximum capacity constraint.                                   |
-| UC-27 | Update Class Details            | Staff                               | Class Management         | Allows Staff to reassign a different Tutor, change the physical classroom, or modify the status of an existing class.                                                                                     |
-| UC-28 | Register Available Time Slots   | Tutor                               | Schedule Management      | Allows a Tutor to select and submit their weekly or monthly available time slots to inform the center of their teaching availability.                                                                     |
-| UC-29 | View Overall Teaching Schedule  | Staff                               | Schedule Management      | Allows Staff members to view a master calendar displaying the teaching schedules of all Tutors across all physical classrooms.                                                                            |
-| UC-30 | View Personal Teaching Schedule | Tutor                               | Schedule Management      | Allows a Tutor to view their personalized timetable containing assigned classes, specific dates, times, and designated room numbers.                                                                      |
-| UC-31 | Request Schedule Change         | Tutor                               | Schedule Management      | Allows a Tutor to submit a formal request to cancel a specific assigned teaching session or request a substitute teacher due to emergencies.                                                              |
-| UC-32 | Approve Schedule Change         | Staff                               | Schedule Management      | Allows Staff to review a Tutor's schedule change request, verify classroom availability, and approve or deny the modification.                                                                            |
-| UC-33 | Register for Class              | Learner                             | Enrollment Management    | Allows a Learner to select an available offline class that has empty slots and enroll in it, generating a pending tuition invoice.                                                                        |
-| UC-34 | View Personal Class Schedule    | Learner                             | Schedule Management      | Allows a Learner to view their personalized timetable containing their enrolled classes, session dates, times, and assigned physical room numbers.                                                        |
-| UC-35 | Take Class Attendance           | Tutor                               | Training Management      | Allows a Tutor to mark the attendance status (Present, Absent with permission, Absent without permission) for each enrolled Learner during an offline session.                                            |
-| UC-36 | Submit Consultation Request     | Guest                               | CRM                      | Allows a guest to fill out an online form with their contact details and specific inquiries to request a callback or course consultation.                                                                 |
-| UC-37 | View Consultation Requests      | Staff                               | CRM                      | Allows Staff members to view the list of submitted consultation forms from potential customers, sorted by submission date and status.                                                                     |
-| UC-38 | Update Consultation Status      | Staff                               | CRM                      | Allows Staff members to log call notes and change the status of a consultation request (e.g., Pending, Contacted, Converted, Canceled).                                                                   |
-| UC-39 | View Discount Codes             | Admin                               | Promotion Management     | Allows the Administrator to view the list of all active, expired, or deactivated promotional vouchers and discount codes.                                                                                 |
-| UC-40 | Create Discount Code            | Admin                               | Promotion Management     | Allows the Administrator to generate a new promotional code, setting the discount value (percentage or fixed amount), expiration date, and usage limits.                                                  |
-| UC-41 | Deactivate Discount Code        | Admin                               | Promotion Management     | Allows the Administrator to manually disable or delete an active discount code before its scheduled expiration date.                                                                                      |
-| UC-42 | Pay Tuition                     | Learner                             | Financial Management     | Allows a Learner to be redirected to an external Payment Gateway to complete their tuition payment. The ICMS automatically updates the invoice status to "Paid" upon successful callback.                 |
-| UC-45 | View Payment History            | Learner                             | Financial Management     | Allows a Learner to view a historical log of all their tuition invoices, payment dates, applied discounts, and current payment statuses.                                                                  |
-| UC-46 | Submit Refund Request           | Learner                             | Financial Management     | Allows a Learner to submit a formal request to refund their tuition fee if they haven't attended classes or if they cancel within 24 hours of successful registration.                                    |
-| UC-47 | Process Refund Request          | Admin, Staff                        | Financial Management     | Allows Admin or Staff to validate the refund conditions (e.g., checking the 24-hour rule or attendance records), calculate the refundable amount, and approve the request.                                |
-| UC-48 | Calculate Payroll               | Admin                               | Payroll Management       | The system automatically calculates the basic salary for Staff and the teaching remuneration for Tutors based on validated attendance records and predefined rates.                                       |
-| UC-49 | View Overall Payroll            | Admin                               | Payroll Management       | Allows the Administrator to view the aggregated monthly payroll report detailing total salary expenses for all Staff and Tutors.                                                                          |
-| UC-50 | Confirm Salary Payment          | Admin                               | Payroll Management       | Allows the Administrator to update the status of individual or bulk payroll records to "Paid" after executing actual bank transfers to employees.                                                         |
-| UC-51 | View Salary History             | Tutor, Staff                        | Payroll Management       | Allows Tutors to view their detailed monthly income statements, and Staff to view these records for operational support and verification.                                                                 |
-| UC-52 | Submit Tutor Review             | Learner                             | Feedback Management      | Allows a Learner to submit a star rating and written feedback evaluating the teaching quality of a Tutor upon completing a course.                                                                        |
-| UC-53 | View Tutor Reviews              | Admin                               | Feedback Management      | Allows the Administrator to aggregate and view all feedback submitted by Learners to monitor and evaluate the overall performance of Tutors.                                                              |
-| UC-54 | Submit Support Ticket           | Learner, Tutor                      | Customer Support         | Allows Learners or Tutors to create and submit a support ticket to report facility issues, technical bugs, or file a complaint.                                                                           |
-| UC-55 | Resolve Support Ticket          | Staff                               | Customer Support         | Allows Staff members to read incoming support tickets, log communication or actions taken, and mark the issue as resolved or closed.                                                                      |
-| UC-56 | View System Announcements       | All Actors                          | System Information       | Allows all users to view global news, operational updates, and general announcements broadcasted by the center administration.                                                                            |
-| UC-57 | View Revenue Statistics         | Admin                               | Reporting & Analytics    | Allows the Administrator to view graphical dashboards and detailed reports summarizing incoming tuition revenue and financial growth trends.                                                              |
-| UC-58 | View Enrollment Statistics      | Admin                               | Reporting & Analytics    | Allows the Administrator to view graphical dashboards tracking new Learner registrations, class fill rates, and overall student retention.                                                                |
-| UC-59 | View System Audit Logs          | Admin                               | System Administration    | Allows the Administrator to monitor a secure log of critical data manipulations (e.g., changes to financial records, grade edits) to ensure system integrity.                                             |
-
+|       |                                 |                                     |                          |                                                                                                                                                                                                    |
+| ----- | ------------------------------- | ----------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ID    | Use Case                        | Actor                               | Feature                  | Use Case Description                                                                                                                                                                               |
+| UC-01 | View Home Page                  | Guest, Learner, Tutor, Staff, Admin | Public Access            | Allows all users to access the landing page to view general center information, promotional banners, and contact details.                                                                          |
+| UC-02 | View System Announcements       | Guest, Learner, Tutor, Staff, Admin | Public Access            | Allows all users to view global news, operational updates, and general announcements broadcasted by the center administration.                                                                     |
+| UC-03 | Manage Announcements            | Admin                               | Public Access            | Allows the Administrator to publish, edit, or pin critical global news and notifications to the home page for all users to read.                                                                   |
+| UC-04 | Register Account                | Guest                               | Authentication           | Allows an unregistered guest to provide personal information (name, email, phone number) to create a new Learner account in the system.                                                            |
+| UC-05 | Log In                          | Learner, Tutor, Staff, Admin        | Authentication           | Allows users to authenticate their credentials using a registered system account (username and password) or via Google Single Sign-On (SSO) to access authorized features.                         |
+| UC-06 | Log Out                         | Learner, Tutor, Staff, Admin        | Authentication           | Allows authenticated users to safely terminate their current active session and clear authentication tokens to secure the account.                                                                 |
+| UC-07 | Reset Password                  | Learner, Tutor, Staff, Admin        | Authentication           | Allows users to request a password reset link or OTP via their registered email address in case they forget their login credentials.                                                               |
+| UC-08 | View Personal Profile           | Learner, Tutor, Staff, Admin        | Profile Management       | Allows logged-in users to view their own detailed personal information, contact details, and account settings.                                                                                     |
+| UC-09 | Update Personal Profile         | Learner, Tutor, Staff, Admin        | Profile Management       | Allows logged-in users to modify their personal contact information, address, and upload a new avatar image.                                                                                       |
+| UC-10 | Change Password                 | Learner, Tutor, Staff, Admin        | Profile Management       | Allows logged-in users to change their current login password by providing the old password and confirming a new one.                                                                              |
+| UC-11 | View Accounts                   | Staff, Admin                        | Account Management       | Allows Staff to view and search the list of Learner and Tutor accounts, and Admin to view all accounts across the entire system.                                                                   |
+| UC-12 | Create Account                  | Staff, Admin                        | Account Management       | Allows Staff to manually create new Learner or Tutor accounts, and Admin to create accounts for any role including Staff.                                                                          |
+| UC-13 | Update Account Details          | Staff, Admin                        | Account Management       | Allows Staff to modify Learner or Tutor account information, and Admin to modify any user’s account details across the system.                                                                     |
+| UC-14 | Change Account Status           | Staff, Admin                        | Account Management       | Allows Staff to activate or suspend Learner and Tutor accounts, and Admin to manage the status of any account in the system.                                                                       |
+| UC-15 | View Courses                    | Guest, Learner, Tutor, Staff, Admin | Course Management        | Allows users to browse, search, and filter the catalog of available offline IELTS training courses offered by the center.                                                                          |
+| UC-16 | View Course Details             | Guest, Learner, Tutor, Staff, Admin | Course Management        | Allows users to view specific information about a selected course, including the curriculum description, target band score, total sessions, and tuition fee.                                       |
+| UC-17 | Create Course                   | Admin                               | Course Management        | Allows the Administrator to define and publish a new IELTS course program, configuring its standard price, total duration, and description.                                                        |
+| UC-18 | Update Course Details           | Admin                               | Course Management        | Allows the Administrator to modify an existing course’s syllabus, adjust the tuition fee, or change the total number of required sessions.                                                         |
+| UC-19 | Change Course Visibility        | Admin                               | Course Management        | Allows the Administrator to toggle the display status of a course (Show/Hide) on the public-facing guest portal.                                                                                   |
+| UC-20 | View Classrooms                 | Admin                               | Facility Management      | Allows the Administrator to view the list of physical classrooms at the center, including details like room name and maximum student capacity.                                                     |
+| UC-21 | Add Classroom                   | Admin                               | Facility Management      | Allows the Administrator to register a new physical classroom into the system, specifying the room identifier and seating capacity.                                                                |
+| UC-22 | Update Classroom Status         | Admin                               | Facility Management      | Allows the Administrator to edit classroom details or change its operational status (e.g., Available, Under Maintenance).                                                                          |
+| UC-23 | Update Qualifications           | Tutor                               | Tutor Profile Management | Allows a Tutor to upload digital copies of their academic degrees, IELTS certificates, and update their teaching experience for Staff verification.                                                |
+| UC-24 | View Tutor Certificates         | Staff                               | Tutor Profile Management | Allows Staff members to browse the list of Tutor Certificates and review their current verification status.                                                                                        |
+| UC-25 | Approve Qualification           | Staff                               | Tutor Profile Management | Allows Staff members to verify the authenticity of a Tutor’s uploaded certificates and officially approve or reject their qualification.                                                           |
+| UC-26 | View Classes                    | Staff                               | Class Management         | Allows Staff to view the list of all currently active, upcoming, or completed offline classes for management purposes.                                                                             |
+| UC-27 | Create Class                    | Staff                               | Class Management         | Allows Staff to initialize a new offline class linked to a specific course, assigning a physical classroom, a default Tutor, and setting a maximum capacity constraint.                            |
+| UC-28 | Update Class Details            | Staff                               | Class Management         | Allows Staff to reassign a different Tutor, change the physical classroom, or modify the status of an existing class.                                                                              |
+| UC-29 | View Class Details              | Learner, Tutor, Staff               | Class Management         | Allows users to view specific offline class information including the Learner roster, assigned physical room, and Tutor details.                                                                   |
+| UC-30 | View Tutor Availability         | Staff                               | Class Management         | Allows Staff members to check the aggregated availability matrix of all Tutors to assist in scheduling new classes.                                                                                |
+| UC-31 | Register Available Time Slots   | Tutor                               | Schedule Management      | Allows a Tutor to select and submit their weekly or monthly available time slots to inform the center of their teaching availability.                                                              |
+| UC-32 | View Overall Teaching Schedule  | Staff                               | Schedule Management      | Allows Staff members to view a master calendar displaying the teaching schedules of all Tutors across all physical classrooms.                                                                     |
+| UC-33 | View Personal Teaching Schedule | Tutor                               | Schedule Management      | Allows a Tutor to view their personalized timetable containing assigned classes, specific dates, times, and designated room numbers.                                                               |
+| UC-34 | Request Schedule Change         | Tutor                               | Schedule Management      | Allows a Tutor to submit a formal request to cancel a specific assigned teaching session or request a substitute teacher due to emergencies.                                                       |
+| UC-35 | Process Schedule Change Request | Staff                               | Schedule Management      | Allows Staff members to review, verify classroom availability, and approve or deny Tutor schedule change requests to maintain continuity.                                                          |
+| UC-36 | View Personal Class Schedule    | Learner                             | Schedule Management      | Allows a Learner to view their personalized timetable containing their enrolled classes, session dates, times, and assigned physical room numbers.                                                 |
+| UC-37 | Register for Class              | Learner                             | Enrollment Management    | Allows a Learner to select an available offline class that has empty slots and enroll in it, generating a pending tuition invoice.                                                                 |
+| UC-38 | View Enrolled Classes           | Learner                             | Enrollment Management    | Allows a Learner to view a comprehensive list of all their currently active and completed offline classes.                                                                                         |
+| UC-39 | Take Class Attendance           | Tutor                               | Training Management      | Allows a Tutor to mark the attendance status (Present, Absent with permission, Absent without permission) for each enrolled Learner during an offline session.                                     |
+| UC-40 | View Attendance Progress        | Learner                             | Training Management      | Allows a Learner to track personal attendance statistics across all enrolled classes to monitor academic progress and eligibility.                                                                 |
+| UC-41 | View Attendance Reports         | Staff                               | Training Management      | Allows Staff members to view and monitor attendance records across all classes to track training quality and learner engagement.                                                                   |
+| UC-42 | Manage Academic Grades          | Tutor                               | Training Management      | Allows a Tutor to input, edit, and submit final course grades for each Learner in their assigned offline class.                                                                                    |
+| UC-43 | View Academic Transcript        | Learner                             | Training Management      | Allows a Learner to view their academic grades and final performance transcript upon course completion.                                                                                            |
+| UC-44 | Submit Consultation Request     | Guest                               | CRM                      | Allows a guest to fill out an online form with their contact details and specific inquiries to request a callback or course consultation.                                                          |
+| UC-45 | View Consultation Requests      | Staff                               | CRM                      | Allows Staff members to view the list of submitted consultation forms from potential customers, sorted by submission date and status.                                                              |
+| UC-46 | Update Consultation Status      | Staff                               | CRM                      | Allows Staff members to log call notes and change the status of a consultation request (e.g., Pending, Contacted, Converted, Canceled).                                                            |
+| UC-47 | View Discount Codes             | Admin                               | Promotion Management     | Allows the Administrator to view the list of all active, expired, or deactivated promotional vouchers and discount codes.                                                                          |
+| UC-48 | Create Discount Code            | Admin                               | Promotion Management     | Allows the Administrator to generate a new promotional code, setting the discount value (percentage or fixed amount), expiration date, and usage limits.                                           |
+| UC-49 | Deactivate Discount Code        | Admin                               | Promotion Management     | Allows the Administrator to manually disable or delete an active discount code before its scheduled expiration date.                                                                               |
+| UC-50 | Pay Tuition                     | Learner                             | Financial Management     | Allows a Learner to be redirected to an external Payment Gateway to complete their tuition payment. The ICMS automatically updates the invoice status to “Paid” upon successful callback.          |
+| UC-51 | View Payment History            | Learner                             | Financial Management     | Allows a Learner to view a historical log of all their tuition invoices, payment dates, applied discounts, and current payment statuses.                                                           |
+| UC-52 | Submit Refund Request           | Learner                             | Financial Management     | Allows a Learner to submit a formal request to refund their tuition fee if they haven’t attended classes or if they cancel within 24 hours of successful registration.                             |
+| UC-53 | Process Refund Request          | Admin                               | Financial Management     | Allows the Administrator to validate the refund conditions (e.g., checking the 24-hour rule or attendance records), calculate the refundable amount, and approve or reject the request.            |
+| UC-54 | View Invoices                   | Staff                               | Financial Management     | Allows Staff members to track all tuition invoices, monitor revenue pipelines, and send automated payment reminders to Learners.                                                                   |
+| UC-55 | Calculate Payroll               | Admin                               | Payroll Management       | Allows the Administrator to trigger the monthly payroll calculation, which aggregates validated attendance records and applies predefined hourly rates to compute salary for all Tutors and Staff. |
+| UC-56 | View Overall Payroll            | Admin                               | Payroll Management       | Allows the Administrator to view the aggregated monthly payroll report detailing total salary expenses for all Staff and Tutors.                                                                   |
+| UC-57 | Confirm Salary Payment          | Admin                               | Payroll Management       | Allows the Administrator to update the status of individual or bulk payroll records to “Paid” after executing actual bank transfers to employees.                                                  |
+| UC-58 | View Salary History             | Tutor, Staff                        | Payroll Management       | Allows Tutors to view their detailed monthly income statements, and Staff to view these records for operational support and verification.                                                          |
+| UC-59 | Submit Tutor Review             | Learner                             | Feedback Management      | Allows a Learner to submit a star rating and written feedback evaluating the teaching quality of a Tutor upon completing a course.                                                                 |
+| UC-60 | View Tutor Reviews              | Admin                               | Feedback Management      | Allows the Administrator to aggregate and view all feedback submitted by Learners to monitor and evaluate the overall performance of Tutors.                                                       |
+| UC-61 | Submit Support Ticket           | Learner, Tutor                      | Customer Support         | Allows Learners and Tutors to create and submit a support ticket to report facility issues, technical bugs, or file a complaint.                                                                   |
+| UC-62 | Resolve Support Ticket          | Staff                               | Customer Support         | Allows Staff members to read incoming support tickets, log communication or actions taken, and mark the issue as resolved or closed.                                                               |
+| UC-63 | View Revenue Statistics         | Admin                               | Reporting & Analytics    | Allows the Administrator to view graphical dashboards and detailed reports summarizing incoming tuition revenue and financial growth trends.                                                       |
+| UC-64 | View Enrollment Statistics      | Admin                               | Reporting & Analytics    | Allows the Administrator to view graphical dashboards tracking new Learner registrations, class fill rates, and overall student retention.                                                         |
+| UC-65 | View System Audit Logs          | Admin                               | System Administration    | Allows the Administrator to monitor a secure log of critical data manipulations (e.g., changes to financial records, grade edits) to ensure system integrity.                                      |
 
 # Mô tả các mối quan hệ
 ## Ngắn
@@ -219,79 +224,96 @@ The context diagram below shows the external actors and main data flows interact
 # System Functionalities
 ## Screen Authorization
 
-|                             |       |         |       |       |       |
-| --------------------------- | ----- | ------- | ----- | ----- | ----- |
-| Screen                      | Guest | Student | Tutor | Staff | Admin |
-| Home Page                   | X     | X       | X     | X     | X     |
-| Course List                 | X     | X       | X     | X     | X     |
-| Course Detail               | X     | X       | X     | X     | X     |
-| Register                    | X     |         |       |       |       |
-| Login                       |       | X       | X     | X     | X     |
-| Forgot Password             |       | X       | X     | X     | X     |
-| Verify Mail                 |       | X       | X     | X     | X     |
-| Reset Password              |       | X       | X     | X     | X     |
-| Learner Dashboard           |       | X       |       |       |       |
-| Learner Profile             |       | X       |       |       |       |
-| My Schedules                |       | X       |       |       |       |
-| My Courses                  |       | X       |       |       |       |
-| My Classes                  |       | X       |       |       |       |
-| Class Detail (Learner View) |       | X       |       |       |       |
-| Class Feedback              |       | X       |       |       |       |
-| Attendance & Progress       |       | X       |       |       |       |
-| Class Registration          |       | X       |       |       |       |
-| Payment Gateway             |       | X       |       |       |       |
-| Payment Status              |       | X       |       |       |       |
-| Payment History             |       | X       |       |       |       |
-| My Support Tickets          |       | X       |       |       |       |
-| Create/Detail Ticket        |       | X       |       |       |       |
-| Tutor Workplace             |       |         | X     |       |       |
-| Tutor Profile               |       |         | X     |       |       |
-| My Qualifications           |       |         | X     |       |       |
-| Upload Qualification        |       |         | X     |       |       |
-| Availability Registration   |       |         | X     |       |       |
-| Teaching Schedule           |       |         | X     |       |       |
-| Class Attendance            |       |         | X     |       |       |
-| Change Request List         |       |         | X     |       |       |
-| Create Change Request       |       |         | X     |       |       |
-| Payslip History             |       |         | X     |       |       |
-| Staff Dashboard             |       |         |       | X     |       |
-| Lead List                   |       |         |       | X     |       |
-| Lead Detail                 |       |         |       | X     |       |
-| Profile List                |       |         |       | X     |       |
-| Profile Detail              |       |         |       | X     |       |
-| Classroom Status            |       |         |       | X     |       |
-| Manage Classes              |       |         |       | X     |       |
-| Class Detail (Staff View)   |       |         |       | X     |       |
-| Create/Update Class         |       |         |       | X     |       |
-| Master Schedule             |       |         |       | X     |       |
-| Manage Requests             |       |         |       | X     |       |
-| Request Detail              |       |         |       | X     |       |
-| Transaction List            |       |         |       | X     |       |
-| Transaction Detail          |       |         |       | X     |       |
-| Admin Dashboard             |       |         |       |       | X     |
-| Account List                |       |         |       |       | X     |
-| Account Detail              |       |         |       |       | X     |
-| Create Account              |       |         |       |       | X     |
-| Manage Refunds              |       |         |       |       | X     |
-| Refund Detail               |       |         |       |       | X     |
-| Payroll List                |       |         |       |       | X     |
-| Payroll Detail              |       |         |       |       | X     |
-| System Analytics            |       |         |       |       | X     |
-| Audit Logs                  |       |         |       |       | X     |
-| Change Password             |       | X       | X     | X     | X     |
+|   |   |   |   |   |   |
+|---|---|---|---|---|---|
+|Screen|Guest|Learner|Tutor|Staff|Admin|
+|Home Page|X|X|X|X|X|
+|Course List|X|X|X|X|X|
+|Course Detail|X|X|X|X|X|
+|Notifications|X|X|X|X|X|
+|Register|X|||||
+|Login||X|X|X|X|
+|Forgot Password||X|X|X|X|
+|Verify OTP||X|X|X|X|
+|Reset Password||X|X|X|X|
+|Auth Callback||X|X|X|X|
+|User Profile||X|X|X|X|
+|My Support Tickets||X|X|||
+|Personal Salary History|||X|X||
+|Manage Accounts||||X|X|
+|Account Detail||||X|X|
+|Learner Dashboard||X||||
+|Learner Classes||X||||
+|Learner Class Detail||X||||
+|Learner Class Feedback||X||||
+|Learner Class Attendance||X||||
+|Learner Grades||X||||
+|Learner Schedules||X||||
+|Class Registration||X||||
+|Learner Payment History||X||||
+|Learner Payment Detail||X||||
+|Learner Payment Checkout||X||||
+|Learner Refund Request||X||||
+|Tutor Dashboard|||X|||
+|My Certificates|||X|||
+|Availability Registration|||X|||
+|Teaching Schedule|||X|||
+|Tutor Classes|||X|||
+|Tutor Class Detail|||X|||
+|Tutor Attendance Marking|||X|||
+|Tutor Gradebook|||X|||
+|Tutor Change Requests|||X|||
+|Staff Dashboard||||X||
+|Staff Consultations||||X||
+|Manage Classes||||X||
+|Create Class||||X||
+|Edit Class||||X||
+|Staff Class Detail||||X||
+|Master Schedule||||X||
+|Tutor Availability View||||X||
+|Manage Change Requests||||X||
+|Invoice List||||X||
+|Invoice Detail||||X||
+|Verify Certificates||||X||
+|Manage Support Tickets||||X||
+|Admin Dashboard|||||X|
+|Manage Courses|||||X|
+|Create Course|||||X|
+|Admin Course Detail|||||X|
+|Admin Finance|||||X|
+|Manage Discount Codes|||||X|
+|Manage Classrooms|||||X|
+|Manage Refunds|||||X|
+|Refund Detail|||||X|
+|Manage Payroll|||||X|
+|Payroll Detail|||||X|
+|Manage Announcements|||||X|
+|Audit Logs|||||X|
+
 
 ## Non-UI Functions
 
-|     |                       |                                   |                                                                                                                                                                                                                 |
-| --- | --------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| #   | Feature               | System Function                   | Description                                                                                                                                                                                                     |
-| 1   | Class Management      | Auto Update Class Status          | Automatically transitions class status to ONGOING when the current date matches the start_date, and to COMPLETED when the current date exceeds the end_date.                                                    |
-| 2   | Enrollment & Payment  | Auto Cancel Unpaid Registrations  | Automatically cancels class registrations and releases the reserved seats if the Learner fails to complete the payment transaction within 24 hours.                                                             |
-| 3   | Enrollment & Payment  | Auto Reject Expired Refunds       | Automatically calculates the elapsed time from the payment timestamp and rejects any refund requests submitted beyond the allowed 24-hour policy window.                                                        |
-| 4   | Financial & Payroll   | Auto Payroll Calculation          | A background cron job that runs automatically on the last day of the month to calculate salaries for Tutors and Staff based on class attendance, substituted sessions, and specific hourly rates.               |
-| 5   | Dashboard & Analytics | Auto Sync System Analytics        | Automatically aggregates and updates the total revenue, total active learners, and payroll cost records in the analytics table to reflect real-time financial data for the Admin Dashboard.                     |
-| 6   | Schedule Management   | Auto Resolve Schedule Conflicts   | An internal algorithm that automatically validates and prevents any scheduling actions that would result in a Tutor or a physical Classroom being assigned to overlapping time slots.                           |
-| 7   | Security & Auth       | Auto Cleanup Expired Tokens       | Automatically scans and removes expired JWT refresh tokens, unused OTPs, and expired password reset links from the database to optimize storage and maintain system security.                                   |
-| 8   | Notification Service  | Auto Trigger System Notifications | Automatically pushes in-app notifications or emails upon specific system triggers (e.g., when Staff approves an invoice, when a class is canceled, or when a Tutor's leave request is accepted).                |
-| 9   | Authentication        | Auto-Redirect User Tracing        | Automatically saves the Guest's trace when they click "Register" on a specific Course Detail screen, and transparently redirects them to that exact Class Registration form immediately after successful login. |
+|     |                       |                                   |                                                                                                                                                                                                                                               |
+| -----| -----------------------| -----------------------------------| -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| #   | Feature               | System Function                   | Description                                                                                                                                                                                                                                   |
+| 1   | Authentication        | Password Hashing                  | Secures user passwords by hashing them using modern algorithms (e.g., bcrypt or Argon2) with dynamic salts before persisting to the database. This prevents plain-text exposure even in the event of a database breach.                       |
+| 2   | Authentication        | Auto Cleanup Expired Tokens       | Automatically scans and removes expired JWT refresh tokens, unused OTPs, and expired password reset links from the database to optimize storage and maintain system security.                                                                 |
+| 3   | Authentication        | Auto-Redirect User Tracing        | Automatically saves the Guest’s trace when they click “Register” on a specific Course Detail screen, and transparently redirects them to that exact Class Registration form immediately after successful login.                               |
+| 4   | Notification          | Send Email OTP                    | Interfaces securely with the configured Email Service via SMTP to dispatch highly secure, time-sensitive 6-digit OTPs (One-Time Passwords) required for password recovery and initial account verification.                                   |
+| 5   | Notification          | Auto Trigger System Notifications | Automatically pushes in-app notifications upon specific system triggers (e.g., when Staff updates a schedule, when Admin creates an announcement, or when a refund is processed).                                                             |
+| 6   | Class Management      | Auto Update Class Status          | Automatically transitions class status to ONGOING when the current date matches the start_date, and to COMPLETED when the current date exceeds the end_date.                                                                                  |
+| 7   | Class Management      | Auto Lock Past Attendance         | Automatically locks the attendance recording window for Tutors once the class session date has passed, preventing retrospective modification of attendance data without Staff approval.                                                       |
+| 8   | Schedule Management   | Auto-generate Sessions            | Automatically calculates and generates individual class dates (Sessions) by taking the class start date, evaluating the weekly frequency, and skipping configured national holidays to build a complete academic timetable.                   |
+| 9   | Schedule Management   | Auto Resolve Schedule Conflicts   | An internal algorithm that automatically validates and prevents any scheduling actions that would result in a Tutor or a physical Classroom being assigned to overlapping time slots.                                                         |
+| 10  | Enrollment & Payment  | Auto-calculate Invoice            | Automatically evaluates the final tuition amount in real-time by verifying and deducting any applied Discount Codes from the base course price, ensuring accurate billing before triggering the payment gateway.                              |
+| 11  | Enrollment & Payment  | Process Payment Callback          | Exposes a secure webhook endpoint to listen to Payment Gateway IPN signals. It instantly verifies the transaction signature and updates the Invoice status to ‘Paid’, activating the Learner’s enrollment.                                    |
+| 12  | Enrollment & Payment  | Auto Cancel Unpaid Registrations  | Automatically cancels class registrations and releases the reserved seats if the Learner fails to complete the payment transaction within 24 hours.                                                                                           |
+| 13  | Enrollment & Payment  | Auto Expire Discount Codes        | Automatically invalidates and disables discount codes when their predetermined expiration date passes or when the usage limits are exhausted.                                                                                                 |
+| 14  | Enrollment & Payment  | Auto Reject Expired Refunds       | Automatically calculates the elapsed time from the payment timestamp and rejects any refund requests submitted beyond the allowed policy window (e.g., 24-hour window).                                                                       |
+| 15  | Financial & Payroll   | Auto Payroll Calculation          | A background cron job that runs automatically on the last day of the month to calculate salaries for Tutors based strictly on the number of sessions taught and substituted sessions.                                                         |
+| 16  | Support & Operations  | Auto Escalate Overdue Tickets     | Automatically escalates Learner/Tutor Support Tickets to Urgent status or flags them for Admin review if they remain unresolved by Staff for more than 48 hours.                                                                              |
+| 17  | Dashboard & Analytics | Auto Sync System Analytics        | Automatically aggregates and updates the total revenue, total active learners, and payroll cost records in the analytics table to reflect real-time financial data for Admin and Staff Dashboards.                                            |
+| 18  | System Audit          | Log Critical Actions              | An invisible interceptor that automatically captures the User ID, Timestamp, IP Address, HTTP Method, and full action payload whenever an Admin modifies sensitive system data, storing it in an immutable audit log for security compliance. |
+
+
 

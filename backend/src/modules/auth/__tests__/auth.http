@@ -1,0 +1,101 @@
+@baseUrl = http://localhost:5000/api
+
+### 1. Đăng ký tài khoản Learner mới
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "testuser6@gmail.com",
+  "password": "Password@123",
+  "full_name": "Test Learner",
+  "phone_number": "0999888777"
+}
+
+### 2. Đăng nhập
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com",
+  "password": "123123123@As"
+}
+
+### 3. Gửi OTP Quên mật khẩu
+# Thay bằng email có thật để nhận OTP
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com"
+}
+
+### 4. Xác thực OTP
+# @name verifyOtp
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com",
+  "otp": "947265" 
+}
+# Thay otp bằng code thực tế nhận được trong email
+
+### 5. Đặt lại mật khẩu mới
+# Lấy reset_token từ response của request verify-otp
+@reset_token = {{verifyOtp.response.body.data.reset_token}}
+
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "reset_token": "{{reset_token}}",
+  "new_password": "123123123@As"
+}
+
+### 6. Đăng nhập bằng tài khoản Google (Flow OAuth 2.0)
+# Mở URL này trên trình duyệt:
+# GET http://localhost:8000/api/auth/google
+
+### 7. Đồng bộ Google User (Client gửi token sau khi login Google)
+POST {{baseUrl}}/auth/google-sync
+Content-Type: application/json
+
+{
+  "access_token": "YOUR_SUPABASE_ACCESS_TOKEN",
+  "refresh_token": "YOUR_SUPABASE_REFRESH_TOKEN"
+}
+
+### 8. Refresh Token (Làm mới phiên đăng nhập)
+# Lấy refresh_token từ login
+@refresh_token = {{login.response.body.data.refresh_token}}
+
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refresh_token}}"
+}
+
+### 8.1. Edge Case: Gọi Refresh Token 2 lần với cùng 1 token (Reuse / Rotation Attack)
+# Lần đầu thành công (nếu token còn mới), lần 2 sẽ bị 401
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refresh_token}}"
+}
+
+### 8.2. Edge Case: Body Rỗng
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{}
+
+### 8.3. Edge Case: Token bị sai 1 ký tự
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refresh_token}}x"
+}

@@ -1,0 +1,86 @@
+@baseUrl = http://localhost:5000/api
+# Thay đổi access token sau khi login
+@accessToken = YOUR_ADMIN_ACCESS_TOKEN_HERE
+@accountId = SOME_ACCOUNT_ID_HERE
+
+### ------------------------------------------------------------------------
+### ACCOUNT MODULE ENDPOINTS
+### ------------------------------------------------------------------------
+
+# @name loginRequest
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "staff@gmail.com",
+  "password": "Password@123"
+}
+
+### Lưu token vào biến accessToken để tự động dùng ở dưới
+@accessToken = {{loginRequest.response.body.data.access_token}}
+### 1. Lấy danh sách tài khoản (Yêu cầu quyền ADMIN/STAFF)
+GET {{baseUrl}}/accounts
+Authorization: Bearer {{accessToken}}
+
+### 2. Lấy thông tin chi tiết một tài khoản
+GET {{baseUrl}}/accounts/8f024054-fb8e-4e50-85f1-7ae3f8e2aa5e
+Authorization: Bearer {{accessToken}}
+
+### 3. Tạo tài khoản mới (Yêu cầu quyền ADMIN/STAFF)
+POST {{baseUrl}}/accounts
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "email": "testuser3@gmail.com",
+  "password": "Password@123",
+  "full_name": "dasad",
+  "role": "LEARNER"
+}
+
+### 4. Cập nhật thông tin tài khoản (Tên, mật khẩu, SĐT)
+PATCH {{baseUrl}}/accounts/8f024054-fb8e-4e50-85f1-7ae3f8e2aa5e
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "email": "hoanglbp3300@gmail.com"
+}
+
+### 5. Cập nhật trạng thái tài khoản (Ban/Active) (Yêu cầu quyền ADMIN/STAFF)
+PATCH {{baseUrl}}/accounts/01101262-0355-4791-b399-523f77552968/status
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "status": "ACTIVE"
+}
+
+### 6. [RBAC] Sửa thông tin tài khoản người CÙNG CẤP (Kỳ vọng: 403 Forbidden)
+# Chú ý: Đăng nhập bằng ADMIN và lấy id của một ADMIN khác
+PATCH {{baseUrl}}/accounts/ANOTHER_ADMIN_ID_HERE
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "full_name": "Hacker Name"
+}
+
+### 7. [RBAC] Khóa tài khoản người CÙNG CẤP hoặc CHÍNH MÌNH (Kỳ vọng: 403 Forbidden)
+PATCH {{baseUrl}}/accounts/YOUR_OWN_ID_OR_SAME_ROLE_ID/status
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "status": "BANNED"
+}
+
+### 8. [SECURITY] Cố tình nhồi payload role để đổi Role (Kỳ vọng: Update thành công thông tin khác nhưng Role giữ nguyên)
+PATCH {{baseUrl}}/accounts/SOME_LEARNER_ID_HERE
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "full_name": "Learner Edited",
+  "role": "ADMIN"
+}

@@ -1,0 +1,44 @@
+@baseUrl = http://localhost:5000/api
+@accessToken = YOUR_BEARER_TOKEN
+
+### Lấy danh sách tất cả thông báo
+GET {{baseUrl}}/announcements
+Authorization: Bearer {{accessToken}}
+
+### Lấy thông báo theo role
+GET {{baseUrl}}/announcements/notifications?role=Learner
+Authorization: Bearer {{accessToken}}
+
+### Tạo thông báo mới
+POST {{baseUrl}}/announcements
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Test System Maintenance",
+  "content": "This is a test maintenance notice.",
+  "audience": {
+    "scope": "System Wide",
+    "roles": [],
+    "classes": []
+  }
+}
+
+### Cập nhật thông báo
+PUT {{baseUrl}}/announcements/YOUR_ANNOUNCEMENT_ID
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Updated System Maintenance",
+  "content": "Updated content.",
+  "audience": {
+    "scope": "System Wide",
+    "roles": [],
+    "classes": []
+  }
+}
+
+### Xóa thông báo
+DELETE {{baseUrl}}/announcements/YOUR_ANNOUNCEMENT_ID
+Authorization: Bearer {{accessToken}}

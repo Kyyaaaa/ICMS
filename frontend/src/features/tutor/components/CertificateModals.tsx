@@ -1,0 +1,341 @@
+import { useState, useRef, useEffect } from 'react';
+import { Download, Trash2, Upload, X } from 'lucide-react';
+import type { Certificate } from '../types/certificate';
+import { CertificatesService } from '../services/certificates.service';
+
+interface CertificateModalsProps {
+    viewQual: Certificate | null;
+    setViewQual: (qual: Certificate | null) => void;
+    editQual: Certificate | null;
+    setEditQual: (qual: Certificate | null) => void;
+    handleEditSave: (e: React.FormEvent) => void; // This will just trigger a reload from parent
+    deleteQual: Certificate | null;
+    setDeleteQual: (qual: Certificate | null) => void;
+    handleDelete: () => void;
+}
+
+export const CertificateModals = ({
+    viewQual, setViewQual,
+    editQual, setEditQual, handleEditSave,
+    deleteQual, setDeleteQual, handleDelete
+}: CertificateModalsProps) => {
+    const [newFile, setNewFile] = useState<File | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [newFilePreview, setNewFilePreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const todayString = new Date().toISOString().split('T')[0];
+
+    useEffect(() => {
+        return () => {
+            if (newFilePreview) URL.revokeObjectURL(newFilePreview);
+        };
+    }, [newFilePreview]);
+
+
+
+    const handleDownload = async (url: string) => {
+        try {
+            const secureUrl = url.replace(/^http:\/\//i, 'https://');
+            
+            // Fetch as blob and trigger download
+            const response = await fetch(secureUrl, {
+                method: 'GET',
+                headers: { 'Accept': '*/*' }
+            });
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            
+            let filename = secureUrl.split('/').pop()?.split('?')[0] || 'document';
+            if (!filename.includes('.')) {
+                if (blob.type.includes('png')) filename += '.png';
+                else if (blob.type.includes('jpeg') || blob.type.includes('jpg')) filename += '.jpg';
+                else if (blob.type.includes('pdf')) filename += '.pdf';
+            }
+            
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(downloadUrl);
+        } catch (error) {
+            console.error("Error triggering download:", error);
+            window.open(url, '_blank');
+        }
+    };
+
+    const validateFile = (selectedFile: File): string | null => {
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+        const FILENAME_REGEX = /^[a-zA-Z0-9\s._-]+$/;
+
+        if (selectedFile.size > MAX_FILE_SIZE) {
+            return "File size exceeds 5MB limit.";
+        }
+        if (!ALLOWED_TYPES.includes(selectedFile.type)) {
+            return "Invalid file format. Only JPG, PNG, and PDF are allowed.";
+        }
+        if (!FILENAME_REGEX.test(selectedFile.name)) {
+            return "Filename contains invalid characters. Please use only letters, numbers, spaces, dashes, and underscores.";
+        }
+        return null;
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const selectedFile = e.target.files[0];
+            const validationError = validateFile(selectedFile);
+            if (validationError) {
+                setError(validationError);
+                if (newFilePreview) URL.revokeObjectURL(newFilePreview);
+                setNewFilePreview(null);
+                setNewFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = ''; // Reset input
+                return;
+            }
+            if (newFilePreview) URL.revokeObjectURL(newFilePreview);
+            setNewFilePreview(URL.createObjectURL(selectedFile));
+            setNewFile(selectedFile);
+            setError('');
+        }
+    };
+
+    const handleInternalEditSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editQual) return;
+
+        setLoading(true);
+        setError('');
+        try {
+            let fileUrl = editQual.file;
+            if (newFile) {
+                fileUrl = await CertificatesService.uploadFile(newFile);
+            }
+
+            await CertificatesService.updateCertificate(editQual.id.toString(), {
+                name: editQual.name,
+                issuer: editQual.issuer,
+                issueDate: editQual.issueDate,
+                expDate: editQual.expDate === 'No Expiration' ? null : editQual.expDate,
+                fileUrl
+            });
+
+            // Call parent to refresh list
+            handleEditSave(e);
+            setNewFile(null); // reset
+        } catch (err: unknown) {
+            console.error(err);
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                const errorObj = err as { error?: string, message?: string };
+                const msg = errorObj?.error ? `${errorObj.message}: ${errorObj.error}` : errorObj?.message;
+                setError(msg || 'An error occurred during update.');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <>
+            {viewQual && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl animate-scale-in flex flex-col h-[90vh]">
+                        <div className="flex items-center justify-between p-4 border-b border-[#e0e3e5]">
+                            <div>
+                                <h3 className="font-bold text-[#002045] text-lg">{viewQual.name}</h3>
+                                  {viewQual.status === 'Rejected' && viewQual.rejection_reason && (
+                                      <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-lg">
+                                          <p className="text-xs font-bold text-rose-700 uppercase tracking-wider mb-1">Rejection Reason</p>
+                                          <p className="text-rose-600 text-xs">{viewQual.rejection_reason}</p>
+                                      </div>
+                                  )}
+                            </div>
+                            <div className="flex gap-2">
+                                <button onClick={() => handleDownload(viewQual.file)} className="p-2 hover:bg-[#f1f4f6] rounded-full transition-colors group" title="Download">
+                                    <Download className="w-5 h-5 text-[#0061a5]" />
+                                </button>
+                                <button onClick={() => setViewQual(null)} className="p-2 hover:bg-[#f1f4f6] rounded-full transition-colors" title="Close">
+                                    <X className="w-5 h-5 text-[#43474e]" />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="p-6 bg-[#ebedef] flex-1 overflow-y-hidden relative flex flex-col items-center min-h-0">
+                            {viewQual.file.toLowerCase().includes('.pdf') ? (
+                                <iframe
+                                    src={`${viewQual.file}#toolbar=0`}
+                                    title="PDF Preview"
+                                    className="w-full h-full min-h-[65vh] flex-1 border rounded-lg bg-white"
+                                />
+                            ) : (
+                                <div className="w-full h-full overflow-y-auto custom-scrollbar flex items-center justify-center">
+                                    <img src={viewQual.file} alt="Document" className="max-w-full h-auto rounded shadow-sm object-contain max-h-full bg-white border" />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {editQual && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl animate-scale-in">
+                        <div className="flex items-center justify-between p-4 border-b border-[#e0e3e5]">
+                            <h3 className="font-bold text-[#002045] text-lg">Edit Certificate</h3>
+                            <button onClick={() => setEditQual(null)} className="p-2 hover:bg-[#f1f4f6] rounded-full transition-colors">
+                                <X className="w-5 h-5 text-[#43474e]" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleInternalEditSave} className="p-6 space-y-5">
+                            {error && <p className="text-rose-600 text-sm bg-rose-50 p-3 rounded-lg border border-rose-200">{error}</p>}
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-[#43474e]">Certificate Name</label>
+                                <input 
+                                    type="text" 
+                                    value={editQual.name} 
+                                    onChange={(e) => setEditQual({...editQual, name: e.target.value})}
+                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-sm" 
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-[#43474e]">Issuer / Institution</label>
+                                <input 
+                                    type="text" 
+                                    value={editQual.issuer} 
+                                    onChange={(e) => setEditQual({...editQual, issuer: e.target.value})}
+                                    className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-sm" 
+                                    required
+                                />
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="space-y-2 flex-1">
+                                    <label className="text-xs font-bold text-[#43474e]">Issue Date</label>
+                                    <input 
+                                        type="date" 
+                                        max={todayString}
+                                        value={editQual.issueDate} 
+                                        onChange={(e) => setEditQual({...editQual, issueDate: e.target.value})}
+                                        onBlur={(e) => {
+                                            const val = e.target.value;
+                                            const newIssueDate = (val && val > todayString) ? todayString : val;
+                                            const next = {...editQual!, issueDate: newIssueDate};
+                                            if (next.expDate && next.expDate !== 'No Expiration' && newIssueDate >= next.expDate) {
+                                                next.expDate = 'No Expiration';
+                                            }
+                                            setEditQual(next);
+                                        }}
+                                        className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-sm text-[#181c1e]" 
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2 flex-1">
+                                    <label className="text-xs font-bold text-[#43474e]">Expiration Date <span className="text-[#74777f] font-normal">(Optional)</span></label>
+                                    <input 
+                                        type="date" 
+                                        min={editQual.issueDate ? new Date(new Date(editQual.issueDate).getTime() + 86400000).toISOString().split('T')[0] : undefined}
+                                        max="2099-12-31"
+                                        value={editQual.expDate === 'No Expiration' ? '' : editQual.expDate} 
+                                        onChange={(e) => setEditQual({...editQual, expDate: e.target.value || 'No Expiration'})}
+                                        onBlur={(e) => {
+                                            const val = e.target.value;
+                                            const minDate = editQual.issueDate ? new Date(new Date(editQual.issueDate).getTime() + 86400000).toISOString().split('T')[0] : "";
+                                            if (val && minDate && val < minDate) {
+                                                setEditQual({...editQual, expDate: minDate});
+                                            } else if (val && val > "2099-12-31") {
+                                                setEditQual({...editQual, expDate: "2099-12-31"});
+                                            }
+                                        }}
+                                        className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] outline-none text-sm text-[#181c1e]" 
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-[#43474e]">Replace Certificate Image / PDF</label>
+                                <input type="file" ref={fileInputRef} className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange} />
+                                <div 
+                                    onClick={() => !newFile && fileInputRef.current?.click()}
+                                    className={`w-full border-2 border-dashed border-[#c4c6cf] rounded-xl flex flex-col items-center justify-center text-center transition-colors group relative overflow-hidden ${
+                                        newFile ? 'p-0 border-solid' : 'p-4 cursor-pointer min-h-32 hover:bg-[#f8f9fa]'
+                                    } ${newFile && newFile.type === 'application/pdf' ? 'min-h-125 h-125' : newFile && newFile.type.startsWith('image/') ? 'min-h-62.5 h-full' : ''}`}
+                                >
+                                    {newFile ? (
+                                        <>
+                                            {newFile.type.startsWith('image/') ? (
+                                                <img src={newFilePreview!} alt="Preview" className="w-full h-full absolute inset-0 object-contain bg-black/5" />
+                                            ) : newFile.type === 'application/pdf' ? (
+                                                <iframe src={`${newFilePreview}#toolbar=0&navpanes=0&view=FitH`} className="w-full h-full absolute inset-0 border-0 bg-white" title="PDF Preview" />
+                                            ) : (
+                                                <div className="flex flex-col items-center w-full h-full justify-center absolute inset-0">
+                                                    <div className="w-10 h-10 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] mb-2 group-hover:scale-110 transition-transform">
+                                                        <Upload className="w-5 h-5" />
+                                                    </div>
+                                                    <p className="text-xs font-bold text-[#002045] mb-1">New file selected</p>
+                                                    <p className="text-xs text-[#74777f] truncate max-w-50">{newFile.name}</p>
+                                                </div>
+                                            )}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (newFilePreview) URL.revokeObjectURL(newFilePreview);
+                                                    setNewFilePreview(null);
+                                                    setNewFile(null);
+                                                    if (fileInputRef.current) fileInputRef.current.value = "";
+                                                }}
+                                                className="absolute top-3 right-3 p-2 text-[#43474e] bg-white border border-[#e0e3e5] hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 rounded-lg transition-all shadow-md z-10"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="flex flex-col items-center w-full h-full justify-center">
+                                            <div className="w-10 h-10 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] mb-2 group-hover:scale-110 transition-transform">
+                                                <Upload className="w-5 h-5" />
+                                            </div>
+                                            <p className="text-xs font-bold text-[#002045] mb-1">Click to upload new file</p>
+                                            <p className="text-xs text-[#74777f]">Current: <span className="font-medium text-[#0061a5] truncate max-w-50 inline-block align-bottom">{editQual.file.split('/').pop() || editQual.file}</span></p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="pt-4 border-t border-[#e0e3e5] mt-6 flex justify-end gap-3">
+                                <button type="button" onClick={() => setEditQual(null)} disabled={loading} className="px-5 py-2 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-bold text-sm hover:bg-[#f1f4f6] disabled:opacity-50">
+                                    Cancel
+                                </button>
+                                <button type="submit" disabled={loading} className="px-5 py-2 bg-[#0061a5] text-white rounded-lg font-bold text-sm hover:bg-[#004d80] disabled:opacity-50 flex items-center gap-2">
+                                    {loading ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : null}
+                                    {loading ? 'Saving...' : 'Save Changes'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {deleteQual && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-scale-in p-6 text-center">
+                        <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Trash2 className="w-8 h-8" />
+                        </div>
+                        <h3 className="font-bold text-[#002045] text-xl mb-2">Delete Certificate?</h3>
+                        <p className="text-[#43474e] text-sm mb-6">
+                            Are you sure you want to delete <span className="font-bold">"{deleteQual.name}"</span>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setDeleteQual(null)} className="flex-1 py-2.5 bg-white border border-[#c4c6cf] text-[#43474e] rounded-lg font-bold text-sm hover:bg-[#f1f4f6]">
+                                Cancel
+                            </button>
+                            <button onClick={handleDelete} className="flex-1 py-2.5 bg-rose-600 text-white rounded-lg font-bold text-sm hover:bg-rose-700">
+                                Yes, Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+};
