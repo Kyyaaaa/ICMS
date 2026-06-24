@@ -6,6 +6,35 @@ const router = Router();
 
 /**
  * @swagger
+ * /api/sessions/my-schedule:
+ *   get:
+ *     summary: Lấy lịch học của user hiện tại (Staff, Tutor, Learner)
+ *     tags: [Session]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: start_date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Ngày bắt đầu (YYYY-MM-DD)
+ *       - in: query
+ *         name: end_date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Ngày kết thúc (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách thành công
+ *       401:
+ *         description: Chưa đăng nhập
+ */
+router.get('/my-schedule', verifyToken, SessionController.getMySchedule);
+
+/**
+ * @swagger
  * /api/sessions/{session_id}/attendance:
  *   get:
  *     summary: Lấy danh sách điểm danh của 1 buổi học (Dành cho Tutor/Staff)

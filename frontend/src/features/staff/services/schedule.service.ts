@@ -1,22 +1,61 @@
+import axiosClient from '../../../shared/services/axiosClient';
 import type { ScheduleSession } from '../types/schedule';
 
-const MOCK_SCHEDULE: ScheduleSession[] = [
-    { id: 1, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', dayIndex: 0, startTime: '07:30', endTime: '09:30', color: 'bg-blue-50 border-blue-200 border-l-blue-600' }, // Slot 1
-    { id: 2, class: 'TOEIC-B12', tutor: 'Mr. John Doe', room: 'Room 202', dayIndex: 0, startTime: '13:30', endTime: '15:30', color: 'bg-emerald-50 border-emerald-200 border-l-emerald-600' }, // Slot 3
-    { id: 3, class: 'COM202', tutor: 'Ms. Emily Chen', room: 'Room 205', dayIndex: 1, startTime: '09:30', endTime: '11:30', color: 'bg-purple-50 border-purple-200 border-l-purple-600' }, // Slot 2
-    { id: 4, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', dayIndex: 2, startTime: '07:30', endTime: '09:30', color: 'bg-blue-50 border-blue-200 border-l-blue-600' }, // Slot 1
-    { id: 5, class: 'TOEIC-B12', tutor: 'Mr. John Doe', room: 'Room 202', dayIndex: 2, startTime: '13:30', endTime: '15:30', color: 'bg-emerald-50 border-emerald-200 border-l-emerald-600' }, // Slot 3
-    { id: 6, class: 'ENG401', tutor: 'Mr. Alan Wake', room: 'Room 402', dayIndex: 3, startTime: '18:00', endTime: '20:00', color: 'bg-amber-50 border-amber-200 border-l-amber-600' }, // Slot 5
-    { id: 7, class: 'IE1601', tutor: 'Dr. Sarah Smith', room: 'Room 301', dayIndex: 4, startTime: '07:30', endTime: '09:30', color: 'bg-blue-50 border-blue-200 border-l-blue-600' }, // Slot 1
-    { id: 8, class: 'COM202', tutor: 'Ms. Emily Chen', room: 'Room 205', dayIndex: 5, startTime: '09:30', endTime: '11:30', color: 'bg-purple-50 border-purple-200 border-l-purple-600' }, // Slot 2
+// Helper to extract time from slot
+const getSlotTimes = (slot: string) => {
+    const match = slot.toLowerCase().match(/slot\s*([1-6])/);
+    const normalizedSlot = match ? `slot${match[1]}` : slot.toLowerCase();
+
+    switch(normalizedSlot) {
+        case 'slot1': return { startTime: '07:30', endTime: '09:30' };
+        case 'slot2': return { startTime: '09:30', endTime: '11:30' };
+        case 'slot3': return { startTime: '13:30', endTime: '15:30' };
+        case 'slot4': return { startTime: '15:30', endTime: '17:30' };
+        case 'slot5': return { startTime: '18:00', endTime: '20:00' };
+        case 'slot6': return { startTime: '20:00', endTime: '22:00' };
+        default: return { startTime: '00:00', endTime: '00:00' };
+    }
+};
+
+// Colors for visual variety
+const COLORS = [
+    'bg-blue-50 border-blue-200 border-l-blue-600',
+    'bg-emerald-50 border-emerald-200 border-l-emerald-600',
+    'bg-purple-50 border-purple-200 border-l-purple-600',
+    'bg-amber-50 border-amber-200 border-l-amber-600'
 ];
 
 export const ScheduleService = {
-    getSchedule: async (_startDate: Date, _endDate: Date): Promise<ScheduleSession[]> => {
-        return new Promise(resolve => setTimeout(() => resolve([...MOCK_SCHEDULE]), 200));
-    },
+    getSchedule: async (startDate: Date, endDate: Date): Promise<ScheduleSession[]> => {
+        const startStr = startDate.toISOString().split('T')[0];
+        const endStr = endDate.toISOString().split('T')[0];
+        
+        try {
+            const res = await axiosClient.get(`/sessions/my-schedule?start_date=${startStr}&end_date=${endStr}`);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const data = (res as any)?.data || [];
+            
+            return data.map((s, index) => {
+                const times = getSlotTimes(s.slot);
+                const d = new Date(s.date);
+                let dayIndex = d.getDay() - 1;
+                if (dayIndex === -1) dayIndex = 6; // Sunday
 
-    updateSession: async (_updatedSession: ScheduleSession): Promise<void> => {
-        return new Promise(resolve => setTimeout(resolve, 200));
+                return {
+                    id: s.id,
+                    class: s.class?.name || 'Unknown Class',
+                    tutor: s.tutor?.full_name || 'Unassigned',
+                    room: s.classroom?.room_name || 'Unassigned',
+                    dayIndex,
+                    startTime: times.startTime,
+                    endTime: times.endTime,
+                    color: COLORS[index % COLORS.length],
+                    rawSession: s
+                };
+            });
+        } catch (error) {
+            console.error("Failed to fetch schedule:", error);
+            return [];
+        }
     }
 };

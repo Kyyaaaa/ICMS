@@ -1,6 +1,8 @@
 import { MapPin, Users, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import type { TutorScheduleSession } from '../types/schedule';
+import { SessionDetailModal } from '@/shared/components/ui/SessionDetailModal';
 
 interface ScheduleGridProps {
     weekDates: Date[];
@@ -42,6 +44,8 @@ const attendanceBadge = (status: string) => {
 
 export const ScheduleGrid = ({ weekDates, schedule }: ScheduleGridProps) => {
     const navigate = useNavigate();
+    const [selectedSession, setSelectedSession] = useState<TutorScheduleSession | null>(null);
+    const [selectedDateStr, setSelectedDateStr] = useState<string>('');
 
     const daysWithSessions = weekDates.map((date, dayIndex) => {
         const sessionsForDay = schedule.filter(s => s.dayIndex === dayIndex).sort((a, b) => a.startTime.localeCompare(b.startTime));
@@ -90,7 +94,10 @@ export const ScheduleGrid = ({ weekDates, schedule }: ScheduleGridProps) => {
                             return (
                                 <tr 
                                     key={session.id} 
-                                    onClick={() => navigate(`/tutor/classes/${session.classId}/attendance?sessionId=${session.sessionId}`)}
+                                    onClick={() => {
+                                        setSelectedSession(session);
+                                        setSelectedDateStr(dateStr);
+                                    }}
                                     className="hover:bg-[#f8f9fa] transition-colors cursor-pointer"
                                 >
                                     {sIndex === 0 && (
@@ -134,6 +141,18 @@ export const ScheduleGrid = ({ weekDates, schedule }: ScheduleGridProps) => {
                     })}
                 </tbody>
             </table>
+
+            <SessionDetailModal 
+                isOpen={!!selectedSession}
+                onClose={() => setSelectedSession(null)}
+                session={selectedSession}
+                dateStr={selectedDateStr}
+                onTakeAttendance={() => {
+                    if (selectedSession) {
+                        navigate(`/tutor/classes/${selectedSession.classId}/attendance?sessionId=${selectedSession.sessionId}`);
+                    }
+                }}
+            />
         </div>
     );
 };

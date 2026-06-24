@@ -1,18 +1,63 @@
+import axiosClient from '../../../shared/services/axiosClient';
 import type { TutorScheduleSession } from '../types/schedule';
 
-const MOCK_TUTOR_SCHEDULE: TutorScheduleSession[] = [
-    { id: 1, classId: 'c1', sessionId: 's1', class: 'IELTS Mastery', session: 'Session 1', room: 'Room 302', students: 15, dayIndex: 0, startTime: '18:00', endTime: '20:00', attendance: 'taken' },
-    { id: 6, classId: 'c2', sessionId: 's10', class: 'TOEIC Prep', session: 'Session 3', room: 'Room 305', students: 20, dayIndex: 0, startTime: '07:30', endTime: '09:30', attendance: 'taken' },
-    { id: 7, classId: 'c3', sessionId: 's11', class: 'Communication Skills', session: 'Session 2', room: 'Room 201', students: 12, dayIndex: 0, startTime: '09:30', endTime: '11:30', attendance: 'pending' },
-    { id: 2, classId: 'c1', sessionId: 's2', class: 'IELTS Mastery', session: 'Session 2', room: 'Room 302', students: 15, dayIndex: 2, startTime: '18:00', endTime: '20:00', attendance: 'pending' },
-    { id: 8, classId: 'c2', sessionId: 's12', class: 'TOEIC Prep', session: 'Session 4', room: 'Room 305', students: 20, dayIndex: 2, startTime: '15:30', endTime: '17:30', attendance: 'pending' },
-    { id: 3, classId: 'c2', sessionId: 's4', class: 'TOEIC Prep', session: 'Session 1', room: 'Room 305', students: 20, dayIndex: 1, startTime: '15:30', endTime: '17:30', attendance: 'taken' },
-    { id: 4, classId: 'c2', sessionId: 's5', class: 'TOEIC Prep', session: 'Session 2', room: 'Room 305', students: 20, dayIndex: 3, startTime: '15:30', endTime: '17:30', attendance: 'pending' },
-    { id: 5, classId: 'c3', sessionId: 's6', class: 'Communication Skills', session: 'Session 1', room: 'Room 201', students: 12, dayIndex: 5, startTime: '09:30', endTime: '11:30', attendance: 'pending' },
-];
+// Helper to extract time from slot
+const getSlotTimes = (slot: string) => {
+    const match = slot.toLowerCase().match(/slot\s*([1-6])/);
+    const normalizedSlot = match ? `slot${match[1]}` : slot.toLowerCase();
+
+    switch(normalizedSlot) {
+        case 'slot1': return { startTime: '07:30', endTime: '09:30' };
+        case 'slot2': return { startTime: '09:30', endTime: '11:30' };
+        case 'slot3': return { startTime: '13:30', endTime: '15:30' };
+        case 'slot4': return { startTime: '15:30', endTime: '17:30' };
+        case 'slot5': return { startTime: '18:00', endTime: '20:00' };
+        case 'slot6': return { startTime: '20:00', endTime: '22:00' };
+        default: return { startTime: '00:00', endTime: '00:00' };
+    }
+};
 
 export const ScheduleService = {
-    getSchedule: async (): Promise<TutorScheduleSession[]> => {
-        return new Promise(resolve => setTimeout(() => resolve(MOCK_TUTOR_SCHEDULE), 200));
+    getSchedule: async (startDate?: Date, endDate?: Date): Promise<TutorScheduleSession[]> => {
+        let url = '/sessions/my-schedule';
+        if (startDate && endDate) {
+            const startStr = startDate.toISOString().split('T')[0];
+            const endStr = endDate.toISOString().split('T')[0];
+            url += `?start_date=${startStr}&end_date=${endStr}`;
+        }
+        
+        try {
+            const res = await axiosClient.get(url);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const data = (res as any)?.data || [];
+            
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return data.map((s: any) => {
+                const times = getSlotTimes(s.slot);
+                const d = new Date(s.date);
+                let dayIndex = d.getDay() - 1;
+                if (dayIndex === -1) dayIndex = 6; // Sunday
+
+                // Check attendance status logic: if past time, maybe default to pending if not taken?
+                // The frontend just uses 'taken' or 'pending' for Tutor.
+                // We'll set 'pending' by default. Real attendance check could be an extra API call or joined in backend.
+                return {
+                    id: s.id,
+                    classId: s.class_id,
+                    sessionId: s.id,
+                    class: s.class?.name || 'Unknown Class',
+                    session: `Session ${s.session_number}`,
+                    room: s.classroom?.room_name || 'Unassigned',
+                    students: s.class?.capacity || 20, // default to capacity or 20
+                    dayIndex,
+                    startTime: times.startTime,
+                    endTime: times.endTime,
+                    attendance: 'pending' // Defaulting to pending for now
+                };
+            });
+        } catch (error) {
+            console.error("Failed to fetch tutor schedule:", error);
+            return [];
+        }
     }
 };

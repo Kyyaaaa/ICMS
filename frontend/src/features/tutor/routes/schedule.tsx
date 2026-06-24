@@ -31,7 +31,9 @@ const TeachingSchedule = () => {
     useEffect(() => {
         const fetchSchedule = async () => {
             setLoading(true);
-            const data = await ScheduleService.getSchedule();
+            const dEnd = new Date(currentMonday);
+            dEnd.setDate(dEnd.getDate() + 6);
+            const data = await ScheduleService.getSchedule(currentMonday, dEnd);
             setSchedule(data);
             setLoading(false);
         };

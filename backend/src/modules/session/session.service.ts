@@ -2,6 +2,14 @@ import { SessionRepository } from './session.repository';
 import { UpdateAttendanceDTO, Attendance } from './session.model';
 
 export class SessionService {
+  static async getMySchedule(userId: string, role: string, startDate?: string, endDate?: string) {
+    let sessions = await SessionRepository.getSessionsByDateRangeAndRole(userId, role, startDate, endDate);
+    
+    // Format the response if necessary, or just return the raw sessions.
+    // The frontend can adapt to the raw payload.
+    return sessions;
+  }
+
   static async getAttendance(sessionId: string) {
     if (!sessionId) {
       const err: any = new Error('session_id is required');

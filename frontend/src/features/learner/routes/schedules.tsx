@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { MapPin, ChevronLeft, ChevronRight, User, CheckCircle, XCircle, AlertCircle, CalendarDays } from 'lucide-react';
 import type { LearnerSession } from '../types/schedule';
 import { LearnerSchedulesService } from '../services/schedules.service';
+import { SessionDetailModal } from '@/shared/components/ui/SessionDetailModal';
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -64,6 +65,8 @@ const LearnerSchedules = () => {
     const [schedule, setSchedule] = useState<LearnerSession[]>([]);
     const [loading, setLoading] = useState(false);
     const dateInputRef = useRef<HTMLInputElement>(null);
+    const [selectedSession, setSelectedSession] = useState<LearnerSession | null>(null);
+    const [selectedDateStr, setSelectedDateStr] = useState<string>('');
 
     useEffect(() => {
         const fetchSchedule = async () => {
@@ -199,7 +202,14 @@ const LearnerSchedules = () => {
                                         return sessions.map((session, sIndex) => {
                                             const shift = SHIFTS.find(s => s.startTime === session.startTime);
                                             return (
-                                                <tr key={session.id} className="hover:bg-[#f8f9fa] transition-colors">
+                                                <tr 
+                                                    key={session.id} 
+                                                    className="hover:bg-[#f8f9fa] transition-colors cursor-pointer"
+                                                    onClick={() => {
+                                                        setSelectedSession(session);
+                                                        setSelectedDateStr(dateStr);
+                                                    }}
+                                                >
                                                     {sIndex === 0 && (
                                                         <td rowSpan={sessions.length} className="p-4 border-r border-[#e0e3e5] align-middle text-center bg-white w-35">
                                                             <div className={`font-bold ${isToday ? 'text-[#0061a5]' : 'text-[#181c1e]'}`}>
@@ -245,6 +255,13 @@ const LearnerSchedules = () => {
                     })()}
                 </div>
             </div>
+
+            <SessionDetailModal 
+                isOpen={!!selectedSession}
+                onClose={() => setSelectedSession(null)}
+                session={selectedSession}
+                dateStr={selectedDateStr}
+            />
         </div>
     );
 };
