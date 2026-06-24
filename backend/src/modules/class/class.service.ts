@@ -54,16 +54,18 @@ export class ClassService {
         if (sess.slot && !ALLOWED_SLOTS.includes(sess.slot)) {
           throw { status: 400, message: `Invalid slot: ${sess.slot}` };
         }
-        // Check conflict if tutor and classroom are provided for the class
+        // Check conflict if tutor and classroom are provided for the session or class
         if (sess.date && sess.slot) {
-          if (data.tutor_id) {
-            const hasTutorConflict = await ClassRepository.checkTutorConflict(data.tutor_id, sess.date, sess.slot);
+          const checkTutorId = sess.tutor_id || data.tutor_id;
+          if (checkTutorId) {
+            const hasTutorConflict = await ClassRepository.checkTutorConflict(checkTutorId, sess.date, sess.slot);
             if (hasTutorConflict) {
               throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${sess.slot}` };
             }
           }
-          if (data.classroom_id) {
-            const hasRoomConflict = await ClassRepository.checkClassroomConflict(data.classroom_id, sess.date, sess.slot);
+          const checkClassroomId = sess.classroom_id || data.classroom_id;
+          if (checkClassroomId) {
+            const hasRoomConflict = await ClassRepository.checkClassroomConflict(checkClassroomId, sess.date, sess.slot);
             if (hasRoomConflict) {
               throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${sess.slot}` };
             }
@@ -121,8 +123,8 @@ export class ClassService {
         title: sessionTitle,
         date: sessDate,
         slot: sessSlot,
-        tutor_id: data.tutor_id || null,
-        classroom_id: data.classroom_id || null
+        tutor_id: config?.tutor_id || data.tutor_id || null,
+        classroom_id: config?.classroom_id || data.classroom_id || null
       });
     }
 
@@ -163,6 +165,28 @@ export class ClassService {
       }
     }
 
+    // Validate conflicts
+    if (sessions && sessions.length > 0) {
+      for (const sess of sessions) {
+        if (sess.date && sess.slot) {
+          const checkTutorId = sess.tutor_id || classUpdates.tutor_id || updatedClass?.tutor_id;
+          if (checkTutorId) {
+            const hasTutorConflict = await ClassRepository.checkTutorConflict(checkTutorId, sess.date, sess.slot, undefined, id);
+            if (hasTutorConflict) {
+              throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${sess.slot}` };
+            }
+          }
+          const checkClassroomId = sess.classroom_id || classUpdates.classroom_id || updatedClass?.classroom_id;
+          if (checkClassroomId) {
+            const hasRoomConflict = await ClassRepository.checkClassroomConflict(checkClassroomId, sess.date, sess.slot, undefined, id);
+            if (hasRoomConflict) {
+              throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${sess.slot}` };
+            }
+          }
+        }
+      }
+    }
+
     // If sessions are provided, overwrite existing sessions
     if (sessions && sessions.length > 0) {
       await ClassRepository.deleteClassSessions(id);
@@ -184,8 +208,8 @@ export class ClassService {
           title: sessionTitle,
           date: config.date,
           slot: config.slot,
-          tutor_id: classUpdates.tutor_id || updatedClass.tutor_id || null,
-          classroom_id: classUpdates.classroom_id || updatedClass.classroom_id || null
+          tutor_id: config.tutor_id || classUpdates.tutor_id || updatedClass?.tutor_id || null,
+          classroom_id: config.classroom_id || classUpdates.classroom_id || updatedClass?.classroom_id || null
         });
       }
 

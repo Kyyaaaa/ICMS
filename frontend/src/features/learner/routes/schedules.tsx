@@ -47,12 +47,12 @@ const attendanceBadge = (status: string) => {
                     <span>Absent</span>
                 </div>
             );
-        case 'upcoming':
+        case 'not_yet':
         default:
             return (
                 <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] bg-gray-50 border border-gray-200 rounded px-1 py-0.5 w-fit shrink-0">
                     <AlertCircle className="w-3 h-3" />
-                    <span>Upcoming</span>
+                    <span>Not Yet</span>
                 </div>
             );
     }

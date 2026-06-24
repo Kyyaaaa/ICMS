@@ -46,7 +46,7 @@ export const LearnerSchedulesService = {
 
                 // map learner_attendance or fallback
                 const attStatus = s.learner_attendance === 'PRESENT' ? 'present' : 
-                                  s.learner_attendance === 'ABSENT' ? 'absent' : 'upcoming';
+                                  s.learner_attendance === 'ABSENT' ? 'absent' : 'not_yet';
 
                 return {
                     id: s.id,

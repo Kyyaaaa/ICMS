@@ -30,11 +30,18 @@ const attendanceBadge = (status: string) => {
                 </div>
             );
         case 'pending':
-        default:
             return (
                 <div className="flex items-center gap-1 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded px-1 py-0.5 w-fit shrink-0">
                     <AlertCircle className="w-3 h-3" />
                     <span>Pending</span>
+                </div>
+            );
+        case 'not_yet':
+        default:
+            return (
+                <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] bg-gray-50 border border-gray-200 rounded px-1 py-0.5 w-fit shrink-0">
+                    <AlertCircle className="w-3 h-3" />
+                    <span>Not Yet</span>
                 </div>
             );
     }

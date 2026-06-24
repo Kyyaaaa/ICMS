@@ -58,6 +58,26 @@ export class SessionRepository {
       }
     }
 
+    // For tutors, check if attendance has been taken for the session
+    if (role === 'TUTOR' && data && data.length > 0) {
+      const sessionIds = data.map(s => s.id);
+      const { data: attendances } = await supabaseAdmin
+        .from('attendances')
+        .select('session_id, status')
+        .in('session_id', sessionIds)
+        .neq('status', 'NOT_YET');
+        
+      if (attendances) {
+        const takenSet = new Set(attendances.map(a => a.session_id));
+        return data.map(s => ({
+          ...s,
+          is_attendance_taken: takenSet.has(s.id)
+        }));
+      } else {
+        return data.map(s => ({ ...s, is_attendance_taken: false }));
+      }
+    }
+
     return data;
   }
 

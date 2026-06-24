@@ -2,6 +2,8 @@ export interface SessionConfig {
   session_number?: number;
   date: string;
   slot: string; // 'slot1', 'slot2', ...
+  tutor_id?: string | null;
+  classroom_id?: string | null;
 }
 
 export interface CreateClassDTO {

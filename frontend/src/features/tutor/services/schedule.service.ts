@@ -38,9 +38,20 @@ export const ScheduleService = {
                 let dayIndex = d.getDay() - 1;
                 if (dayIndex === -1) dayIndex = 6; // Sunday
 
-                // Check attendance status logic: if past time, maybe default to pending if not taken?
-                // The frontend just uses 'taken' or 'pending' for Tutor.
-                // We'll set 'pending' by default. Real attendance check could be an extra API call or joined in backend.
+                let attendanceStatus: 'taken' | 'pending' | 'not_yet';
+                if (s.is_attendance_taken) {
+                    attendanceStatus = 'taken';
+                } else {
+                    const sessionDate = new Date(s.date);
+                    const [startHour, startMinute] = times.startTime.split(':').map(Number);
+                    sessionDate.setHours(startHour, startMinute, 0, 0);
+                    if (new Date() >= sessionDate) {
+                        attendanceStatus = 'pending';
+                    } else {
+                        attendanceStatus = 'not_yet';
+                    }
+                }
+
                 return {
                     id: s.id,
                     classId: s.class_id,
@@ -52,7 +63,7 @@ export const ScheduleService = {
                     dayIndex,
                     startTime: times.startTime,
                     endTime: times.endTime,
-                    attendance: 'pending' // Defaulting to pending for now
+                    attendance: attendanceStatus
                 };
             });
         } catch (error) {

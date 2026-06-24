@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Users, MapPin, ChevronRight, ChevronDown } from 'lucide-react';
 import { CoursesService } from '@/shared/services/courses.service';
@@ -6,9 +6,11 @@ import type { Course } from '@/shared/types/course';
 import { AccountsService } from '../services/accounts.service';
 import { TutorAvailabilityService } from '../services/tutor-availability.service';
 import type { TutorAvailabilityProfile } from '../types/tutor-availability';
+import type { AvailabilityCycle } from '../services/tutor-availability.service';
 import { ClassroomsService } from '@/shared/services/classrooms.service';
 import type { Classroom } from '@/shared/services/classrooms.service';
 import { ClassesService } from '../services/classes.service';
+import type { Session } from '../types/class';
 import { showAlertModal } from '@/utils/modal';
 
 const CreateClass = () => {
@@ -33,59 +35,73 @@ const CreateClass = () => {
 
     const [allCourses, setAllCourses] = useState<Course[]>([]);
     const [allTutors, setAllTutors] = useState<{id: string, full_name: string}[]>([]);
+    const [cycles, setCycles] = useState<AvailabilityCycle[]>([]);
     const [tutorsAvailability, setTutorsAvailability] = useState<TutorAvailabilityProfile[]>([]);
     const [availableRooms, setAvailableRooms] = useState<Classroom[]>([]);
     
     const [weeklySchedule, setWeeklySchedule] = useState<{dayOfWeek: number, slot: string}[]>([]);
     const [generatedSessions, setGeneratedSessions] = useState<{session_number: number, date: string, slot: string}[]>([]);
     const [hasLearners, setHasLearners] = useState(false);
-    const [occupiedGlobalSlots, setOccupiedGlobalSlots] = useState<{dayOfWeek: number, slot: string}[]>([]);
+    const [allGlobalSessions, setAllGlobalSessions] = useState<Session[]>([]);
 
     useEffect(() => {
-        const fetchOccupied = async () => {
-            if (tutor && startDate) {
-                const sessions = await ClassesService.getOccupiedSessions({ 
-                    tutor_id: tutor, 
-                    start_date: startDate,
-                    exclude_class_id: isEdit ? id : undefined
-                });
-                
-                const occupied: {dayOfWeek: number, slot: string}[] = [];
-                sessions.forEach(session => {
-                    if (session.date && session.slot) {
-                        const dateObj = new Date(session.date);
-                        const dayOfWeek = dateObj.getDay();
-                        if (!occupied.some(o => o.dayOfWeek === dayOfWeek && o.slot === session.slot)) {
-                            occupied.push({ dayOfWeek, slot: session.slot });
-                        }
-                    }
-                });
-                setOccupiedGlobalSlots(occupied);
-            } else {
-                setOccupiedGlobalSlots([]);
+        const fetchAllSessions = async () => {
+            if (!startDate) {
+                setAllGlobalSessions([]);
+                return;
             }
+            const sessions = await ClassesService.getOccupiedSessions({
+                start_date: startDate,
+                exclude_class_id: isEdit ? id : undefined
+            });
+            setAllGlobalSessions(sessions);
         };
-        fetchOccupied();
-    }, [tutor, startDate, id, isEdit]);
+        fetchAllSessions();
+    }, [startDate, id, isEdit]);
+
+    const occupiedGlobalSlots = useMemo(() => {
+        const occupied: {dayOfWeek: number, slot: string}[] = [];
+        allGlobalSessions.forEach(session => {
+            if ((tutor && session.tutor_id === tutor) || (selectedRoom && session.classroom_id === selectedRoom.id)) {
+                if (session.date && session.slot) {
+                    const dateObj = new Date(session.date);
+                    const dayOfWeek = dateObj.getDay();
+                    if (!occupied.some(o => o.dayOfWeek === dayOfWeek && o.slot === session.slot)) {
+                        occupied.push({ dayOfWeek, slot: session.slot });
+                    }
+                }
+            }
+        });
+        return occupied;
+    }, [allGlobalSessions, tutor, selectedRoom]);
+
+    const filteredRooms = useMemo(() => {
+        if (generatedSessions.length === 0) return availableRooms;
+        
+        return availableRooms.filter(room => {
+            const conflicts = allGlobalSessions.some(session => {
+                if (session.classroom_id !== room.id) return false;
+                return generatedSessions.some(gs => gs.date === session.date && gs.slot === session.slot);
+            });
+            return !conflicts;
+        });
+    }, [availableRooms, allGlobalSessions, generatedSessions]);
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 const cyclesData = await TutorAvailabilityService.getCycles();
-                const defaultCycle = cyclesData.find(c => c.status === 'OPEN') || cyclesData[0];
-                const cycleId = defaultCycle ? defaultCycle.id : '';
+                setCycles(cyclesData);
 
-                const [coursesData, tutorsData, roomsData, availabilityData] = await Promise.all([
+                const [coursesData, tutorsData, roomsData] = await Promise.all([
                     CoursesService.getCourses(),
                     AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' }),
-                    ClassroomsService.getAll(),
-                    cycleId ? TutorAvailabilityService.getTutors(cycleId) : Promise.resolve([])
+                    ClassroomsService.getAll()
                 ]);
                 setAllCourses(coursesData);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 setAllTutors((tutorsData as any).data?.data || []);
                 setAvailableRooms(roomsData);
-                setTutorsAvailability(availabilityData || []);
 
                 if (isEdit && id) {
                     const classData = await ClassesService.getClassById(id);
@@ -126,6 +142,34 @@ const CreateClass = () => {
         };
         loadData();
     }, [isEdit, id]);
+
+    useEffect(() => {
+        const fetchAvailability = async () => {
+            if (!startDate || cycles.length === 0) {
+                setTutorsAvailability([]);
+                return;
+            }
+            const date = new Date(startDate);
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthName = monthNames[date.getMonth()];
+            const year = date.getFullYear();
+            const cycleName = `${monthName} - ${year}`;
+            
+            const targetCycle = cycles.find(c => c.name === cycleName);
+            if (targetCycle) {
+                try {
+                    const availabilityData = await TutorAvailabilityService.getTutors(targetCycle.id);
+                    setTutorsAvailability(availabilityData || []);
+                } catch (err) {
+                    console.error("Failed to load tutor availability", err);
+                    setTutorsAvailability([]);
+                }
+            } else {
+                setTutorsAvailability([]);
+            }
+        };
+        fetchAvailability();
+    }, [startDate, cycles]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -292,7 +336,7 @@ const CreateClass = () => {
                                         >
                                             -- Select Available Room --
                                         </button>
-                                        {availableRooms.map((room) => (
+                                        {filteredRooms.map((room) => (
                                             <button 
                                                 key={room.id}
                                                 className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors truncate"
@@ -376,12 +420,18 @@ const CreateClass = () => {
                                                                     const shiftToSlotMap: Record<string, string> = {
                                                                         'M1': 'slot1', 'M2': 'slot2',
                                                                         'A1': 'slot3', 'A2': 'slot4',
-                                                                        'E1': 'slot5', 'E2': 'slot6'
+                                                                        'E1': 'slot5', 'E2': 'slot6',
+                                                                        'slot1': 'slot1', 'slot2': 'slot2',
+                                                                        'slot3': 'slot3', 'slot4': 'slot4',
+                                                                        'slot5': 'slot5', 'slot6': 'slot6'
                                                                     };
                                                                     const shiftToLabelMap: Record<string, string> = {
                                                                         'M1': 'Slot 1 (07:30 - 09:30)', 'M2': 'Slot 2 (09:30 - 11:30)',
                                                                         'A1': 'Slot 3 (13:30 - 15:30)', 'A2': 'Slot 4 (15:30 - 17:30)',
-                                                                        'E1': 'Slot 5 (18:00 - 20:00)', 'E2': 'Slot 6 (20:00 - 22:00)'
+                                                                        'E1': 'Slot 5 (18:00 - 20:00)', 'E2': 'Slot 6 (20:00 - 22:00)',
+                                                                        'slot1': 'Slot 1 (07:30 - 09:30)', 'slot2': 'Slot 2 (09:30 - 11:30)',
+                                                                        'slot3': 'Slot 3 (13:30 - 15:30)', 'slot4': 'Slot 4 (15:30 - 17:30)',
+                                                                        'slot5': 'Slot 5 (18:00 - 20:00)', 'slot6': 'Slot 6 (20:00 - 22:00)'
                                                                     };
 
                                                                     const shiftName = slotStr.split('-')[1];

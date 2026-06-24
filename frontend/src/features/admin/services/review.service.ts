@@ -16,9 +16,12 @@ export const AdminReviewService = {
         try {
             const response = await axios.get(`${API_URL}/admin/reviews/tutors`, { headers: getHeaders() });
             return response.data;
-        } catch (error: any) {
-            console.error('Error fetching tutor ratings:', error.response?.data || error);
-            throw new Error(error.response?.data?.message || 'Failed to fetch tutor ratings');
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                console.error('Error fetching tutor ratings:', error.response?.data || error);
+                throw new Error(error.response?.data?.message || 'Failed to fetch tutor ratings', { cause: error });
+            }
+            throw new Error('Failed to fetch tutor ratings', { cause: error });
         }
     },
 
@@ -26,9 +29,12 @@ export const AdminReviewService = {
         try {
             const response = await axios.get(`${API_URL}/admin/reviews/tutors/${tutorId}`, { headers: getHeaders() });
             return response.data;
-        } catch (error: any) {
-            console.error('Error fetching tutor review details:', error.response?.data || error);
-            throw new Error(error.response?.data?.message || 'Failed to fetch tutor review details');
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                console.error('Error fetching tutor review details:', error.response?.data || error);
+                throw new Error(error.response?.data?.message || 'Failed to fetch tutor review details', { cause: error });
+            }
+            throw new Error('Failed to fetch tutor review details', { cause: error });
         }
     }
 };
