@@ -27,8 +27,8 @@ const COLORS = [
 
 export const ScheduleService = {
     getSchedule: async (startDate: Date, endDate: Date): Promise<ScheduleSession[]> => {
-        const startStr = startDate.toISOString().split('T')[0];
-        const endStr = endDate.toISOString().split('T')[0];
+        const startStr = startDate.toLocaleDateString('en-CA');
+        const endStr = endDate.toLocaleDateString('en-CA');
         
         try {
             const res = await axiosClient.get(`/sessions/my-schedule?start_date=${startStr}&end_date=${endStr}`);

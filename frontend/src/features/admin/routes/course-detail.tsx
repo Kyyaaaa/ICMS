@@ -30,7 +30,6 @@ interface ApiCourse {
   category?: string;
   status?: string;
   description?: string;
-  duration?: string;
   sessions?: number | string;
   max_size?: number | string;
   format?: string;
@@ -56,12 +55,11 @@ const AdminCourseDetail = () => {
     category: "",
     status: "Draft",
     description: "",
-    duration: "",
     sessions: "",
     maxSize: "",
     format: "",
-    location: "London Center / Online",
-    language: "English",
+    location: "",
+    language: "",
     minBand: "",
     maxBand: "",
     price: "",
@@ -128,7 +126,6 @@ const AdminCourseDetail = () => {
             category: data.category || "",
             status: data.status || "Draft",
             description: data.description || "",
-            duration: "N/A",
             sessions: String(data.sessions || ""),
             maxSize: String(data.max_size || ""),
             format: data.format || "",
@@ -152,8 +149,6 @@ const AdminCourseDetail = () => {
     };
     fetchCourse();
   }, [id]);
-
-
 
   const calculatedTotalSessions = courseData.sessionsList.length;
 
@@ -212,13 +207,7 @@ const AdminCourseDetail = () => {
 
       setIsUploadingImage(true); // Reuse as loading state for button
       try {
-        let formattedDate = courseData.nextCohort;
-        if (formattedDate && formattedDate.includes("-")) {
-          const parts = formattedDate.split("-");
-          if (parts.length === 3) {
-            formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // YYYY-MM-DD -> DD/MM/YYYY
-          }
-        }
+        const formattedDate = courseData.nextCohort || null;
 
         const cleanedSessions = courseData.sessionsList.map((m) => ({
           ...m,
@@ -231,7 +220,6 @@ const AdminCourseDetail = () => {
           category: courseData.category,
           status: courseData.status,
           description: courseData.description,
-          duration: "N/A",
           sessions: calculatedTotalSessions,
           format: courseData.format,
           band:
@@ -385,12 +373,42 @@ const AdminCourseDetail = () => {
     }
   }
 
+  const handleTotalSessionsChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const valStr = e.target.value;
+    if (valStr === "") {
+      setCourseData({
+        ...courseData,
+        sessionsList: [{ title: `Session 1: `, description: "" }],
+      });
+      return;
+    }
+    let val = parseInt(valStr);
+    if (isNaN(val) || val < 1) return;
+    if (val > 100) val = 100;
+
+    setCourseData((prev) => {
+      const currentLen = prev.sessionsList.length;
+      if (val === currentLen) return prev;
+      if (val > currentLen) {
+        const added = Array.from({ length: val - currentLen }).map(() => ({
+          title: "",
+          description: "",
+        }));
+        return { ...prev, sessionsList: [...prev.sessionsList, ...added] };
+      } else {
+        return { ...prev, sessionsList: prev.sessionsList.slice(0, val) };
+      }
+    });
+  };
+
   const handleAddSession = () => {
     setCourseData({
       ...courseData,
       sessionsList: [
         ...courseData.sessionsList,
-        { title: `Session ${courseData.sessionsList.length + 1}: `, description: "" },
+        { title: "", description: "" },
       ],
     });
   };
@@ -539,15 +557,19 @@ const AdminCourseDetail = () => {
                       <label className="block text-xs font-bold text-[#43474e] mb-1">
                         Category
                       </label>
-                      <input
-                        type="text"
+                      <select
                         name="category"
                         value={courseData.category}
                         onChange={handleChange}
-                        readOnly={isCohortLocked}
-                        className={`w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
-                        placeholder="e.g. Masterclass"
-                      />
+                        disabled={isCohortLocked}
+                        className={`w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? "bg-[#e0e3e5] cursor-not-allowed text-[#74777f]" : "bg-white"}`}
+                      >
+                        <option value="Masterclass">Masterclass</option>
+                        <option value="Fundamentals">Fundamentals</option>
+                        <option value="Specialized">Specialized</option>
+                        <option value="General">General</option>
+                        <option value="Private">Private</option>
+                      </select>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-[#43474e] mb-1">
@@ -604,10 +626,13 @@ const AdminCourseDetail = () => {
                     </h4>
                     <div className="flex items-center gap-1">
                       <input
-                        type="text"
-                        readOnly
-                        value={calculatedTotalSessions}
-                        className="w-16 text-sm font-bold text-[#43474e] bg-[#e0e3e5] p-1 border border-[#c4c6cf] rounded cursor-not-allowed outline-none"
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={calculatedTotalSessions || ""}
+                        onChange={handleTotalSessionsChange}
+                        disabled={isCohortLocked}
+                        className={`w-16 text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? "bg-[#e0e3e5] cursor-not-allowed" : "bg-white"}`}
                       />
                       <span className="text-xs font-bold text-[#74777f]">
                         Total
@@ -623,10 +648,9 @@ const AdminCourseDetail = () => {
                       <input
                         type="text"
                         name="format"
-                        value={courseData.format}
-                        onChange={handleChange}
-                        readOnly={isCohortLocked}
-                        className={`w-full text-sm font-bold text-[#181c1e] p-1 border border-[#c4c6cf] rounded focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
+                        value="Offline"
+                        readOnly
+                        className="w-full text-sm font-bold text-[#43474e] p-1 border border-[#c4c6cf] rounded bg-[#e0e3e5] cursor-not-allowed outline-none"
                       />
                     </div>
                   </div>
@@ -680,16 +704,15 @@ const AdminCourseDetail = () => {
             <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-[#181c1e]">
-                    Syllabus
-                  </h3>
+                  <h3 className="text-lg font-bold text-[#181c1e]">Syllabus</h3>
                 </div>
-
               </div>
               {isEditing && (
-                  <p className="text-[13px] text-[#74777f] mb-4">Create the curriculum by adding sessions below.</p>
+                <p className="text-[13px] text-[#74777f] mb-4">
+                  Create the curriculum by adding sessions below.
+                </p>
               )}
-              <div className="space-y-6">
+              <div className="space-y-6 max-h-125 overflow-y-auto pr-2 custom-scrollbar">
                 {courseData.sessionsList.map((session, sIndex) => (
                   <div
                     key={sIndex}
@@ -713,8 +736,11 @@ const AdminCourseDetail = () => {
                       </div>
                       <button
                         onClick={() => handleRemoveSession(sIndex)}
-                        disabled={(isCohortLocked && session.isExisting) || courseData.sessionsList.length <= 1}
-                        className={`text-[#ba1a1a] p-1.5 rounded-lg shrink-0 mt-1 ${((isCohortLocked && session.isExisting) || courseData.sessionsList.length <= 1) ? "opacity-50 cursor-not-allowed" : "hover:bg-[#fceeee]"}`}
+                        disabled={
+                          (isCohortLocked && session.isExisting) ||
+                          courseData.sessionsList.length <= 1
+                        }
+                        className={`text-[#ba1a1a] p-1.5 rounded-lg shrink-0 mt-1 ${(isCohortLocked && session.isExisting) || courseData.sessionsList.length <= 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#fceeee]"}`}
                       >
                         <X size={16} />
                       </button>
@@ -848,17 +874,43 @@ const AdminCourseDetail = () => {
                 <div className="pt-2 pb-2 border-t border-[#e0e3e5] mt-2">
                   <label className="flex items-center gap-3 cursor-pointer mb-3">
                     <div className="relative">
-                      <input type="checkbox" name="allowInstallments" checked={courseData.allowInstallments} onChange={(e) => setCourseData(prev => ({...prev, allowInstallments: e.target.checked}))} className="sr-only peer" />
+                      <input
+                        type="checkbox"
+                        name="allowInstallments"
+                        checked={courseData.allowInstallments}
+                        onChange={(e) =>
+                          setCourseData((prev) => ({
+                            ...prev,
+                            allowInstallments: e.target.checked,
+                          }))
+                        }
+                        className="sr-only peer"
+                      />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0061a5]"></div>
                     </div>
-                    <span className="text-[14px] font-bold text-[#181c1e]">Enable Installment Payments</span>
+                    <span className="text-[14px] font-bold text-[#181c1e]">
+                      Enable Installment Payments
+                    </span>
                   </label>
-                  
+
                   {courseData.allowInstallments && (
                     <div className="ml-14 animate-fade-in-up">
-                      <label className="block text-[13px] font-bold text-[#43474e] mb-1">Number of Installments (Max 12)</label>
-                      <input type="number" min="2" max="12" name="numberOfInstallments" value={courseData.numberOfInstallments} onChange={handleChange} className="w-1/3 px-4 py-2 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] outline-none transition-all" />
-                      <p className="text-[12px] text-[#74777f] mt-1">Specify how many terms the student can split the payment into.</p>
+                      <label className="block text-[13px] font-bold text-[#43474e] mb-1">
+                        Number of Installments (Max 12)
+                      </label>
+                      <input
+                        type="number"
+                        min="2"
+                        max="12"
+                        name="numberOfInstallments"
+                        value={courseData.numberOfInstallments}
+                        onChange={handleChange}
+                        className="w-1/3 px-4 py-2 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:border-[#0061a5] outline-none transition-all"
+                      />
+                      <p className="text-[12px] text-[#74777f] mt-1">
+                        Specify how many terms the student can split the payment
+                        into.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -929,9 +981,6 @@ const AdminCourseDetail = () => {
                   className={`text-xs font-bold px-3 py-1 rounded-full ${courseData.status === "Active" ? "bg-[#e6f4ea] text-[#137333]" : courseData.status === "Hidden" ? "bg-[#ffebed] text-[#ba1a1a]" : "bg-[#f1f4f6] text-[#74777f]"}`}
                 >
                   {courseData.status}
-                </span>
-                <span className="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" /> {courseData.duration} Weeks
                 </span>
               </div>
               <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">
@@ -1004,10 +1053,11 @@ const AdminCourseDetail = () => {
                   Course starts:
                   <br />
                   <span className="font-bold text-[#002045] text-base">
-                    {courseData.nextCohort &&
-                    courseData.nextCohort.includes("-")
-                      ? courseData.nextCohort.split("-").reverse().join("/")
-                      : courseData.nextCohort}
+                    {courseData.nextCohort
+                      ? new Date(courseData.nextCohort).toLocaleDateString(
+                          "en-GB",
+                        )
+                      : ""}
                   </span>
                 </div>
               </div>
@@ -1051,7 +1101,10 @@ const AdminCourseDetail = () => {
                     <div className="relative border-l-2 border-[#e0e3e5] ml-4 space-y-6 pb-4 mt-4">
                       {courseData.sessionsList &&
                         courseData.sessionsList.map((session, index) => (
-                          <div key={index} className="relative pl-8 animate-fade-in">
+                          <div
+                            key={index}
+                            className="relative pl-8 animate-fade-in"
+                          >
                             {/* Timeline Dot */}
                             <div className="absolute -left-4.25 top-1 w-8 h-8 rounded-full bg-[#e6f0fa] border-4 border-white text-[#0061a5] flex items-center justify-center text-sm font-bold shadow-sm">
                               {index + 1}
@@ -1128,7 +1181,9 @@ const AdminCourseDetail = () => {
                         {courseData.location || "London Center / Online"}
                       </div>
                       <div className="text-sm text-[#74777f]">
-                        {courseData.format ? `${courseData.format} delivery model` : "Hybrid delivery model"}
+                        {courseData.format
+                          ? `${courseData.format} delivery model`
+                          : "Hybrid delivery model"}
                       </div>
                     </div>
                   </div>

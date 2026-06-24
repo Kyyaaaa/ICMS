@@ -30,7 +30,7 @@ const CreateClass = () => {
     const [tutor, setTutor] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [capacity, setCapacity] = useState(20);
+    const [capacity, setCapacity] = useState<number | ''>(20);
     const [status, setStatus] = useState('UPCOMING');
 
     const [allCourses, setAllCourses] = useState<Course[]>([]);
@@ -149,7 +149,8 @@ const CreateClass = () => {
                 setTutorsAvailability([]);
                 return;
             }
-            const date = new Date(startDate);
+            const [yearStr, monthStr, dayStr] = startDate.split('-');
+            const date = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const monthName = monthNames[date.getMonth()];
             const year = date.getFullYear();
@@ -196,7 +197,8 @@ const CreateClass = () => {
         const numSessions = parseInt(String(selectedCourse.sessions)) || 0;
         if (numSessions <= 0) return;
 
-        const current = new Date(startDate);
+        const [yearStr, monthStr, dayStr] = startDate.split('-');
+        const current = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
         const sessions: {session_number: number, date: string, slot: string}[] = [];
         let sessionCount = 1;
         
@@ -340,7 +342,11 @@ const CreateClass = () => {
                                             <button 
                                                 key={room.id}
                                                 className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors truncate"
-                                                onClick={() => { setSelectedRoom(room); setIsRoomDropdownOpen(false); }}
+                                                onClick={() => { 
+                                                    setSelectedRoom(room); 
+                                                    setIsRoomDropdownOpen(false); 
+                                                    if (typeof capacity === 'number' && capacity > room.capacity) setCapacity(room.capacity);
+                                                }}
                                             >
                                                 {room.room_name} (Cap: {room.capacity})
                                             </button>
@@ -350,7 +356,25 @@ const CreateClass = () => {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e]">Capacity <span className="text-red-500">*</span></label>
-                                <input type="number" min="1" value={capacity} onChange={(e) => setCapacity(parseInt(e.target.value))} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
+                                <input 
+                                    type="number" 
+                                    min="1" 
+                                    max={selectedRoom ? selectedRoom.capacity : undefined}
+                                    value={capacity || ''} 
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        if (isNaN(val)) {
+                                            setCapacity(''); // allow clear
+                                            return;
+                                        }
+                                        if (selectedRoom && val > selectedRoom.capacity) {
+                                            setCapacity(selectedRoom.capacity);
+                                        } else {
+                                            setCapacity(val);
+                                        }
+                                    }} 
+                                    className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" 
+                                />
                             </div>
                             {isEdit && (
                                 <div className="space-y-2">
@@ -408,7 +432,19 @@ const CreateClass = () => {
                                             </div>
                                             <div className="space-y-3">
                                                 {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(dayName => {
-                                                    const daySlots = tutorSlots.filter(s => s.startsWith(`${dayName}-`));
+                                                    const daySlots = tutorSlots.filter(s => s.startsWith(`${dayName}-`)).sort((a, b) => {
+                                                        const shiftToSlotMap: Record<string, string> = {
+                                                            'M1': 'slot1', 'M2': 'slot2',
+                                                            'A1': 'slot3', 'A2': 'slot4',
+                                                            'E1': 'slot5', 'E2': 'slot6',
+                                                            'slot1': 'slot1', 'slot2': 'slot2',
+                                                            'slot3': 'slot3', 'slot4': 'slot4',
+                                                            'slot5': 'slot5', 'slot6': 'slot6'
+                                                        };
+                                                        const shiftA = shiftToSlotMap[a.split('-')[1]] || a.split('-')[1] || '';
+                                                        const shiftB = shiftToSlotMap[b.split('-')[1]] || b.split('-')[1] || '';
+                                                        return shiftA.localeCompare(shiftB);
+                                                    });
                                                     if (daySlots.length === 0) return null;
 
                                                     return (
@@ -514,6 +550,10 @@ const CreateClass = () => {
                         onClick={async () => {
                             if (!course || !className || !startDate || !endDate || !capacity) {
                                 showAlertModal('Error', 'Please fill in all required fields (*)', 'error');
+                                return;
+                            }
+                            if (selectedRoom && capacity > selectedRoom.capacity) {
+                                showAlertModal('Error', `Class capacity (${capacity}) cannot exceed the selected room's capacity (${selectedRoom.capacity}).`, 'error');
                                 return;
                             }
                             setIsSubmitting(true);

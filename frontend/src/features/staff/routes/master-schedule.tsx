@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { CalendarDays, ChevronLeft, ChevronRight, MapPin, User } from 'lucide-react';
 import type { ScheduleSession } from '../types/schedule';
 import { ScheduleService } from '../services/schedule.service';
@@ -39,7 +39,9 @@ const formatDate = (d: Date) => {
 
 const MasterSchedule = () => {
     const [currentMonday, setCurrentMonday] = useState(() => getMonday(new Date()));
+    const [displayedMonday, setDisplayedMonday] = useState(currentMonday);
     const [schedule, setSchedule] = useState<ScheduleSession[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [selectedSession, setSelectedSession] = useState<ScheduleSession | null>(null);
     const dateInputRef = useRef<HTMLInputElement>(null);
     
@@ -47,7 +49,7 @@ const MasterSchedule = () => {
     const [availableTutors, setAvailableTutors] = useState<{ id: string; full_name: string }[]>([]);
 
     const weekDates = DAY_NAMES.map((_, i) => {
-        const d = new Date(currentMonday);
+        const d = new Date(displayedMonday);
         d.setDate(d.getDate() + i);
         return d;
     });
@@ -69,12 +71,19 @@ const MasterSchedule = () => {
         fetchCommonData();
     }, []);
 
-    const sundayDate = weekDates[6];
+    const sundayDate = useMemo(() => {
+        const d = new Date(currentMonday);
+        d.setDate(d.getDate() + 6);
+        return d;
+    }, [currentMonday]);
 
     useEffect(() => {
         const loadSchedule = async () => {
+            setIsLoading(true);
             const data = await ScheduleService.getSchedule(currentMonday, sundayDate);
             setSchedule(data);
+            setDisplayedMonday(currentMonday);
+            setIsLoading(false);
         };
         loadSchedule();
     }, [currentMonday, sundayDate]);
@@ -175,7 +184,8 @@ const MasterSchedule = () => {
                         })}
                     </div>
 
-                    <div className="divide-y divide-[#f1f4f6] flex-1 overflow-y-auto">
+                    <div className="divide-y divide-[#f1f4f6] flex-1 overflow-y-auto relative">
+
                         {SHIFTS.map(shift => {
                             const hasSessionsInShift = DAY_NAMES.some((_, dayIdx) => 
                                 schedule.some(s => s.dayIndex === dayIdx && s.startTime === shift.startTime)

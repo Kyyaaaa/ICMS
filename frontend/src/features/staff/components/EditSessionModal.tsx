@@ -29,43 +29,68 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
     const [allSessionsOnDate, setAllSessionsOnDate] = useState<Session[]>([]);
     const [cycles, setCycles] = useState<AvailabilityCycle[]>([]);
     const [tutorsAvailability, setTutorsAvailability] = useState<TutorAvailabilityProfile[]>([]);
+    const [isLoadingAvailability, setIsLoadingAvailability] = useState(true);
+    const [isCyclesLoaded, setIsCyclesLoaded] = useState(false);
+
+    const [prevTutorOptions, setPrevTutorOptions] = useState<({ id: string; full_name: string; isOccupied: boolean })[]>([]);
+    const [prevRoomOptions, setPrevRoomOptions] = useState<(Classroom & { isOccupied: boolean })[]>([]);
+    const [prevSlotOptions, setPrevSlotOptions] = useState<{ id: string; isOccupied: boolean; isUnregistered: boolean; isPhysicallyOccupied: boolean; isRegistered: boolean }[]>([]);
+
+    const dateInfo = useMemo(() => {
+        if (!date) return null;
+        const [year, month, day] = date.split('-').map(Number);
+        const dateObj = new Date(year, month - 1, day);
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = dayNames[dateObj.getDay()];
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const cycleName = `${monthNames[dateObj.getMonth()]} - ${dateObj.getFullYear()}`;
+        return { dateObj, dayName, cycleName };
+    }, [date]);
 
     useEffect(() => {
         const fetchInitial = async () => {
             const cyclesData = await TutorAvailabilityService.getCycles();
             setCycles(cyclesData);
+            setIsCyclesLoaded(true);
         };
         fetchInitial();
     }, []);
 
     useEffect(() => {
+        let ignore = false;
         const fetchDateData = async () => {
-            if (!date) return;
-            const sessions = await ClassesService.getOccupiedSessions({
-                date,
-                exclude_class_id: session.class_id
-            });
-            setAllSessionsOnDate(sessions);
+            if (!isCyclesLoaded) return;
+            setIsLoadingAvailability(true);
+            
+            if (!date) {
+                if (!ignore) setIsLoadingAvailability(false);
+                return;
+            }
 
-            if (cycles.length > 0) {
-                const dateObj = new Date(date);
-                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                const cycleName = `${monthNames[dateObj.getMonth()]} - ${dateObj.getFullYear()}`;
-                const targetCycle = cycles.find(c => c.name === cycleName);
-                if (targetCycle) {
-                    try {
-                        const availabilityData = await TutorAvailabilityService.getTutors(targetCycle.id);
-                        setTutorsAvailability(availabilityData || []);
-                    } catch {
-                        setTutorsAvailability([]);
-                    }
-                } else {
-                    setTutorsAvailability([]);
-                }
+            const targetCycle = cycles.length > 0 && dateInfo ? cycles.find(c => c.name === dateInfo.cycleName) : null;
+
+            try {
+                const [sessions, availabilityData] = await Promise.all([
+                    ClassesService.getOccupiedSessions({
+                        date,
+                        exclude_class_id: session.class_id
+                    }),
+                    targetCycle ? TutorAvailabilityService.getTutors(targetCycle.id) : Promise.resolve(null)
+                ]);
+
+                if (ignore) return;
+                setAllSessionsOnDate(sessions);
+                setTutorsAvailability(availabilityData || []);
+            } catch {
+                if (ignore) return;
+                setTutorsAvailability([]);
+            } finally {
+                if (!ignore) setIsLoadingAvailability(false);
             }
         };
         fetchDateData();
-    }, [date, cycles, session.class_id]);
+        return () => { ignore = true; };
+    }, [date, cycles, isCyclesLoaded, session.class_id, dateInfo]);
 
     const shiftToLabelMap: Record<string, string> = {
         'slot1': 'Slot 1 (07:30 - 09:30)', 'slot2': 'Slot 2 (09:30 - 11:30)',
@@ -73,85 +98,86 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
         'slot5': 'Slot 5 (18:00 - 20:00)', 'slot6': 'Slot 6 (20:00 - 22:00)'
     };
 
-    const availableSlots = useMemo(() => {
+    const slotOptions = useMemo(() => {
         const allSlots = ['slot1', 'slot2', 'slot3', 'slot4', 'slot5', 'slot6'];
-        if (!date) return allSlots;
-        
-        const dateObj = new Date(date);
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const dayName = dayNames[dateObj.getDay()];
+        if (!dateInfo) return allSlots.map(s => ({ id: s, isOccupied: false, isUnregistered: false, isPhysicallyOccupied: false, isRegistered: false }));
 
-        return allSlots.filter(s => {
+        return allSlots.map(s => {
+            let isOccupied = false;
+            let isUnregistered = false;
+            let isRegistered = false;
             if (selectedEditRoom) {
-                const isRoomOccupied = allSessionsOnDate.some(sess => sess.slot === s && sess.classroom_id === selectedEditRoom.id);
-                if (isRoomOccupied) return false;
+                const roomOcc = allSessionsOnDate.some(sess => sess.slot === s && sess.classroom_id === selectedEditRoom.id);
+                if (roomOcc) isOccupied = true;
             }
             if (selectedTutor) {
-                const isTutorOccupied = allSessionsOnDate.some(sess => sess.slot === s && sess.tutor_id === selectedTutor);
-                if (isTutorOccupied) return false;
+                const tutorOcc = allSessionsOnDate.some(sess => sess.slot === s && sess.tutor_id === selectedTutor);
+                if (tutorOcc) isOccupied = true;
 
-                if (selectedTutor !== session.tutor_id) {
-                    const tutorProfile = tutorsAvailability.find(t => t.id === selectedTutor);
-                    if (tutorProfile && !tutorProfile.slots.includes(`${dayName}-${s}`)) {
-                        return false;
+                const tutorProfile = tutorsAvailability.find(t => t.id === selectedTutor);
+                if (tutorProfile && tutorProfile.slots.includes(`${dateInfo.dayName}-${s}`)) {
+                    isRegistered = true;
+                }
+
+                if (!isLoadingAvailability && selectedTutor !== session.tutor_id) {
+                    if (!tutorProfile || !tutorProfile.slots.includes(`${dateInfo.dayName}-${s}`)) {
+                        isUnregistered = true;
                     }
                 }
             }
-            return true;
+            return { id: s, isOccupied: isOccupied || isUnregistered, isUnregistered, isPhysicallyOccupied: isOccupied, isRegistered };
         });
-    }, [date, selectedEditRoom, selectedTutor, allSessionsOnDate, tutorsAvailability, session.tutor_id]);
+    }, [selectedEditRoom, selectedTutor, allSessionsOnDate, dateInfo, session.tutor_id, isLoadingAvailability, tutorsAvailability]);
 
-    const filteredTutors = useMemo(() => {
-        if (!date || !slot) return availableTutors;
-        
-        const dateObj = new Date(date);
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const dayName = dayNames[dateObj.getDay()];
+    const tutorOptions = useMemo(() => {
+        if (!dateInfo || !slot) return availableTutors.map(t => ({ ...t, isOccupied: false }));
 
-        return availableTutors.filter(t => {
+        return availableTutors.map(t => {
             const isOccupied = allSessionsOnDate.some(sess => sess.slot === slot && sess.tutor_id === t.id);
-            if (isOccupied) return false;
+            const actuallyOccupied = isOccupied && t.id !== session.tutor_id;
+            return { ...t, isOccupied: actuallyOccupied };
+        });
+    }, [slot, availableTutors, allSessionsOnDate, session.tutor_id, dateInfo]);
 
-            if (t.id === session.tutor_id) return true;
+    const roomOptions = useMemo(() => {
+        if (!slot) return availableRooms.map(r => ({ ...r, isOccupied: false }));
+        return availableRooms.map(r => {
+            const isOccupied = allSessionsOnDate.some(sess => sess.slot === slot && sess.classroom_id === r.id);
+            const actuallyOccupied = isOccupied && r.id !== session.classroom_id;
+            return { ...r, isOccupied: actuallyOccupied };
+        });
+    }, [slot, availableRooms, allSessionsOnDate, session.classroom_id]);
 
-            const tutorProfile = tutorsAvailability.find(profile => profile.id === t.id);
-            if (tutorProfile && !tutorProfile.slots.includes(`${dayName}-${slot}`)) {
-                return false;
+    if (tutorOptions !== prevTutorOptions) {
+        setPrevTutorOptions(tutorOptions);
+        if (selectedTutor) {
+            const tutor = tutorOptions.find(t => t.id === selectedTutor);
+            if (tutor?.isOccupied) {
+                setSelectedTutor('');
             }
-            return true;
-        });
-    }, [date, slot, availableTutors, allSessionsOnDate, tutorsAvailability, session.tutor_id]);
-
-    const filteredRooms = useMemo(() => {
-        if (!slot) return availableRooms;
-        return availableRooms.filter(r => {
-            return !allSessionsOnDate.some(sess => sess.slot === slot && sess.classroom_id === r.id);
-        });
-    }, [slot, availableRooms, allSessionsOnDate]);
-
-    useEffect(() => {
-        if (selectedTutor && !filteredTutors.some(t => t.id === selectedTutor)) {
-            setTimeout(() => setSelectedTutor(''), 0);
         }
-    }, [filteredTutors, selectedTutor]);
+    }
 
-    useEffect(() => {
-        if (selectedEditRoom && !filteredRooms.some(r => r.id === selectedEditRoom.id)) {
-            setTimeout(() => setSelectedEditRoom(null), 0);
+    if (roomOptions !== prevRoomOptions) {
+        setPrevRoomOptions(roomOptions);
+        if (selectedEditRoom) {
+            const room = roomOptions.find(r => r.id === selectedEditRoom.id);
+            if (room?.isOccupied) {
+                setSelectedEditRoom(null);
+            }
         }
-    }, [filteredRooms, selectedEditRoom]);
+    }
 
-    useEffect(() => {
-        if (slot && !availableSlots.includes(slot)) {
-            setTimeout(() => {
-                if (availableSlots.length > 0) {
-                    setSlot(availableSlots[0]);
-                } else {
-                    setSlot('');
-                }
-            }, 0);
+    if (slotOptions !== prevSlotOptions) {
+        setPrevSlotOptions(slotOptions);
+        if (slot) {
+            const slotOpt = slotOptions.find(s => s.id === slot);
+            if (slotOpt?.isOccupied) {
+                const firstAvailable = slotOptions.find(s => !s.isOccupied);
+                setSlot(firstAvailable ? firstAvailable.id : '');
+            }
         }
-    }, [availableSlots, slot]);
+    }
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -179,7 +205,7 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#002045]/40 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg animate-fade-in-up overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-130 animate-fade-in-up overflow-hidden">
                 <div className="flex justify-between items-center p-5 border-b border-[#e0e3e5] bg-[#f8f9fa]">
                     <h2 className="text-lg font-bold text-[#002045]">Edit Session {session.session_number} - {session.class?.name || 'Unknown Class'}</h2>
                     <button 
@@ -196,89 +222,88 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                             <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
                                 <Calendar className="w-4 h-4 text-gray-500"/> Date
                             </label>
-                            <input 
-                                type="date"
-                                className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 font-medium"
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                            />
+                        <input 
+                            type="date"
+                            className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20"
+                            value={date}
+                            onChange={(e) => {
+                                setDate(e.target.value);
+                                setIsLoadingAvailability(true);
+                            }}
+                        />
                         </div>
+
                         <div className="space-y-2 relative" ref={editSlotDropdownRef}>
                             <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
-                                <Clock className="w-4 h-4 text-gray-500"/> Slot
-                            </label>
-                            <button 
-                                type="button"
-                                onClick={() => setIsEditSlotDropdownOpen(!isEditSlotDropdownOpen)}
-                                className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 flex justify-between items-center text-left"
-                            >
-                                <span>{slot ? shiftToLabelMap[slot] : '-- No Slot --'}</span>
-                                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${isEditSlotDropdownOpen ? 'rotate-180' : ''}`} />
-                            </button>
+                            <Clock className="w-4 h-4 text-gray-500"/> Slot
+                        </label>
+                        <button 
+                            type="button"
+                            onClick={() => setIsEditSlotDropdownOpen(!isEditSlotDropdownOpen)}
+                            className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 flex justify-between items-center text-left"
+                        >
+                            <div className="flex items-center min-w-0">
+                                <span className="truncate">{slot ? shiftToLabelMap[slot] : '-- No Slot --'}</span>
+                                {slot && slotOptions.find(s => s.id === slot)?.isRegistered && (
+                                    <Star className="w-3 h-3 fill-current text-orange-500 shrink-0 ml-1.5" />
+                                )}
+                            </div>
+                            <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform shrink-0 ml-1 ${isEditSlotDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
 
-                            {isEditSlotDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#c4c6cf] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-                                    {availableSlots.length === 0 ? (
-                                        <div className="px-4 py-3 text-gray-500 text-sm text-center">-- No Available Slots --</div>
-                                    ) : (
-                                        availableSlots.map(s => {
-                                            let isOutOfSchedule = false;
-                                            if (selectedTutor === session.tutor_id && date) {
-                                                const dateObj = new Date(date);
-                                                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                                                const dayName = dayNames[dateObj.getDay()];
-                                                const tutorProfile = tutorsAvailability.find(t => t.id === selectedTutor);
-                                                if (!tutorProfile || !tutorProfile.slots.includes(`${dayName}-${s}`)) {
-                                                    isOutOfSchedule = true;
-                                                }
-                                            }
-                                            return (
-                                                <button
-                                                    key={s}
-                                                    type="button"
-                                                    onClick={() => {
+                        {isEditSlotDropdownOpen && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#c4c6cf] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto py-2">
+                                {slotOptions.length === 0 ? (
+                                    <div className="px-4 py-3 text-gray-500 text-sm text-center">-- No Available Slots --</div>
+                                ) : (
+                                    slotOptions.map(sOpt => {
+                                        const s = sOpt.id;
+                                        return (
+                                            <button
+                                                key={s}
+                                                type="button"
+                                                disabled={sOpt.isOccupied}
+                                                onClick={() => {
+                                                    if (!sOpt.isOccupied) {
                                                         setSlot(s);
                                                         setIsEditSlotDropdownOpen(false);
-                                                    }}
-                                                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center justify-between ${slot === s ? 'bg-blue-50 text-[#0061a5] font-medium' : 'text-gray-700'}`}
-                                                >
-                                                    <span>{shiftToLabelMap[s]}</span>
-                                                    {isOutOfSchedule && (
-                                                        <span className="flex items-center text-orange-500 text-xs font-semibold">
-                                                            <Star className="w-3 h-3 fill-current" />
-                                                        </span>
-                                                    )}
-                                                </button>
-                                            );
-                                        })
-                                    )}
-                                </div>
-                            )}
-
-                            {selectedTutor === session.tutor_id && availableSlots.length > 0 && (
-                                <p className="text-xs text-orange-500 mt-1 pl-1 flex items-center gap-1 font-medium">
-                                    <Star className="w-3 h-3 fill-current" /> Slot not in the tutor's registered schedule
-                                </p>
-                            )}
-                        </div>
+                                                    }
+                                                }}
+                                                className={`w-full px-4 py-3 text-left transition-colors flex items-center justify-between 
+                                                    ${sOpt.isOccupied ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-50'} 
+                                                    ${slot === s && !sOpt.isOccupied ? 'bg-blue-50 text-[#0061a5] font-medium' : 'text-gray-700'}`}
+                                            >
+                                                <span className="truncate pr-2">{shiftToLabelMap[s]} {sOpt.isUnregistered ? '(Not Registered)' : (sOpt.isPhysicallyOccupied ? '(Occupied)' : '')}</span>
+                                                {sOpt.isRegistered && (
+                                                    <Star className="w-3 h-3 fill-current text-orange-500 shrink-0" />
+                                                )}
+                                            </button>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        )}
                     </div>
-                    
-                    <div className="space-y-2">
+                </div>
+                
+                <div className="space-y-2">
                         <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
                             <Users className="w-4 h-4 text-gray-500"/> Assign Substitute Tutor
                         </label>
                         <select 
-                            className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 font-medium"
+                            className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 appearance-none"
                             value={selectedTutor}
                             onChange={(e) => setSelectedTutor(e.target.value)}
                         >
                             <option value="">-- No Tutor --</option>
-                            {filteredTutors.map(t => (
-                                <option key={t.id} value={t.id}>{t.full_name}</option>
+                            {tutorOptions.map(t => (
+                                <option key={t.id} value={t.id} disabled={t.isOccupied}>
+                                    {t.full_name} {t.isOccupied ? '(Occupied)' : ''}
+                                </option>
                             ))}
                         </select>
                     </div>
-                    
+
                     <div className="space-y-2 relative" ref={editRoomDropdownRef}>
                         <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
                             <MapPin className="w-4 h-4 text-gray-500"/> Change Room
@@ -288,33 +313,28 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                             onClick={() => setIsEditRoomDropdownOpen(!isEditRoomDropdownOpen)}
                             className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 flex justify-between items-center text-left"
                         >
-                            {selectedEditRoom ? (
-                                <span className="truncate">
-                                    {selectedEditRoom.room_name} (Cap: {selectedEditRoom.capacity})
-                                </span>
-                            ) : (
-                                <span>
-                                    {session.classroom?.room_name || 'Not assigned'} (Current)
-                                </span>
-                            )}
-                            <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isEditRoomDropdownOpen ? 'rotate-180' : ''}`} />
+                            <span>
+                                {selectedEditRoom ? `${selectedEditRoom.room_name} (Cap: ${selectedEditRoom.capacity})` : 'Room 201 (Current)'}
+                            </span>
+                            <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${isEditRoomDropdownOpen ? 'rotate-180' : ''}`} />
                         </button>
 
                         {isEditRoomDropdownOpen && (
-                            <div className="absolute z-10 bottom-full left-0 right-0 mb-1 bg-white border border-[#c4c6cf] rounded-xl shadow-lg overflow-hidden py-1 max-h-60 overflow-y-auto">
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#c4c6cf] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto py-2">
                                 <button 
-                                    className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors truncate text-gray-500"
+                                    className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors font-medium text-[#0061a5] border-b border-gray-100 mb-1"
                                     onClick={() => { setSelectedEditRoom(null); setIsEditRoomDropdownOpen(false); }}
                                 >
                                     -- Keep Current --
                                 </button>
-                                {filteredRooms.map((room) => (
+                                {roomOptions.map((room) => (
                                     <button 
                                         key={room.id}
-                                        className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors truncate"
-                                        onClick={() => { setSelectedEditRoom(room); setIsEditRoomDropdownOpen(false); }}
+                                        disabled={room.isOccupied}
+                                        className={`w-full text-left px-4 py-2 transition-colors truncate ${room.isOccupied ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-[#f0f7ff]'}`}
+                                        onClick={() => { if (!room.isOccupied) { setSelectedEditRoom(room); setIsEditRoomDropdownOpen(false); } }}
                                     >
-                                        {room.room_name} (Cap: {room.capacity})
+                                        {room.room_name} (Cap: {room.capacity}) {room.isOccupied ? '(Occupied)' : ''}
                                     </button>
                                 ))}
                             </div>
@@ -322,16 +342,16 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                     </div>
                 </div>
 
-                <div className="p-5 border-t border-[#e0e3e5] bg-[#f8f9fa] flex justify-end gap-3">
+                <div className="flex items-center justify-end gap-3 p-5 border-t border-[#e0e3e5] bg-gray-50">
                     <button 
                         onClick={onClose}
-                        className="px-5 py-2.5 font-semibold text-[#43474e] border border-[#c4c6cf] rounded-xl hover:bg-white transition-colors"
+                        className="px-6 py-2.5 rounded-xl font-semibold text-gray-700 bg-white border border-[#c4c6cf] hover:bg-gray-50 transition-colors"
                     >
                         Cancel
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="px-5 py-2.5 font-semibold text-white bg-[#0061a5] rounded-xl hover:bg-[#004a80] transition-colors flex items-center gap-2"
+                        className="px-6 py-2.5 rounded-xl font-semibold text-white bg-[#0061a5] hover:bg-[#004d84] transition-colors flex items-center gap-2 shadow-sm"
                     >
                         <Save className="w-4 h-4" /> Save Changes
                     </button>

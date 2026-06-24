@@ -52,7 +52,7 @@ export const ClassCard = ({ cls }: ClassCardProps) => {
                         <h3 className="text-lg font-bold text-[#002045] group-hover:text-[#0061a5] transition-colors">{cls.name}</h3>
                     </div>
                     <span className="px-3 py-1 text-[11px] sm:text-xs font-bold rounded-full bg-blue-50 text-[#0061a5] whitespace-nowrap">
-                        {cls.students?.length || 0}/{cls.capacity} Students
+                        {cls.students?.filter((s: { status: string }) => s.status === 'ACTIVE').length || 0}/{cls.capacity} Students
                     </span>
                 </div>
                 

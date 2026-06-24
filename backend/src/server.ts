@@ -1,3 +1,4 @@
+process.env.TZ = 'Asia/Ho_Chi_Minh';
 import dotenv from 'dotenv';
 import { connectDB } from './configs/database';
 import app from './app';

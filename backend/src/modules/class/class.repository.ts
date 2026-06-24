@@ -62,7 +62,8 @@ export class ClassRepository {
                 courses(id, title, code),
                 tutor:account!tutor_id(id, full_name, email),
                 classroom:classroom!classroom_id(id, room_name),
-                class_sessions(slot, date)
+                class_sessions(slot, date),
+                students:enrollments(id, status)
             `, { count: 'exact' });
 
         if (statusFilter) {

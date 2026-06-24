@@ -116,17 +116,17 @@ export const initCycleLockingCron = () => {
   // Cron schedule: 23:59 on the 25th of every month
   cron.schedule("59 23 25 * *", () => {
     lockNextMonthCycles("Initial Lock (25th)");
-  });
+  }, { timezone: "Asia/Ho_Chi_Minh" });
 
   // Cron schedule: 23:59 on the 27th of every month (Final lock in case it was reopened)
   cron.schedule("59 23 27 * *", () => {
     lockNextMonthCycles("Final Lock (27th)");
-  });
+  }, { timezone: "Asia/Ho_Chi_Minh" });
 
   // Cron schedule: 00:00 on the 1st of every month (Transition to new month)
   cron.schedule("0 0 1 * *", () => {
     transitionCycleOnNewMonth();
-  });
+  }, { timezone: "Asia/Ho_Chi_Minh" });
 
   console.log("[Cron Job] Cycle locking jobs initialized.");
 };
