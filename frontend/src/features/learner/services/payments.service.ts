@@ -4,14 +4,14 @@ import axiosClient from '@/shared/services/axiosClient';
 export const LearnerPaymentsService = {
     getInvoices: async (): Promise<PaymentInvoice[]> => {
         try {
-            const res = await axiosClient.get('/invoices') as { data: { id: string; invoice_code: string; amount: number; created_at: string; status: string; classes?: { courses?: { title: string } }; account?: { full_name?: string; email?: string } }[] };
+            const res = await axiosClient.get('/invoices') as { data: { id: string; invoice_code: string; amount: number; discount?: number; created_at: string; status: string; classes?: { courses?: { title: string } }; account?: { full_name?: string; email?: string } }[] };
             const data = res.data;
             return data.map((inv) => ({
                 id: inv.invoice_code || inv.id,
                 course: inv.classes?.courses?.title || 'Unknown Course',
                 date: new Date(inv.created_at).toLocaleDateString('en-GB'),
                 amount: inv.amount,
-                discount: 0,
+                discount: inv.discount || 0,
                 status: inv.status.toLowerCase() as PaymentInvoice['status'],
                 learnerName: inv.account?.full_name,
                 learnerEmail: inv.account?.email
@@ -24,7 +24,7 @@ export const LearnerPaymentsService = {
 
     getInvoiceById: async (id: string): Promise<PaymentInvoice | undefined> => {
         try {
-            const res = await axiosClient.get(`/invoices/${id}`) as { data: { id: string; invoice_code: string; amount: number; created_at: string; status: string; classes?: { courses?: { title: string } }; account?: { full_name?: string; email?: string }; invoice_installments?: { id: string; installment_number: number; amount: number; due_date: string; status: string; paid_date?: string }[] } };
+            const res = await axiosClient.get(`/invoices/${id}`) as { data: { id: string; invoice_code: string; amount: number; discount?: number; created_at: string; status: string; classes?: { courses?: { title: string } }; account?: { full_name?: string; email?: string }; invoice_installments?: { id: string; installment_number: number; amount: number; due_date: string; status: string; paid_date?: string }[] } };
             const inv = res.data;
             if (!inv) return undefined;
 
@@ -42,7 +42,7 @@ export const LearnerPaymentsService = {
                 course: inv.classes?.courses?.title || 'Unknown Course',
                 date: new Date(inv.created_at).toLocaleDateString('en-GB'),
                 amount: inv.amount,
-                discount: 0,
+                discount: inv.discount || 0,
                 status: inv.status.toLowerCase() as PaymentInvoice['status'],
                 installments: mappedInstallments,
                 learnerName: inv.account?.full_name,

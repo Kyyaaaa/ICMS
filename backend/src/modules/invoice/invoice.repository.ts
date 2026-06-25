@@ -43,15 +43,22 @@ export class InvoiceRepository {
     return data;
   }
 
+  static async deleteInvoice(invoiceId: string) {
+    const { error } = await supabaseAdmin.from('invoices').delete().eq('id', invoiceId);
+    if (error) throw new Error(error.message);
+  }
+
   // checkRegistrationConflicts has been moved to EnrollmentService
 
-  static async createInvoice(learnerId: string, classId: string, amount: number, paymentPlan: string = 'full') {
+  static async createInvoice(learnerId: string, classId: string, amount: number, discount: number = 0, discountCodeId: string | null = null, paymentPlan: string = 'full') {
     const { data: invoice, error } = await supabaseAdmin
       .from('invoices')
       .insert({
         learner_id: learnerId,
         class_id: classId,
         amount: amount,
+        discount: discount,
+        discount_code_id: discountCodeId,
         status: 'PENDING'
       })
       .select('*')
@@ -85,7 +92,7 @@ export class InvoiceRepository {
     }
 
     const termAmount = Math.round(amount / numberOfInstallments);
-    const remainingAmount = amount - termAmount * (numberOfInstallments - 1);
+    const firstTermAmount = amount - termAmount * (numberOfInstallments - 1);
     const now = new Date();
 
     const installmentsData = [];
@@ -93,7 +100,7 @@ export class InvoiceRepository {
       installmentsData.push({
         invoice_id: invoiceId,
         installment_number: i,
-        amount: i === numberOfInstallments ? remainingAmount : termAmount,
+        amount: i === 1 ? firstTermAmount : termAmount,
         due_date: i === 1 ? now.toISOString() : new Date(now.getTime() + (i - 1) * 30 * 24 * 60 * 60 * 1000).toISOString(),
         status: 'PENDING'
       });
@@ -114,9 +121,9 @@ export class InvoiceRepository {
   static async getInvoiceDetails(invoiceId: string) {
     let data;
     if (invoiceId.startsWith('IN')) {
-      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price)), account:learner_id(id, full_name, email), invoice_installments(*)`).eq('invoice_code', invoiceId).single();
+      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email), invoice_installments(*)`).eq('invoice_code', invoiceId).single();
     } else {
-      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price)), account:learner_id(id, full_name, email), invoice_installments(*)`).eq('id', invoiceId).single();
+      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email), invoice_installments(*)`).eq('id', invoiceId).single();
     }
     
     if (data.error) throw new Error(data.error.message);

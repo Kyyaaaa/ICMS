@@ -35,8 +35,17 @@ const AdminDiscountCodes = () => {
         setError(null);
         if (code) {
             setEditingId(code.id);
-            const [startDate, startTime] = code.validFrom ? code.validFrom.split('T') : ['', ''];
-            const [endDate, endTime] = code.validUntil ? code.validUntil.split('T') : ['', ''];
+            let startDate = '', startTime = '', endDate = '', endTime = '';
+            if (code.validFrom) {
+                const d = new Date(code.validFrom);
+                startDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                startTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            }
+            if (code.validUntil) {
+                const d = new Date(code.validUntil);
+                endDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                endTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            }
             
             setFormData({ 
                 ...code,
@@ -64,16 +73,19 @@ const AdminDiscountCodes = () => {
             return;
         }
 
-        const validFrom = `${formData.startDate}T${formData.startTime}`;
-        const validUntil = `${formData.endDate}T${formData.endTime}`;
+        const validFromLocal = `${formData.startDate}T${formData.startTime}`;
+        const validUntilLocal = `${formData.endDate}T${formData.endTime}`;
 
-        const startDateTime = new Date(validFrom);
-        const endDateTime = new Date(validUntil);
+        const startDateTime = new Date(validFromLocal);
+        const endDateTime = new Date(validUntilLocal);
 
         if (endDateTime <= startDateTime) {
             setError('End Date/Time must be strictly after the Start Date/Time.');
             return;
         }
+
+        const validFrom = startDateTime.toISOString();
+        const validUntil = endDateTime.toISOString();
 
         if (editingId) {
             const updated = await AdminDiscountCodesService.updateDiscountCode(editingId, { ...formData, validFrom, validUntil });

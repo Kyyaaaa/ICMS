@@ -10,6 +10,7 @@ dotenv.config();
 import { initCycleLockingCron } from './modules/available-time-slot/cron/cycle-locking.cron';
 import { initClassStatusCron } from './modules/class/cron/class-status.cron';
 import { initSupportTicketCron } from './modules/support-ticket/cron/support-ticket.cron';
+import { initDiscountStatusCron } from './modules/discount-code/cron/discount-status.cron';
 
 // Khởi tạo kết nối tới database
 connectDB();
@@ -18,6 +19,7 @@ connectDB();
 initCycleLockingCron();
 initClassStatusCron();
 initSupportTicketCron();
+initDiscountStatusCron();
 
 const PORT = process.env.PORT || 5000;
 

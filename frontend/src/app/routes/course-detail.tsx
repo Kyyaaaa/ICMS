@@ -84,6 +84,32 @@ const CourseDetailInner = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("syllabus");
+  
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string, value: number } | null>(null);
+
+  const handleApplyPromo = async () => {
+    if (!promoCodeInput.trim()) return;
+    setIsApplyingPromo(true);
+    setPromoError(null);
+    try {
+      const { LearnerRegistrationService } = await import('@/features/learner/services/registration.service');
+      const res = await LearnerRegistrationService.validateDiscountCode(promoCodeInput.trim());
+      if (res && res.data) {
+        setAppliedDiscount({ code: promoCodeInput.trim(), value: res.data.value });
+        setPromoError(null);
+      }
+    } catch (e: unknown) {
+      setAppliedDiscount(null);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setPromoError((e as any).message || 'Invalid discount code');
+    } finally {
+      setIsApplyingPromo(false);
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -239,6 +265,7 @@ const CourseDetailInner = () => {
           {/* Enrollment Action Box */}
           <div className="bg-white rounded-2xl p-8 shadow-xl w-full md:w-85 z-10 flex flex-col border border-[#e0e3e5]">
             <div className="flex flex-col mb-6">
+              {/* Show original price if exists */}
               {(course.original_price || course.originalPrice) && (
                 <span className="text-base text-[#74777f] line-through font-medium mb-1 whitespace-nowrap">
                   {new Intl.NumberFormat("vi-VN").format(
@@ -247,10 +274,19 @@ const CourseDetailInner = () => {
                   đ
                 </span>
               )}
+              
+              {/* Show base price crossed out if a discount code is applied */}
+              {appliedDiscount && (
+                <span className="text-lg text-[#0061a5] line-through font-bold mb-1 whitespace-nowrap">
+                  {new Intl.NumberFormat("vi-VN").format(Number(course.price || 0))} đ
+                </span>
+              )}
+
+              {/* Show final price */}
               <span className="text-4xl font-extrabold text-[#002045] leading-none tracking-tight whitespace-nowrap">
-                {course.price
-                  ? new Intl.NumberFormat("vi-VN").format(Number(course.price))
-                  : "0"}{" "}
+                {new Intl.NumberFormat("vi-VN").format(
+                  Math.max(0, Number(course.price || 0) - (appliedDiscount ? appliedDiscount.value : 0))
+                )}{" "}
                 đ
               </span>
             </div>
@@ -266,7 +302,9 @@ const CourseDetailInner = () => {
             </div>
             <button
               onClick={() => {
-                navigate(`/courses/${id}/register`);
+                navigate(`/courses/${id}/register`, {
+                  state: { discountCode: appliedDiscount?.code, discountValue: appliedDiscount?.value }
+                });
               }}
               className="w-full bg-[#0061a5] text-white font-bold py-4 rounded-xl shadow-md hover:bg-[#004a80] hover:shadow-lg hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2 mb-4"
             >
@@ -444,6 +482,38 @@ const CourseDetailInner = () => {
 
           {/* Sidebar (Desktop) / Bottom section (Mobile) */}
           <aside className="lg:col-span-4 flex flex-col gap-6">
+            {/* Promotional / Promo Code Box */}
+            <div className="bg-[#002045] rounded-2xl p-6 shadow-sm text-white">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <Ticket className="text-[#ffd200]" /> Apply Promo Code
+              </h3>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <input
+                    value={promoCodeInput}
+                    onChange={(e) => setPromoCodeInput(e.target.value)}
+                    className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#adc7f7] placeholder:text-white/50"
+                    placeholder="Enter code"
+                    type="text"
+                    disabled={isApplyingPromo}
+                  />
+                  <button 
+                    onClick={handleApplyPromo}
+                    disabled={isApplyingPromo || !promoCodeInput.trim()}
+                    className="bg-white text-[#002045] font-bold px-6 py-3 rounded-xl hover:bg-[#f1f4f6] transition-colors disabled:opacity-50"
+                  >
+                    {isApplyingPromo ? "Applying..." : "Apply"}
+                  </button>
+                </div>
+                {promoError && <div className="text-red-400 text-sm mt-1">{promoError}</div>}
+                {appliedDiscount && (
+                  <div className="text-[#adc7f7] text-sm mt-1 font-medium">
+                    Code applied! You will get a discount of {new Intl.NumberFormat("vi-VN").format(appliedDiscount.value)} đ.
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Key Information Card */}
             <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-bold text-[#002045] border-b border-[#e0e3e5] pb-4 mb-6">
@@ -492,23 +562,6 @@ const CourseDetailInner = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Promotional / Promo Code Box */}
-            <div className="bg-[#002045] rounded-2xl p-6 shadow-sm text-white">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <Ticket className="text-[#ffd200]" /> Apply Promo Code
-              </h3>
-              <div className="flex gap-2">
-                <input
-                  className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#adc7f7] placeholder:text-white/50"
-                  placeholder="Enter code"
-                  type="text"
-                />
-                <button className="bg-white text-[#002045] font-bold px-6 py-3 rounded-xl hover:bg-[#f1f4f6] transition-colors">
-                  Apply
-                </button>
               </div>
             </div>
           </aside>

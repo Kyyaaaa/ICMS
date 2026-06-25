@@ -5,7 +5,7 @@ import { InvoiceService } from './invoice.service';
 export class InvoiceController {
   static async checkout(req: Request, res: Response): Promise<void> {
     try {
-      const { class_id, payment_plan = 'full' } = req.body;
+      const { class_id, payment_plan = 'full', discount_code } = req.body;
       const learner_id = (req as any).user?.id;
 
       if (!class_id || !learner_id) {
@@ -13,7 +13,7 @@ export class InvoiceController {
         return;
       }
 
-      const result = await InvoiceService.checkout(learner_id, class_id, payment_plan);
+      const result = await InvoiceService.checkout(learner_id, class_id, payment_plan, discount_code);
       
       if (result.isExisting) {
         res.status(200).json({ success: true, data: result.invoice, message: 'Returned existing pending invoice' });

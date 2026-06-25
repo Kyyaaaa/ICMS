@@ -20,6 +20,8 @@ import invoiceRoutes from './modules/invoice/invoice.routes';
 import paymentRoutes from './modules/payment/payment.routes';
 import tutorReviewRoutes from './modules/tutor-review/tutor-review.routes';
 import adminTutorReviewRoutes from './modules/tutor-review/admin-tutor-review.routes';
+import discountCodeRoutes from './modules/discount-code/discount-code.routes';
+import publicDiscountCodeRoutes from './modules/discount-code/public-discount-code.routes';
 
 const app = express();
 
@@ -46,6 +48,8 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/learner/classes', tutorReviewRoutes);
 app.use('/api/admin/reviews', adminTutorReviewRoutes);
+app.use('/api/admin/discount-codes', discountCodeRoutes);
+app.use('/api/public/discount-codes', publicDiscountCodeRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
