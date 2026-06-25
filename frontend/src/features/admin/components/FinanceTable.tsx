@@ -7,6 +7,13 @@ interface FinanceTableProps {
 }
 
 export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTableProps) => {
+    const formatDate = (dateString: string) => {
+        try {
+            return new Date(dateString).toLocaleDateString('en-GB'); // DD/MM/YYYY
+        } catch {
+            return dateString;
+        }
+    };
     return (
         <div className="bg-white rounded-b-[12px] shadow-sm border border-[#e0e3e5] overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-225">
@@ -28,21 +35,22 @@ export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTa
                                 <span className="text-xs font-bold text-[#0061a5] bg-[#e6f0fa] px-2 py-1 rounded-md">{txn.id}</span>
                             </td>
                             <td className="py-4 px-6">
-                                <div>
-                                    <div className="text-sm font-bold text-[#002045]">{txn.category}</div>
+                                    <div className="text-sm font-bold text-[#002045]">
+                                        {txn.category} 
+                                        {txn.isInstallment && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#e6f0fa] text-[#0061a5]">Installment</span>}
+                                    </div>
                                     <div className="text-xs text-[#74777f] mt-0.5">{txn.description}</div>
-                                </div>
                             </td>
                             <td className="py-4 px-6">
                                 <div className="text-sm font-bold text-[#181c1e]">{txn.user.name}</div>
                                 <div className="text-xs text-[#74777f]">{txn.user.role}</div>
                             </td>
                             <td className="py-4 px-6 text-sm font-medium text-[#43474e]">
-                                {txn.date}
+                                {formatDate(txn.date)}
                             </td>
                             <td className="py-4 px-6 text-right">
-                                <div className={`text-sm font-bold ${txn.status === 'Failed' ? 'text-[#74777f] line-through opacity-70' : txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
-                                    {txn.type === 'income' ? '+' : '-'} {txn.amount.toLocaleString()} đ
+                                <div className={`text-sm font-bold ${txn.status === 'Failed' && !txn.paidAmount ? 'text-[#74777f] line-through opacity-70' : txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
+                                    {txn.type === 'income' ? '+' : '-'} {(txn.paidAmount ?? txn.amount).toLocaleString()} đ
                                 </div>
                             </td>
                             <td className="py-4 px-6">

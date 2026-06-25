@@ -68,13 +68,16 @@ const AdminDiscountCodes = () => {
     const handleSave = async () => {
         setError(null);
 
-        if (!formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime) {
-            setError('Please fill in both start and end date/time.');
+        if (!formData.startDate || !formData.endDate) {
+            setError('Please fill in both start and end dates.');
             return;
         }
 
-        const validFromLocal = `${formData.startDate}T${formData.startTime}`;
-        const validUntilLocal = `${formData.endDate}T${formData.endTime}`;
+        const startTimeStr = formData.startTime || '00:00';
+        const endTimeStr = formData.endTime || '00:00';
+
+        const validFromLocal = `${formData.startDate}T${startTimeStr}`;
+        const validUntilLocal = `${formData.endDate}T${endTimeStr}`;
 
         const startDateTime = new Date(validFromLocal);
         const endDateTime = new Date(validUntilLocal);

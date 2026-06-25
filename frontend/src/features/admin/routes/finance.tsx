@@ -31,7 +31,9 @@ const AdminFinance = () => {
         return matchesSearch && matchesType;
     });
 
-    const totalIncome = transactions.filter(t => t.type === 'income' && t.status === 'Completed').reduce((acc, t) => acc + t.amount, 0);
+    const totalIncome = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + (t.paidAmount || 0), 0);
     const totalExpense = transactions.filter(t => t.type === 'expense' && t.status === 'Completed').reduce((acc, t) => acc + t.amount, 0);
     const netRevenue = totalIncome - totalExpense;
 
