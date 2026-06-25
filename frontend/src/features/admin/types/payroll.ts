@@ -7,6 +7,7 @@ export interface DeductionItem {
 export interface EmployeeSalaryConfig {
     staffId: string;
     staffName: string;
+    accountCode: string;
     role: string;
     email: string;
     baseSalary: number;
@@ -18,6 +19,7 @@ export interface PayrollRecord {
     id: string;
     staffId: string;
     staffName: string;
+    accountCode: string;
     role: string;
     email: string;
     month: string;
@@ -33,7 +35,7 @@ export interface PayrollRecord {
 }
 
 export const calculateNetPay = (p: Partial<PayrollRecord>) => {
-    const baseEarnings = p.role !== 'Tutor' 
+    const baseEarnings = p.role !== 'TUTOR' 
         ? (p.baseSalary || 0) + ((p.overtimeHours || 0) * (p.overtimeRate || 0))
         : (p.teachingSessions || 0) * (p.ratePerSession || 0);
     const totalDeductions = p.deductionItems?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0;

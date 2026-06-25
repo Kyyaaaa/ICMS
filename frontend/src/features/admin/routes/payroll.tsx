@@ -1,5 +1,5 @@
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, Calculator, Settings, FileText } from 'lucide-react';
 
 import { type EmployeeSalaryConfig, type PayrollRecord, calculateNetPay } from '../types/payroll';
@@ -11,7 +11,11 @@ import { PayrollConfigModal } from '../components/PayrollConfigModal';
 import { PayrollRecordModal } from '../components/PayrollRecordModal';
 
 const AdminPayroll = () => {
-    const currentMonth = '2026-10';
+    const dateInputRef = useRef<HTMLInputElement>(null);
+    const [currentMonth] = useState(() => {
+        const date = new Date();
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    });
     
     // VIEW STATE
     const [viewMode, setViewMode] = useState<'Processing' | 'Configuration'>('Processing');
@@ -49,28 +53,28 @@ const AdminPayroll = () => {
     // --- COMPUTED DATA ---
     const filteredPayrolls = useMemo(() => {
         const filtered = payrolls.filter(p => {
-            const matchType = roleFilter === 'All' || (roleFilter === 'Staff' && p.role !== 'Tutor') || (roleFilter === 'Tutor' && p.role === 'Tutor');
+            const matchType = roleFilter === 'All' || (roleFilter === 'Staff' && p.role !== 'TUTOR') || (roleFilter === 'Tutor' && p.role === 'TUTOR');
             const matchMonth = p.month === selectedMonth;
             const matchSearch = p.staffName.toLowerCase().includes(searchTerm.toLowerCase()) || p.id.toLowerCase().includes(searchTerm.toLowerCase());
             const matchStatus = statusFilter === 'All' || p.status === statusFilter;
             return matchType && matchMonth && matchSearch && matchStatus;
         });
         return filtered.sort((a, b) => {
-            if (a.role !== 'Tutor' && b.role === 'Tutor') return -1;
-            if (a.role === 'Tutor' && b.role !== 'Tutor') return 1;
+            if (a.role !== 'TUTOR' && b.role === 'TUTOR') return -1;
+            if (a.role === 'TUTOR' && b.role !== 'TUTOR') return 1;
             return 0;
         });
     }, [payrolls, selectedMonth, searchTerm, statusFilter, roleFilter]);
 
     const filteredConfigs = useMemo(() => {
         const filtered = salaryConfigs.filter(c => {
-            const matchType = roleFilter === 'All' || (roleFilter === 'Staff' && c.role !== 'Tutor') || (roleFilter === 'Tutor' && c.role === 'Tutor');
+            const matchType = roleFilter === 'All' || (roleFilter === 'Staff' && c.role !== 'TUTOR') || (roleFilter === 'Tutor' && c.role === 'TUTOR');
             const matchSearch = c.staffName.toLowerCase().includes(searchTerm.toLowerCase()) || c.staffId.toLowerCase().includes(searchTerm.toLowerCase());
             return matchType && matchSearch;
         });
         return filtered.sort((a, b) => {
-            if (a.role !== 'Tutor' && b.role === 'Tutor') return -1;
-            if (a.role === 'Tutor' && b.role !== 'Tutor') return 1;
+            if (a.role !== 'TUTOR' && b.role === 'TUTOR') return -1;
+            if (a.role === 'TUTOR' && b.role !== 'TUTOR') return 1;
             return 0;
         });
     }, [salaryConfigs, searchTerm, roleFilter]);
@@ -125,40 +129,20 @@ const AdminPayroll = () => {
         const currentDate = new Date();
         const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
         
-        if (selectedMonth >= currentYearMonth) {
-            showAlertModal('Error', `Error: Cannot finalize payroll for ${selectedMonth}!\nYou can only generate payroll for past months.`, 'error');
+        if (selectedMonth > currentYearMonth) {
+            showAlertModal('Error', `Error: Cannot finalize payroll for ${selectedMonth}!\nYou can only generate payroll for past or current months.`, 'error');
             return;
         }
 
-        const newRecords: PayrollRecord[] = [];
-        salaryConfigs.forEach(c => {
-            const exists = payrolls.some(p => p.staffId === c.staffId && p.month === selectedMonth);
-            if (!exists) {
-                newRecords.push({
-                    id: `PAY-${Math.floor(1000 + Math.random() * 9000)}`,
-                    staffId: c.staffId,
-                    staffName: c.staffName,
-                    role: c.role,
-                    email: c.email,
-                    month: selectedMonth,
-                    baseSalary: c.role !== 'Tutor' ? c.baseSalary : undefined,
-                    overtimeRate: c.role !== 'Tutor' ? c.overtimeRate : undefined,
-                    overtimeHours: c.role !== 'Tutor' ? 0 : undefined,
-                    ratePerSession: c.role === 'Tutor' ? c.ratePerSession : undefined,
-                    teachingSessions: c.role === 'Tutor' ? 0 : undefined,
-                    bonus: 0,
-                    deductionItems: [],
-                    status: 'Pending'
-                });
-            }
-        });
-        
-        if (newRecords.length > 0) {
-            await PayrollService.createRecords(newRecords);
-            setPayrolls([...payrolls, ...newRecords]);
-            showAlertModal('Success', `Success! Generated ${newRecords.length} payslips for ${selectedMonth}.`, 'success');
-        } else {
-            showAlertModal('Notification', `All employees already have payslips for ${selectedMonth}.`, 'info');
+        try {
+            await PayrollService.generatePayroll(selectedMonth);
+            // Reload all records
+            const records = await PayrollService.getRecords();
+            setPayrolls(records);
+            showAlertModal('Success', `Success! Payroll generated for ${selectedMonth}.`, 'success');
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { error?: string } } };
+            showAlertModal('Error', err.response?.data?.error || `Error generating payroll for ${selectedMonth}.`, 'error');
         }
     };
 
@@ -173,12 +157,23 @@ const AdminPayroll = () => {
                 </div>
                 {viewMode === 'Processing' && (
                     <div className="flex flex-wrap items-center gap-3 bg-white p-2 rounded-xl shadow-sm border border-[#e0e3e5]">
-                        <input 
-                            type="month" 
-                            value={selectedMonth}
-                            onChange={(e) => setSelectedMonth(e.target.value)}
-                            className="px-3 py-1.5 bg-transparent border-none text-sm font-bold text-[#002045] focus:outline-none focus:ring-0 cursor-pointer"
-                        />
+                        <div 
+                            className="relative flex items-center px-3 py-1.5 min-w-35 cursor-pointer"
+                            onClick={() => {
+                                try { dateInputRef.current?.showPicker(); } catch (_e) { console.debug('Picker not supported'); }
+                            }}
+                        >
+                            <span className="text-sm font-bold text-[#002045] pointer-events-none w-full text-center">
+                                {selectedMonth ? new Date(selectedMonth + '-01').toLocaleString('en-US', { month: 'long', year: 'numeric' }) : ''}
+                            </span>
+                            <input 
+                                ref={dateInputRef}
+                                type="month" 
+                                value={selectedMonth}
+                                onChange={(e) => setSelectedMonth(e.target.value)}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer pointer-events-none"
+                            />
+                        </div>
                         <div className="hidden md:block w-px h-6 bg-[#e0e3e5]"></div>
                         <button 
                             onClick={handleGeneratePayroll}

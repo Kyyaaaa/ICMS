@@ -34,7 +34,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b border-[#e0e3e5]">
                         <div>
                             <h2 className="text-2xl font-bold text-[#181c1e]">{record.staffName}</h2>
-                            <p className="text-[#43474e]">{record.role} • {record.staffId}</p>
+                            <p className="text-[#43474e]">{record.role} • {record.email} • {record.accountCode}</p>
                         </div>
                         <div className="text-right mt-4 md:mt-0">
                             <p className="text-xs text-[#74777f] font-bold uppercase mb-1">Status</p>
@@ -48,13 +48,13 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                         <div>
                             <h3 className="text-base font-bold text-[#181c1e] mb-4 flex items-center gap-2"><DollarSign size={18}/> Earnings</h3>
                             <div className="space-y-4">
-                                {formData.role !== 'Tutor' ? (
+                                {formData.role !== 'TUTOR' ? (
                                     <>
                                         <div>
                                             <label className="block text-xs font-bold text-[#43474e] mb-1">Base Salary (Monthly - đ)</label>
                                             <input 
                                                 type="number" 
-                                                value={formData.baseSalary} 
+                                                value={formData.baseSalary || ''} 
                                                 onChange={e => setFormData({...formData, baseSalary: parseInt(e.target.value) || 0})}
                                                 disabled={formData.status !== 'Pending'}
                                                 className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
@@ -65,7 +65,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                                 <label className="block text-xs font-bold text-[#43474e] mb-1">OT Hours</label>
                                                 <input 
                                                     type="number" 
-                                                    value={formData.overtimeHours} 
+                                                    value={formData.overtimeHours || ''} 
                                                     onChange={e => setFormData({...formData, overtimeHours: parseFloat(e.target.value) || 0})}
                                                     disabled={formData.status !== 'Pending'}
                                                     className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
@@ -75,7 +75,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                                 <label className="block text-xs font-bold text-[#43474e] mb-1">OT Rate/Hr</label>
                                                 <input 
                                                     type="number" 
-                                                    value={formData.overtimeRate} 
+                                                    value={formData.overtimeRate || ''} 
                                                     onChange={e => setFormData({...formData, overtimeRate: parseInt(e.target.value) || 0})}
                                                     disabled={formData.status !== 'Pending'}
                                                     className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
@@ -90,7 +90,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                                 <label className="block text-xs font-bold text-[#43474e] mb-1">Sessions Taught</label>
                                                 <input 
                                                     type="number" 
-                                                    value={formData.teachingSessions} 
+                                                    value={formData.teachingSessions || ''} 
                                                     onChange={e => setFormData({...formData, teachingSessions: parseInt(e.target.value) || 0})}
                                                     disabled={formData.status !== 'Pending'}
                                                     className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
@@ -100,7 +100,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                                 <label className="block text-xs font-bold text-[#43474e] mb-1">Rate Per Session</label>
                                                 <input 
                                                     type="number" 
-                                                    value={formData.ratePerSession} 
+                                                    value={formData.ratePerSession || ''} 
                                                     onChange={e => setFormData({...formData, ratePerSession: parseInt(e.target.value) || 0})}
                                                     disabled={formData.status !== 'Pending'}
                                                     className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
@@ -114,7 +114,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                     <label className="block text-xs font-bold text-[#43474e] mb-1">Bonus / Allowances (đ)</label>
                                     <input 
                                         type="number" 
-                                        value={formData.bonus} 
+                                        value={formData.bonus || ''} 
                                         onChange={e => setFormData({...formData, bonus: parseInt(e.target.value) || 0})}
                                         disabled={formData.status !== 'Pending'}
                                         className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
@@ -125,7 +125,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                 <span className="text-[#0061a5] font-bold text-sm">Total Earnings</span>
                                 <span className="font-bold text-[#0061a5] text-base">
                                     {(() => {
-                                        if (formData.role !== 'Tutor') {
+                                        if (formData.role !== 'TUTOR') {
                                             return ((formData.baseSalary || 0) + ((formData.overtimeHours || 0) * (formData.overtimeRate || 0)) + (formData.bonus || 0)).toLocaleString() + 'đ';
                                         } else {
                                             return (((formData.teachingSessions || 0) * (formData.ratePerSession || 0)) + (formData.bonus || 0)).toLocaleString() + 'đ';
