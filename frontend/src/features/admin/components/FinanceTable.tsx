@@ -72,6 +72,12 @@ export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTa
                                         <span className="text-xs font-bold">Failed</span>
                                     </div>
                                 )}
+                                {txn.status === 'Refunded' && (
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#f3f4f6] text-[#43474e] rounded-md border border-[#e0e3e5]">
+                                        <CheckCircle size={14} />
+                                        <span className="text-xs font-bold">Refunded</span>
+                                    </div>
+                                )}
                             </td>
                             <td className="py-4 px-6 text-right">
                                 <button 

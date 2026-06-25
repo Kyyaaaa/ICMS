@@ -22,4 +22,22 @@ export class FinanceRepository {
 
     return data;
   }
+
+  static async getAllRefunds() {
+    const { data, error } = await supabaseAdmin
+      .from('refund_requests')
+      .select(`
+        *,
+        account:learner_id(full_name, account_code),
+        invoices(classes(courses(title)))
+      `)
+      .in('status', ['APPROVED', 'COMPLETED'])
+      .order('processed_at', { ascending: false });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
 }

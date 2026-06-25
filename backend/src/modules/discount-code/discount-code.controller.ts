@@ -71,24 +71,8 @@ export const deleteDiscountCode = async (req: Request, res: Response) => {
 export const validateDiscountCode = async (req: Request, res: Response) => {
     try {
         const code = req.params.code as string;
-        const discount = await service.getDiscountCodeByCode(code);
+        const discount = await service.validateDiscountCode(code);
         
-        if (discount.status !== 'Active') {
-            res.status(400).json({ message: 'This discount code is inactive or expired' });
-            return;
-        }
-
-        const now = new Date();
-        if (discount.validFrom && new Date(discount.validFrom) > now) {
-            res.status(400).json({ message: 'This discount code is not yet valid' });
-            return;
-        }
-
-        if (discount.validUntil && new Date(discount.validUntil) < now) {
-            res.status(400).json({ message: 'This discount code has expired' });
-            return;
-        }
-
         res.status(200).json({
             message: 'Valid discount code',
             data: discount
@@ -97,6 +81,8 @@ export const validateDiscountCode = async (req: Request, res: Response) => {
         console.error(error);
         if (error.message === 'Discount code not found') {
             res.status(404).json({ message: 'Invalid discount code' });
+        } else if (error.message.includes('inactive') || error.message.includes('not yet valid') || error.message.includes('expired')) {
+            res.status(400).json({ message: error.message });
         } else {
             res.status(500).json({ message: 'Internal Server Error' });
         }

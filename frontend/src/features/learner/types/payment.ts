@@ -9,6 +9,7 @@ export interface PaymentInstallment {
 
 export interface PaymentInvoice {
     id: string;
+    dbId?: string;
     course: string;
     date: string;
     amount: number;
@@ -18,6 +19,7 @@ export interface PaymentInvoice {
     learnerName?: string;
     learnerEmail?: string;
     createdAt?: string;
+    hasPendingRefund?: boolean;
 }
 
 export interface PaymentCourseInfo {

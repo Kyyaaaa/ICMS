@@ -43,7 +43,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                 </div>
                                 <div className="text-right">
                                     <p className="text-xs text-[#74777f] font-bold uppercase mb-1">Status</p>
-                                    <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full uppercase ${transaction.status === 'Completed' ? 'bg-[#e6f4ea] text-[#137333]' : transaction.status === 'Processing' ? 'bg-[#e6f0fa] text-[#0061a5]' : 'bg-[#fceeee] text-[#ba1a1a]'}`}>
+                                    <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full uppercase ${transaction.status === 'Completed' ? 'bg-[#e6f4ea] text-[#137333]' : transaction.status === 'Processing' ? 'bg-[#e6f0fa] text-[#0061a5]' : transaction.status === 'Refunded' ? 'bg-[#f3f4f6] text-[#43474e]' : 'bg-[#fceeee] text-[#ba1a1a]'}`}>
                                         {transaction.status}
                                     </span>
                                 </div>
@@ -152,7 +152,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                 </div>
                                 <div className="bg-[#f7fafc] p-4 rounded-xl border border-[#e0e3e5]">
                                     <span className="text-xs text-[#74777f] font-bold uppercase block mb-1">Reason</span>
-                                    <span className="text-sm text-[#43474e]">Requested by learner before course start date.</span>
+                                    <span className="text-sm text-[#43474e]">{transaction.reason || 'Requested by learner before course start date.'}</span>
                                 </div>
                             </div>
 

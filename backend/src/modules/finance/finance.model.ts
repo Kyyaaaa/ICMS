@@ -19,7 +19,8 @@ export interface Transaction {
   date: string;
   amount: number;
   paidAmount: number;
-  status: 'Completed' | 'Processing' | 'Failed';
+  status: 'Completed' | 'Processing' | 'Failed' | 'Refunded';
   isInstallment?: boolean;
   installments?: Installment[];
+  reason?: string;
 }

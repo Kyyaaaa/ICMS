@@ -121,9 +121,9 @@ export class InvoiceRepository {
   static async getInvoiceDetails(invoiceId: string) {
     let data;
     if (invoiceId.startsWith('IN')) {
-      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email), invoice_installments(*)`).eq('invoice_code', invoiceId).single();
+      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email), invoice_installments(*), refund_requests(status)`).eq('invoice_code', invoiceId).single();
     } else {
-      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email), invoice_installments(*)`).eq('id', invoiceId).single();
+      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email), invoice_installments(*), refund_requests(status)`).eq('id', invoiceId).single();
     }
     
     if (data.error) throw new Error(data.error.message);
@@ -149,7 +149,8 @@ export class InvoiceRepository {
             title
           )
         ),
-        invoice_installments(*)
+        invoice_installments(*),
+        refund_requests(status)
       `)
       .eq('learner_id', learnerId)
       .order('created_at', { ascending: false });

@@ -33,10 +33,41 @@ const RefundRequest = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!id) return;
+        if (!id || !invoice) return;
 
         setIsSubmitting(true);
-        const success = await LearnerPaymentsService.requestRefund(id, reason, details);
+        let refundAmount = invoice.amount;
+        if (installmentId && invoice.installments) {
+            refundAmount = invoice.installments.find(i => i.id === installmentId)?.amount || invoice.amount;
+        } else if (invoice.status === 'partial' && invoice.installments) {
+            refundAmount = invoice.installments.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.amount, 0);
+        }
+
+        const reasonOptions: Record<string, string> = {
+            schedule: 'Schedule conflict',
+            changed_mind: 'Changed my mind',
+            financial: 'Financial reasons',
+            other: 'Other'
+        };
+        const reasonText = reasonOptions[reason] || reason;
+        
+        let termPrefix = '';
+        if (installmentId && invoice.installments) {
+            const inst = invoice.installments.find(i => i.id === installmentId);
+            if (inst) termPrefix = `Term ${inst.installmentNumber} | `;
+        }
+
+        const finalReason = `${termPrefix}${reasonText}${details ? ` - ${details}` : ''}`;
+
+        const success = await LearnerPaymentsService.requestRefund({
+            invoice_id: invoice.dbId || id,
+            amount: refundAmount,
+            reason: finalReason,
+            bank_name: bankName,
+            bank_account_name: accountName,
+            bank_account_number: accountNo
+        });
+
         if (success) {
             setIsSuccess(true);
         }
@@ -54,7 +85,7 @@ const RefundRequest = () => {
                     <CheckCircle2 className="w-8 h-8 text-[#0061a5]" />
                 </div>
                 <h2 className="text-2xl font-bold text-[#181c1e] mb-4">Request Submitted!</h2>
-                <p className="text-base text-[#43474e] mb-8">Your refund request for invoice {id} has been submitted to our administration. You will be notified of the result via email within 2-3 business days.</p>
+                <p className="text-base text-[#43474e] mb-8">Your refund request for invoice {id} has been submitted to our administration. You can track the status of your request directly in the system.</p>
                 <Link to={`/learner/payments`} className="inline-block px-6 py-2.5 bg-[#002045] text-white rounded-lg font-semibold hover:bg-[#0061a5] transition-colors">
                     Back to Payments
                 </Link>
@@ -85,7 +116,7 @@ const RefundRequest = () => {
                     <div className="grid grid-cols-2 gap-2 text-sm text-[#43474e]">
                         <span>Invoice ID:</span>
                         <span className="font-semibold text-[#181c1e]">
-                            {invoice.id} {installmentId ? `(${installmentId})` : ''}
+                            {invoice.id}{installmentId && invoice.installments?.find(i => i.id === installmentId) ? `-${invoice.installments.find(i => i.id === installmentId)?.installmentNumber}` : ''}
                         </span>
                         <span>Amount Paid:</span>
                         <span className="font-semibold text-[#181c1e]">

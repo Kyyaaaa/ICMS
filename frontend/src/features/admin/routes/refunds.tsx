@@ -29,9 +29,11 @@ const AdminRefunds = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const handleProcess = async (id: string, newStatus: 'Approved' | 'Completed' | 'Rejected') => {
-        const updated = await AdminRefundsService.processRefund(id, newStatus, processNote);
-        setRefunds(refunds.map(r => r.id === id ? updated : r));
+    const handleProcess = async (dbId: string, id: string, newStatus: 'APPROVED' | 'COMPLETED' | 'REJECTED') => {
+        const success = await AdminRefundsService.updateStatus(dbId, newStatus, processNote);
+        if (success) {
+            setRefunds(refunds.map(r => r.id === id ? { ...r, status: newStatus === 'APPROVED' ? 'Approved' : newStatus === 'COMPLETED' ? 'Completed' : 'Rejected', notes: processNote } : r));
+        }
         setSelectedRefund(null);
         setProcessNote('');
     };
@@ -228,13 +230,13 @@ const AdminRefunds = () => {
                                     {selectedRefund.status === 'Pending' && (
                                         <div className="flex gap-3 mt-4">
                                             <button 
-                                                onClick={() => handleProcess(selectedRefund.id, 'Approved')}
+                                                onClick={() => handleProcess(selectedRefund.dbId!, selectedRefund.id, 'APPROVED')}
                                                 className="flex-1 bg-[#137333] text-white py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#0d5022] transition-colors"
                                             >
                                                 <CheckCircle2 size={18} /> Approve
                                             </button>
                                             <button 
-                                                onClick={() => handleProcess(selectedRefund.id, 'Rejected')}
+                                                onClick={() => handleProcess(selectedRefund.dbId!, selectedRefund.id, 'REJECTED')}
                                                 className="flex-1 bg-[#ba1a1a] text-white py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#93000a] transition-colors"
                                             >
                                                 <XCircle size={18} /> Reject
@@ -245,7 +247,7 @@ const AdminRefunds = () => {
                                     {selectedRefund.status === 'Approved' && (
                                         <div className="flex gap-3 mt-4">
                                             <button 
-                                                onClick={() => handleProcess(selectedRefund.id, 'Completed')}
+                                                onClick={() => handleProcess(selectedRefund.dbId!, selectedRefund.id, 'COMPLETED')}
                                                 className="w-full bg-[#0061a5] text-white py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#004d80] transition-colors"
                                             >
                                                 Mark as Completed (Transferred)

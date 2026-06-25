@@ -18,4 +18,5 @@ export interface Transaction {
     status: string;
     isInstallment?: boolean;
     installments?: Installment[];
+    reason?: string;
 }
