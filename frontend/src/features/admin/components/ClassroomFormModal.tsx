@@ -69,7 +69,7 @@ export const ClassroomFormModal = ({
                                     <input 
                                         type="date" 
                                         value={formData.maintenanceSchedule?.date || ''} 
-                                        onChange={e => setFormData({...formData, maintenanceSchedule: { date: e.target.value, startTime: '', endTime: '', note: '', ...formData.maintenanceSchedule }})}
+                                        onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, date: e.target.value }})}
                                         className="w-full px-3 py-2 text-sm border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] transition-colors"
                                     />
                                 </div>
@@ -78,7 +78,7 @@ export const ClassroomFormModal = ({
                                     <input 
                                         type="time" 
                                         value={formData.maintenanceSchedule?.startTime || ''} 
-                                        onChange={e => setFormData({...formData, maintenanceSchedule: { date: '', startTime: e.target.value, endTime: '', note: '', ...formData.maintenanceSchedule }})}
+                                        onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, startTime: e.target.value }})}
                                         className="w-full px-3 py-2 text-sm border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] transition-colors"
                                     />
                                 </div>
@@ -87,7 +87,7 @@ export const ClassroomFormModal = ({
                                     <input 
                                         type="time" 
                                         value={formData.maintenanceSchedule?.endTime || ''} 
-                                        onChange={e => setFormData({...formData, maintenanceSchedule: { date: '', startTime: '', endTime: e.target.value, note: '', ...formData.maintenanceSchedule }})}
+                                        onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, endTime: e.target.value }})}
                                         className="w-full px-3 py-2 text-sm border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] transition-colors"
                                     />
                                 </div>
@@ -97,7 +97,7 @@ export const ClassroomFormModal = ({
                                 <input 
                                     type="text" 
                                     value={formData.maintenanceSchedule?.note || ''} 
-                                    onChange={e => setFormData({...formData, maintenanceSchedule: { date: '', startTime: '', endTime: '', note: e.target.value, ...formData.maintenanceSchedule }})}
+                                    onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, note: e.target.value }})}
                                     className="w-full px-3 py-2 text-sm border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] placeholder:text-[#ba1a1a]/40 transition-colors"
                                     placeholder="e.g. AC Repair"
                                 />
