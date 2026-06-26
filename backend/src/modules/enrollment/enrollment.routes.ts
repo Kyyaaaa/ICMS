@@ -47,6 +47,26 @@ router.get('/', verifyToken, requireRole(['LEARNER']), EnrollmentController.getM
 
 /**
  * @swagger
+ * /api/enrollments/{class_id}/attendance:
+ *   get:
+ *     summary: Lấy lịch sử điểm danh của learner trong 1 lớp (Dành cho Learner)
+ *     tags: [Enrollment, Attendance]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: class_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Thành công
+ */
+router.get('/:class_id/attendance', verifyToken, requireRole(['LEARNER']), EnrollmentController.getLearnerAttendance);
+
+/**
+ * @swagger
  * /api/enrollments/{id}/cancel:
  *   patch:
  *     summary: Hủy ghi danh (Dành cho Staff/Admin)

@@ -61,6 +61,19 @@ export class EnrollmentService {
     return await EnrollmentRepository.getLearnerEnrollments(learnerId);
   }
 
+  static async getLearnerAttendance(learnerId: string, classId: string) {
+    // 1. Check if learner is actually enrolled in this class
+    const exists = await EnrollmentRepository.checkEnrollmentExists(learnerId, classId);
+    if (!exists) {
+      const err: any = new Error('Learner is not enrolled in this class');
+      err.status = 403;
+      throw err;
+    }
+    
+    // 2. Get attendance data
+    return await EnrollmentRepository.getLearnerAttendance(learnerId, classId);
+  }
+
   static async countEnrollmentsByCourseId(courseId: string) {
     return await EnrollmentRepository.countEnrollmentsByCourseId(courseId);
   }

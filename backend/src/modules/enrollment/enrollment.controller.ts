@@ -37,6 +37,23 @@ export class EnrollmentController {
     }
   }
 
+  static async getLearnerAttendance(req: AuthenticatedRequest, res: Response) {
+    try {
+      const learnerId = req.user.id;
+      const classId = req.params.class_id;
+      const attendance = await EnrollmentService.getLearnerAttendance(learnerId, classId);
+
+      return res.status(200).json({
+        success: true,
+        data: attendance,
+        message: 'Retrieved learner attendance successfully'
+      });
+    } catch (error: any) {
+      const status = error.status || 500;
+      return res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
   static async cancelEnrollment(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
