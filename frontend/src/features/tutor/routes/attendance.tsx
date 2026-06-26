@@ -39,14 +39,14 @@ const ClassAttendance = () => {
                         students: (classData as unknown as { students?: unknown[] }).students?.length || 0
                     }]);
                     
-                    const classSessions = (classData as unknown as { sessions?: { id: string, session_number: number, date: string, time: string }[] }).sessions || [];
+                    const classSessions = (classData as unknown as { sessions?: { id: string, session_number: number, date: string, time: string, attendances?: any[] }[] }).sessions || [];
                     setSessions(classSessions.map((s) => ({
                         id: s.id,
                         classId: classData.id,
                         name: `Session ${s.session_number}`,
                         date: s.date ? new Date(s.date).toISOString().split('T')[0] : '',
                         time: getSlotLabel((s as { slot?: string }).slot),
-                        status: 'pending'
+                        status: (s.attendances && s.attendances.length > 0) ? 'submitted' : 'pending'
                     })));
                 }
             } catch (err) {

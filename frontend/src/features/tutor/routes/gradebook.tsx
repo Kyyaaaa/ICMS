@@ -14,8 +14,7 @@ const TutorGradebook = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [defaultScaleInput, setDefaultScaleInput] = useState<string>('9');
-    const defaultScale = Number(defaultScaleInput) || 9;
+    const defaultScale = 9;
     
     // Side Panel State
     const [selectedCell, setSelectedCell] = useState<{ studentId: string, assId: string } | null>(null);
@@ -202,21 +201,7 @@ const TutorGradebook = () => {
                             <div className="flex flex-wrap items-center justify-end gap-3">
                                 {isEditing && (
                                     <>
-                                        <div className="flex items-center gap-2 pr-3 sm:border-r border-[#e2e2e9]">
-                                            <label className="text-xs font-semibold text-[#43474e]">Scale:</label>
-                                            <input 
-                                                type="number"
-                                                min="1"
-                                                value={defaultScaleInput}
-                                                onChange={(e) => setDefaultScaleInput(e.target.value)}
-                                                onBlur={(e) => {
-                                                    if (!e.target.value || Number(e.target.value) <= 0) {
-                                                        setDefaultScaleInput('9');
-                                                    }
-                                                }}
-                                                className="w-14 px-2 py-1.5 bg-white border border-[#e2e2e9] rounded-lg text-center font-bold text-[#002045] focus:outline-none focus:ring-2 focus:ring-[#0061a5]/30 focus:border-[#0061a5] transition-all shadow-sm"
-                                            />
-                                        </div>
+
 
                                         <button 
                                             onClick={() => {
