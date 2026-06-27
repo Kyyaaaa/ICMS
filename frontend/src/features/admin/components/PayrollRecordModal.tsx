@@ -11,7 +11,7 @@ interface PayrollRecordModalProps {
 
 export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onSave }: PayrollRecordModalProps) => {
     const getStatusBadge = (status: string) => {
-        switch(status) {
+        switch (status) {
             case 'Pending': return 'bg-[#fff8e1] text-[#c9a82c]';
             case 'Processed': return 'bg-[#e6f0fa] text-[#0061a5]';
             case 'Paid': return 'bg-[#e6f4ea] text-[#137333]';
@@ -29,7 +29,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                     </div>
                     <button onClick={onClose} className="text-[#74777f] hover:text-[#181c1e] transition-colors"><X size={24} /></button>
                 </div>
-                
+
                 <div className="p-6">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b border-[#e0e3e5]">
                         <div>
@@ -46,16 +46,16 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                         <div>
-                            <h3 className="text-base font-bold text-[#181c1e] mb-4 flex items-center gap-2"><DollarSign size={18}/> Earnings</h3>
+                            <h3 className="text-base font-bold text-[#181c1e] mb-4 flex items-center gap-2"><DollarSign size={18} /> Earnings</h3>
                             <div className="space-y-4">
                                 {formData.role !== 'TUTOR' ? (
                                     <>
                                         <div>
                                             <label className="block text-xs font-bold text-[#43474e] mb-1">Base Salary (Monthly - đ)</label>
-                                            <input 
-                                                type="number" 
-                                                value={formData.baseSalary || ''} 
-                                                onChange={e => setFormData({...formData, baseSalary: parseInt(e.target.value) || 0})}
+                                            <input
+                                                type="number"
+                                                value={formData.baseSalary || ''}
+                                                onChange={e => setFormData({ ...formData, baseSalary: parseInt(e.target.value) || 0 })}
                                                 disabled={formData.status !== 'Pending'}
                                                 className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                             />
@@ -63,20 +63,20 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                         <div className="flex gap-4">
                                             <div className="flex-1">
                                                 <label className="block text-xs font-bold text-[#43474e] mb-1">OT Hours</label>
-                                                <input 
-                                                    type="number" 
-                                                    value={formData.overtimeHours || ''} 
-                                                    onChange={e => setFormData({...formData, overtimeHours: parseFloat(e.target.value) || 0})}
+                                                <input
+                                                    type="number"
+                                                    value={formData.overtimeHours || ''}
+                                                    onChange={e => setFormData({ ...formData, overtimeHours: parseFloat(e.target.value) || 0 })}
                                                     disabled={formData.status !== 'Pending'}
                                                     className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                                 />
                                             </div>
                                             <div className="flex-1">
                                                 <label className="block text-xs font-bold text-[#43474e] mb-1">OT Rate/Hr</label>
-                                                <input 
-                                                    type="number" 
-                                                    value={formData.overtimeRate || ''} 
-                                                    onChange={e => setFormData({...formData, overtimeRate: parseInt(e.target.value) || 0})}
+                                                <input
+                                                    type="number"
+                                                    value={formData.overtimeRate || ''}
+                                                    onChange={e => setFormData({ ...formData, overtimeRate: parseInt(e.target.value) || 0 })}
                                                     disabled={formData.status !== 'Pending'}
                                                     className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                                 />
@@ -88,20 +88,20 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                         <div className="flex gap-4">
                                             <div className="flex-1">
                                                 <label className="block text-xs font-bold text-[#43474e] mb-1">Sessions Taught</label>
-                                                <input 
-                                                    type="number" 
-                                                    value={formData.teachingSessions || ''} 
-                                                    onChange={e => setFormData({...formData, teachingSessions: parseInt(e.target.value) || 0})}
+                                                <input
+                                                    type="number"
+                                                    value={formData.teachingSessions || ''}
+                                                    onChange={e => setFormData({ ...formData, teachingSessions: parseInt(e.target.value) || 0 })}
                                                     disabled={formData.status !== 'Pending'}
                                                     className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                                 />
                                             </div>
                                             <div className="flex-1">
                                                 <label className="block text-xs font-bold text-[#43474e] mb-1">Rate Per Session</label>
-                                                <input 
-                                                    type="number" 
-                                                    value={formData.ratePerSession || ''} 
-                                                    onChange={e => setFormData({...formData, ratePerSession: parseInt(e.target.value) || 0})}
+                                                <input
+                                                    type="number"
+                                                    value={formData.ratePerSession || ''}
+                                                    onChange={e => setFormData({ ...formData, ratePerSession: parseInt(e.target.value) || 0 })}
                                                     disabled={formData.status !== 'Pending'}
                                                     className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                                 />
@@ -112,10 +112,10 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
 
                                 <div>
                                     <label className="block text-xs font-bold text-[#43474e] mb-1">Bonus / Allowances (đ)</label>
-                                    <input 
-                                        type="number" 
-                                        value={formData.bonus || ''} 
-                                        onChange={e => setFormData({...formData, bonus: parseInt(e.target.value) || 0})}
+                                    <input
+                                        type="number"
+                                        value={formData.bonus || ''}
+                                        onChange={e => setFormData({ ...formData, bonus: parseInt(e.target.value) || 0 })}
                                         disabled={formData.status !== 'Pending'}
                                         className="w-full px-3 py-2 text-sm border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] disabled:bg-[#f1f4f6]"
                                     />
@@ -136,42 +136,42 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                         </div>
 
                         <div>
-                            <h3 className="text-base font-bold text-[#181c1e] mb-4 flex items-center gap-2"><Calculator size={18}/> Deductions</h3>
+                            <h3 className="text-base font-bold text-[#181c1e] mb-4 flex items-center gap-2"><Calculator size={18} /> Deductions</h3>
                             <div className="space-y-3">
                                 {(formData.deductionItems || []).map((item, index) => (
                                     <div key={item.id} className="flex gap-2 items-start">
                                         <div className="flex-1 space-y-2">
-                                            <input 
-                                                type="text" 
-                                                placeholder="Reason (e.g. Tax, Late...)" 
+                                            <input
+                                                type="text"
+                                                placeholder="Reason (e.g. Tax, Late...)"
                                                 value={item.reason}
                                                 onChange={(e) => {
                                                     const newItems = [...(formData.deductionItems || [])];
                                                     newItems[index].reason = e.target.value;
-                                                    setFormData({...formData, deductionItems: newItems});
+                                                    setFormData({ ...formData, deductionItems: newItems });
                                                 }}
                                                 disabled={formData.status !== 'Pending'}
                                                 className="w-full px-3 py-2 text-xs border border-[#ffebed] rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#ba1a1a] disabled:bg-[#f1f4f6]"
                                             />
-                                            <input 
-                                                type="number" 
-                                                placeholder="Amount (đ)" 
+                                            <input
+                                                type="number"
+                                                placeholder="Amount (đ)"
                                                 value={item.amount || ''}
                                                 onChange={(e) => {
                                                     const newItems = [...(formData.deductionItems || [])];
                                                     newItems[index].amount = parseInt(e.target.value) || 0;
-                                                    setFormData({...formData, deductionItems: newItems});
+                                                    setFormData({ ...formData, deductionItems: newItems });
                                                 }}
                                                 disabled={formData.status !== 'Pending'}
                                                 className="w-full px-3 py-2 text-xs font-bold border border-[#ffebed] rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#ba1a1a] disabled:bg-[#f1f4f6]"
                                             />
                                         </div>
                                         {formData.status === 'Pending' && (
-                                            <button 
+                                            <button
                                                 onClick={() => {
                                                     const newItems = [...(formData.deductionItems || [])];
                                                     newItems.splice(index, 1);
-                                                    setFormData({...formData, deductionItems: newItems});
+                                                    setFormData({ ...formData, deductionItems: newItems });
                                                 }}
                                                 className="p-2 mt-1 text-[#ba1a1a] hover:bg-[#ffebed] rounded-lg transition-colors"
                                                 title="Remove deduction"
@@ -182,11 +182,11 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                     </div>
                                 ))}
                                 {formData.status === 'Pending' && (
-                                    <button 
+                                    <button
                                         onClick={() => {
                                             const newItems = [...(formData.deductionItems || [])];
                                             newItems.push({ id: Math.random().toString(), reason: '', amount: 0 });
-                                            setFormData({...formData, deductionItems: newItems});
+                                            setFormData({ ...formData, deductionItems: newItems });
                                         }}
                                         className="text-[#0061a5] font-bold text-xs flex items-center gap-1 mt-2 hover:underline"
                                     >
@@ -217,19 +217,19 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                         <button onClick={onClose} className="px-6 py-3 text-sm font-bold text-[#43474e] hover:bg-[#e0e3e5] rounded-xl transition-colors">
                             Close
                         </button>
-                        
+
                         {formData.status === 'Pending' && (
-                            <button 
-                                onClick={() => { setFormData({...formData, status: 'Processed'}); }}
+                            <button
+                                onClick={() => { setFormData({ ...formData, status: 'Processed' }); }}
                                 className="px-6 py-3 text-sm font-bold text-white bg-[#0061a5] hover:bg-[#004d80] rounded-xl transition-colors flex items-center gap-2"
                             >
                                 <CheckCircle2 size={18} /> Mark Processed
                             </button>
                         )}
-                        
+
                         {formData.status === 'Processed' && (
-                            <button 
-                                onClick={() => { setFormData({...formData, status: 'Paid', paymentDate: new Date().toISOString().split('T')[0]}); }}
+                            <button
+                                onClick={() => { setFormData({ ...formData, status: 'Paid', paymentDate: new Date().toISOString().split('T')[0] }); }}
                                 className="px-6 py-3 text-sm font-bold text-white bg-[#137333] hover:bg-[#0d5022] rounded-xl transition-colors flex items-center gap-2"
                             >
                                 <DollarSign size={18} /> Confirm Paid
@@ -237,16 +237,16 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                         )}
 
                         {(formData.status === 'Processed' || formData.status === 'Paid') && (
-                            <button 
+                            <button
                                 onClick={onSave}
                                 className="px-6 py-3 text-sm font-bold text-white bg-[#181c1e] hover:bg-[#000000] rounded-xl transition-colors"
                             >
                                 Save Changes
                             </button>
                         )}
-                        
+
                         {formData.status === 'Pending' && (
-                            <button 
+                            <button
                                 onClick={onSave}
                                 className="px-6 py-3 text-sm font-bold text-white bg-[#181c1e] hover:bg-[#000000] rounded-xl transition-colors"
                             >
