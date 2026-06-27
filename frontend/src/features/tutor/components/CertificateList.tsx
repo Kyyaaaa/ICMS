@@ -8,15 +8,9 @@ interface CertificateListProps {
     onDelete: (qual: Certificate) => void;
 }
 
+import { formatDate } from '../../../shared/utils/date';
+
 export const CertificateList = ({ Certificates, onView, onEdit, onDelete }: CertificateListProps) => {
-    const formatDate = (dateStr: string) => {
-        if (!dateStr || dateStr === 'No Expiration') return dateStr;
-        const parts = dateStr.split('-');
-        if (parts.length === 3) {
-            return `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
-        return dateStr;
-    };
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden">
@@ -58,7 +52,7 @@ export const CertificateList = ({ Certificates, onView, onEdit, onDelete }: Cert
                             <span className="md:hidden font-bold mr-2 text-xs uppercase">Expires:</span>
                             <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[#f1f4f6] text-[#43474e] text-xs font-medium">
                                 <Clock className="w-3.5 h-3.5" />
-                                {formatDate(qual.expDate)}
+                                {qual.expDate === 'No Expiration' ? 'No Expiration' : formatDate(qual.expDate)}
                             </div>
                         </div>
 

@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import { SessionService } from './session.service';
+import { SessionRepository } from './session.repository';
 
 export class SessionController {
+
   static async getMySchedule(req: Request, res: Response) {
     try {
       const user = (req as any).user;

@@ -297,11 +297,10 @@ export const AdminLayout = () => {
                                 <span className="text-sm font-bold text-[#002045] leading-tight group-hover:text-[#0061a5] transition-colors">{fullName}</span>
                                 <span className="text-xs text-[#74777f] leading-tight uppercase">{roleText ? roleText.toUpperCase() : ''}</span>
                             </div>
-                            <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-sm shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
-                                {avatarUrl ? (
-                                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                                ) : (
-                                    initials
+                            <div className="relative w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-sm shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
+                                {initials}
+                                {avatarUrl && (
+                                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover absolute inset-0 z-10" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                                 )}
                             </div>
                         </Link>

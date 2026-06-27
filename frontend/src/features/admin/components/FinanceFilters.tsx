@@ -1,3 +1,4 @@
+import { formatMonthYear } from "../../../shared/utils/date";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface FinanceFiltersProps {
@@ -48,7 +49,7 @@ export const FinanceFilters = ({
     if (filterMonth === "all") return "All Months";
     const [year, month] = filterMonth.split("-");
     const date = new Date(parseInt(year), parseInt(month) - 1);
-    return date.toLocaleString("en-US", { month: "long", year: "numeric" });
+    return formatMonthYear(date);
   };
 
   return (

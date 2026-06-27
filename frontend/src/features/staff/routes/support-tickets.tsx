@@ -1,3 +1,4 @@
+import { formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Ticket, Search, MessageSquare, ChevronRight, Send, Paperclip } from 'lucide-react';
 import Cookies from 'js-cookie';
@@ -23,7 +24,7 @@ const formatTimestamp = (dateString: string) => {
         return `Yesterday, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     }
     
-    return date.toLocaleDateString('en-GB') + ', ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return formatDateTime(date);
 };
 
 export const StaffSupportTickets = () => {

@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, CheckCircle2, Clock, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
@@ -62,7 +63,7 @@ const PaymentDetail = () => {
                 let pendingMessage = 'This invoice is pending payment. Please complete your payment soon.';
                 if (invoice && invoice.createdAt) {
                     const expiry = new Date(new Date(invoice.createdAt).getTime() + 15 * 60 * 1000);
-                    pendingMessage = `This invoice is pending payment. Please complete your payment before ${expiry.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} on ${expiry.toLocaleDateString('en-GB')}.`;
+                    pendingMessage = `This invoice is pending payment. Please complete your payment before ${expiry.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} on ${formatDate(expiry)}.`;
                 }
                 return {
                     color: 'text-[#b45309]',

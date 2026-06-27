@@ -121,9 +121,9 @@ export class InvoiceRepository {
   static async getInvoiceDetails(invoiceId: string) {
     let data;
     if (invoiceId.startsWith('IN')) {
-      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email), invoice_installments(*), refund_requests(status)`).eq('invoice_code', invoiceId).single();
+      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, start_date, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email, phone_number, account_code), invoice_installments(*), refund_requests(status)`).eq('invoice_code', invoiceId).single();
     } else {
-      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email), invoice_installments(*), refund_requests(status)`).eq('id', invoiceId).single();
+      data = await supabaseAdmin.from('invoices').select(`*, classes(id, name, start_date, courses(id, title, band, sessions, format, price, allow_installments, number_of_installments)), account:learner_id(id, full_name, email, phone_number, account_code), invoice_installments(*), refund_requests(status)`).eq('id', invoiceId).single();
     }
     
     if (data.error) throw new Error(data.error.message);
@@ -131,6 +131,13 @@ export class InvoiceRepository {
     // Sort installments if they exist
     if (data.data.invoice_installments) {
       data.data.invoice_installments.sort((a: any, b: any) => a.installment_number - b.installment_number);
+    }
+    
+    if (data.data.classes && !data.data.classes.start_date) {
+        const firstSession = await supabaseAdmin.from('class_sessions').select('date').eq('class_id', data.data.class_id).order('date', { ascending: true }).limit(1).single();
+        if (firstSession.data) {
+            data.data.classes.start_date = firstSession.data.date;
+        }
     }
     
     return data.data;

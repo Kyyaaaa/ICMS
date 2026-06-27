@@ -10,6 +10,7 @@ import type { AvailabilityStatus } from "../types/availability";
 import { AvailabilityGrid } from "../components/AvailabilityGrid";
 import { showConfirmModal, showAlertModal } from "@/utils/modal";
 import type { AvailabilityCycle } from "../services/availability.service";
+import { formatMonthYear } from "@/shared/utils/date";
 
 const AvailabilityRegistration = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -223,7 +224,7 @@ const AvailabilityRegistration = () => {
             </button>
             
             <div className="px-2 py-1.5 text-sm font-bold text-[#002045] min-w-35 text-center flex items-center justify-center gap-2 max-w-full">
-              <span>{currentDate.toLocaleString('default', { month: 'long' })} - {currentDate.getFullYear()}</span>
+              <span>{formatMonthYear(currentDate)}</span>
               {currentCycle && (
                 <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                   currentCycle.status === 'ACTIVE' ? 'bg-[#e3f2fd] text-[#0061a5]' : 

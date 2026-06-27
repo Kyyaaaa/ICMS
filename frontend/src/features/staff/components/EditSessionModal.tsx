@@ -16,12 +16,10 @@ interface EditSessionModalProps {
 }
 
 export const EditSessionModal = ({ session, availableRooms, availableTutors, onClose, onSave }: EditSessionModalProps) => {
-    const [isEditRoomDropdownOpen, setIsEditRoomDropdownOpen] = useState(false);
     const [selectedEditRoom, setSelectedEditRoom] = useState<Classroom | null>(null);
     const [selectedTutor, setSelectedTutor] = useState(session.tutor_id || '');
     const [date, setDate] = useState(session.date);
     const [slot, setSlot] = useState(session.slot);
-    const editRoomDropdownRef = useRef<HTMLDivElement>(null);
 
     const [isEditSlotDropdownOpen, setIsEditSlotDropdownOpen] = useState(false);
     const editSlotDropdownRef = useRef<HTMLDivElement>(null);
@@ -42,8 +40,7 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
         const dateObj = new Date(year, month - 1, day);
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const dayName = dayNames[dateObj.getDay()];
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const cycleName = `${monthNames[dateObj.getMonth()]} - ${dateObj.getFullYear()}`;
+        const cycleName = `${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
         return { dateObj, dayName, cycleName };
     }, [date]);
 
@@ -181,9 +178,6 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (editRoomDropdownRef.current && !editRoomDropdownRef.current.contains(event.target as Node)) {
-                setIsEditRoomDropdownOpen(false);
-            }
             if (editSlotDropdownRef.current && !editSlotDropdownRef.current.contains(event.target as Node)) {
                 setIsEditSlotDropdownOpen(false);
             }
@@ -207,9 +201,9 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#002045]/40 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-130 animate-fade-in-up overflow-hidden">
-                <div className="flex justify-between items-center p-5 border-b border-[#e0e3e5] bg-[#f8f9fa]">
-                    <h2 className="text-lg font-bold text-[#002045]">{isPast ? 'View' : 'Edit'} Session {session.session_number} - {session.class?.name || 'Unknown Class'}</h2>
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-130 animate-fade-in-up flex flex-col">
+                <div className="flex justify-between items-center p-5 border-b border-[#e0e3e5] bg-[#f8f9fa] rounded-t-2xl">
+                    <h2 className="text-lg font-bold text-[#002045]">{isPast ? 'View' : 'Edit'} Session {session.session_number} - {session.class ? `${session.class.course?.title || 'Unknown Course'} - ${session.class.name}` : 'Unknown Class'}</h2>
                     <button 
                         onClick={onClose}
                         className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
@@ -247,7 +241,7 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                             disabled={isPast}
                         >
                             <div className="flex items-center min-w-0">
-                                <span className="truncate">{slot ? shiftToLabelMap[slot] : '-- No Slot --'}</span>
+                                <span className="truncate">{slot ? shiftToLabelMap[slot] : 'Select Slot'}</span>
                                 {slot && slotOptions.find(s => s.id === slot)?.isRegistered && (
                                     <Star className="w-3 h-3 fill-current text-orange-500 shrink-0 ml-1.5" />
                                 )}
@@ -258,7 +252,7 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                         {isEditSlotDropdownOpen && (
                             <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#c4c6cf] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto py-2">
                                 {slotOptions.length === 0 ? (
-                                    <div className="px-4 py-3 text-gray-500 text-sm text-center">-- No Available Slots --</div>
+                                    <div className="px-4 py-3 text-gray-500 text-sm text-center">No Available Slots</div>
                                 ) : (
                                     slotOptions.map(sOpt => {
                                         const s = sOpt.id;
@@ -295,12 +289,12 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                             <Users className="w-4 h-4 text-gray-500"/> Assign Substitute Tutor
                         </label>
                         <select 
-                            className={`w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 appearance-none ${isPast ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className={`w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 ${isPast ? 'opacity-70 cursor-not-allowed' : ''}`}
                             value={selectedTutor}
                             onChange={(e) => setSelectedTutor(e.target.value)}
                             disabled={isPast}
                         >
-                            <option value="">-- No Tutor --</option>
+                            <option value="">No Tutor Assigned</option>
                             {tutorOptions.map(t => (
                                 <option key={t.id} value={t.id} disabled={t.isOccupied}>
                                     {t.full_name} {t.isOccupied ? '(Occupied)' : ''}
@@ -309,46 +303,45 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                         </select>
                     </div>
 
-                    <div className="space-y-2 relative" ref={editRoomDropdownRef}>
+                    <div className="space-y-2 relative">
                         <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
                             <MapPin className="w-4 h-4 text-gray-500"/> Change Room
                         </label>
-                        <button 
-                            type="button"
-                            onClick={() => !isPast && setIsEditRoomDropdownOpen(!isEditRoomDropdownOpen)}
-                            className={`w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 flex justify-between items-center text-left ${isPast ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        <select
+                            className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                            value={selectedEditRoom ? selectedEditRoom.id : (session.classroom_id || '')}
+                            onChange={(e) => {
+                                const selectedId = e.target.value;
+                                if (selectedId === session.classroom_id) {
+                                    setSelectedEditRoom(null);
+                                } else {
+                                    const room = roomOptions.find(r => r.id === selectedId);
+                                    if (room) setSelectedEditRoom(room);
+                                }
+                            }}
                             disabled={isPast}
                         >
-                            <span>
-                                {selectedEditRoom ? `${selectedEditRoom.room_name} (Cap: ${selectedEditRoom.capacity})` : 'Room 201 (Current)'}
-                            </span>
-                            <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${isEditRoomDropdownOpen ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {isEditRoomDropdownOpen && (
-                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#c4c6cf] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto py-2">
-                                <button 
-                                    className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors font-medium text-[#0061a5] border-b border-gray-100 mb-1"
-                                    onClick={() => { setSelectedEditRoom(null); setIsEditRoomDropdownOpen(false); }}
-                                >
-                                    -- Keep Current --
-                                </button>
-                                {roomOptions.map((room) => (
-                                    <button 
+                            {!session.classroom_id && <option value="">No Room Assigned</option>}
+                            {session.classroom_id && !selectedEditRoom && (
+                                <option value={session.classroom_id}>{session.classroom?.room_name ? `${session.classroom.room_name} (Current)` : 'Current Room'}</option>
+                            )}
+                            {roomOptions.map((room) => {
+                                if (room.id === session.classroom_id && !selectedEditRoom) return null; // already handled
+                                return (
+                                    <option 
                                         key={room.id}
+                                        value={room.id}
                                         disabled={room.isOccupied}
-                                        className={`w-full text-left px-4 py-2 transition-colors truncate ${room.isOccupied ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-[#f0f7ff]'}`}
-                                        onClick={() => { if (!room.isOccupied) { setSelectedEditRoom(room); setIsEditRoomDropdownOpen(false); } }}
                                     >
                                         {room.room_name} (Cap: {room.capacity}) {room.isOccupied ? '(Occupied)' : ''}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                                    </option>
+                                );
+                            })}
+                        </select>
                     </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 p-5 border-t border-[#e0e3e5] bg-gray-50">
+                <div className="flex items-center justify-end gap-3 p-5 border-t border-[#e0e3e5] bg-gray-50 rounded-b-2xl">
                     <button 
                         onClick={onClose}
                         className="px-6 py-2.5 rounded-xl font-semibold text-gray-700 bg-white border border-[#c4c6cf] hover:bg-gray-50 transition-colors"

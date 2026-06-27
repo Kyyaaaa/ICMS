@@ -3,7 +3,6 @@ import { SessionController } from './session.controller';
 import { verifyToken, requireRole } from '../../middlewares/auth.middleware';
 
 const router = Router();
-
 /**
  * @swagger
  * /api/sessions/my-schedule:

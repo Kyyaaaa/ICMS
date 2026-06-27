@@ -4,9 +4,10 @@ import type { TutorChangeRequest } from '../types/change-request';
 interface ChangeRequestDetailProps {
     request: TutorChangeRequest;
     onClose: () => void;
+    onCancel?: () => void;
 }
 
-export const ChangeRequestDetail = ({ request, onClose }: ChangeRequestDetailProps) => {
+export const ChangeRequestDetail = ({ request, onClose, onCancel }: ChangeRequestDetailProps) => {
     return (
         <div className="fixed inset-0 bg-[#002045]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg flex flex-col overflow-hidden animate-fade-in-up">
@@ -43,15 +44,19 @@ export const ChangeRequestDetail = ({ request, onClose }: ChangeRequestDetailPro
                             <p className="font-semibold text-[#181c1e] text-sm">{request.originalTime}</p>
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-[#74777f] mb-1">
-                                {request.type === 'Reschedule' ? 'Proposed Time' : 'Request Type'}
-                            </p>
-                            <p className={`font-semibold text-sm ${request.type === 'Reschedule' ? 'text-[#0061a5]' : 'text-purple-600'}`}>
-                                {request.type === 'Reschedule' 
-                                    ? (request.proposedTime || 'None provided') 
-                                    : 'Needs Substitute Tutor'}
+                            <p className="text-xs font-bold text-[#74777f] mb-1">Request Type</p>
+                            <p className={`font-semibold text-sm ${request.type?.toLowerCase() === 'reschedule' ? 'text-[#0061a5]' : 'text-purple-600'}`}>
+                                {request.type?.toLowerCase() === 'reschedule' ? 'Reschedule' : 'Needs Substitute Tutor'}
                             </p>
                         </div>
+                        {request.type?.toLowerCase() === 'reschedule' && (
+                            <div className="col-span-2 pt-3 mt-1 border-t border-[#e0e3e5]">
+                                <p className="text-xs font-bold text-[#74777f] mb-1">Proposed Time</p>
+                                <p className="font-semibold text-[#181c1e] text-sm">
+                                    {request.proposedTime || 'None provided'}
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {request.status === 'Approved' && request.finalTime && (
@@ -77,6 +82,21 @@ export const ChangeRequestDetail = ({ request, onClose }: ChangeRequestDetailPro
                         </div>
                     )}
                 </div>
+
+                {request.status === 'Pending' && onCancel && (
+                    <div className="p-5 border-t border-[#e0e3e5] bg-[#f8f9fa] flex justify-end">
+                        <button 
+                            onClick={() => {
+                                if (window.confirm('Are you sure you want to cancel this request?')) {
+                                    onCancel();
+                                }
+                            }}
+                            className="px-6 py-2.5 font-semibold text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition-colors"
+                        >
+                            Cancel Request
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

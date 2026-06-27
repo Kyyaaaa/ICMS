@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { ArrowLeft, ChevronRight, Calendar, Clock, CheckCircle2, Send, Search, XCircle } from 'lucide-react';
 import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceStatus } from '../types/attendance';
 
@@ -41,7 +42,7 @@ export const AttendanceSheet = ({
                         <span className="text-[#43474e] text-base font-semibold">{selectedSession.name}</span>
                     </h2>
                     <div className="flex items-center gap-6 text-[#74777f] text-xs font-medium mt-2">
-                        <span className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {new Date(selectedSession.date).toLocaleDateString('en-GB')}</span>
+                        <span className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {formatDate(selectedSession.date)}</span>
                         <span className="flex items-center gap-2"><Clock className="w-4 h-4" /> {selectedSession.time}</span>
                     </div>
                 </div>

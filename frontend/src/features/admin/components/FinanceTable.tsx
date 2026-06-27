@@ -9,7 +9,7 @@ interface FinanceTableProps {
 export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTableProps) => {
     const formatDate = (dateString: string) => {
         try {
-            return new Date(dateString).toLocaleDateString('en-GB'); // DD/MM/YYYY
+            return formatDate(dateString); // DD/MM/YYYY
         } catch {
             return dateString;
         }

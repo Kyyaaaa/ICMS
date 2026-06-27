@@ -1,3 +1,4 @@
+import { formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { Tags, Search, Plus, Trash2, Edit, X } from 'lucide-react';
 import type { DiscountCode } from '../types/discount-code';
@@ -164,10 +165,10 @@ const AdminDiscountCodes = () => {
                                         {code.value.toLocaleString()} đ
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
-                                        {code.validFrom ? new Date(code.validFrom).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A'}
+                                        {code.validFrom ? formatDateTime(code.validFrom) : 'N/A'}
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
-                                        {code.validUntil ? new Date(code.validUntil).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A'}
+                                        {code.validUntil ? formatDateTime(code.validUntil) : 'N/A'}
                                     </td>
                                     <td className="py-4 px-6">
                                         <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${

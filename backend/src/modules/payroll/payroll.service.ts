@@ -37,11 +37,20 @@ class PayrollService {
             payrollRepository.getTutorCompletedSessionsCount(month)
         ]);
         
-        // 3. Generate raw payroll records
+        // 3. Get the latest payroll code to start auto-incrementing
+        const lastPayroll = await payrollRepository.getLatestPayrollCode();
+        let nextCodeNumber = 1;
+        if (lastPayroll && lastPayroll.payroll_code && /^PAY\d+$/.test(lastPayroll.payroll_code)) {
+            const numPart = parseInt(lastPayroll.payroll_code.substring(3), 10);
+            if (!isNaN(numPart)) {
+                nextCodeNumber = numPart + 1;
+            }
+        }
+
+        // 4. Generate raw payroll records
         const recordsToInsert = configs.map(config => {
-            // Generate a simple payroll code
-            const rolePrefix = config.role?.substring(0, 3).toUpperCase() || 'EMP';
-            const code = `PAY-${month.replace('-', '')}-${rolePrefix}-${config.account_code || config.account_id.substring(0, 6)}`;
+            const code = `PAY${String(nextCodeNumber).padStart(6, '0')}`;
+            nextCodeNumber++;
             
             const overtimeHours = 0;
             const isTutor = config.role === 'TUTOR';

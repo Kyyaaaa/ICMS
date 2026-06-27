@@ -255,7 +255,13 @@ export class ClassService {
     if (updates.tutor_id && updates.date && updates.slot) {
       // Get class to find start_date
       const targetClass = await ClassRepository.getClassById(classId);
-      if (targetClass && targetClass.start_date) {
+      const originalSession = await ClassRepository.getSessionById(sessionId);
+
+      // Only check availability if we are changing to a DIFFERENT tutor.
+      // If we are rescheduling for the SAME tutor, we bypass availability check.
+      const isSameTutor = originalSession && originalSession.tutor_id === updates.tutor_id;
+
+      if (targetClass && targetClass.start_date && !isSameTutor) {
         const cycleName = getCycleNameFromDate(targetClass.start_date);
         const slotKey = getAvailabilitySlotKey(updates.date, updates.slot);
         try {

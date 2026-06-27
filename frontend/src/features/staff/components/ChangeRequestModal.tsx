@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, CheckCircle, XCircle } from 'lucide-react';
 import type { ChangeRequest } from '../types/change-request';
+import { ClassroomsService, type Classroom } from '@/shared/services/classrooms.service';
+import { ClassesService } from '../services/classes.service';
+import { formatDate } from '../../../shared/utils/date';
 
 interface ChangeRequestModalProps {
     request: ChangeRequest;
     onClose: () => void;
-    onUpdateStatus: (id: number, status: string, finalTime?: string, staffNote?: string) => void;
+    onUpdateStatus: (id: string, status: string, finalTime?: string, staffNote?: string) => void;
 }
 
 export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeRequestModalProps) => {
@@ -14,10 +17,42 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
     const [selectedNewRoom, setSelectedNewRoom] = useState('');
     const [staffNote, setStaffNote] = useState(request.staffNote || '');
 
+    const [allRooms, setAllRooms] = useState<Classroom[]>([]);
+    const [availableRooms, setAvailableRooms] = useState<Classroom[]>([]);
+    const [isLoadingRooms, setIsLoadingRooms] = useState(false);
+
+    useEffect(() => {
+        ClassroomsService.getAll().then(setAllRooms);
+    }, []);
+
+    useEffect(() => {
+        if (!selectedNewDate || !selectedNewTime) {
+            return;
+        }
+        
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsLoadingRooms(true);
+        ClassesService.getOccupiedSessions({ date: selectedNewDate, slot: selectedNewTime })
+            .then(occupiedSessions => {
+                const occupiedRoomIds = occupiedSessions.map(s => s.classroom_id).filter(Boolean);
+                const freeRooms = allRooms.filter(r => !occupiedRoomIds.includes(r.id));
+                setAvailableRooms(freeRooms);
+
+                if (request.originalRoomId && !occupiedRoomIds.includes(request.originalRoomId)) {
+                    const originalRoom = freeRooms.find(r => r.id === request.originalRoomId);
+                    if (originalRoom) {
+                        setSelectedNewRoom(originalRoom.room_name);
+                    }
+                }
+            })
+            .finally(() => setIsLoadingRooms(false));
+    }, [selectedNewDate, selectedNewTime, allRooms, request.originalRoomId]);
+
     const handleApprove = () => {
         let finalArranged = '';
-        if (request.type === 'Reschedule') {
-            finalArranged = `${selectedNewDate} (${selectedNewTime}) • ${selectedNewRoom}`;
+        if (request.type?.toLowerCase() === 'reschedule') {
+            const formattedDate = formatDate(selectedNewDate);
+            finalArranged = `${formattedDate} (${selectedNewTime}) • ${selectedNewRoom}`;
         }
         onUpdateStatus(request.id, 'Approved', finalArranged || request.finalTime, staffNote);
     };
@@ -59,26 +94,33 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                             <p className="font-semibold text-[#e11d48]">{request.originalTime}</p>
                         </div>
                         <div>
-                            <p className="text-sm font-semibold text-gray-500 mb-1">
-                                {request.type === 'Reschedule' ? 'Proposed by Tutor' : 'Requested Action'}
-                            </p>
-                            <p className={`font-semibold ${request.type === 'Reschedule' ? 'text-[#16a34a]' : 'text-[#7c3aed]'}`}>
-                                {request.type === 'Reschedule' 
-                                    ? (request.proposedTime || 'TBD (None provided)') 
-                                    : 'Needs Substitute Tutor'}
+                            <p className="text-sm font-semibold text-gray-500 mb-1">Requested Action</p>
+                            <p className={`font-semibold ${request.type?.toLowerCase() === 'reschedule' ? 'text-[#16a34a]' : 'text-[#7c3aed]'}`}>
+                                {request.type?.toLowerCase() === 'reschedule' ? 'Reschedule' : 'Needs Substitute Tutor'}
                             </p>
                         </div>
+                        {request.type?.toLowerCase() === 'reschedule' && (
+                            <div className="col-span-2 pt-3 mt-1 border-t border-[#e0e3e5]">
+                                <p className="text-sm font-semibold text-gray-500 mb-1">Proposed by Tutor</p>
+                                <p className="font-semibold text-[#16a34a]">
+                                    {request.proposedTime || 'TBD (None provided)'}
+                                </p>
+                            </div>
+                        )}
                     </div>
 
-                    {request.type === 'Reschedule' && request.status === 'Pending' && (
+                    {(request.type?.toLowerCase() === 'reschedule' || request.type?.toLowerCase() === 'change room') && request.status === 'Pending' && (
                         <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl space-y-4">
-                            <p className="text-sm font-bold text-[#002045]">Assign Final Reschedule</p>
+                            <p className="text-sm font-bold text-[#002045]">
+                                {request.type?.toLowerCase() === 'change room' ? 'Assign Final Room' : 'Assign Final Reschedule'}
+                            </p>
                             
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-600 mb-1">Select Date <span className="text-red-500">*</span></label>
                                     <input 
                                         type="date" 
+                                        min={new Date().toLocaleDateString('en-CA')}
                                         className="w-full px-3 py-2 bg-white border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] text-sm font-medium"
                                         value={selectedNewDate}
                                         onChange={(e) => {
@@ -100,10 +142,38 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                                         }}
                                         disabled={!selectedNewDate}
                                     >
-                                        <option value="">-- Select Time --</option>
-                                        <option value="08:00 - 10:00">08:00 - 10:00</option>
-                                        <option value="13:00 - 15:00">13:00 - 15:00</option>
-                                        <option value="18:00 - 20:00">18:00 - 20:00</option>
+                                        <option value="" disabled hidden>Select Time</option>
+                                        {[
+                                            { label: 'Slot 1 (07:30 - 09:30)', value: '07:30 - 09:30' },
+                                            { label: 'Slot 2 (09:30 - 11:30)', value: '09:30 - 11:30' },
+                                            { label: 'Slot 3 (13:30 - 15:30)', value: '13:30 - 15:30' },
+                                            { label: 'Slot 4 (15:30 - 17:30)', value: '15:30 - 17:30' },
+                                            { label: 'Slot 5 (18:00 - 20:00)', value: '18:00 - 20:00' },
+                                            { label: 'Slot 6 (20:00 - 22:00)', value: '20:00 - 22:00' }
+                                        ].filter(slot => {
+                                            const originalDateStr = request.originalTime?.split(' (')[0];
+                                            const originalSlotStr = request.originalTime?.split('(')[1]?.replace(')', '');
+                                            const isSameDay = originalDateStr === formatDate(selectedNewDate);
+                                            if (isSameDay && slot.value === originalSlotStr) return false;
+
+                                            // Filter out past time slots if the selected date is today
+                                            const todayStr = new Date().toLocaleDateString('en-CA');
+                                            if (selectedNewDate === todayStr) {
+                                                const slotStartTime = slot.value.split(' - ')[0]; // e.g., "07:30"
+                                                const now = new Date();
+                                                const currentHours = now.getHours();
+                                                const currentMinutes = now.getMinutes();
+                                                const slotHours = parseInt(slotStartTime.split(':')[0], 10);
+                                                const slotMinutes = parseInt(slotStartTime.split(':')[1], 10);
+                                                
+                                                if (currentHours > slotHours || (currentHours === slotHours && currentMinutes >= slotMinutes)) {
+                                                    return false;
+                                                }
+                                            }
+                                            return true;
+                                        }).map(slot => (
+                                            <option key={slot.value} value={slot.value}>{slot.label}</option>
+                                        ))}
                                     </select>
                                 </div>
 
@@ -113,12 +183,14 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                                         className="w-full px-3 py-2 bg-white border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] text-sm font-medium disabled:bg-gray-100 disabled:text-gray-400"
                                         value={selectedNewRoom}
                                         onChange={(e) => setSelectedNewRoom(e.target.value)}
-                                        disabled={!selectedNewTime}
+                                        disabled={!selectedNewTime || isLoadingRooms}
                                     >
-                                        <option value="">-- Select Room --</option>
-                                        <option value="Room 102">Room 102 (Cap: 30)</option>
-                                        <option value="Room 205">Room 205 (Cap: 25)</option>
-                                        <option value="Lab 1">Lab 1 (Cap: 20)</option>
+                                        <option value="" disabled hidden>
+                                            {isLoadingRooms ? 'Loading rooms...' : (availableRooms.length === 0 && selectedNewTime ? 'No rooms available' : 'Select Room')}
+                                        </option>
+                                        {availableRooms.map(room => (
+                                            <option key={room.id} value={room.room_name}>{room.room_name} (Cap: {room.capacity})</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
@@ -126,9 +198,9 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                         </div>
                     )}
 
-                    {request.type === 'Reschedule' && request.status !== 'Pending' && request.finalTime && (
+                    {(request.type?.toLowerCase() === 'reschedule' || request.type?.toLowerCase() === 'change room') && request.status !== 'Pending' && request.finalTime && (
                         <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
-                            <p className="text-sm font-semibold text-green-700 mb-1">Final Arranged Schedule</p>
+                            <p className="text-sm font-semibold text-green-700 mb-1">Final Arranged Schedule/Room</p>
                             <p className="font-bold text-green-800">{request.finalTime}</p>
                         </div>
                     )}
@@ -171,7 +243,7 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                         </button>
                         <button 
                             onClick={handleApprove}
-                            disabled={request.type === 'Reschedule' && (!selectedNewDate || !selectedNewTime || !selectedNewRoom)}
+                            disabled={(request.type?.toLowerCase() === 'reschedule' || request.type?.toLowerCase() === 'change room') && (!selectedNewDate || !selectedNewTime || !selectedNewRoom)}
                             className="px-6 py-2.5 font-semibold text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <CheckCircle className="w-5 h-5" /> Approve

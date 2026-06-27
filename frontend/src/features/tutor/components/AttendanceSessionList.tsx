@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { Calendar, Clock, ChevronRight, BookOpen } from 'lucide-react';
 import type { AttendanceClass, AttendanceSession } from '../types/attendance';
 
@@ -11,7 +12,7 @@ export const AttendanceSessionList = ({ selectedClass, classSessions, onSelectSe
     const getFormattedDate = (dateString: string) => {
         const date = new Date(dateString);
         const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        return `${dayNames[date.getDay()]}, ${date.toLocaleDateString('en-GB')}`;
+        return `${dayNames[date.getDay()]}, ${formatDate(date)}`;
     };
 
     if (!selectedClass) {

@@ -1,4 +1,5 @@
 import { CheckCircle2, X, Building, Receipt } from 'lucide-react';
+import Cookies from 'js-cookie';
 import type { SalaryRecord } from '../types/salary';
 
 interface PayslipModalProps {
@@ -7,6 +8,12 @@ interface PayslipModalProps {
 }
 
 export const PayslipModal = ({ record, onClose }: PayslipModalProps) => {
+    const userCookie = Cookies.get('user_info');
+    const user = userCookie ? JSON.parse(userCookie) : null;
+    const employeeName = user?.full_name || 'Staff Member';
+    const employeeId = user?.account_code || 'N/A';
+    const employeeRole = user?.role || 'Staff';
+
     return (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
             <div className="bg-[#f8f9fa] rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -49,15 +56,15 @@ export const PayslipModal = ({ record, onClose }: PayslipModalProps) => {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <div className="text-xs font-bold text-[#74777f] uppercase">Employee Name</div>
-                                            <div className="font-bold text-[#181c1e] text-sm">Admin Staff</div>
+                                            <div className="font-bold text-[#181c1e] text-sm">{employeeName}</div>
                                         </div>
                                         <div>
                                             <div className="text-xs font-bold text-[#74777f] uppercase">Employee ID</div>
-                                            <div className="font-bold text-[#181c1e] text-sm">STF-2026-001</div>
+                                            <div className="font-bold text-[#181c1e] text-sm">{employeeId}</div>
                                         </div>
                                         <div className="col-span-2">
                                             <div className="text-xs font-bold text-[#74777f] uppercase">Role</div>
-                                            <div className="font-bold text-[#181c1e] text-sm">Staff</div>
+                                            <div className="font-bold text-[#181c1e] text-sm">{employeeRole}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -82,18 +89,13 @@ export const PayslipModal = ({ record, onClose }: PayslipModalProps) => {
                                 
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-[#43474e] font-medium">Base Salary (160h x 75,000 đ/h)</span>
+                                        <span className="text-[#43474e] font-medium">Base Salary</span>
                                         <span className="font-bold text-[#181c1e]">{record.baseSalary.toLocaleString()} đ</span>
                                     </div>
                                     
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-[#43474e] font-medium">Internet & Equipment Allowance</span>
-                                        <span className="font-bold text-[#181c1e]">500,000 đ</span>
-                                    </div>
-
-                                    <div className="flex justify-between items-center text-sm">
-                                        <span className="text-green-600 font-medium">Performance Bonus</span>
-                                        <span className="font-bold text-green-600">+{Math.max(0, record.bonuses - 500000).toLocaleString()} đ</span>
+                                        <span className="text-green-600 font-medium">Bonus & Allowances</span>
+                                        <span className="font-bold text-green-600">+{record.bonuses.toLocaleString()} đ</span>
                                     </div>
 
                                     <div className="pt-3 border-t border-dashed border-[#e0e3e5]">
@@ -108,9 +110,6 @@ export const PayslipModal = ({ record, onClose }: PayslipModalProps) => {
                                             <span className="font-extrabold text-[#002045] text-base">Total Net Pay</span>
                                             <span className="font-extrabold text-[#0061a5] text-3xl">{record.netPay.toLocaleString()} đ</span>
                                         </div>
-                                        <p className="text-center text-xs text-[#74777f] mt-3 italic">
-                                            *All amounts are represented in đ.
-                                        </p>
                                     </div>
                                 </div>
                             </div>

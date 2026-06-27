@@ -20,7 +20,7 @@ const ChangeRequests = () => {
         loadRequests();
     }, []);
 
-    const handleStatusUpdate = async (id: number, newStatus: string, finalTime?: string, staffNote?: string) => {
+    const handleStatusUpdate = async (id: string, newStatus: string, finalTime?: string, staffNote?: string) => {
         const request = requests.find(r => r.id === id);
         if (request) {
             const updatedRequest = { ...request, status: newStatus, finalTime: finalTime || request.finalTime, staffNote: staffNote };
@@ -78,12 +78,12 @@ const ChangeRequests = () => {
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-[#f8f9fa] border-b border-[#e0e3e5]">
                         <tr>
-                            <th className="p-4 font-semibold text-[#43474e]">Tutor</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Class & Session</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Request Type</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Submitted Date</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Status</th>
-                            <th className="p-4 font-semibold text-[#43474e] text-right">Actions</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Tutor</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Class & Session</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Request Type</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Submitted Date</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Status</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>

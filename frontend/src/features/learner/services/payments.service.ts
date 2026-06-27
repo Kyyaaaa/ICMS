@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import type { PaymentInvoice, PaymentCourseInfo, PaymentClassInfo, PaymentInstallment } from '../types/payment';
 import axiosClient from '@/shared/services/axiosClient';
 
@@ -9,7 +10,7 @@ export const LearnerPaymentsService = {
             return data.map((inv) => ({
                 id: inv.invoice_code || inv.id,
                 course: inv.classes?.courses?.title || 'Unknown Course',
-                date: new Date(inv.created_at).toLocaleDateString('en-GB'),
+                date: formatDate(inv.created_at),
                 amount: inv.amount,
                 discount: inv.discount || 0,
                 status: inv.status.toLowerCase() as PaymentInvoice['status'],
@@ -33,16 +34,16 @@ export const LearnerPaymentsService = {
                 id: inst.id,
                 installmentNumber: inst.installment_number,
                 amount: inst.amount,
-                dueDate: new Date(inst.due_date).toLocaleDateString('en-GB'),
+                dueDate: formatDate(inst.due_date),
                 status: inst.status.toLowerCase() as PaymentInstallment['status'],
-                paidDate: inst.paid_date ? new Date(inst.paid_date).toLocaleDateString('en-GB') : undefined
+                paidDate: inst.paid_date ? formatDate(inst.paid_date) : undefined
             })) || [];
 
             return {
                 id: inv.invoice_code || inv.id,
                 dbId: inv.id,
                 course: inv.classes?.courses?.title || 'Unknown Course',
-                date: new Date(inv.created_at).toLocaleDateString('en-GB'),
+                date: formatDate(inv.created_at),
                 amount: inv.amount,
                 discount: inv.discount || 0,
                 status: inv.status.toLowerCase() as PaymentInvoice['status'],

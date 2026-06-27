@@ -4,6 +4,7 @@ import { SHIFTS, DAYS, type TutorAvailabilityProfile } from '../types/tutor-avai
 import { TutorAvailabilityService, type AvailabilityCycle } from '../services/tutor-availability.service';
 import { TutorSelector } from '../components/TutorSelector';
 import { AvailabilityGrid } from '../components/AvailabilityGrid';
+import { formatMonthYear } from '../../../shared/utils/date';
 
 const StaffTutorAvailability = () => {
     const [tutors, setTutors] = useState<TutorAvailabilityProfile[]>([]);
@@ -182,7 +183,7 @@ const StaffTutorAvailability = () => {
                         </button>
                         
                         <div className="px-2 py-1.5 text-sm font-bold text-[#002045] min-w-35 text-center flex items-center justify-center gap-2 max-w-full">
-                            <span>{currentDate.toLocaleString('default', { month: 'long' })} - {currentDate.getFullYear()}</span>
+                            <span>{formatMonthYear(currentDate)}</span>
                             {currentCycle && (
                                 <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                                     currentCycle.status === 'ACTIVE' ? 'bg-[#e3f2fd] text-[#0061a5]' : 

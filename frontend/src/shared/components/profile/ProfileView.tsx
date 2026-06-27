@@ -1,3 +1,4 @@
+import { formatDate } from "../../utils/date";
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users } from 'lucide-react';
@@ -292,10 +293,9 @@ export const ProfileView = ({
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
                         <label className="relative w-32 h-32 rounded-full bg-[#edf4fb] flex items-center justify-center text-[#0061a5] font-bold text-5xl border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
-                            {account.avatar_url ? (
-                                <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                            ) : (
-                                <span>{initials}</span>
+                            <span>{initials}</span>
+                            {account.avatar_url && (
+                                <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover absolute inset-0 z-10" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                             )}
                             <div className={`absolute inset-0 bg-black/50 flex flex-col items-center justify-center transition-opacity ${isUploadingAvatar ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                                 {isUploadingAvatar ? (
@@ -318,7 +318,7 @@ export const ProfileView = ({
                             </div>
                             <div className="flex items-center gap-3 text-sm text-[#43474e]">
                                 <CalendarDays className="w-5 h-5 text-[#74777f] shrink-0" />
-                                <span>Joined {account.created_at ? new Date(account.created_at).toLocaleDateString('en-GB') : ''}</span>
+                                <span>Joined {account.created_at ? formatDate(account.created_at) : ''}</span>
                             </div>
                         </div>
                     </div>

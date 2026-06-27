@@ -1,3 +1,4 @@
+import { formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
 import type { ConsultationRequest } from '../types/consultation';
@@ -41,7 +42,7 @@ export const ConsultationModal = ({ consultation, onClose, onSave }: Consultatio
                         </div>
                         <div>
                             <p className="text-sm font-semibold text-gray-500 mb-1">Submitted Date</p>
-                            <p className="font-semibold text-[#43474e]">{new Date(consultation.created_at).toLocaleString('vi-VN')}</p>
+                            <p className="font-semibold text-[#43474e]">{formatDateTime(consultation.created_at)}</p>
                         </div>
                     </div>
 

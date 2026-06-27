@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { Eye, Ban, CheckCircle2, Lock, Edit, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Account } from '../types/account';
@@ -115,7 +116,7 @@ export const AccountsTable = ({
                                         </span>
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e] font-medium">
-                                        {new Date(acc.created_at).toLocaleDateString('en-GB')}
+                                        {formatDate(acc.created_at)}
                                     </td>
                                     <td className="py-4 px-6">
                                         {acc.status === 'ACTIVE' ? (

@@ -129,6 +129,20 @@ export class ClassRepository {
         return { ...classData, sessions: sessions || [], students: students || [] };
     }
 
+  static async getSessionById(sessionId: string) {
+    const { data, error } = await supabase
+      .from('class_sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching class session by id:', error);
+      throw error;
+    }
+    return data;
+  }
+
   static async updateClass(id: string, updates: UpdateClassDTO) {
     const { data, error } = await supabase
       .from('classes')

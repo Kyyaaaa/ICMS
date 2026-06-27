@@ -7,7 +7,7 @@ export class SessionRepository {
       .from('class_sessions')
       .select(`
         *,
-        class:classes!class_id(id, name, course_id, students:enrollments(id)),
+        class:classes!class_id(id, name, course_id, course:courses!course_id(title), students:enrollments(id)),
         tutor:account!tutor_id(id, full_name, email),
         classroom:classroom!classroom_id(id, room_name, capacity)
       `);
@@ -19,7 +19,8 @@ export class SessionRepository {
       query = query.lte('date', endDate);
     }
 
-    if (role === 'TUTOR') {
+    const upperRole = role ? role.toUpperCase() : '';
+    if (upperRole === 'TUTOR') {
       query = query.eq('tutor_id', userId);
     } else if (role === 'LEARNER') {
       // Fetch enrolled class ids first
@@ -59,7 +60,7 @@ export class SessionRepository {
     }
 
     // For tutors, check if attendance has been taken for the session
-    if (role === 'TUTOR' && data && data.length > 0) {
+    if (upperRole === 'TUTOR' && data && data.length > 0) {
       const sessionIds = data.map(s => s.id);
       const { data: attendances } = await supabaseAdmin
         .from('attendances')

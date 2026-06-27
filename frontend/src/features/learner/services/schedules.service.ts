@@ -50,7 +50,7 @@ export const LearnerSchedulesService = {
 
                 return {
                     id: s.id,
-                    class: s.class?.name || 'Unknown Class',
+                    class: s.class ? `${s.class.course?.title || 'Unknown Course'} - ${s.class.name || 'Unknown Class'}` : 'Unknown Class',
                     session: `Session ${s.session_number}`,
                     tutor: s.tutor?.full_name || 'Unassigned',
                     room: s.classroom?.room_name || 'Unassigned',

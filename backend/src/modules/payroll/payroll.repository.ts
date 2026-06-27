@@ -52,6 +52,19 @@ class PayrollRepository {
         });
     }
 
+    async getLatestPayrollCode(): Promise<{ payroll_code: string } | null> {
+        const { data, error } = await this.db
+            .from('payrolls')
+            .select('payroll_code')
+            .order('payroll_code', { ascending: false })
+            .limit(1)
+            .single();
+        if (error && error.code !== 'PGRST116') {
+            console.error('Error fetching latest payroll code:', error);
+        }
+        return data || null;
+    }
+
     async upsertSalaryConfig(config: Partial<SalaryConfig>): Promise<void> {
         const { error } = await this.db
             .from('salary_configs')

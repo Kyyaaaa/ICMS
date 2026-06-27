@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import type { Room } from '../types/classroom';
+import type { Room, MaintenanceSchedule } from '../types/classroom';
 
 interface ClassroomFormModalProps {
     editingId: string | null;
@@ -64,30 +64,30 @@ export const ClassroomFormModal = ({
                     {formData.status === 'Maintenance' && (
                         <div className="animate-fade-in space-y-4 bg-[#fff8f8] p-4 rounded-xl border border-[#ffebed]">
                             <div className="flex flex-col sm:flex-row gap-3">
-                                <div className="flex-[5]">
+                                <div className="flex-5">
                                     <label className="block text-xs font-bold text-[#ba1a1a] mb-1">Date</label>
                                     <input 
                                         type="date" 
                                         value={formData.maintenanceSchedule?.date || ''} 
-                                        onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, date: e.target.value }})}
+                                        onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, date: e.target.value } as MaintenanceSchedule})}
                                         className="w-full px-3 py-2 text-sm border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] transition-colors"
                                     />
                                 </div>
-                                <div className="flex-[3]">
+                                <div className="flex-3">
                                     <label className="block text-xs font-bold text-[#ba1a1a] mb-1">From</label>
                                     <input 
                                         type="time" 
                                         value={formData.maintenanceSchedule?.startTime || ''} 
-                                        onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, startTime: e.target.value }})}
+                                        onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, startTime: e.target.value } as MaintenanceSchedule})}
                                         className="w-full px-3 py-2 text-sm border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] transition-colors"
                                     />
                                 </div>
-                                <div className="flex-[3]">
+                                <div className="flex-3">
                                     <label className="block text-xs font-bold text-[#ba1a1a] mb-1">To</label>
                                     <input 
                                         type="time" 
                                         value={formData.maintenanceSchedule?.endTime || ''} 
-                                        onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, endTime: e.target.value }})}
+                                        onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, endTime: e.target.value } as MaintenanceSchedule})}
                                         className="w-full px-3 py-2 text-sm border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] transition-colors"
                                     />
                                 </div>
@@ -97,7 +97,7 @@ export const ClassroomFormModal = ({
                                 <input 
                                     type="text" 
                                     value={formData.maintenanceSchedule?.note || ''} 
-                                    onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, note: e.target.value }})}
+                                    onChange={e => setFormData({...formData, maintenanceSchedule: { ...formData.maintenanceSchedule, note: e.target.value } as MaintenanceSchedule})}
                                     className="w-full px-3 py-2 text-sm border border-[#ffebed] bg-white rounded-lg focus:outline-none focus:border-[#ba1a1a] text-[#181c1e] placeholder:text-[#ba1a1a]/40 transition-colors"
                                     placeholder="e.g. AC Repair"
                                 />

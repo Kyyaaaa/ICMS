@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save, Key, Eye, EyeOff } from 'lucide-react';
@@ -60,7 +61,7 @@ const StaffAccountDetail = () => {
                         gender: data.data.gender || '',
                         role: data.data.role,
                         is_active: data.data.status === 'ACTIVE',
-                        created_at: new Date(data.data.created_at).toLocaleDateString('en-GB'),
+                        created_at: formatDate(data.data.created_at),
                         avatar_url: data.data.avatar_url || ''
                     }));
                 } else {
@@ -210,10 +211,9 @@ const StaffAccountDetail = () => {
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
                         <div className="relative w-32 h-32 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold text-5xl border-4 border-[#e6f0fa] shadow-sm mb-4 overflow-hidden">
-                            {account.avatar_url ? (
-                                <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                            ) : (
-                                account.full_name ? account.full_name.charAt(0).toUpperCase() : 'U'
+                            {account.full_name ? account.full_name.charAt(0).toUpperCase() : 'U'}
+                            {account.avatar_url && (
+                                <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover absolute inset-0 z-10" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                             )}
                         </div>
                         <h2 className="text-xl font-bold text-[#002045]">{account.full_name || ''}</h2>
@@ -233,7 +233,7 @@ const StaffAccountDetail = () => {
                         <div className="w-full mt-6 pt-6 border-t border-[#e0e3e5] space-y-3">
                             <div className="flex items-center gap-3 text-sm text-[#43474e]">
                                 <Calendar className="w-5 h-5 text-[#74777f] shrink-0" />
-                                <span>Joined {account.created_at}</span>
+                                <span>Joined {formatDate(account.created_at)}</span>
                             </div>
                         </div>
                     </div>

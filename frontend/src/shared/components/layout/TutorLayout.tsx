@@ -423,15 +423,15 @@ const TutorLayout = () => {
                   {roleText ? roleText.toUpperCase() : ""}
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-sm shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
-                {avatarUrl ? (
+              <div className="relative w-10 h-10 rounded-full bg-[#0061a5] flex items-center justify-center text-white font-bold text-sm shadow-sm border-2 border-white group-hover:shadow-md transition-all overflow-hidden">
+                {initials}
+                {avatarUrl && (
                   <img
                     src={avatarUrl}
                     alt="Avatar"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover absolute inset-0 z-10"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
-                ) : (
-                  initials
                 )}
               </div>
             </Link>

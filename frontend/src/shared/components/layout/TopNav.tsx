@@ -156,12 +156,11 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
                                         <span className="text-sm font-bold text-[#002045] leading-tight">{typeof userInfo?.full_name === 'string' ? userInfo.full_name : ''}</span>
                                         <span className="text-xs text-[#43474e] leading-tight uppercase">{userRole}</span>
                                     </div>
-                                    <div className="w-10 h-10 bg-[#0061a5] rounded-full flex items-center justify-center text-white font-bold shadow-sm border-2 border-white overflow-hidden">
-                                        {typeof userInfo?.avatar_url === 'string' && userInfo.avatar_url ? (
-                                            <img src={userInfo.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                                        ) : typeof userInfo?.full_name === 'string' ? (
-                                            userInfo.full_name.charAt(0).toUpperCase()
-                                        ) : ''}
+                                    <div className="relative w-10 h-10 bg-[#0061a5] rounded-full flex items-center justify-center text-white font-bold shadow-sm border-2 border-white overflow-hidden">
+                                        {typeof userInfo?.full_name === 'string' ? userInfo.full_name.charAt(0).toUpperCase() : ''}
+                                        {typeof userInfo?.avatar_url === 'string' && userInfo.avatar_url && (
+                                            <img src={userInfo.avatar_url} alt="Avatar" className="w-full h-full object-cover absolute inset-0 z-10" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                                        )}
                                     </div>
                                 </div>
 

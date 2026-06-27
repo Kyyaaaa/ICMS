@@ -1,3 +1,4 @@
+import { formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { Search, Eye, CheckCircle2, XCircle, RefreshCcw, Landmark, Clock, FileText, X } from 'lucide-react';
 import type { RefundRequest } from '../types/refund';
@@ -91,13 +92,13 @@ const AdminRefunds = () => {
                     <table className="w-full text-left border-collapse min-w-250">
                         <thead>
                             <tr className="bg-[#f7fafc] border-b border-[#e0e3e5]">
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Request / Invoice</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Student / Course</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Total Paid</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Refund Amt</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Req. Date</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Status</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e] text-right">Actions</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Request / Invoice</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Student / Course</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Total Paid</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Refund Amt</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Req. Date</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Status</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -120,7 +121,7 @@ const AdminRefunds = () => {
                                         {r.refundAmount.toLocaleString()} đ
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
-                                        {new Date(r.requestedDate).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short', hour12: false })}
+                                        {formatDateTime(r.requestedDate)}
                                     </td>
                                     <td className="py-4 px-6">
                                         <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${getStatusBadge(r.status)}`}>

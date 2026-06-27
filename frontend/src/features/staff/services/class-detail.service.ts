@@ -9,11 +9,11 @@ const MOCK_SESSIONS: ClassSession[] = [
 ];
 
 const MOCK_STUDENTS: EnrolledStudent[] = [
-    { id: 1, name: 'Student Name 1', email: 'student1@gmail.com', joinedDate: '01-10-2026', attendanceRate: 90 },
-    { id: 2, name: 'Student Name 2', email: 'student2@gmail.com', joinedDate: '01-10-2026', attendanceRate: 85 },
-    { id: 3, name: 'Student Name 3', email: 'student3@gmail.com', joinedDate: '01-10-2026', attendanceRate: 100 },
-    { id: 4, name: 'Student Name 4', email: 'student4@gmail.com', joinedDate: '01-10-2026', attendanceRate: 70 },
-    { id: 5, name: 'Student Name 5', email: 'student5@gmail.com', joinedDate: '01-10-2026', attendanceRate: 95 },
+    { id: 1, name: 'Student Name 1', email: 'student1@gmail.com', joinedDate: '01/10/2026', attendanceRate: 90 },
+    { id: 2, name: 'Student Name 2', email: 'student2@gmail.com', joinedDate: '01/10/2026', attendanceRate: 85 },
+    { id: 3, name: 'Student Name 3', email: 'student3@gmail.com', joinedDate: '01/10/2026', attendanceRate: 100 },
+    { id: 4, name: 'Student Name 4', email: 'student4@gmail.com', joinedDate: '01/10/2026', attendanceRate: 70 },
+    { id: 5, name: 'Student Name 5', email: 'student5@gmail.com', joinedDate: '01/10/2026', attendanceRate: 95 },
 ];
 
 const MOCK_ROOMS: RoomOption[] = [

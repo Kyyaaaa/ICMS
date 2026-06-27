@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { useState, useEffect, useCallback } from 'react';
 import { Eye, Search } from 'lucide-react';
 import type { ConsultationRequest } from '../types/consultation';
@@ -103,12 +104,12 @@ const ConsultationList = () => {
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-[#f8f9fa] border-b border-[#e0e3e5]">
                         <tr>
-                            <th className="p-4 font-semibold text-[#43474e]">Guest Name</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Phone</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Email</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Submitted Date</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Status</th>
-                            <th className="p-4 font-semibold text-[#43474e] text-right">Actions</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Guest Name</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Phone</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Email</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Submitted Date</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Status</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -126,7 +127,7 @@ const ConsultationList = () => {
                                     <td className="p-4 font-bold text-[#002045]">{item.guest_name}</td>
                                     <td className="p-4 text-[#43474e]">{item.guest_phone}</td>
                                     <td className="p-4 text-[#43474e]">{item.guest_email || '-'}</td>
-                                    <td className="p-4 text-[#74777f]">{new Date(item.created_at).toLocaleDateString('en-GB')}</td>
+                                    <td className="p-4 text-[#74777f]">{formatDate(item.created_at)}</td>
                                     <td className="p-4">
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                             item.status === 'Pending' ? 'bg-blue-100 text-[#0061a5]' : 

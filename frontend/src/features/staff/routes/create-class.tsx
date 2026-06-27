@@ -12,6 +12,7 @@ import type { Classroom } from '@/shared/services/classrooms.service';
 import { ClassesService } from '../services/classes.service';
 import type { Session } from '../types/class';
 import { showAlertModal } from '@/utils/modal';
+import { formatDate } from '@/shared/utils/date';
 
 const CreateClass = () => {
     const location = useLocation();
@@ -151,10 +152,7 @@ const CreateClass = () => {
             }
             const [yearStr, monthStr, dayStr] = startDate.split('-');
             const date = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            const monthName = monthNames[date.getMonth()];
-            const year = date.getFullYear();
-            const cycleName = `${monthName} - ${year}`;
+            const cycleName = `${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
             
             const targetCycle = cycles.find(c => c.name === cycleName);
             if (targetCycle) {
@@ -283,7 +281,7 @@ const CreateClass = () => {
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e]">Course Program <span className="text-red-500">*</span></label>
                                 <select disabled={isEdit} value={course} onChange={(e) => setCourse(e.target.value)} className={`w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 ${isEdit ? 'bg-gray-100 cursor-not-allowed' : 'bg-[#f8f9fa]'}`}>
-                                    <option value="">-- Select Course --</option>
+                                    <option value="" disabled hidden>Select Course</option>
                                     {allCourses.map(c => (
                                         <option key={c.id} value={c.id}>{c.title}</option>
                                     ))}
@@ -307,7 +305,7 @@ const CreateClass = () => {
                                     // Reset weekly schedule if tutor changes because availability changes
                                     setWeeklySchedule([]);
                                 }} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
-                                    <option value="">-- Select Available Tutor --</option>
+                                    <option value="">No Tutor Assigned</option>
                                     {allTutors.map(t => (
                                         <option key={t.id} value={t.id}>{t.full_name}</option>
                                     ))}
@@ -325,7 +323,7 @@ const CreateClass = () => {
                                             {selectedRoom.room_name} (Cap: {selectedRoom.capacity})
                                         </span>
                                     ) : (
-                                        <span className="text-gray-500">-- Select Available Room --</span>
+                                        <span className="text-gray-500">Select Available Room</span>
                                     )}
                                     <ChevronDown className={`w-4 h-4 shrink-0 text-gray-500 transition-transform ${isRoomDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
@@ -336,7 +334,7 @@ const CreateClass = () => {
                                             className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors text-gray-500"
                                             onClick={() => { setSelectedRoom(null); setIsRoomDropdownOpen(false); }}
                                         >
-                                            -- Select Available Room --
+                                            No Room Assigned
                                         </button>
                                         {filteredRooms.map((room) => (
                                             <button 
@@ -523,11 +521,11 @@ const CreateClass = () => {
                                             <div className="grid grid-cols-3 gap-4 text-sm bg-white p-3 rounded-lg border border-[#e0e3e5] shadow-sm">
                                                 <div>
                                                     <p className="text-[#74777f] mb-1">Starts on</p>
-                                                    <p className="font-bold">{startDate.split('-').reverse().join('/')}</p>
+                                                    <p className="font-bold">{formatDate(startDate)}</p>
                                                 </div>
                                                 <div>
                                                     <p className="text-[#74777f] mb-1">Ends on</p>
-                                                    <p className="font-bold">{endDate.split('-').reverse().join('/')}</p>
+                                                    <p className="font-bold">{formatDate(endDate)}</p>
                                                 </div>
                                                 <div>
                                                     <p className="text-[#74777f] mb-1">Total Sessions</p>

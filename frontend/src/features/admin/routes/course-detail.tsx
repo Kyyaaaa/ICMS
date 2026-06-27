@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { CoursesService } from "../../../shared/services/courses.service";
+import { formatDate } from "../../../shared/utils/date";
 
 interface ApiModule {
   sessions?: string | number;
@@ -253,7 +254,7 @@ const AdminCourseDetail = () => {
         setCourseData({
           ...courseData,
           sessions: String(calculatedTotalSessions),
-          nextCohort: formattedDate,
+          nextCohort: formattedDate || "",
         });
         setOriginalCourseData(
           JSON.parse(
@@ -1053,11 +1054,7 @@ const AdminCourseDetail = () => {
                   Course starts:
                   <br />
                   <span className="font-bold text-[#002045] text-base">
-                    {courseData.nextCohort
-                      ? new Date(courseData.nextCohort).toLocaleDateString(
-                          "en-GB",
-                        )
-                      : ""}
+                    {courseData.nextCohort ? formatDate(courseData.nextCohort) : ""}
                   </span>
                 </div>
               </div>

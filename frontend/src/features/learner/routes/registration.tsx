@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { useState, useEffect } from "react";
 import { BookOpen, MapPin, Calendar, Clock } from "lucide-react";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
@@ -263,9 +264,7 @@ const ClassRegistration = () => {
                             <span>
                               <Calendar className="w-4 h-4 inline mr-1" />{" "}
                               {session.date
-                                ? new Date(session.date).toLocaleDateString(
-                                    "en-GB",
-                                  )
+                                ? formatDate(session.date)
                                 : "TBA"}
                             </span>
                             <span>

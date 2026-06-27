@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import type { LearnerClass } from '../types/class';
 
 import axiosClient from '@/shared/services/axiosClient';
@@ -77,8 +78,8 @@ export const ClassesService = {
                     tutorName: cls.tutor?.full_name || 'TBA',
                     room: cls.classroom?.room_name || 'TBA',
                     schedules: schedules.length > 0 ? schedules : [],
-                    startDate: cls.start_date ? new Date(cls.start_date).toLocaleDateString('en-GB') : 'TBD',
-                    endDate: cls.end_date ? new Date(cls.end_date).toLocaleDateString('en-GB') : 'TBD',
+                    startDate: cls.start_date ? formatDate(cls.start_date) : 'TBD',
+                    endDate: cls.end_date ? formatDate(cls.end_date) : 'TBD',
                     status: cls.status === 'COMPLETED' ? 'Completed' : 'Ongoing'
                 };
             }).filter(Boolean) as LearnerClass[];

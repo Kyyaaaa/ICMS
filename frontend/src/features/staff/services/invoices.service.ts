@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import axiosClient from '@/shared/services/axiosClient';
 import type { Invoice, DetailedInvoice, Installment } from '../types/invoice';
 
@@ -18,8 +19,8 @@ type ApiInvoice = {
     status: string;
     created_at: string;
     invoice_installments?: ApiInstallment[];
-    account?: { full_name?: string; email?: string; phone?: string; id?: string };
-    classes?: { name?: string; courses?: { title?: string; sessions?: number } };
+    account?: { full_name?: string; email?: string; phone_number?: string; id?: string; account_code?: string };
+    classes?: { name?: string; start_date?: string; courses?: { title?: string; sessions?: number } };
 };
 
 export const InvoicesService = {
@@ -49,18 +50,29 @@ export const InvoicesService = {
                     return {
                         id: inst.id,
                         term: `${inst.installment_number}${inst.installment_number === 1 ? 'st' : inst.installment_number === 2 ? 'nd' : inst.installment_number === 3 ? 'rd' : 'th'} Installment`,
-                        dueDate: new Date(inst.due_date).toLocaleDateString('en-GB'),
+                        dueDate: formatDate(inst.due_date),
                         status: inst.status === 'PENDING' ? 'Pending' : inst.status === 'PAID' ? 'Paid' : inst.status === 'OVERDUE' ? 'Overdue' : 'Cancelled',
                         method: inst.payment_method || '-',
-                        paidDate: inst.payment_date ? new Date(inst.payment_date).toLocaleDateString('en-GB') : null,
+                        paidDate: inst.payment_date ? formatDate(inst.payment_date) : null,
                         amount: inst.amount
                     };
                 });
                 
                 // Fix for full payments which do not generate installments
-                if (inv.status === 'PAID' && installments.length === 0) {
-                    paidAmount = totalAmount;
-                    paidInstallments = 1;
+                if (installments.length === 0) {
+                    if (inv.status === 'PAID') {
+                        paidAmount = totalAmount;
+                        paidInstallments = 1;
+                    }
+                    installments.push({
+                        id: (inv.invoice_code || inv.id) + '-full',
+                        term: 'Full Payment',
+                        dueDate: formatDate(inv.created_at),
+                        status: inv.status === 'PAID' ? 'Paid' : inv.status === 'PENDING' ? 'Pending' : inv.status === 'OVERDUE' ? 'Overdue' : 'Cancelled',
+                        method: '-',
+                        paidDate: inv.status === 'PAID' ? formatDate(inv.created_at) : null,
+                        amount: totalAmount
+                    });
                 }
 
                 const progress = `${paidInstallments}/${inv.invoice_installments?.length || 1}`;
@@ -76,7 +88,7 @@ export const InvoicesService = {
                     progress,
                     totalAmount: totalAmount.toLocaleString('vi-VN') + ' đ',
                     paidAmount: paidAmount.toLocaleString('vi-VN') + ' đ',
-                    date: new Date(inv.created_at).toLocaleDateString('en-GB'),
+                    date: formatDate(inv.created_at),
                     status: displayStatus,
                     installments,
                     rawPaid: paidAmount,
@@ -105,18 +117,29 @@ export const InvoicesService = {
                 return {
                     id: inst.id,
                     term: `${inst.installment_number}${inst.installment_number === 1 ? 'st' : inst.installment_number === 2 ? 'nd' : inst.installment_number === 3 ? 'rd' : 'th'} Installment`,
-                    dueDate: new Date(inst.due_date).toLocaleDateString('en-GB'),
+                    dueDate: formatDate(inst.due_date),
                     status: inst.status === 'PENDING' ? 'Pending' : inst.status === 'PAID' ? 'Paid' : inst.status === 'OVERDUE' ? 'Overdue' : 'Cancelled',
                     method: inst.payment_method || '-',
-                    paidDate: inst.payment_date ? new Date(inst.payment_date).toLocaleDateString('en-GB') : null,
+                    paidDate: inst.payment_date ? formatDate(inst.payment_date) : null,
                     amount: inst.amount
                 };
             });
             
             // Fix for full payments which do not generate installments
             const totalAmount = inv.amount || 0;
-            if (inv.status === 'PAID' && installments.length === 0) {
-                paidAmount = totalAmount;
+            if (installments.length === 0) {
+                if (inv.status === 'PAID') {
+                    paidAmount = totalAmount;
+                }
+                installments.push({
+                    id: (inv.invoice_code || inv.id) + '-full',
+                    term: 'Full Payment',
+                    dueDate: formatDate(inv.created_at),
+                    status: inv.status === 'PAID' ? 'Paid' : inv.status === 'PENDING' ? 'Pending' : inv.status === 'OVERDUE' ? 'Overdue' : 'Cancelled',
+                    method: '-',
+                    paidDate: inv.status === 'PAID' ? formatDate(inv.created_at) : null,
+                    amount: totalAmount
+                });
             }
 
             const displayStatus = inv.status === 'PENDING' ? 'Pending' : inv.status === 'PARTIAL' ? 'Partial' : inv.status === 'PAID' ? 'Paid' : inv.status === 'OVERDUE' ? 'Overdue' : 'Cancelled';
@@ -124,19 +147,19 @@ export const InvoicesService = {
             return {
                 id: inv.invoice_code || inv.id,
                 status: displayStatus,
-                issueDate: new Date(inv.created_at).toLocaleDateString('en-GB'),
-                dueDate: installments.length > 0 ? installments[installments.length - 1].dueDate : new Date(inv.created_at).toLocaleDateString('en-GB'),
+                issueDate: formatDate(inv.created_at),
+                dueDate: installments.length > 0 ? installments[installments.length - 1].dueDate : formatDate(inv.created_at),
                 learner: {
                     name: inv.account?.full_name || 'Unknown Learner',
                     email: inv.account?.email || 'N/A',
-                    phone: inv.account?.phone || 'N/A',
-                    id: inv.account?.id || 'Unknown ID'
+                    phone: inv.account?.phone_number || 'N/A',
+                    id: inv.account?.account_code || 'Unknown ID'
                 },
                 course: {
                     name: inv.classes?.courses?.title || 'Unknown Course',
                     code: inv.classes?.name || 'N/A',
                     duration: `${inv.classes?.courses?.sessions || 0} Sessions`,
-                    startDate: 'N/A'
+                    startDate: inv.classes?.start_date ? formatDate(inv.classes.start_date) : 'N/A'
                 },
                 payment: {
                     method: installments.length > 1 ? `Installment (${installments.length} Terms)` : 'Full Payment',

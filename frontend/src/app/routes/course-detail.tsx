@@ -18,6 +18,7 @@ import Cookies from "js-cookie";
 import type { ErrorInfo, ReactNode } from "react";
 import { Component } from "react";
 import { CoursesService } from "@/shared/services/courses.service";
+import { formatDate } from "@/shared/utils/date";
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -296,7 +297,7 @@ const CourseDetailInner = () => {
                 Course starts:
                 <br />
                 <span className="font-bold text-[#002045] text-base">
-                  {course.next_cohort || course.nextCohort}
+                  {formatDate(course.next_cohort || course.nextCohort)}
                 </span>
               </div>
             </div>

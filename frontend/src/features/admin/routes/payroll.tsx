@@ -1,3 +1,4 @@
+import { formatMonthYear } from "../../../shared/utils/date";
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, Calculator, Settings, FileText } from 'lucide-react';
@@ -164,7 +165,7 @@ const AdminPayroll = () => {
                             }}
                         >
                             <span className="text-sm font-bold text-[#002045] pointer-events-none w-full text-center">
-                                {selectedMonth ? new Date(selectedMonth + '-01').toLocaleString('en-US', { month: 'long', year: 'numeric' }) : ''}
+                                {selectedMonth ? formatMonthYear(selectedMonth + '-01') : ''}
                             </span>
                             <input 
                                 ref={dateInputRef}

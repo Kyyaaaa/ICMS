@@ -86,13 +86,19 @@ export const AccountsTable = ({
                                 <tr key={acc.id} className={`border-b border-[#e0e3e5] transition-colors ${acc.status !== 'ACTIVE' ? 'bg-[#fff5f6]' : 'hover:bg-[#f7fafc]'}`}>
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-3">
-                                            {acc.avatar_url ? (
-                                                <img src={acc.avatar_url} alt={acc.full_name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-[#e0e3e5]" />
-                                            ) : (
-                                                <div className="w-10 h-10 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold shrink-0 border border-[#c4c6cf]">
+                                            <div className="relative w-10 h-10 shrink-0">
+                                                <div className="w-10 h-10 rounded-full bg-[#e6f0fa] flex items-center justify-center text-[#0061a5] font-bold absolute inset-0 border border-[#d2e4ff]">
                                                     {getInitials(acc.full_name)}
                                                 </div>
-                                            )}
+                                                {acc.avatar_url && (
+                                                    <img 
+                                                        src={acc.avatar_url} 
+                                                        alt={acc.full_name} 
+                                                        className="w-10 h-10 rounded-full object-cover absolute inset-0 z-10 border border-[#e0e3e5]"
+                                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                    />
+                                                )}
+                                            </div>
                                             <div>
                                                 <p className={`font-bold ${acc.status !== 'ACTIVE' ? 'text-[#ba1a1a]' : 'text-[#002045]'}`}>
                                                     {acc.full_name || ''}

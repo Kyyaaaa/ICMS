@@ -35,15 +35,15 @@ export const ScheduleService = {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const data = (res as any)?.data || [];
             
-            return data.map((s, index) => {
-                const times = getSlotTimes(s.slot);
+            return data.map((s: { id: string, date: string, slot: number | string, class?: { name: string, course?: { title?: string } }, tutor?: { full_name?: string }, classroom?: { room_name?: string } }, index: number) => {
+                const times = getSlotTimes(String(s.slot));
                 const d = new Date(s.date);
                 let dayIndex = d.getDay() - 1;
                 if (dayIndex === -1) dayIndex = 6; // Sunday
 
                 return {
                     id: s.id,
-                    class: s.class?.name || 'Unknown Class',
+                    class: s.class ? `${s.class.course?.title || 'Unknown Course'} - ${s.class.name}` : 'Unknown Class',
                     tutor: s.tutor?.full_name || 'Unassigned',
                     room: s.classroom?.room_name || 'Unassigned',
                     dayIndex,
