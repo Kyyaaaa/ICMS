@@ -105,4 +105,23 @@ export class LearnerController {
       });
     }
   }
+
+  /**
+   * GET /api/learners/transcript
+   */
+  static async getTranscript(req: AuthenticatedRequest, res: Response) {
+    try {
+      const learnerId = req.user.id;
+      const transcript = await LearnerService.getTranscript(learnerId);
+
+      return res.status(200).json({
+        success: true,
+        data: transcript,
+        message: 'Retrieved transcript successfully'
+      });
+    } catch (error: any) {
+      console.error('Error fetching transcript:', error);
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
 }

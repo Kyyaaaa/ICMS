@@ -33,13 +33,14 @@ interface ApiStudent {
 }
 
 export const GradebookService = {
-    getGradebook: async (classId: string): Promise<{ assessments: Assessment[], students: StudentWithGrades[] }> => {
+    getGradebook: async (classId: string): Promise<{ assessments: Assessment[], students: StudentWithGrades[], grading_status: string }> => {
         try {
             const res = await axiosClient.get<unknown>(`/tutor/classes/${classId}/gradebook`);
-            const resData = res as { data?: { assessments: ApiAssessment[], students: ApiStudent[] }, assessments?: ApiAssessment[], students?: ApiStudent[] };
+            const resData = res as { data?: { assessments: ApiAssessment[], students: ApiStudent[], grading_status: string }, assessments?: ApiAssessment[], students?: ApiStudent[], grading_status?: string };
             
             const rawAssessments = resData.data?.assessments || resData.assessments || [];
             const rawStudents = resData.data?.students || resData.students || [];
+            const grading_status = resData.data?.grading_status || resData.grading_status || 'PENDING';
             
             const assessments = rawAssessments.map((a: ApiAssessment) => ({
                 id: a.id,
@@ -55,7 +56,7 @@ export const GradebookService = {
                 grades: s.grades || {}
             }));
 
-            return { assessments, students };
+            return { assessments, students, grading_status };
         } catch (error) {
             console.error('Error fetching gradebook:', error);
             throw error;
@@ -72,6 +73,16 @@ export const GradebookService = {
             return true;
         } catch (error) {
             console.error('Error saving gradebook:', error);
+            throw error;
+        }
+    },
+
+    publishGrades: async (classId: string): Promise<boolean> => {
+        try {
+            await axiosClient.post(`/tutor/classes/${classId}/publish-grades`);
+            return true;
+        } catch (error) {
+            console.error('Error publishing grades:', error);
             throw error;
         }
     }

@@ -63,4 +63,34 @@ export class TutorClassController {
       res.status(500).json({ success: false, message: error.message });
     }
   }
+
+  static async publishGrades(req: Request, res: Response): Promise<void> {
+    try {
+      const classId = req.params.classId as string;
+      const tutorId = (req as any).user?.id;
+
+      // Verify tutor owns the class
+      const { data: classData, error } = await supabaseAdmin
+        .from('classes')
+        .select('tutor_id')
+        .eq('id', classId)
+        .single();
+        
+      if (error || !classData) {
+        res.status(404).json({ success: false, message: 'Class not found' });
+        return;
+      }
+
+      const role = (req as any).user?.role?.toUpperCase();
+      if (role === 'TUTOR' && classData.tutor_id !== tutorId) {
+        res.status(403).json({ success: false, message: 'You do not have permission to edit this class' });
+        return;
+      }
+
+      await TutorClassService.publishGrades(classId);
+      res.status(200).json({ success: true, message: 'Grades published successfully' });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
 }

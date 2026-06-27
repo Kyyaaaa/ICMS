@@ -1,39 +1,23 @@
 import { useState } from 'react';
-import { BookOpen, ChevronDown, GraduationCap, Clock, MessageCircle, X, Info } from 'lucide-react';
+import { BookOpen, ChevronDown, GraduationCap, MessageCircle, X, Info } from 'lucide-react';
 
-// Mock Data để review UI
-const MOCK_COURSES = [
-    {
-        id: 'c1',
-        name: 'IELTS Intensive 6.5+',
-        tutor: 'Ms. Emily Clark',
-        status: 'IN_PROGRESS',
-        attendanceRate: 92,
-        overallScore: 6.5,
-        defaultScale: 9,
-        assessments: [
-            { id: 'a1', title: 'Listening', date: '2026-05-10', score: 6.5, maxScore: 9, feedback: 'Good listening skills' },
-            { id: 'a2', title: 'Reading', date: '2026-05-24', score: 7.0, maxScore: 9, feedback: 'Skimming needs practice' },
-            { id: 'a3', title: 'Writing', date: '2026-06-05', score: 6.0, maxScore: 9, feedback: '' },
-            { id: 'a4', title: 'Speaking', date: '2026-06-15', score: 6.5, maxScore: 9, feedback: 'Good fluency' }
-        ]
-    },
-    {
-        id: 'c2',
-        name: 'IELTS Foundation 5.0+',
-        tutor: 'Mr. John Doe',
-        status: 'COMPLETED',
-        attendanceRate: 100,
-        overallScore: 5.5,
-        defaultScale: 9,
-        assessments: [
-            { id: 'a4', title: 'Listening', date: '2026-03-15', score: 5.5, maxScore: 9, feedback: 'Good progress, need more vocabulary.' },
-            { id: 'a5', title: 'Reading', date: '2026-04-20', score: 6.0, maxScore: 9, feedback: 'Great skimming skills.' },
-            { id: 'a6', title: 'Writing', date: '2026-04-25', score: 5.0, maxScore: 9, feedback: 'Work on paragraph structure.' },
-            { id: 'a7', title: 'Speaking', date: '2026-04-30', score: 5.5, maxScore: 9, feedback: 'Pronunciation is clear, need more fluency.' }
-        ]
-    }
-];
+import { useEffect } from 'react';
+import axiosClient from '../../../shared/services/axiosClient';
+
+interface TranscriptDetail {
+    assessment_name: string;
+    score: number;
+    feedback: string;
+}
+
+interface TranscriptCourse {
+    class_id: string;
+    class_name: string;
+    course_name: string;
+    course_code: string;
+    overall_score: number;
+    details: TranscriptDetail[];
+}
 
 const getScoreColor = (score: number, maxScore: number = 9) => {
     const percentage = score / maxScore;
@@ -48,14 +32,34 @@ const getScoreColor = (score: number, maxScore: number = 9) => {
 const LearnerGrades = () => {
     const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
     const [selectedFeedback, setSelectedFeedback] = useState<{title: string, content: string} | null>(null);
+    const [courses, setCourses] = useState<TranscriptCourse[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTranscript = async () => {
+            try {
+                const res = await axiosClient.get<unknown>('/learners/transcript');
+                const data = (res as { data?: TranscriptCourse[] }).data || (res as unknown as TranscriptCourse[]) || [];
+                setCourses(data);
+            } catch (error) {
+                console.error('Failed to load transcript', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchTranscript();
+    }, []);
+
+    if (isLoading) {
+        return <div className="p-8 text-center text-slate-500">Loading your academic results...</div>;
+    }
 
     // Stats calculations
-    const totalCourses = MOCK_COURSES.length;
-    const avgAttendance = Math.round(MOCK_COURSES.reduce((acc, curr) => acc + curr.attendanceRate, 0) / totalCourses);
+    const totalCourses = courses.length;
     
     // Normalize global score to a 9.0-point scale for the hero overview
-    const avgPercentage = MOCK_COURSES.reduce((acc, curr) => acc + (curr.overallScore / curr.defaultScale), 0) / totalCourses;
-    const globalOverallScore = Math.round((avgPercentage * 9) * 2) / 2; // Round to nearest 0.5 (IELTS style)
+    const avgScore = totalCourses > 0 ? courses.reduce((acc, curr) => acc + curr.overall_score, 0) / totalCourses : 0;
+    const globalOverallScore = Math.round(avgScore * 2) / 2; // Round to nearest 0.5 (IELTS style)
 
     return (
         <div className="space-y-6 pb-12 relative">
@@ -77,66 +81,52 @@ const LearnerGrades = () => {
                     
                     <div className="w-px h-12 bg-[#eef0f4] hidden md:block"></div>
                     
-                    <div className="flex gap-8">
-                        <div className="flex flex-col items-center">
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Courses</p>
-                            <div className="flex items-center gap-1.5 text-[#002045]">
-                                <BookOpen className="w-5 h-5 opacity-50" />
-                                <span className="text-2xl font-bold leading-none">{totalCourses}</span>
+                        <div className="flex gap-8">
+                            <div className="flex flex-col items-center">
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Courses</p>
+                                <div className="flex items-center gap-1.5 text-[#002045]">
+                                    <BookOpen className="w-5 h-5 opacity-50" />
+                                    <span className="text-2xl font-bold leading-none">{totalCourses}</span>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex flex-col items-center">
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Attendance</p>
-                            <div className="flex items-center gap-1.5 text-[#002045]">
-                                <Clock className="w-5 h-5 opacity-50" />
-                                <span className="text-2xl font-bold leading-none">{avgAttendance}%</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             {/* Courses List */}
             <div className="space-y-4">
-                {MOCK_COURSES.map((course) => {
-                    const isExpanded = expandedCourse === course.id;
+                {courses.map((course) => {
+                    const isExpanded = expandedCourse === course.class_id;
 
                     return (
-                        <div key={course.id} className={`bg-white rounded-2xl border ${isExpanded ? 'border-[#0061a5] shadow-md' : 'border-[#e2e2e9] shadow-sm hover:shadow-md'} overflow-hidden transition-all duration-200`}>
+                        <div key={course.class_id} className={`bg-white rounded-2xl border ${isExpanded ? 'border-[#0061a5] shadow-md' : 'border-[#e2e2e9] shadow-sm hover:shadow-md'} overflow-hidden transition-all duration-200`}>
                             {/* Course Header */}
                             <div 
-                                onClick={() => setExpandedCourse(isExpanded ? null : course.id)}
+                                onClick={() => setExpandedCourse(isExpanded ? null : course.class_id)}
                                 className="p-5 md:p-6 cursor-pointer hover:bg-[#fcfdfd] flex flex-col lg:flex-row gap-5 justify-between items-start lg:items-center group"
                             >
                                 <div className="flex items-center gap-5">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${course.status === 'COMPLETED' ? 'bg-[#e6f4ea] text-[#137333]' : 'bg-linear-to-br from-[#e3f2fd] to-[#cce5ff] text-[#0061a5]'}`}>
+                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm bg-[#e6f4ea] text-[#137333]">
                                         <GraduationCap size={24} />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-3 mb-1">
-                                            <h2 className="text-lg font-extrabold text-[#002045] tracking-tight">{course.name}</h2>
-                                            {course.status === 'COMPLETED' && (
-                                                <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-[#e6f4ea] text-[#137333] border border-[#137333]/20 uppercase tracking-widest">Completed</span>
-                                            )}
+                                            <h2 className="text-lg font-extrabold text-[#002045] tracking-tight">{course.course_name || course.class_name}</h2>
+                                            <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-[#e6f4ea] text-[#137333] border border-[#137333]/20 uppercase tracking-widest">PUBLISHED</span>
                                         </div>
                                         <p className="text-sm text-[#43474e] flex items-center gap-2">
-                                            Tutor: <span className="font-semibold text-[#002045]">{course.tutor}</span>
+                                            Class: <span className="font-semibold text-[#002045]">{course.class_name}</span>
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-8 w-full lg:w-auto justify-between lg:justify-end">
                                     <div className="flex items-center gap-6 md:gap-8">
-                                        <div className="text-right">
-                                            <p className="text-xs font-bold text-[#74777f] uppercase tracking-widest mb-1">Attendance</p>
-                                            <p className="text-base font-black text-[#002045]">{course.attendanceRate}%</p>
-                                        </div>
-                                        <div className="w-px h-8 bg-[#e2e2e9]"></div>
                                         <div className="flex flex-col items-end">
-                                            <p className="text-xs font-bold text-[#74777f] uppercase tracking-widest mb-1">Avg Score</p>
-                                            <div className="flex items-baseline gap-1" style={{ color: getScoreColor(course.overallScore, course.defaultScale) }}>
-                                                <span className="text-xl font-black leading-none">{course.overallScore}</span>
-                                                <span className="text-xs font-bold text-[#74777f] leading-none">/ {course.defaultScale}</span>
+                                            <p className="text-xs font-bold text-[#74777f] uppercase tracking-widest mb-1">Overall Band</p>
+                                            <div className="flex items-baseline gap-1" style={{ color: getScoreColor(course.overall_score, 9) }}>
+                                                <span className="text-xl font-black leading-none">{course.overall_score.toFixed(1)}</span>
+                                                <span className="text-xs font-bold text-[#74777f] leading-none">/ 9.0</span>
                                             </div>
                                         </div>
                                     </div>
@@ -150,32 +140,30 @@ const LearnerGrades = () => {
                             {isExpanded && (
                                 <div className="border-t border-[#e2e2e9] bg-[#fdfdfd] animate-in slide-in-from-top-2">
                                     <div className="p-2 md:p-4">
-                                        {course.assessments.length > 0 ? (
+                                        {course.details && course.details.length > 0 ? (
                                             <div className="overflow-x-auto">
                                                 <table className="w-full text-left border-collapse">
                                                     <thead>
                                                         <tr className="border-b border-[#e2e2e9] bg-[#f8f9fc]">
                                                             <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-xs uppercase tracking-widest">Assessment</th>
-                                                            <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-xs uppercase tracking-widest">Date</th>
                                                             <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-xs uppercase tracking-widest text-right">Score</th>
                                                             <th className="py-3 px-5 md:px-6 font-bold text-[#43474e] text-xs uppercase tracking-widest text-center w-28">Feedback</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {course.assessments.map(ass => (
-                                                            <tr key={ass.id} className="border-b last:border-0 border-[#f1f4f6] hover:bg-[#fcfdfd] transition-colors group">
-                                                                <td className="py-3 px-5 md:px-6 font-semibold text-[#002045] text-sm">{ass.title}</td>
-                                                                <td className="py-3 px-5 md:px-6 text-[#74777f] text-xs">{ass.date}</td>
+                                                        {course.details.map((ass, idx) => (
+                                                            <tr key={idx} className="border-b last:border-0 border-[#f1f4f6] hover:bg-[#fcfdfd] transition-colors group">
+                                                                <td className="py-3 px-5 md:px-6 font-semibold text-[#002045] text-sm">{ass.assessment_name}</td>
                                                                 <td className="py-3 px-5 md:px-6 text-right">
                                                                     <div className="inline-flex items-baseline justify-end gap-1.5">
-                                                                        <span className="font-bold text-sm leading-none drop-shadow-sm" style={{ color: getScoreColor(ass.score, ass.maxScore) }}>{ass.score}</span>
-                                                                        <span className="text-[#74777f] text-xs font-bold leading-none">/ {ass.maxScore}</span>
+                                                                        <span className="font-bold text-sm leading-none drop-shadow-sm" style={{ color: getScoreColor(ass.score, 9) }}>{ass.score}</span>
+                                                                        <span className="text-[#74777f] text-xs font-bold leading-none">/ 9.0</span>
                                                                     </div>
                                                                 </td>
                                                                 <td className="py-3 px-5 md:px-6 text-center">
                                                                     {ass.feedback ? (
                                                                         <button 
-                                                                            onClick={(e) => { e.stopPropagation(); setSelectedFeedback({ title: ass.title, content: ass.feedback }); }}
+                                                                            onClick={(e) => { e.stopPropagation(); setSelectedFeedback({ title: ass.assessment_name, content: ass.feedback }); }}
                                                                             className="p-1.5 rounded-full hover:bg-[#f1f4f6] transition-colors mx-auto flex items-center justify-center text-[#c4c6cf] hover:text-[#0061a5]"
                                                                             title="Read Feedback"
                                                                         >

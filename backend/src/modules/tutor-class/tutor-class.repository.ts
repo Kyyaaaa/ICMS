@@ -78,4 +78,12 @@ export class TutorClassRepository {
     if (error) throw new Error(error.message);
     return data;
   }
+
+  static async updateClassGradingStatus(classId: string, status: string) {
+    const { error } = await supabaseAdmin
+      .from('classes')
+      .update({ grading_status: status })
+      .eq('id', classId);
+    if (error) throw new Error(error.message);
+  }
 }

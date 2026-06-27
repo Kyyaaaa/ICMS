@@ -62,6 +62,16 @@ router.use(verifyToken);
  *       403:
  *         description: Unauthorized access
  * 
+ * /api/learners/transcript:
+ *   get:
+ *     summary: Lấy bảng điểm Academic Transcript của học viên (các lớp đã Publish)
+ *     tags: [Learners]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Trả về bảng điểm
+ * 
  * /api/learners/{id}:
  *   get:
  *     summary: Get details of a learner by Account ID
@@ -118,6 +128,7 @@ router.use(verifyToken);
 
 // Định tuyến
 router.get('/', requireRole(['STAFF', 'ADMIN']), LearnerController.getAll);
+router.get('/transcript', requireRole(['LEARNER']), LearnerController.getTranscript);
 router.get('/:id', requireRole(['LEARNER', 'STAFF', 'ADMIN']), LearnerController.getById);
 router.post('/', requireRole(['STAFF', 'ADMIN']), validateCreateLearnerInput, LearnerController.create);
 router.put('/:id', requireRole(['LEARNER', 'STAFF', 'ADMIN']), validateUpdateLearnerInput, LearnerController.update);

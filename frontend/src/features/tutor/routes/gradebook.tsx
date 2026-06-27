@@ -13,7 +13,9 @@ const TutorGradebook = () => {
     const [gradesData, setGradesData] = useState<StudentWithGrades[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isPublishing, setIsPublishing] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [gradingStatus, setGradingStatus] = useState<string>('PENDING');
     const defaultScale = 9;
     
     // Side Panel State
@@ -33,6 +35,7 @@ const TutorGradebook = () => {
                 const data = await GradebookService.getGradebook(classId);
                 setAssessments(data.assessments);
                 setGradesData(data.students);
+                setGradingStatus(data.grading_status);
             } catch (_error) {
                 showAlertModal('Error', 'Failed to load gradebook data.', 'error');
             }
@@ -151,6 +154,35 @@ const TutorGradebook = () => {
         }
     };
 
+    const handlePublishGrades = async () => {
+        if (!classId) return;
+        
+        const confirm = await showConfirmModal(
+            'Publish Grades', 
+            'Are you sure you want to publish these grades? Once published, learners will be able to view their Academic Transcript. This action cannot be easily undone.', 
+            'warning', 
+            'Publish', 
+            'Cancel'
+        );
+        if (!confirm) return;
+
+        setIsPublishing(true);
+        try {
+            // Wait for any pending saves first if we are in editing mode
+            if (isEditing) {
+                await handleSaveGrades();
+            }
+            
+            await GradebookService.publishGrades(classId);
+            setGradingStatus('PUBLISHED');
+            setIsPublishing(false);
+            showAlertModal('Grades Published', 'Grades have been published successfully. Learners can now view their transcripts.', 'success');
+        } catch (error) {
+            setIsPublishing(false);
+            showAlertModal('Error', 'Failed to publish grades.', 'error');
+        }
+    };
+
     const handleConfirmAddColumn = () => {
         if (!newAssTitle.trim()) {
             showAlertModal('Missing Information', 'Please enter a name for the new assessment column before adding.', 'warning');
@@ -263,6 +295,20 @@ const TutorGradebook = () => {
                                             Add Column
                                         </button>
                                     </>
+                                )}
+                                
+                                {gradingStatus !== 'PUBLISHED' && (
+                                    <button 
+                                        onClick={handlePublishGrades}
+                                        disabled={isPublishing || isSaving}
+                                        className={`px-4 py-2 font-semibold bg-white border shadow-sm rounded-xl transition-colors flex items-center gap-2 text-sm ${
+                                            isPublishing || isSaving
+                                                ? 'border-[#e2e2e9] text-[#74777f] cursor-not-allowed'
+                                                : 'border-[#059669] text-[#059669] hover:bg-[#ecfdf5]'
+                                        }`}
+                                    >
+                                        {isPublishing ? 'Publishing...' : 'Publish Grades'}
+                                    </button>
                                 )}
                                 
                                 {isEditing ? (

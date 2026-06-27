@@ -1,10 +1,15 @@
 import { TutorClassRepository } from './tutor-class.repository';
 import * as crypto from 'crypto';
+import { supabaseAdmin } from '../../configs/supabase';
 
 export class TutorClassService {
   static async getGradebook(classId: string) {
     const assessments = await TutorClassRepository.getAssessments(classId);
     const { enrollments, grades } = await TutorClassRepository.getStudentsWithGrades(classId);
+    
+    // Fetch grading_status
+    const { data: classData } = await supabaseAdmin.from('classes').select('grading_status').eq('id', classId).single();
+    const grading_status = classData?.grading_status || 'PENDING';
 
     // Map the enrollments to StudentWithGrades format
     const students = enrollments.map((enrollment: any) => {
@@ -28,7 +33,8 @@ export class TutorClassService {
 
     return {
       assessments,
-      students
+      students,
+      grading_status
     };
   }
 
@@ -72,6 +78,11 @@ export class TutorClassService {
       await TutorClassRepository.upsertGrades(preparedGrades);
     }
 
+    return true;
+  }
+
+  static async publishGrades(classId: string) {
+    await TutorClassRepository.updateClassGradingStatus(classId, 'PUBLISHED');
     return true;
   }
 }

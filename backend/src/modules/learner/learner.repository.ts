@@ -70,4 +70,50 @@ export class LearnerRepository {
       if (accError) throw accError;
     }
   }
+
+  static async getTranscript(learnerId: string) {
+    const { data: enrollments, error } = await supabaseAdmin
+      .from('enrollments')
+      .select(`
+        class_id,
+        classes!inner (
+          id,
+          name,
+          grading_status,
+          courses (
+            id,
+            title,
+            code
+          )
+        )
+      `)
+      .eq('learner_id', learnerId)
+      .eq('status', 'ACTIVE')
+      .eq('classes.grading_status', 'PUBLISHED');
+
+    if (error) throw new Error(error.message);
+
+    if (!enrollments || enrollments.length === 0) {
+      return { enrollments: [], assessments: [], grades: [] };
+    }
+
+    const classIds = enrollments.map(e => e.class_id);
+
+    const { data: assessments, error: asError } = await supabaseAdmin
+      .from('assessments')
+      .select('*')
+      .in('class_id', classIds)
+      .order('order_index', { ascending: true });
+    
+    if (asError) throw new Error(asError.message);
+
+    const { data: grades, error: grError } = await supabaseAdmin
+      .from('student_grades')
+      .select('*')
+      .eq('learner_id', learnerId);
+
+    if (grError) throw new Error(grError.message);
+
+    return { enrollments, assessments: assessments || [], grades: grades || [] };
+  }
 }
