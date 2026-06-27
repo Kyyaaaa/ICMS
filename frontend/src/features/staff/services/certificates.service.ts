@@ -28,7 +28,7 @@ export const StaffCertificatesService = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return items.map((item: any) => ({
             ...item,
-            account: item.tutor?.account || { full_name: 'Unknown', email: '' }
+            account: item.tutor?.account || item.tutor || { full_name: 'Unknown', email: '' }
         })) as StaffCertificate[];
     },
 

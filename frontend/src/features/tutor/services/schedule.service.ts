@@ -59,7 +59,8 @@ export const ScheduleService = {
                     class: s.class?.name || 'Unknown Class',
                     session: `Session ${s.session_number}`,
                     room: s.classroom?.room_name || 'Unassigned',
-                    students: s.class?.capacity || 20, // default to capacity or 20
+                    tutor: s.tutor?.full_name || 'Unassigned',
+                    students: s.class?.students?.length || 0,
                     dayIndex,
                     startTime: times.startTime,
                     endTime: times.endTime,

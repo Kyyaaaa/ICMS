@@ -9,6 +9,7 @@ export interface AttendanceSession {
     classId: string;
     name: string;
     date: string;
+    slot?: string;
     time: string;
     status: 'pending' | 'submitted';
 }

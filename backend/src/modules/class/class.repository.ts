@@ -107,7 +107,7 @@ export class ClassRepository {
                 *,
                 tutor:account!tutor_id(id, full_name, email),
                 classroom:classroom!classroom_id(id, room_name),
-                attendances(id)
+                attendances(id, status)
             `)
             .eq('class_id', id)
             .order('date', { ascending: true })

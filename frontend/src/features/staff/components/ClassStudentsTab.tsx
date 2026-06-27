@@ -7,7 +7,7 @@ interface ClassStudentsTabProps {
     onRemoveStudent?: (studentId: string) => void;
 }
 
-export const ClassStudentsTab = ({ classId, students, onRemoveStudent, onAddStudent }: ClassStudentsTabProps & { onAddStudent?: () => void }) => {
+export const ClassStudentsTab = ({ classId: _classId, students, onRemoveStudent, onAddStudent }: ClassStudentsTabProps & { onAddStudent?: () => void }) => {
     return (
         <div className="flex flex-col">
             <div className="p-4 border-b border-[#e0e3e5] flex justify-end gap-3">

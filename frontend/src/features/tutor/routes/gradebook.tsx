@@ -177,7 +177,7 @@ const TutorGradebook = () => {
             setGradingStatus('PUBLISHED');
             setIsPublishing(false);
             showAlertModal('Grades Published', 'Grades have been published successfully. Learners can now view their transcripts.', 'success');
-        } catch (error) {
+        } catch (_error) {
             setIsPublishing(false);
             showAlertModal('Error', 'Failed to publish grades.', 'error');
         }

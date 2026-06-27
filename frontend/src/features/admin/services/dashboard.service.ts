@@ -1,4 +1,4 @@
-import type { DashboardStatsData, DashboardTransaction, DashboardAuditLog } from '../types/dashboard';
+import type { DashboardStatsData, DashboardTransaction } from '../types/dashboard';
 
 const MOCK_STATS: DashboardStatsData = {
     totalRevenue: 124500000,
@@ -15,11 +15,6 @@ const MOCK_RECENT_TRANSACTIONS: DashboardTransaction[] = [
     { id: 'TXN-10296', type: 'income', category: 'Course Registration', description: 'TOEIC Target 700+', user: { name: 'Emma Watson', role: 'Learner' }, date: '02-11-2026', amount: 300000, status: 'Completed' },
 ];
 
-const MOCK_AUDIT_LOGS: DashboardAuditLog[] = [
-    { id: '1', date: '30-10-2026', time: '14:23:01', adminName: 'Do Hong Vy', adminRole: 'Super Admin', adminInitials: 'DV', actionDetails: 'Approved refund REF-1002 for Learner: Alex Johnson', type: 'user' },
-    { id: '2', date: '30-10-2026', time: '12:15:42', adminName: 'System Engine', adminRole: 'Automated Task', adminInitials: 'SYS', actionDetails: 'Daily automated database backup to cloud storage completed', type: 'system' },
-    { id: '3', date: '30-10-2026', time: '09:05:11', adminName: 'Nguyen Van A', adminRole: 'Academic Admin', adminInitials: 'NA', actionDetails: 'Created new course IELTS Intensive Mastery (IEL-INT-01)', type: 'user' },
-];
 
 export const DashboardService = {
     getStats: async (): Promise<DashboardStatsData> => {
@@ -27,8 +22,5 @@ export const DashboardService = {
     },
     getRecentTransactions: async (): Promise<DashboardTransaction[]> => {
         return new Promise((resolve) => setTimeout(() => resolve(MOCK_RECENT_TRANSACTIONS), 300));
-    },
-    getAuditLogs: async (): Promise<DashboardAuditLog[]> => {
-        return new Promise((resolve) => setTimeout(() => resolve(MOCK_AUDIT_LOGS), 300));
     }
 };

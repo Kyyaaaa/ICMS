@@ -36,9 +36,18 @@ export const AttendanceSessionList = ({ selectedClass, classSessions, onSelectSe
             <div className="p-6 flex flex-col gap-3 overflow-y-auto">
                 {classSessions.map((session, index) => {
                     const today = new Date();
-                    today.setHours(0, 0, 0, 0);
                     const sessionDate = new Date(session.date);
-                    sessionDate.setHours(0, 0, 0, 0);
+                    if (session.time) {
+                        const timeMatch = session.time.match(/(\d{2}:\d{2})/);
+                        if (timeMatch) {
+                            const [startHour, startMinute] = timeMatch[1].split(':').map(Number);
+                            sessionDate.setHours(startHour, startMinute, 0, 0);
+                        } else {
+                            sessionDate.setHours(0, 0, 0, 0);
+                        }
+                    } else {
+                        sessionDate.setHours(0, 0, 0, 0);
+                    }
                     const isFuture = sessionDate > today;
 
                     return (
@@ -63,12 +72,12 @@ export const AttendanceSessionList = ({ selectedClass, classSessions, onSelectSe
                         <div className="flex items-center gap-4 shrink-0">
                             <div className={`text-xs font-bold px-3 py-1 rounded-md ${
                                 isFuture 
-                                    ? 'bg-[#eef0f4] text-[#74777f]' 
+                                    ? 'bg-gray-100 text-[#74777f]' 
                                     : session.status === 'submitted' 
-                                        ? 'bg-[#e0e3e5] text-[#43474e]' 
+                                        ? 'bg-emerald-100 text-emerald-800' 
                                         : 'bg-amber-100 text-amber-800'
                             }`}>
-                                {isFuture ? 'NOT YET' : session.status === 'submitted' ? 'SUBMITTED' : 'PENDING'}
+                                {isFuture ? 'NOT YET' : session.status === 'submitted' ? 'TAKEN' : 'PENDING'}
                             </div>
                             <ChevronRight className="w-5 h-5 text-[#c4c6cf] group-hover:text-[#0061a5] hidden sm:block" />
                         </div>

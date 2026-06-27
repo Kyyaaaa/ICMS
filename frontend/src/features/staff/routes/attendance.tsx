@@ -39,14 +39,15 @@ const ClassAttendance = () => {
                         students: (classData as unknown as { students?: unknown[] }).students?.length || 0
                     }]);
                     
-                    const classSessions = (classData as unknown as { sessions?: { id: string, session_number: number, date: string, time: string, attendances?: any[] }[] }).sessions || [];
+                    const classSessions = (classData as unknown as { sessions?: { id: string, session_number: number, date: string, slot?: string, attendances?: { status: string }[] }[] }).sessions || [];
                     setSessions(classSessions.map((s) => ({
                         id: s.id,
                         classId: classData.id,
                         name: `Session ${s.session_number}`,
                         date: s.date ? new Date(s.date).toISOString().split('T')[0] : '',
-                        time: getSlotLabel((s as { slot?: string }).slot),
-                        status: (s.attendances && s.attendances.length > 0) ? 'submitted' : 'pending'
+                        slot: s.slot,
+                        time: getSlotLabel(s.slot),
+                        status: (s.attendances && s.attendances.some((a: { status: string }) => a.status !== 'NOT_YET')) ? 'submitted' : 'pending'
                     })));
                 }
             } catch (err) {
@@ -128,7 +129,7 @@ const ClassAttendance = () => {
 
     const handleSubmitAttendance = async () => {
         if (!selectedSession || !selectedSessionId) return;
-        const isConfirmed = await showConfirmModal('Confirm Submission', 'Are you sure you want to submit this attendance record? You will not be able to change it later without staff approval.', 'warning');
+        const isConfirmed = await showConfirmModal('Confirm Submission', 'Are you sure you want to submit this attendance record? As a staff member, your changes will be saved permanently.', 'warning');
         if (isConfirmed) {
             try {
                 const recordsToSubmit = Object.entries(currentRecords).map(([learner_id, status]) => {

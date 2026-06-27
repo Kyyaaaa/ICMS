@@ -50,7 +50,7 @@ export const AttendanceSheet = ({
                     {isLocked ? (
                         <div className="flex items-center gap-2 text-[#43474e] bg-[#e0e3e5] px-4 py-2 rounded-lg border border-[#c4c6cf] font-bold text-sm">
                             <CheckCircle2 className="w-5 h-5" />
-                            Record Locked
+                            {selectedSession.status === 'submitted' ? 'Record Submitted' : 'Attendance Locked'}
                         </div>
                     ) : (
                         <div className="flex flex-col items-end">
@@ -63,7 +63,7 @@ export const AttendanceSheet = ({
                                 }`}
                             >
                                 {selectedSession.status === 'submitted' ? (
-                                    <><CheckCircle2 className="w-4 h-4" /> Saved</>
+                                    <><CheckCircle2 className="w-4 h-4" /> Update Attendance</>
                                 ) : (
                                     <><Send className="w-4 h-4" /> Submit Attendance</>
                                 )}

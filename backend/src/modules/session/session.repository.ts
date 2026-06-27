@@ -7,7 +7,7 @@ export class SessionRepository {
       .from('class_sessions')
       .select(`
         *,
-        class:classes!class_id(id, name, course_id),
+        class:classes!class_id(id, name, course_id, students:enrollments(id)),
         tutor:account!tutor_id(id, full_name, email),
         classroom:classroom!classroom_id(id, room_name, capacity)
       `);

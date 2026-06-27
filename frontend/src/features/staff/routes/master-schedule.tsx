@@ -41,7 +41,7 @@ const MasterSchedule = () => {
     const [currentMonday, setCurrentMonday] = useState(() => getMonday(new Date()));
     const [displayedMonday, setDisplayedMonday] = useState(currentMonday);
     const [schedule, setSchedule] = useState<ScheduleSession[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [_isLoading, setIsLoading] = useState(false);
     const [selectedSession, setSelectedSession] = useState<ScheduleSession | null>(null);
     const dateInputRef = useRef<HTMLInputElement>(null);
     

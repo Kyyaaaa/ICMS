@@ -1,27 +1,23 @@
 import { useState, useEffect } from 'react';
 import { DashboardService } from '../services/dashboard.service';
-import type { DashboardStatsData, DashboardTransaction, DashboardAuditLog } from '../types/dashboard';
+import type { DashboardStatsData, DashboardTransaction } from '../types/dashboard';
 import { DashboardStats } from '../components/DashboardStats';
 import { DashboardTransactions } from '../components/DashboardTransactions';
-import { DashboardAuditLogs } from '../components/DashboardAuditLogs';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState<DashboardStatsData | null>(null);
     const [transactions, setTransactions] = useState<DashboardTransaction[]>([]);
-    const [logs, setLogs] = useState<DashboardAuditLog[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             setLoading(true);
-            const [statsData, txnsData, logsData] = await Promise.all([
+            const [statsData, txnsData] = await Promise.all([
                 DashboardService.getStats(),
-                DashboardService.getRecentTransactions(),
-                DashboardService.getAuditLogs()
+                DashboardService.getRecentTransactions()
             ]);
             setStats(statsData);
             setTransactions(txnsData);
-            setLogs(logsData);
             setLoading(false);
         };
         fetchDashboardData();
@@ -40,7 +36,6 @@ const AdminDashboard = () => {
                     <DashboardStats stats={stats} />
                     <div className="flex flex-col gap-6">
                         <DashboardTransactions transactions={transactions} />
-                        <DashboardAuditLogs logs={logs} />
                     </div>
                 </>
             )}

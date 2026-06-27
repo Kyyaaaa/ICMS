@@ -39,14 +39,15 @@ const ClassAttendance = () => {
                         students: (classData as unknown as { students?: unknown[] }).students?.length || 0
                     }]);
                     
-                    const classSessions = (classData as unknown as { sessions?: { id: string, session_number: number, date: string, time: string, attendances?: any[] }[] }).sessions || [];
+                    const classSessions = (classData as unknown as { sessions?: { id: string, session_number: number, date: string, slot?: string, attendances?: { status: string }[] }[] }).sessions || [];
                     setSessions(classSessions.map((s) => ({
                         id: s.id,
                         classId: classData.id,
                         name: `Session ${s.session_number}`,
                         date: s.date ? new Date(s.date).toISOString().split('T')[0] : '',
-                        time: getSlotLabel((s as { slot?: string }).slot),
-                        status: (s.attendances && s.attendances.length > 0) ? 'submitted' : 'pending'
+                        slot: s.slot,
+                        time: getSlotLabel(s.slot),
+                        status: (s.attendances && s.attendances.some((a: { status: string }) => a.status !== 'NOT_YET')) ? 'submitted' : 'pending'
                     })));
                 }
             } catch (err) {
@@ -102,7 +103,23 @@ const ClassAttendance = () => {
     
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const isLocked = selectedSession?.date !== todayStr;
+    
+    let isLocked = selectedSession?.date !== todayStr;
+    
+    if (selectedSession) {
+        if (!isLocked && selectedSession.time) {
+            // Lock if today but hasn't started yet
+            const timeMatch = selectedSession.time.match(/(\d{2}:\d{2})/);
+            if (timeMatch) {
+                const [startHour, startMinute] = timeMatch[1].split(':').map(Number);
+                const sessionStart = new Date(today);
+                sessionStart.setHours(startHour, startMinute, 0, 0);
+                if (today < sessionStart) {
+                    isLocked = true;
+                }
+            }
+        }
+    }
     
     const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
         if (isLocked || !selectedSessionId) return;
@@ -129,7 +146,7 @@ const ClassAttendance = () => {
 
     const handleSubmitAttendance = async () => {
         if (!selectedSession || !selectedSessionId) return;
-        const isConfirmed = await showConfirmModal('Confirm Submission', 'Are you sure you want to submit this attendance record? You will not be able to change it later without staff approval.', 'warning');
+        const isConfirmed = await showConfirmModal('Confirm Submission', 'Are you sure you want to submit this attendance record? You can still update it multiple times until the end of the day.', 'info');
         if (isConfirmed) {
             try {
                 const recordsToSubmit = Object.entries(currentRecords).map(([learner_id, status]) => {

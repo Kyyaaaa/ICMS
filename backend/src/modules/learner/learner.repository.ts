@@ -4,17 +4,19 @@ import { CreateLearnerInput, UpdateLearnerInput } from './learner.model';
 export class LearnerRepository {
   static async getAll() {
     const { data, error } = await supabaseAdmin
-      .from('learner')
-      .select('*, account(email, phone_number, status, role_id, roles(name))');
+      .from('account')
+      .select('*, roles!inner(name)')
+      .eq('roles.name', 'LEARNER');
     if (error) throw error;
     return data;
   }
 
   static async getById(id: string) {
     const { data, error } = await supabaseAdmin
-      .from('learner')
-      .select('*, account(email, phone_number, status, role_id, roles(name))')
-      .eq('account_id', id)
+      .from('account')
+      .select('*, roles!inner(name)')
+      .eq('roles.name', 'LEARNER')
+      .eq('id', id)
       .single();
     if (error) throw error;
     return data;

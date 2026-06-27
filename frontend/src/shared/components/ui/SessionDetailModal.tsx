@@ -29,12 +29,13 @@ const attendanceBadge = (status: string) => {
                 </div>
             );
         case 'upcoming':
+        case 'not_yet':
         case 'pending':
         default:
             return (
                 <div className="flex items-center gap-1.5 text-sm font-bold text-[#74777f] bg-gray-50 border border-gray-200 rounded px-2 py-1 w-fit">
                     <AlertCircle className="w-4 h-4" />
-                    <span>{status === 'pending' ? 'Pending Attendance' : 'Upcoming'}</span>
+                    <span>{status === 'pending' ? 'Pending Attendance' : 'Not Yet'}</span>
                 </div>
             );
     }
@@ -105,8 +106,8 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({ isOpen, 
                             <div className="flex items-start gap-3">
                                 <UserCheck className="w-5 h-5 text-[#0061a5] mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="text-sm text-[#74777f]">Capacity</p>
-                                    <p className="font-semibold text-[#181c1e]">{session.students} students</p>
+                                    <p className="text-sm text-[#74777f]">Learners</p>
+                                    <p className="font-semibold text-[#181c1e]">{session.students} enrolled</p>
                                 </div>
                             </div>
                         )}
@@ -127,7 +128,7 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({ isOpen, 
                         Close
                     </Button>
                     {onTakeAttendance && (
-                        <Button variant="default" onClick={onTakeAttendance}>
+                        <Button variant="default" onClick={onTakeAttendance} disabled={session.attendance === 'not_yet'}>
                             Take Attendance
                         </Button>
                     )}

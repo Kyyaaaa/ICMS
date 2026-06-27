@@ -66,7 +66,6 @@ import AdminRefundDetail from "@/features/admin/routes/refund-detail.tsx";
 import AdminPayroll from "@/features/admin/routes/payroll.tsx";
 import AdminPayrollDetail from "@/features/admin/routes/payroll-detail.tsx";
 import AdminAnnouncements from "@/features/admin/routes/announcements.tsx";
-import AdminAuditLogs from "@/features/admin/routes/audit-logs.tsx";
 import AdminProfile from "@/features/admin/routes/profile.tsx";
 import AdminFinance from "@/features/admin/routes/finance.tsx";
 
@@ -204,7 +203,6 @@ export const AppRouter = () => {
           <Route path="/admin/payroll" element={<AdminPayroll />} />
           <Route path="/admin/payroll/:id" element={<AdminPayrollDetail />} />
           <Route path="/admin/announcements" element={<AdminAnnouncements />} />
-          <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
         </Route>
       </Route>
 

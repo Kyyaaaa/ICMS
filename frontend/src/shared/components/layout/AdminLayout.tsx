@@ -13,7 +13,6 @@ import {
     RefreshCcw, 
     Wallet, 
     Megaphone, 
-    FileKey,
     LogOut,
     Menu,
     X,
@@ -100,7 +99,7 @@ export const AdminLayout = () => {
         { name: 'Academics', path: '/admin/courses', icon: BookOpen, activePaths: ['/admin/courses', '/admin/classrooms', '/admin/manage-reviews'] },
         { name: 'Finance', path: '/admin/discount-codes', icon: Wallet, activePaths: ['/admin/discount-codes', '/admin/refunds', '/admin/payroll', '/admin/finance'] },
         { name: 'User Management', path: '/admin/accounts', icon: Users, activePaths: ['/admin/accounts'] },
-        { name: 'System', path: '/admin/announcements', icon: Megaphone, activePaths: ['/admin/announcements', '/admin/audit-logs'] },
+        { name: 'Announcements', path: '/admin/announcements', icon: Megaphone, activePaths: ['/admin/announcements'] },
         { name: 'My Profile', path: '/admin/profile', icon: UserCog },
     ];
 
@@ -125,11 +124,6 @@ export const AdminLayout = () => {
                 { name: 'Manage Refunds', path: '/admin/refunds', icon: RefreshCcw },
                 { name: 'Manage Payroll', path: '/admin/payroll', icon: Wallet },
                 { name: 'Transaction History', path: '/admin/finance', icon: ScrollText },
-            ];
-        } else if (path.startsWith('/admin/announcements') || path.startsWith('/admin/audit-logs')) {
-            tabs = [
-                { name: 'Announcements', path: '/admin/announcements', icon: Megaphone },
-                { name: 'Audit Logs', path: '/admin/audit-logs', icon: FileKey },
             ];
         }
 
