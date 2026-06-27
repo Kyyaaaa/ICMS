@@ -189,32 +189,11 @@ export class ClassRepository {
     return data;
   }
 
-  static async checkTutorConflict(tutorId: string, date: string, slot: string, excludeSessionId?: string, excludeClassId?: string) {
+  static async checkScheduleConflict(type: 'tutor_id' | 'classroom_id', id: string, date: string, slot: string, excludeSessionId?: string, excludeClassId?: string) {
     let query = supabase
       .from('class_sessions')
       .select('id')
-      .eq('tutor_id', tutorId)
-      .eq('date', date)
-      .eq('slot', slot);
-      
-    if (excludeSessionId) {
-      query = query.neq('id', excludeSessionId);
-    }
-    if (excludeClassId) {
-      query = query.neq('class_id', excludeClassId);
-    }
-
-    const { data, error } = await query;
-    if (error) throw new Error(error.message);
-    
-    return data && data.length > 0;
-  }
-
-  static async checkClassroomConflict(classroomId: string, date: string, slot: string, excludeSessionId?: string, excludeClassId?: string) {
-    let query = supabase
-      .from('class_sessions')
-      .select('id')
-      .eq('classroom_id', classroomId)
+      .eq(type, id)
       .eq('date', date)
       .eq('slot', slot);
       

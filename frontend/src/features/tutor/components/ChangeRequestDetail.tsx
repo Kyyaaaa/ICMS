@@ -45,8 +45,13 @@ export const ChangeRequestDetail = ({ request, onClose, onCancel }: ChangeReques
                         </div>
                         <div>
                             <p className="text-xs font-bold text-[#74777f] mb-1">Request Type</p>
-                            <p className={`font-semibold text-sm ${request.type?.toLowerCase() === 'reschedule' ? 'text-[#0061a5]' : 'text-purple-600'}`}>
-                                {request.type?.toLowerCase() === 'reschedule' ? 'Reschedule' : 'Needs Substitute Tutor'}
+                            <p className={`font-semibold text-sm ${
+                                request.type?.toLowerCase() === 'reschedule' ? 'text-[#0061a5]' : 
+                                (request.type?.toLowerCase() === 'substitute tutor' || request.type?.toLowerCase() === 'substitute') ? 'text-purple-600' :
+                                'text-[#16a34a]'
+                            }`}>
+                                {(request.type?.toLowerCase() === 'substitute tutor' || request.type?.toLowerCase() === 'substitute') ? 'Substitute' : 
+                                 request.type?.toLowerCase() === 'change room' ? 'Change Room' : 'Reschedule'}
                             </p>
                         </div>
                         {request.type?.toLowerCase() === 'reschedule' && (

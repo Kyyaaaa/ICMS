@@ -1,6 +1,7 @@
 export interface ChangeRequest {
     id: string;
     tutor: string;
+    tutorId: string;
     className: string;
     session: number;
     type: string;

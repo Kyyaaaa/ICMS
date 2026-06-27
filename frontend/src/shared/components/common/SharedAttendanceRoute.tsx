@@ -1,14 +1,15 @@
+import { getLocalDateString } from '@/utils/date';
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { AttendanceService } from '../services/attendance.service';
+import { AttendanceService } from '@/features/tutor/services/attendance.service';
 import { ClassesService } from '@/features/staff/services/classes.service';
-import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceRecordMap, AttendanceStatus } from '../types/attendance';
-import { AttendanceSessionList } from '../components/AttendanceSessionList';
-import { AttendanceSheet } from '../components/AttendanceSheet';
+import type { AttendanceClass, AttendanceSession, AttendanceStudent, AttendanceRecordMap, AttendanceStatus } from '@/features/tutor/types/attendance';
+import { AttendanceSessionList } from '@/features/tutor/components/AttendanceSessionList';
+import { AttendanceSheet } from '@/features/tutor/components/AttendanceSheet';
 import { showConfirmModal, showAlertModal } from '@/utils/modal';
 import { formatAccountID, getSlotLabel } from '@/shared/lib/utils';
 
-const ClassAttendance = () => {
+const SharedAttendanceRoute = () => {
     const { id: classId } = useParams<{ id: string }>();
     const [searchParams] = useSearchParams();
     
@@ -44,7 +45,7 @@ const ClassAttendance = () => {
                         id: s.id,
                         classId: classData.id,
                         name: `Session ${s.session_number}`,
-                        date: s.date ? new Date(s.date).toISOString().split('T')[0] : '',
+                        date: s.date ? getLocalDateString(new Date(s.date)) : '',
                         slot: s.slot,
                         time: getSlotLabel(s.slot),
                         status: (s.attendances && s.attendances.some((a: { status: string }) => a.status !== 'NOT_YET')) ? 'submitted' : 'pending'
@@ -209,4 +210,4 @@ const ClassAttendance = () => {
     );
 };
 
-export default ClassAttendance;
+export default SharedAttendanceRoute;

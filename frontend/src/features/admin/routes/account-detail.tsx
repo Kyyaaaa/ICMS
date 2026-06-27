@@ -1,3 +1,4 @@
+import { getLocalDateString } from '../../../utils/date';
 import { formatDate } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
@@ -99,7 +100,7 @@ const AdminAccountDetail = () => {
             }
             
             const dateString = account.date_of_birth;
-            if (dob.toISOString().split('T')[0] !== dateString) {
+            if (getLocalDateString(dob) !== dateString) {
                 showAlertModal('Error', 'Invalid Date of Birth. The date does not exist (e.g., February 30th).', 'error');
                 return;
             }
@@ -306,7 +307,7 @@ const AdminAccountDetail = () => {
                                             type="date" 
                                             value={account.date_of_birth}
                                             onChange={e => setAccount({...account, date_of_birth: e.target.value})}
-                                            max={new Date().toISOString().split('T')[0]}
+                                            max={getLocalDateString()}
                                             className={`w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors ${!canEdit ? 'opacity-70 cursor-not-allowed' : ''}`} 
                                             disabled={!canEdit}
                                         />

@@ -1,5 +1,5 @@
 import { ChevronRight, Paperclip, Send } from 'lucide-react';
-import type { SupportTicket } from '../types/support-ticket';
+import type { SupportTicket } from '@/shared/services/support-ticket.service';
 
 interface SupportTicketDetailProps {
     ticket: SupportTicket;
@@ -60,13 +60,13 @@ export const SupportTicketDetail = ({
             {/* Chat History */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#f7fafc]">
                 <div className="space-y-6 max-w-3xl mx-auto">
-                    {ticket.messages.map(msg => (
-                        <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                    {(ticket.messages || []).map(msg => (
+                        <div key={msg.id} className={`flex flex-col ${msg.sender_role === 'TUTOR' ? 'items-end' : 'items-start'}`}>
                             <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-bold text-[#43474e]">{msg.sender === 'user' ? 'You' : 'Support Team'}</span>
-                                <span className="text-xs text-[#74777f]">{msg.time}</span>
+                                <span className="text-xs font-bold text-[#43474e]">{msg.sender_role === 'TUTOR' ? 'You' : 'Support Team'}</span>
+                                <span className="text-xs text-[#74777f]">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
-                            <div className={`p-4 rounded-2xl max-w-[90%] md:max-w-[80%] text-sm leading-relaxed shadow-sm ${msg.sender === 'user' ? 'bg-[#0061a5] text-white rounded-tr-sm' : 'bg-white border border-[#e0e3e5] text-[#181c1e] rounded-tl-sm'}`}>
+                            <div className={`p-4 rounded-2xl max-w-[90%] md:max-w-[80%] text-sm leading-relaxed shadow-sm ${msg.sender_role === 'TUTOR' ? 'bg-[#0061a5] text-white rounded-tr-sm' : 'bg-white border border-[#e0e3e5] text-[#181c1e] rounded-tl-sm'}`}>
                                 {msg.text}
                             </div>
                         </div>

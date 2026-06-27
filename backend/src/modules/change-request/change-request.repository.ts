@@ -12,6 +12,7 @@ export class ChangeRequestRepository {
                 ),
                 class:classes!class_id (
                     name,
+                    classroom_id,
                     course:courses (
                         title
                     )
@@ -41,6 +42,7 @@ export class ChangeRequestRepository {
                 ),
                 class:classes!class_id (
                     name,
+                    classroom_id,
                     course:courses (
                         title
                     )
@@ -77,9 +79,11 @@ export class ChangeRequestRepository {
     }
 
     async updateStatus(id: string, updateData: UpdateChangeRequestStatusDTO) {
+        const { new_date, new_slot, new_room_id, substitute_tutor_id, ...crUpdateData } = updateData;
+
         const { data, error } = await supabaseAdmin
             .from('change_requests')
-            .update(updateData)
+            .update(crUpdateData)
             .eq('id', id)
             .select()
             .single();
@@ -87,6 +91,31 @@ export class ChangeRequestRepository {
         if (error) {
             console.error('Error updating change request:', error);
             throw error;
+        }
+
+        if (crUpdateData.status === 'Approved' && data.session_id) {
+            const sessionUpdatePayload: any = {};
+            const typeStr = data.type?.toLowerCase();
+            
+            if ((typeStr === 'substitute tutor' || typeStr === 'substitute') && substitute_tutor_id) {
+                sessionUpdatePayload.tutor_id = substitute_tutor_id;
+            } else if ((typeStr === 'reschedule' || typeStr === 'change room') && new_date && new_slot && new_room_id) {
+                sessionUpdatePayload.date = new_date;
+                sessionUpdatePayload.slot = new_slot;
+                sessionUpdatePayload.classroom_id = new_room_id;
+            }
+
+            if (Object.keys(sessionUpdatePayload).length > 0) {
+                const { error: sessionError } = await supabaseAdmin
+                    .from('class_sessions')
+                    .update(sessionUpdatePayload)
+                    .eq('id', data.session_id);
+                
+                if (sessionError) {
+                    console.error('Error updating class session:', sessionError);
+                    throw sessionError;
+                }
+            }
         }
 
         return data;

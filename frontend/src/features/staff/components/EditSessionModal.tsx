@@ -3,9 +3,9 @@ import { X, Users, MapPin, ChevronDown, Save, Calendar, Clock, Star } from 'luci
 import type { Session } from '../types/class';
 import type { Classroom } from '@/shared/services/classrooms.service';
 import { ClassesService } from '../services/classes.service';
-import { TutorAvailabilityService } from '../services/tutor-availability.service';
-import type { AvailabilityCycle } from '../services/tutor-availability.service';
-import type { TutorAvailabilityProfile } from '../types/tutor-availability';
+
+import { TutorAvailabilityService, type AvailabilityCycle } from '@/shared/services/tutor-availability.service';
+import type { TutorAvailabilityProfile } from '@/shared/types/tutor-availability';
 
 interface EditSessionModalProps {
     session: Session;
@@ -72,7 +72,7 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                         date,
                         exclude_class_id: session.class_id
                     }),
-                    targetCycle ? TutorAvailabilityService.getTutors(targetCycle.id) : Promise.resolve(null)
+                    targetCycle ? TutorAvailabilityService.getTutorProfiles(targetCycle.id) : Promise.resolve(null)
                 ]);
 
                 if (ignore) return;

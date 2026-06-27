@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Eye, Search, Calendar, Users } from 'lucide-react';
+import { Eye, Search, Calendar, Users, MapPin } from 'lucide-react';
 import type { ChangeRequest } from '../types/change-request';
 import { ChangeRequestsService } from '../services/change-requests.service';
 import { ChangeRequestModal } from '../components/ChangeRequestModal';
@@ -20,12 +20,26 @@ const ChangeRequests = () => {
         loadRequests();
     }, []);
 
-    const handleStatusUpdate = async (id: string, newStatus: string, finalTime?: string, staffNote?: string) => {
+    const handleStatusUpdate = async (
+        id: string, 
+        newStatus: string, 
+        finalTime?: string, 
+        staffNote?: string, 
+        substituteTutorId?: string,
+        newDate?: string,
+        newSlot?: string,
+        newRoomId?: string
+    ) => {
         const request = requests.find(r => r.id === id);
         if (request) {
-            const updatedRequest = { ...request, status: newStatus, finalTime: finalTime || request.finalTime, staffNote: staffNote };
-            await ChangeRequestsService.updateRequest(updatedRequest);
-            setRequests(requests.map(r => r.id === id ? updatedRequest : r));
+            try {
+                const updatedRequest = { ...request, status: newStatus, finalTime: finalTime || request.finalTime, staffNote: staffNote };
+                await ChangeRequestsService.updateRequest(updatedRequest, substituteTutorId, newDate, newSlot, newRoomId);
+                setRequests(requests.map(r => r.id === id ? updatedRequest : r));
+            } catch (error) {
+                console.error("Error updating status:", error);
+                alert("Failed to update status. Please try again.");
+            }
         }
         setSelectedRequest(null);
     };
@@ -95,8 +109,17 @@ const ChangeRequests = () => {
                                     <div className="text-sm text-gray-500">Session {item.session}</div>
                                 </td>
                                 <td className="p-4">
-                                    <span className={`flex items-center gap-1 text-sm font-semibold ${item.type === 'Reschedule' ? 'text-blue-600' : 'text-purple-600'}`}>
-                                        {item.type === 'Reschedule' ? <Calendar className="w-4 h-4"/> : <Users className="w-4 h-4"/>} {item.type}
+                                    <span className={`flex items-center gap-1.5 text-sm font-semibold ${
+                                        item.type?.toLowerCase() === 'reschedule' ? 'text-[#0061a5]' : 
+                                        (item.type?.toLowerCase() === 'substitute tutor' || item.type?.toLowerCase() === 'substitute') ? 'text-purple-600' :
+                                        'text-[#16a34a]'
+                                    }`}>
+                                        {item.type?.toLowerCase() === 'reschedule' ? <Calendar className="w-4 h-4"/> : 
+                                         (item.type?.toLowerCase() === 'substitute tutor' || item.type?.toLowerCase() === 'substitute') ? <Users className="w-4 h-4"/> : 
+                                         <MapPin className="w-4 h-4"/>} 
+                                        {item.type?.toLowerCase() === 'reschedule' ? 'Reschedule' : 
+                                         (item.type?.toLowerCase() === 'substitute tutor' || item.type?.toLowerCase() === 'substitute') ? 'Substitute' : 
+                                         'Change Room'}
                                     </span>
                                 </td>
                                 <td className="p-4 text-[#74777f]">{item.submittedAt}</td>
@@ -104,6 +127,7 @@ const ChangeRequests = () => {
                                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                         item.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 
                                         item.status === 'Approved' ? 'bg-green-100 text-green-700' : 
+                                        (item.status === 'Cancelled' || item.status === 'Canceled') ? 'bg-gray-100 text-gray-600' :
                                         'bg-red-100 text-red-700'
                                     }`}>
                                         {item.status}

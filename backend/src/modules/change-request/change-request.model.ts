@@ -13,6 +13,10 @@ export interface UpdateChangeRequestStatusDTO {
     status: string;
     staff_note?: string;
     final_time?: string;
+    new_date?: string;
+    new_slot?: string;
+    new_room_id?: string;
+    substitute_tutor_id?: string;
 }
 
 export interface ChangeRequest {

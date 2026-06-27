@@ -1,3 +1,4 @@
+import { getLocalDateString } from '../../../utils/date';
 import axiosClient from '../../../shared/services/axiosClient';
 import type { TutorScheduleSession } from '../types/schedule';
 
@@ -22,8 +23,8 @@ export const ScheduleService = {
     getSchedule: async (startDate?: Date, endDate?: Date): Promise<TutorScheduleSession[]> => {
         let url = '/sessions/my-schedule';
         if (startDate && endDate) {
-            const startStr = startDate.toISOString().split('T')[0];
-            const endStr = endDate.toISOString().split('T')[0];
+            const startStr = getLocalDateString(startDate);
+            const endStr = getLocalDateString(endDate);
             url += `?start_date=${startStr}&end_date=${endStr}`;
         }
         

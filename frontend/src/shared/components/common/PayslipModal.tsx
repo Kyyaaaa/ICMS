@@ -1,6 +1,6 @@
 import { CheckCircle2, X, Building, Receipt } from 'lucide-react';
 import Cookies from 'js-cookie';
-import type { SalaryRecord } from '../types/salary';
+import type { SalaryRecord } from '@/shared/types/salary';
 
 interface PayslipModalProps {
     record: SalaryRecord;
@@ -10,9 +10,9 @@ interface PayslipModalProps {
 export const PayslipModal = ({ record, onClose }: PayslipModalProps) => {
     const userCookie = Cookies.get('user_info');
     const user = userCookie ? JSON.parse(userCookie) : null;
-    const employeeName = user?.full_name || 'Tutor Name';
+    const employeeName = user?.full_name || 'Staff Member';
     const employeeId = user?.account_code || 'N/A';
-    const employeeRole = user?.role || 'Tutor';
+    const employeeRole = user?.role || 'Staff';
 
     return (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -41,7 +41,7 @@ export const PayslipModal = ({ record, onClose }: PayslipModalProps) => {
                                 <p className="text-[#74777f] text-sm">123 University Ave, Ho Chi Minh City</p>
                             </div>
                             <div className="text-right">
-                                <div className="text-xl font-bold text-[#002045]">Tutor Payslip</div>
+                                <div className="text-xl font-bold text-[#002045]">Payslip</div>
                                 <p className="text-[#74777f] font-medium mt-1">{record.period}</p>
                                 <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2.5 py-1 rounded-md text-xs font-bold mt-2">
                                     <CheckCircle2 className="w-3.5 h-3.5" /> Confirmed
@@ -52,14 +52,14 @@ export const PayslipModal = ({ record, onClose }: PayslipModalProps) => {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <div className="space-y-6">
                                 <div className="bg-[#f8f9fa] p-5 rounded-xl border border-[#e0e3e5]">
-                                    <h4 className="font-bold text-[#002045] border-b border-[#e0e3e5] pb-2 mb-4">Tutor Information</h4>
+                                    <h4 className="font-bold text-[#002045] border-b border-[#e0e3e5] pb-2 mb-4">Employee Information</h4>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <div className="text-xs font-bold text-[#74777f] uppercase">Tutor Name</div>
+                                            <div className="text-xs font-bold text-[#74777f] uppercase">Employee Name</div>
                                             <div className="font-bold text-[#181c1e] text-sm">{employeeName}</div>
                                         </div>
                                         <div>
-                                            <div className="text-xs font-bold text-[#74777f] uppercase">Tutor ID</div>
+                                            <div className="text-xs font-bold text-[#74777f] uppercase">Employee ID</div>
                                             <div className="font-bold text-[#181c1e] text-sm">{employeeId}</div>
                                         </div>
                                         <div className="col-span-2">
@@ -88,30 +88,27 @@ export const PayslipModal = ({ record, onClose }: PayslipModalProps) => {
                                 <h4 className="font-bold text-[#002045] border-b border-[#e0e3e5] pb-2 mb-4">Earnings Breakdown</h4>
                                 
                                 <div className="space-y-3">
-                                    <div className="flex justify-between items-start text-sm">
-                                        <div className="flex flex-col">
-                                            <span className="text-[#43474e] font-medium">Teaching Classes ({record.sessions} sessions)</span>
-                                            <span className="text-xs text-[#74777f]">{record.sessionRate.toLocaleString()} đ/session</span>
-                                        </div>
-                                        <span className="font-bold text-[#181c1e] whitespace-nowrap">{record.baseSalary.toLocaleString()} đ</span>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-[#43474e] font-medium">Base Salary</span>
+                                        <span className="font-bold text-[#181c1e]">{record.baseSalary.toLocaleString()} đ</span>
                                     </div>
                                     
-                                    <div className="flex justify-between items-start text-sm pt-1">
-                                        <span className="text-[#43474e] font-medium">Allowances & Bonuses</span>
-                                        <span className="font-bold text-green-600 whitespace-nowrap">+{record.bonuses.toLocaleString()} đ</span>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-green-600 font-medium">Bonus & Allowances</span>
+                                        <span className="font-bold text-green-600">+{record.bonuses.toLocaleString()} đ</span>
                                     </div>
 
                                     <div className="pt-3 border-t border-dashed border-[#e0e3e5]">
-                                        <div className="flex justify-between items-start text-sm">
-                                            <span className="text-red-600 font-medium">Tax Deduction (10%)</span>
-                                            <span className="font-bold text-red-600 whitespace-nowrap">-{record.deductions.toLocaleString()} đ</span>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-red-600 font-medium">Tax Deduction (5%)</span>
+                                            <span className="font-bold text-red-600">-{record.deductions.toLocaleString()} đ</span>
                                         </div>
                                     </div>
                                     
                                     <div className="pt-4 mt-2 border-t border-[#c4c6cf]">
                                         <div className="flex justify-between items-center bg-[#e6f0fa] p-4 rounded-xl border border-[#bbdefb]">
                                             <span className="font-extrabold text-[#002045] text-base">Total Net Pay</span>
-                                            <span className="font-extrabold text-[#0061a5] text-3xl whitespace-nowrap">{record.netPay.toLocaleString()} đ</span>
+                                            <span className="font-extrabold text-[#0061a5] text-3xl">{record.netPay.toLocaleString()} đ</span>
                                         </div>
                                     </div>
                                 </div>

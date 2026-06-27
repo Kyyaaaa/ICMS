@@ -1,3 +1,4 @@
+import { getLocalDateString } from "../../../utils/date";
 import { formatDate } from "../../../shared/utils/date";
 import { useState, useEffect, useRef } from 'react';
 import { X, FileEdit, Calendar, Users, Send, ChevronDown } from 'lucide-react';
@@ -185,7 +186,7 @@ export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeReque
                                     <label className="block text-sm font-bold text-[#002045] mb-2">Select Date</label>
                                     <input 
                                         type="date" 
-                                        min={new Date().toLocaleDateString('en-CA')}
+                                        min={getLocalDateString()}
                                         className="w-full px-3 py-2 bg-white border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] text-sm font-medium"
                                         value={newProposedDate}
                                         onChange={(e) => {
@@ -215,7 +216,7 @@ export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeReque
                                             { label: 'Slot 5 (18:00 - 20:00)', startTime: '18:00', value: '18:00 - 20:00' },
                                             { label: 'Slot 6 (20:00 - 22:00)', startTime: '20:00', value: '20:00 - 22:00' }
                                         ].filter(slot => {
-                                            const todayStr = new Date().toLocaleDateString('en-CA');
+                                            const todayStr = getLocalDateString();
                                             if (newProposedDate === todayStr) {
                                                 const slotStartTime = slot.startTime;
                                                 const now = new Date();

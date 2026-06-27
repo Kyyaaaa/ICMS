@@ -11,21 +11,8 @@ const lockNextMonthCycles = async (reason: string) => {
     const now = new Date();
     // Next month calculation
     const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    const targetCycleName = `${monthNames[nextMonthDate.getMonth()]} - ${nextMonthDate.getFullYear()}`;
+    const targetMonthStr = String(nextMonthDate.getMonth() + 1).padStart(2, '0');
+    const targetCycleName = `${targetMonthStr}/${nextMonthDate.getFullYear()}`;
 
     console.log(
       `[Cron Job] ${reason}: Checking to lock cycle '${targetCycleName}'`,
@@ -65,23 +52,9 @@ const lockNextMonthCycles = async (reason: string) => {
 const transitionCycleOnNewMonth = async () => {
   try {
     const now = new Date();
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-
     // 1. Set current month to ACTIVE
-    const currentMonthName = `${monthNames[now.getMonth()]} - ${now.getFullYear()}`;
+    const currentMonthStr = String(now.getMonth() + 1).padStart(2, '0');
+    const currentMonthName = `${currentMonthStr}/${now.getFullYear()}`;
     await supabaseAdmin
       .from("availability_cycles")
       .update({ status: "ACTIVE" })
@@ -94,7 +67,8 @@ const transitionCycleOnNewMonth = async () => {
 
     // 2. Set previous month to COMPLETED
     const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const prevMonthName = `${monthNames[prevMonthDate.getMonth()]} - ${prevMonthDate.getFullYear()}`;
+    const prevMonthStr = String(prevMonthDate.getMonth() + 1).padStart(2, '0');
+    const prevMonthName = `${prevMonthStr}/${prevMonthDate.getFullYear()}`;
     await supabaseAdmin
       .from("availability_cycles")
       .update({ status: "COMPLETED" })

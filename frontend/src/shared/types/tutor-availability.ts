@@ -23,3 +23,5 @@ export const SHIFTS: Shift[] = [
 ];
 
 export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+export type AvailabilityStatus = 'draft' | 'submitted';

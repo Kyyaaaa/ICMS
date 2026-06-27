@@ -45,8 +45,10 @@ export const ChangeRequestController = {
     updateStatus: async (req: Request, res: Response) => {
         try {
             const id = req.params.id as string;
-            const { status, staff_note, final_time } = req.body;
-            const updated = await changeRequestService.updateStatus(id, { status, staff_note, final_time });
+            const { status, staff_note, final_time, new_date, new_slot, new_room_id, substitute_tutor_id } = req.body;
+            const updated = await changeRequestService.updateStatus(id, { 
+                status, staff_note, final_time, new_date, new_slot, new_room_id, substitute_tutor_id 
+            });
             res.json(updated);
         } catch (error: any) {
             res.status(500).json({ error: error.message });

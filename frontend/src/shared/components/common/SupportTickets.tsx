@@ -37,7 +37,8 @@ export const SupportTickets = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [replyText, setReplyText] = useState('');
     const [isCreating, setIsCreating] = useState(false);
-
+    const statusFilter: string = 'All';
+    const roleFilter: string = 'All';
     // Form state for creating
     const [createCategory, setCreateCategory] = useState('Technical Issue');
     const [createSubject, setCreateSubject] = useState('');
@@ -47,6 +48,7 @@ export const SupportTickets = () => {
     const userInfo = userInfoCookie ? JSON.parse(userInfoCookie) : null;
     const userId = userInfo?.id || 'anonymous';
     const userRole = userInfo?.role ? String(userInfo.role).toUpperCase() : 'LEARNER';
+    
 
     const selectedTicketRef = useRef<SupportTicket | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -337,9 +339,11 @@ export const SupportTickets = () => {
     }, [now, selectedTicket, handleMarkResolved]);
 
     const filteredTickets = (tickets || []).filter(t => {
-        const titleStr = t.title || ''; // Fallback for missing title
+        const titleStr = t.title || ''; 
         const matchesSearch = titleStr.toLowerCase().includes((searchTerm || '').toLowerCase()) || (t.ticket_number || '').toLowerCase().includes((searchTerm || '').toLowerCase());
-        return matchesSearch;
+        const matchesStatus = statusFilter === 'All' || t.status === statusFilter;
+        const matchesRole = roleFilter === 'All' || (t.sender_role || '').toUpperCase() === roleFilter.toUpperCase();
+        return matchesSearch && matchesStatus && matchesRole;
     }).sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime());
 
     const getStatusStyle = (status: string) => {

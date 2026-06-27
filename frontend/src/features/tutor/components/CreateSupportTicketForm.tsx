@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import type { CreateSupportTicketData } from '../types/support-ticket';
+import type { CreateSupportTicketData } from '@/shared/services/support-ticket.service';
 
 interface CreateSupportTicketFormProps {
     onCancel: () => void;
-    onSubmit: (data: CreateSupportTicketData) => void;
+    onSubmit: (data: Omit<CreateSupportTicketData, 'sender_id' | 'sender_role'>) => void;
 }
 
 export const CreateSupportTicketForm = ({ onCancel, onSubmit }: CreateSupportTicketFormProps) => {

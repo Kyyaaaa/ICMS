@@ -12,6 +12,7 @@ export const ChangeRequestsService = {
             return data.map((req: any) => ({
                 id: req.id,
                 tutor: req.tutor?.full_name || 'Unknown Tutor',
+                tutorId: req.tutor_id || req.tutor?.id || '',
                 className: req.class ? `${req.class.course?.title || 'Unknown Course'} - ${req.class.name || 'Unknown Class'}` : 'Unknown Class',
                 session: req.session?.session_number || 1,
                 type: req.type,
@@ -22,7 +23,7 @@ export const ChangeRequestsService = {
                 submittedAt: formatDate(req.created_at),
                 staffNote: req.staff_note || '',
                 finalTime: req.final_time || '',
-                originalRoomId: req.session?.classroom_id
+                originalRoomId: req.class?.classroom_id || req.session?.classroom_id
             }));
         } catch (error) {
             console.error('Failed to fetch change requests:', error);
@@ -30,13 +31,24 @@ export const ChangeRequestsService = {
         }
     },
 
-    updateRequest: async (updatedRequest: ChangeRequest): Promise<void> => {
+    updateRequest: async (
+        updatedRequest: ChangeRequest, 
+        substituteTutorId?: string,
+        newDate?: string,
+        newSlot?: string,
+        newRoomId?: string
+    ): Promise<void> => {
         try {
-            await axiosClient.patch(`/change-requests/${updatedRequest.id}/status`, {
+            const payload: any = {
                 status: updatedRequest.status,
-                staff_note: updatedRequest.staffNote,
-                final_time: updatedRequest.finalTime
-            });
+                final_time: updatedRequest.finalTime,
+                staff_note: updatedRequest.staffNote
+            };
+            if (substituteTutorId) payload.substitute_tutor_id = substituteTutorId;
+            if (newDate) payload.new_date = newDate;
+            if (newSlot) payload.new_slot = newSlot;
+            if (newRoomId) payload.new_room_id = newRoomId;
+            await axiosClient.patch(`/change-requests/${updatedRequest.id}/status`, payload);
         } catch (error) {
             console.error('Failed to update change request:', error);
             throw error;

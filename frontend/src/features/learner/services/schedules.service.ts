@@ -1,3 +1,4 @@
+import { getLocalDateString } from '../../../utils/date';
 import axiosClient from '../../../shared/services/axiosClient';
 import type { LearnerSession } from '../types/schedule';
 
@@ -29,8 +30,8 @@ export const LearnerSchedulesService = {
         const sunday = new Date(monday);
         sunday.setDate(monday.getDate() + 6);
         
-        const startStr = monday.toISOString().split('T')[0];
-        const endStr = sunday.toISOString().split('T')[0];
+        const startStr = getLocalDateString(monday);
+        const endStr = getLocalDateString(sunday);
 
         try {
             const res = await axiosClient.get(`/sessions/my-schedule?start_date=${startStr}&end_date=${endStr}`);

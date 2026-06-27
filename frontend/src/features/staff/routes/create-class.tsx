@@ -4,9 +4,9 @@ import { ArrowLeft, Save, Users, MapPin, ChevronRight, ChevronDown } from 'lucid
 import { CoursesService } from '@/shared/services/courses.service';
 import type { Course } from '@/shared/types/course';
 import { AccountsService } from '../services/accounts.service';
-import { TutorAvailabilityService } from '../services/tutor-availability.service';
-import type { TutorAvailabilityProfile } from '../types/tutor-availability';
-import type { AvailabilityCycle } from '../services/tutor-availability.service';
+import type { TutorAvailabilityProfile } from '@/shared/types/tutor-availability';
+import { TutorAvailabilityService } from '@/shared/services/tutor-availability.service';
+import type { AvailabilityCycle } from '@/shared/services/tutor-availability.service';
 import { ClassroomsService } from '@/shared/services/classrooms.service';
 import type { Classroom } from '@/shared/services/classrooms.service';
 import { ClassesService } from '../services/classes.service';
@@ -77,16 +77,21 @@ const CreateClass = () => {
     }, [allGlobalSessions, tutor, selectedRoom]);
 
     const filteredRooms = useMemo(() => {
-        if (generatedSessions.length === 0) return availableRooms;
+        let rooms = availableRooms;
+        if (typeof capacity === 'number') {
+            rooms = rooms.filter(r => r.capacity >= capacity);
+        }
+
+        if (generatedSessions.length === 0) return rooms;
         
-        return availableRooms.filter(room => {
+        return rooms.filter(room => {
             const conflicts = allGlobalSessions.some(session => {
                 if (session.classroom_id !== room.id) return false;
                 return generatedSessions.some(gs => gs.date === session.date && gs.slot === session.slot);
             });
             return !conflicts;
         });
-    }, [availableRooms, allGlobalSessions, generatedSessions]);
+    }, [availableRooms, allGlobalSessions, generatedSessions, capacity]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -118,7 +123,8 @@ const CreateClass = () => {
                         const existingSchedule: { dayOfWeek: number, slot: string }[] = [];
                         classData.sessions.forEach((session) => {
                             if (session.date && session.slot) {
-                                const dateObj = new Date(session.date);
+                                const [yStr, mStr, dStr] = session.date.split('-');
+                                const dateObj = new Date(Number(yStr), Number(mStr) - 1, Number(dStr));
                                 const dayOfWeek = dateObj.getDay();
                                 if (!existingSchedule.some(s => s.dayOfWeek === dayOfWeek && s.slot === session.slot)) {
                                     existingSchedule.push({ dayOfWeek, slot: session.slot });
@@ -152,18 +158,17 @@ const CreateClass = () => {
             }
             const [yearStr, monthStr, dayStr] = startDate.split('-');
             const date = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
-            const cycleName = `${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
             
-            const targetCycle = cycles.find(c => c.name === cycleName);
-            if (targetCycle) {
-                try {
-                    const availabilityData = await TutorAvailabilityService.getTutors(targetCycle.id);
+            try {
+                const targetCycle = await TutorAvailabilityService.getCycleByMonth(date.getMonth() + 1, date.getFullYear());
+                if (targetCycle) {
+                    const availabilityData = await TutorAvailabilityService.getTutorProfiles(targetCycle.id);
                     setTutorsAvailability(availabilityData || []);
-                } catch (err) {
-                    console.error("Failed to load tutor availability", err);
+                } else {
                     setTutorsAvailability([]);
                 }
-            } else {
+            } catch (err) {
+                console.error("Failed to load tutor availability or cycle", err);
                 setTutorsAvailability([]);
             }
         };
@@ -209,9 +214,13 @@ const CreateClass = () => {
 
             for (const match of matches) {
                 if (sessionCount > numSessions) break;
+                const year = current.getFullYear();
+                const month = String(current.getMonth() + 1).padStart(2, '0');
+                const dateNum = String(current.getDate()).padStart(2, '0');
+                
                 sessions.push({
                     session_number: sessionCount,
-                    date: current.toISOString().split('T')[0],
+                    date: `${year}-${month}-${dateNum}`,
                     slot: match.slot
                 });
                 sessionCount++;
@@ -245,7 +254,10 @@ const CreateClass = () => {
                 } else {
                     const d = new Date(nc);
                     if (!isNaN(d.getTime())) {
-                        setStartDate(d.toISOString().split('T')[0]);
+                        const year = d.getFullYear();
+                        const month = String(d.getMonth() + 1).padStart(2, '0');
+                        const dateNum = String(d.getDate()).padStart(2, '0');
+                        setStartDate(`${year}-${month}-${dateNum}`);
                     }
                 }
             }, 0);
@@ -282,9 +294,31 @@ const CreateClass = () => {
                                 <label className="text-sm font-semibold text-[#181c1e]">Course Program <span className="text-red-500">*</span></label>
                                 <select disabled={isEdit} value={course} onChange={(e) => setCourse(e.target.value)} className={`w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 ${isEdit ? 'bg-gray-100 cursor-not-allowed' : 'bg-[#f8f9fa]'}`}>
                                     <option value="" disabled hidden>Select Course</option>
-                                    {allCourses.map(c => (
-                                        <option key={c.id} value={c.id}>{c.title}</option>
-                                    ))}
+                                    {allCourses.map(c => {
+                                        let isStarted = false;
+                                        if (c.next_cohort) {
+                                            const nc = String(c.next_cohort);
+                                            let dateVal = 0;
+                                            if (nc.includes('/')) {
+                                                const parts = nc.split('/');
+                                                if (parts.length === 3) {
+                                                    dateVal = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).getTime();
+                                                }
+                                            } else {
+                                                dateVal = new Date(nc).getTime();
+                                            }
+                                            // Set to true if the course start date is in the past (before today)
+                                            if (dateVal && dateVal < new Date().setHours(0,0,0,0)) {
+                                                isStarted = true;
+                                            }
+                                        }
+
+                                        return (
+                                            <option key={c.id} value={c.id} disabled={isStarted}>
+                                                {c.title} {isStarted ? '(Already Started)' : ''}
+                                            </option>
+                                        );
+                                    })}
                                 </select>
                             </div>
                             <div className="space-y-2">
@@ -412,7 +446,11 @@ const CreateClass = () => {
                             )}
 
                             <div className="space-y-2 mt-2">
-                                    {!tutor ? (
+                                    {!course ? (
+                                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center text-gray-500">
+                                            Please select a course program first to determine the schedule timeline.
+                                        </div>
+                                    ) : !tutor ? (
                                         <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center text-gray-500">
                                             Please select a tutor to view their available slots.
                                         </div>
@@ -430,18 +468,15 @@ const CreateClass = () => {
                                             </div>
                                             <div className="space-y-3">
                                                 {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(dayName => {
-                                                    const daySlots = tutorSlots.filter(s => s.startsWith(`${dayName}-`)).sort((a, b) => {
+                                                    const daySlots = tutorSlots.filter((s: string) => s.startsWith(`${dayName}-`)).sort((a: string, b: string) => {
                                                         const shiftToSlotMap: Record<string, string> = {
-                                                            'M1': 'slot1', 'M2': 'slot2',
-                                                            'A1': 'slot3', 'A2': 'slot4',
-                                                            'E1': 'slot5', 'E2': 'slot6',
                                                             'slot1': 'slot1', 'slot2': 'slot2',
                                                             'slot3': 'slot3', 'slot4': 'slot4',
                                                             'slot5': 'slot5', 'slot6': 'slot6'
                                                         };
-                                                        const shiftA = shiftToSlotMap[a.split('-')[1]] || a.split('-')[1] || '';
-                                                        const shiftB = shiftToSlotMap[b.split('-')[1]] || b.split('-')[1] || '';
-                                                        return shiftA.localeCompare(shiftB);
+                                                        const slotA = shiftToSlotMap[a.split('-')[1]] || a.split('-')[1];
+                                                        const slotB = shiftToSlotMap[b.split('-')[1]] || b.split('-')[1];
+                                                        return slotA.localeCompare(slotB);
                                                     });
                                                     if (daySlots.length === 0) return null;
 
@@ -449,31 +484,19 @@ const CreateClass = () => {
                                                         <div key={dayName} className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center border-b border-gray-100 pb-3 last:border-0 last:pb-0">
                                                             <span className="text-sm font-bold text-[#002045] w-24 shrink-0">{dayName}</span>
                                                             <div className="flex flex-wrap gap-2">
-                                                                {daySlots.map(slotStr => {
+                                                                {daySlots.map((slotStr: string) => {
                                                                     const fullDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                                                                    const shiftToSlotMap: Record<string, string> = {
-                                                                        'M1': 'slot1', 'M2': 'slot2',
-                                                                        'A1': 'slot3', 'A2': 'slot4',
-                                                                        'E1': 'slot5', 'E2': 'slot6',
-                                                                        'slot1': 'slot1', 'slot2': 'slot2',
-                                                                        'slot3': 'slot3', 'slot4': 'slot4',
-                                                                        'slot5': 'slot5', 'slot6': 'slot6'
-                                                                    };
-                                                                    const shiftToLabelMap: Record<string, string> = {
-                                                                        'M1': 'Slot 1 (07:30 - 09:30)', 'M2': 'Slot 2 (09:30 - 11:30)',
-                                                                        'A1': 'Slot 3 (13:30 - 15:30)', 'A2': 'Slot 4 (15:30 - 17:30)',
-                                                                        'E1': 'Slot 5 (18:00 - 20:00)', 'E2': 'Slot 6 (20:00 - 22:00)',
+                                                                    const slotLabels: Record<string, string> = {
                                                                         'slot1': 'Slot 1 (07:30 - 09:30)', 'slot2': 'Slot 2 (09:30 - 11:30)',
                                                                         'slot3': 'Slot 3 (13:30 - 15:30)', 'slot4': 'Slot 4 (15:30 - 17:30)',
                                                                         'slot5': 'Slot 5 (18:00 - 20:00)', 'slot6': 'Slot 6 (20:00 - 22:00)'
                                                                     };
 
-                                                                    const shiftName = slotStr.split('-')[1];
-                                                                    if (!shiftName) return null;
+                                                                    const slotCode = slotStr.split('-')[1];
+                                                                    if (!slotCode) return null;
 
                                                                     const dayIndex = fullDays.indexOf(dayName);
-                                                                    const slotCode = shiftToSlotMap[shiftName] || shiftName;
-                                                                    const label = shiftToLabelMap[shiftName] || shiftName;
+                                                                    const label = slotLabels[slotCode] || slotCode;
 
                                                                     const isSelected = weeklySchedule.some(s => s.dayOfWeek === dayIndex && s.slot === slotCode);
                                                                     const isOccupied = occupiedGlobalSlots.some(s => s.dayOfWeek === dayIndex && s.slot === slotCode);

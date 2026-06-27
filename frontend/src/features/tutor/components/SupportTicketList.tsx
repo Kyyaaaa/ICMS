@@ -1,5 +1,5 @@
 import { Ticket, Search, Plus } from 'lucide-react';
-import type { SupportTicket } from '../types/support-ticket';
+import type { SupportTicket } from '@/shared/services/support-ticket.service';
 
 interface SupportTicketListProps {
     tickets: SupportTicket[];
@@ -77,7 +77,7 @@ export const SupportTicketList = ({
                         </h3>
                         <div className="flex justify-between items-center text-xs text-[#74777f]">
                             <span>{ticket.category}</span>
-                            <span>{ticket.updatedAt}</span>
+                            <span>{new Date(ticket.updated_at).toLocaleDateString()}</span>
                         </div>
                     </div>
                 ))}

@@ -9,8 +9,8 @@ export const SalaryService = {
         return (response || []).map((p) => ({
             id: p.payroll_code as string,
             period: formatMonthYear(p.payroll_month as string),
-            sessions: Number(p.teaching_sessions) || 0,
-            sessionRate: Number(p.rate_per_session) || 0,
+            sessions: Number(p.teaching_sessions) || undefined,
+            sessionRate: Number(p.rate_per_session) || undefined,
             baseSalary: Number(p.base_salary) || 0,
             bonuses: Number(p.bonus) || 0,
             deductions: Number((p.deductions as Record<string, unknown>[])?.reduce((sum, item) => sum + Number(item.amount), 0)) || 0,

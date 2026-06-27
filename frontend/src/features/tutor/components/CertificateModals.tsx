@@ -1,7 +1,9 @@
+import { getLocalDateString } from '../../../utils/date';
 import { useState, useRef, useEffect } from 'react';
 import { Download, Trash2, Upload, X } from 'lucide-react';
 import type { Certificate } from '../types/certificate';
 import { CertificatesService } from '../services/certificates.service';
+import { validateFile, handleDownload } from '@/utils/file';
 
 interface CertificateModalsProps {
     viewQual: Certificate | null;
@@ -24,7 +26,7 @@ export const CertificateModals = ({
     const [error, setError] = useState('');
     const [newFilePreview, setNewFilePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const todayString = new Date().toISOString().split('T')[0];
+    const todayString = getLocalDateString();
 
     useEffect(() => {
         return () => {
@@ -33,55 +35,6 @@ export const CertificateModals = ({
     }, [newFilePreview]);
 
 
-
-    const handleDownload = async (url: string) => {
-        try {
-            const secureUrl = url.replace(/^http:\/\//i, 'https://');
-            
-            // Fetch as blob and trigger download
-            const response = await fetch(secureUrl, {
-                method: 'GET',
-                headers: { 'Accept': '*/*' }
-            });
-            const blob = await response.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            
-            let filename = secureUrl.split('/').pop()?.split('?')[0] || 'document';
-            if (!filename.includes('.')) {
-                if (blob.type.includes('png')) filename += '.png';
-                else if (blob.type.includes('jpeg') || blob.type.includes('jpg')) filename += '.jpg';
-                else if (blob.type.includes('pdf')) filename += '.pdf';
-            }
-            
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(downloadUrl);
-        } catch (error) {
-            console.error("Error triggering download:", error);
-            window.open(url, '_blank');
-        }
-    };
-
-    const validateFile = (selectedFile: File): string | null => {
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
-        const FILENAME_REGEX = /^[a-zA-Z0-9\s._-]+$/;
-
-        if (selectedFile.size > MAX_FILE_SIZE) {
-            return "File size exceeds 5MB limit.";
-        }
-        if (!ALLOWED_TYPES.includes(selectedFile.type)) {
-            return "Invalid file format. Only JPG, PNG, and PDF are allowed.";
-        }
-        if (!FILENAME_REGEX.test(selectedFile.name)) {
-            return "Filename contains invalid characters. Please use only letters, numbers, spaces, dashes, and underscores.";
-        }
-        return null;
-    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {

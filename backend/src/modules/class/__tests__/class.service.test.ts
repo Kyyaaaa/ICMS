@@ -24,7 +24,7 @@ describe('ClassService QA Tests', () => {
       };
 
       (ClassRepository.getCourseById as jest.Mock).mockResolvedValue({ id: 'course-1', sessions: 10 });
-      (ClassRepository.checkTutorConflict as jest.Mock).mockResolvedValue(true); // Conflict exists
+      (ClassRepository.checkScheduleConflict as jest.Mock).mockResolvedValue(true); // Conflict exists
 
       await expect(ClassService.createClass(mockPayload))
         .rejects
@@ -32,7 +32,7 @@ describe('ClassService QA Tests', () => {
     });
 
     it('should throw 409 Conflict if classroom is already booked when updating session', async () => {
-      (ClassRepository.checkClassroomConflict as jest.Mock).mockResolvedValue(true); // Conflict exists
+      (ClassRepository.checkScheduleConflict as jest.Mock).mockResolvedValue(true); // Conflict exists
 
       await expect(ClassService.updateClassSession('class-1', 'session-1', {
         date: '2026-01-10',

@@ -1,5 +1,5 @@
 import { Check, Minus } from 'lucide-react';
-import { SHIFTS, DAYS, type TutorAvailabilityProfile } from '../types/tutor-availability';
+import { SHIFTS, DAYS, type TutorAvailabilityProfile } from '@/shared/types/tutor-availability';
 
 interface AvailabilityGridProps {
     selectedTutor: TutorAvailabilityProfile;
@@ -19,7 +19,7 @@ export const AvailabilityGrid = ({ selectedTutor, draftSlots, toggleSlot, toggle
                     <div className="p-4 border-r border-[#e0e3e5] flex items-center justify-center">
                         <span className="text-xs font-bold uppercase tracking-wider text-[#74777f]">Shift / Time</span>
                     </div>
-                    {DAYS.map(day => (
+                    {DAYS.map((day: string) => (
                         <div 
                             key={day} 
                             onClick={() => toggleDay(day)}
@@ -33,7 +33,7 @@ export const AvailabilityGrid = ({ selectedTutor, draftSlots, toggleSlot, toggle
 
                 {/* Grid Rows */}
                 <div className="divide-y divide-[#e0e3e5]">
-                    {SHIFTS.map(shift => (
+                    {SHIFTS.map((shift: any) => (
                         <div key={shift.id} className="grid grid-cols-8">
                             {/* Shift Info Column */}
                             <div 
@@ -46,7 +46,7 @@ export const AvailabilityGrid = ({ selectedTutor, draftSlots, toggleSlot, toggle
                             </div>
                             
                             {/* Days Columns */}
-                            {DAYS.map(day => {
+                            {DAYS.map((day: string) => {
                                 const slotKey = `${day}-${shift.id}`;
                                 const isOriginallySelected = selectedTutor.slots.includes(slotKey);
                                 const isSelected = draftSlots.has(slotKey);

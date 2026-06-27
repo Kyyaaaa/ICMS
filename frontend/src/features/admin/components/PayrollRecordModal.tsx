@@ -1,3 +1,4 @@
+import { getLocalDateString } from '../../../utils/date';
 import { Wallet, DollarSign, Calculator, X, CheckCircle2 } from 'lucide-react';
 import { type PayrollRecord, calculateNetPay } from '../types/payroll';
 
@@ -229,7 +230,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
 
                         {formData.status === 'Processed' && (
                             <button
-                                onClick={() => { setFormData({ ...formData, status: 'Paid', paymentDate: new Date().toISOString().split('T')[0] }); }}
+                                onClick={() => { setFormData({ ...formData, status: 'Paid', paymentDate: getLocalDateString() }); }}
                                 className="px-6 py-3 text-sm font-bold text-white bg-[#137333] hover:bg-[#0d5022] rounded-xl transition-colors flex items-center gap-2"
                             >
                                 <DollarSign size={18} /> Confirm Paid

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Lock, Unlock, Users, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { SHIFTS, DAYS, type TutorAvailabilityProfile } from '../types/tutor-availability';
-import { TutorAvailabilityService, type AvailabilityCycle } from '../services/tutor-availability.service';
+import { SHIFTS, DAYS, type TutorAvailabilityProfile } from '@/shared/types/tutor-availability';
+import { TutorAvailabilityService, type AvailabilityCycle } from '@/shared/services/tutor-availability.service';
 import { TutorSelector } from '../components/TutorSelector';
 import { AvailabilityGrid } from '../components/AvailabilityGrid';
 import { formatMonthYear } from '../../../shared/utils/date';
@@ -26,11 +26,11 @@ const StaffTutorAvailability = () => {
                 const cycle = await TutorAvailabilityService.getCycleByMonth(month, year);
                 setCurrentCycle(cycle);
 
-                const data = await TutorAvailabilityService.getTutors(cycle.id);
+                const data = await TutorAvailabilityService.getTutorProfiles(cycle.id);
                 setTutors(data);
                 setSelectedTutorId((prevId) => {
                     if (prevId) {
-                        const tutorInNewCycle = data.find(t => t.id === prevId);
+                        const tutorInNewCycle = data.find((t: TutorAvailabilityProfile) => t.id === prevId);
                         if (tutorInNewCycle) {
                             setDraftSlots(new Set(tutorInNewCycle.slots));
                             return prevId;
@@ -48,7 +48,7 @@ const StaffTutorAvailability = () => {
         loadData();
     }, [currentDate]);
 
-    const selectedTutor = tutors.find(t => t.id === selectedTutorId);
+    const selectedTutor = tutors.find((t: TutorAvailabilityProfile) => t.id === selectedTutorId);
 
     const toggleSlot = (day: string, shiftId: string) => {
         if (!selectedTutor) return;
@@ -68,13 +68,13 @@ const StaffTutorAvailability = () => {
     const toggleDay = (day: string) => {
         if (!selectedTutor) return;
         const newSlots = new Set(draftSlots);
-        const daySlots = SHIFTS.map(s => `${day}-${s.id}`);
-        const allSelected = daySlots.every(slot => newSlots.has(slot));
+        const daySlots = SHIFTS.map((s: any) => `${day}-${s.id}`);
+        const allSelected = daySlots.every((slot: string) => newSlots.has(slot));
         
         if (allSelected) {
-            daySlots.forEach(slot => newSlots.delete(slot));
+            daySlots.forEach((slot: string) => newSlots.delete(slot));
         } else {
-            daySlots.forEach(slot => newSlots.add(slot));
+            daySlots.forEach((slot: string) => newSlots.add(slot));
         }
         
         setDraftSlots(newSlots);
@@ -84,13 +84,13 @@ const StaffTutorAvailability = () => {
     const toggleShift = (shiftId: string) => {
         if (!selectedTutor) return;
         const newSlots = new Set(draftSlots);
-        const shiftSlots = DAYS.map(d => `${d}-${shiftId}`);
-        const allSelected = shiftSlots.every(slot => newSlots.has(slot));
+        const shiftSlots = DAYS.map((d: string) => `${d}-${shiftId}`);
+        const allSelected = shiftSlots.every((slot: string) => newSlots.has(slot));
         
         if (allSelected) {
-            shiftSlots.forEach(slot => newSlots.delete(slot));
+            shiftSlots.forEach((slot: string) => newSlots.delete(slot));
         } else {
-            shiftSlots.forEach(slot => newSlots.add(slot));
+            shiftSlots.forEach((slot: string) => newSlots.add(slot));
         }
         
         setDraftSlots(newSlots);
@@ -103,7 +103,7 @@ const StaffTutorAvailability = () => {
         try {
             const newStatus = selectedTutor.status === 'submitted' ? 'draft' : 'submitted';
             const updatedTutor = { ...selectedTutor, status: newStatus };
-            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor);
+            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots);
             setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
         } finally {
             setIsLocking(false);
@@ -115,7 +115,7 @@ const StaffTutorAvailability = () => {
         setIsSaving(true);
         try {
             const updatedTutor = { ...selectedTutor, slots: Array.from(draftSlots) };
-            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor);
+            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots);
             setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
             setHasUnsavedChanges(false);
         } finally {

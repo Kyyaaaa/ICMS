@@ -7,7 +7,7 @@ export const ChangeRequestService = {
         try {
             const response = await axiosClient.get("/change-requests/my-requests");
             const data = Array.isArray((response as {data?: unknown[]})?.data) ? (response as {data?: unknown[]}).data : (Array.isArray(response) ? response : []);
-            return (data || []).map((req: { id: string | number, class?: { course?: { title?: string }, name?: string }, session?: { session_number?: number }, type: string, original_time: string, proposed_time: string, reason: string, status: string, created_at: string, staff_note?: string, final_time?: string }) => ({
+            return ((data as any[]) || []).map((req: any) => ({
                 id: String(req.id),
                 className: req.class ? `${req.class.course?.title || "Unknown Course"} - ${req.class.name || "Unknown Class"}` : "Unknown Class",
                 session: req.session?.session_number || 1,
@@ -28,8 +28,11 @@ export const ChangeRequestService = {
     createRequest: async (data: CreateChangeRequestData): Promise<TutorChangeRequest> => {
         try {
             const response = await axiosClient.post("/change-requests", {
+                tutor_id: data.tutor_id,
+                class_id: data.class_id,
                 session_id: data.session_id,
                 type: data.type,
+                original_time: data.originalTime,
                 proposed_time: data.proposedTime,
                 reason: data.reason
             });

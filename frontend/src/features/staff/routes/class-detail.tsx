@@ -11,7 +11,7 @@ import { ClassStudentsTab } from '../components/ClassStudentsTab';
 import { EditSessionModal } from '../components/EditSessionModal';
 import { AddStudentModal } from '../components/AddStudentModal';
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
-import ClassAttendance from './attendance';
+import ClassAttendance from '@/shared/components/common/SharedAttendanceRoute';
 
 const StaffClassDetail = () => {
     const { id } = useParams();

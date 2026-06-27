@@ -2,9 +2,13 @@ import { Upload, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { CertificatesService } from "../services/certificates.service";
 
+
+import { getLocalDateString } from '@/utils/date';
+import { validateFile } from '@/utils/file';
+
 interface CertificateUploadProps {
   onCancel: () => void;
-  onSuccess: () => void; // Triggered when upload succeeds
+  onSuccess: () => void;
 }
 
 export const CertificateUpload = ({
@@ -21,30 +25,13 @@ export const CertificateUpload = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const todayString = new Date().toISOString().split('T')[0];
+  const todayString = getLocalDateString();
 
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
-
-  const validateFile = (selectedFile: File): string | null => {
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-    const ALLOWED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
-    const FILENAME_REGEX = /^[a-zA-Z0-9\s._-]+$/;
-
-    if (selectedFile.size > MAX_FILE_SIZE) {
-      return "File size exceeds 5MB limit.";
-    }
-    if (!ALLOWED_TYPES.includes(selectedFile.type)) {
-      return "Invalid file format. Only JPG, PNG, and PDF are allowed.";
-    }
-    if (!FILENAME_REGEX.test(selectedFile.name)) {
-      return "Filename contains invalid characters. Please use only letters, numbers, spaces, dashes, and underscores.";
-    }
-    return null;
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

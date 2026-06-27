@@ -1,3 +1,4 @@
+import { getLocalDateString } from '../../../utils/date';
 import { formatDate } from "../../utils/date";
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -113,7 +114,7 @@ export const ProfileView = ({
                 return;
             }
             const dateString = account.date_of_birth;
-            if (dob.toISOString().split('T')[0] !== dateString) {
+            if (getLocalDateString(dob) !== dateString) {
                 showAlertModal('Error', 'Invalid Date of Birth. The date does not exist (e.g., February 30th).', 'error');
                 return;
             }
@@ -352,7 +353,7 @@ export const ProfileView = ({
                                     <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
                                     <div className="relative">
                                         <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="date" value={account.date_of_birth} onChange={e => setAccount({...account, date_of_birth: e.target.value})} max={new Date().toISOString().split('T')[0]} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" required />
+                                        <input type="date" value={account.date_of_birth} onChange={e => setAccount({...account, date_of_birth: e.target.value})} max={getLocalDateString()} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" required />
                                     </div>
                                 </div>
                                 <div className="space-y-2">

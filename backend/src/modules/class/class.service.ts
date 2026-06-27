@@ -58,16 +58,18 @@ export class ClassService {
         if (sess.date && sess.slot) {
           const checkTutorId = sess.tutor_id || data.tutor_id;
           if (checkTutorId) {
-            const hasTutorConflict = await ClassRepository.checkTutorConflict(checkTutorId, sess.date, sess.slot);
+            const hasTutorConflict = await ClassRepository.checkScheduleConflict('tutor_id', checkTutorId, sess.date, sess.slot);
             if (hasTutorConflict) {
-              throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${sess.slot}` };
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${formattedSlot}` };
             }
           }
           const checkClassroomId = sess.classroom_id || data.classroom_id;
           if (checkClassroomId) {
-            const hasRoomConflict = await ClassRepository.checkClassroomConflict(checkClassroomId, sess.date, sess.slot);
+            const hasRoomConflict = await ClassRepository.checkScheduleConflict('classroom_id', checkClassroomId, sess.date, sess.slot);
             if (hasRoomConflict) {
-              throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${sess.slot}` };
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${formattedSlot}` };
             }
           }
         }
@@ -171,16 +173,18 @@ export class ClassService {
         if (sess.date && sess.slot) {
           const checkTutorId = sess.tutor_id || classUpdates.tutor_id || updatedClass?.tutor_id;
           if (checkTutorId) {
-            const hasTutorConflict = await ClassRepository.checkTutorConflict(checkTutorId, sess.date, sess.slot, undefined, id);
+            const hasTutorConflict = await ClassRepository.checkScheduleConflict('tutor_id', checkTutorId, sess.date, sess.slot, undefined, id);
             if (hasTutorConflict) {
-              throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${sess.slot}` };
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${formattedSlot}` };
             }
           }
           const checkClassroomId = sess.classroom_id || classUpdates.classroom_id || updatedClass?.classroom_id;
           if (checkClassroomId) {
-            const hasRoomConflict = await ClassRepository.checkClassroomConflict(checkClassroomId, sess.date, sess.slot, undefined, id);
+            const hasRoomConflict = await ClassRepository.checkScheduleConflict('classroom_id', checkClassroomId, sess.date, sess.slot, undefined, id);
             if (hasRoomConflict) {
-              throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${sess.slot}` };
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${formattedSlot}` };
             }
           }
         }
@@ -238,13 +242,13 @@ export class ClassService {
     // If date and slot are provided, we must check for conflicts
     if (updates.date && updates.slot) {
       if (updates.tutor_id) {
-        const hasTutorConflict = await ClassRepository.checkTutorConflict(updates.tutor_id, updates.date, updates.slot, sessionId);
+        const hasTutorConflict = await ClassRepository.checkScheduleConflict('tutor_id', updates.tutor_id, updates.date, updates.slot, undefined, sessionId);
         if (hasTutorConflict) {
           throw { status: 409, message: 'Conflict Schedule: Tutor is already busy at this time' };
         }
       }
       if (updates.classroom_id) {
-        const hasRoomConflict = await ClassRepository.checkClassroomConflict(updates.classroom_id, updates.date, updates.slot, sessionId);
+        const hasRoomConflict = await ClassRepository.checkScheduleConflict('classroom_id', updates.classroom_id, updates.date, updates.slot, undefined, sessionId);
         if (hasRoomConflict) {
           throw { status: 409, message: 'Conflict Schedule: Classroom is already booked at this time' };
         }
