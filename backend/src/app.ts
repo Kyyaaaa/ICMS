@@ -25,6 +25,7 @@ import publicDiscountCodeRoutes from './modules/discount-code/public-discount-co
 import financeRoutes from './modules/finance/finance.routes';
 import refundRoutes from './modules/refund/refund.routes';
 import payrollRoutes from './modules/payroll/payroll.routes';
+import tutorClassRoutes from './modules/tutor-class/tutor-class.routes';
 
 const app = express();
 
@@ -56,6 +57,7 @@ app.use('/api/admin/finance', financeRoutes);
 app.use('/api/public/discount-codes', publicDiscountCodeRoutes);
 app.use('/api/refunds', refundRoutes);
 app.use('/api/payrolls', payrollRoutes);
+app.use('/api/tutor/classes', tutorClassRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

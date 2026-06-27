@@ -323,3 +323,32 @@ Thay thế dữ liệu Mock trên giao diện quản lý hóa đơn của Staff 
   - Truy cập route `/staff/invoices` với tài khoản Staff. Kiểm tra xem các dòng hóa đơn có hiển thị chính xác không.
   - Soi kỹ cột "Progress" và "Amount" xem có khớp với số lượng installment thực tế trong database không.
   - Kiểm tra xem các bộ lọc (Status) và tìm kiếm (Search) trên giao diện có hoạt động đúng với dữ liệu thật hay không.
+
+---
+
+## 📊 20. Bảng điểm động (Dynamic Gradebook) cho Tutor
+
+Xây dựng cấu trúc DB và API để tích hợp dữ liệu thật vào Bảng nhập điểm động của Tutor. Bảng điểm hỗ trợ cột động, thêm nhận xét và thang điểm luôn từ 0-9.
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-37: Database Schema for Gradebook**
+  - Viết logic/script SQL để tạo 2 bảng `assessments` (cột điểm động) và `student_grades` (lưu trữ điểm và feedback).
+- `[x]` **BE-38: API Lấy dữ liệu Bảng Điểm**
+  - Tạo endpoint `GET /api/tutor/classes/:classId/gradebook`.
+  - API cần trả về danh sách `assessments` và danh sách học viên trong lớp kèm điểm số đã match theo `assessment.id` (dạng `StudentWithGrades[]`).
+- `[x]` **BE-39: API Lưu toàn bộ Bảng Điểm (Bulk Save)**
+  - Tạo endpoint `PUT /api/tutor/classes/:classId/gradebook/save`.
+  - Transaction xử lý: Delete cột bị xóa, Insert cột mới, Upsert dữ liệu vào `student_grades` dựa theo payload `gradesData`.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-40: Tích hợp API Gradebook**
+  - Trong `frontend/src/features/tutor/services/gradebook.service.ts`: Xóa mock data.
+  - Cấu hình gọi `axiosClient` tới 2 endpoint mới của Backend.
+  - Sửa lại logic sinh ID cho cột mới thay vì `a${Date.now()}` thì dùng `UUID v4` hoặc để Backend tự sinh. Kiểm tra Validation điểm nhập chỉ từ 0 đến 9.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-32: Kiểm thử Bảng điểm động**
+  - Test luồng cơ bản: Thêm 1 cột -> Nhập điểm -> Lưu -> Reload trang kiểm tra dữ liệu.
+  - Xóa 1 cột -> Lưu -> Reload trang kiểm tra dữ liệu có bị xóa không.
+  - Nhập Feedback dài cho 1 ô điểm -> Lưu -> Load lại kiểm tra hiển thị.
+  - Đảm bảo điểm số không được phép lớn hơn 9.

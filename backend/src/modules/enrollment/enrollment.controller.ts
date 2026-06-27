@@ -40,7 +40,7 @@ export class EnrollmentController {
   static async getLearnerAttendance(req: AuthenticatedRequest, res: Response) {
     try {
       const learnerId = req.user.id;
-      const classId = req.params.class_id;
+      const classId = req.params.class_id as string;
       const attendance = await EnrollmentService.getLearnerAttendance(learnerId, classId);
 
       return res.status(200).json({

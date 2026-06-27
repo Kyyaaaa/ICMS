@@ -22,17 +22,20 @@ const TutorGradebook = () => {
     // Modal State for Adding Column
     const [showAddModal, setShowAddModal] = useState(false);
     const [newAssTitle, setNewAssTitle] = useState('');
+    
+    const [deletedAssessmentIds, setDeletedAssessmentIds] = useState<string[]>([]);
 
     useEffect(() => {
         if (!classId) return;
         const loadData = async () => {
             setIsLoading(true);
-            const [assData, stuData] = await Promise.all([
-                GradebookService.getAssessments(classId),
-                GradebookService.getStudentsWithGrades(classId)
-            ]);
-            setAssessments(assData);
-            setGradesData(stuData);
+            try {
+                const data = await GradebookService.getGradebook(classId);
+                setAssessments(data.assessments);
+                setGradesData(data.students);
+            } catch (_error) {
+                showAlertModal('Error', 'Failed to load gradebook data.', 'error');
+            }
             setIsLoading(false);
         };
         loadData();
@@ -97,11 +100,55 @@ const TutorGradebook = () => {
 
     const handleSaveGrades = async () => {
         if (!classId) return;
+
+        // Validation for max score
+        for (const student of gradesData) {
+            for (const assId of Object.keys(student.grades)) {
+                const score = student.grades[assId].score;
+                if (score !== null && score > 9) {
+                    showAlertModal('Validation Error', `Scores cannot exceed 9. Please check grades for ${student.name}.`, 'error');
+                    return;
+                }
+            }
+        }
+
         setIsSaving(true);
-        await GradebookService.saveGrades(classId, gradesData);
-        setIsSaving(false);
-        setIsEditing(false);
-        showAlertModal('Grades Saved', 'All learner grades and feedback have been successfully saved.', 'success');
+        
+        const upsertAssessments = assessments.map((a, index) => ({
+            id: a.id,
+            name: a.title,
+            order_index: index
+        }));
+
+        const upsertGrades: { assessment_id: string, learner_id: string, score: number, feedback: string }[] = [];
+        gradesData.forEach(student => {
+            Object.keys(student.grades).forEach(assId => {
+                const grade = student.grades[assId];
+                if (grade.score !== null || (grade.feedback && grade.feedback.trim() !== '')) {
+                    upsertGrades.push({
+                        assessment_id: assId,
+                        learner_id: student.id,
+                        score: grade.score || 0,
+                        feedback: grade.feedback || ''
+                    });
+                }
+            });
+        });
+
+        try {
+            await GradebookService.saveGrades(classId, {
+                deletedAssessmentIds,
+                upsertAssessments,
+                upsertGrades
+            });
+            setIsSaving(false);
+            setIsEditing(false);
+            setDeletedAssessmentIds([]);
+            showAlertModal('Grades Saved', 'All learner grades and feedback have been successfully saved.', 'success');
+        } catch (_error) {
+            setIsSaving(false);
+            showAlertModal('Error', 'Failed to save grades.', 'error');
+        }
     };
 
     const handleConfirmAddColumn = () => {
@@ -110,8 +157,9 @@ const TutorGradebook = () => {
             return;
         }
         
+        const newId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : `a${Date.now()}`;
         const newAss = {
-            id: `a${Date.now()}`,
+            id: newId,
             title: newAssTitle.trim(),
             maxScore: defaultScale
         };
@@ -124,6 +172,7 @@ const TutorGradebook = () => {
         const confirm = await showConfirmModal('Delete Assessment', 'Are you sure you want to delete this assessment column?', 'error', 'Delete', 'Cancel');
         if (!confirm) return;
         
+        setDeletedAssessmentIds(prev => [...prev, id]);
         setAssessments(prev => prev.filter(a => a.id !== id));
         setGradesData(prev => prev.map(student => {
             const newGrades = { ...student.grades };
