@@ -38,8 +38,8 @@ const CreateCourse = () => {
       "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=600&h=400",
     status: "Active",
     maxSize: "30",
-    location: "",
-    language: "",
+    location: "Cau Giay - Ha Noi",
+    language: "English",
     allow_installments: false,
     number_of_installments: 3,
   });
@@ -352,7 +352,7 @@ const CreateCourse = () => {
                 {formData.minBand &&
                   formData.maxBand &&
                   parseFloat(formData.minBand) >
-                    parseFloat(formData.maxBand) && (
+                  parseFloat(formData.maxBand) && (
                     <p className="text-[13px] text-[#ba1a1a] mt-1 font-medium">
                       Maximum band must be greater than or equal to minimum
                       band.
@@ -564,7 +564,7 @@ const CreateCourse = () => {
               </label>
               <div className="flex gap-4 items-start">
                 {formData.image_url &&
-                !formData.image_url.includes("unsplash.com") ? (
+                  !formData.image_url.includes("unsplash.com") ? (
                   <div className="relative w-40 h-24 rounded-lg overflow-hidden border border-[#c4c6cf]">
                     <img
                       src={formData.image_url}
