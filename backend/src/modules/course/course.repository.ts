@@ -107,6 +107,35 @@ export class CourseRepository {
 
     course.sessions_list = sessionsRes.rows;
 
+    // Fetch tutors associated with this course through classes
+    const tutorsQuery = `
+      SELECT DISTINCT 
+        a.id, a.full_name, a.avatar_url,
+        (SELECT COALESCE(AVG(rating), 0) FROM tutor_reviews WHERE tutor_id = a.id) as rating,
+        (SELECT COUNT(*) FROM tutor_reviews WHERE tutor_id = a.id) as reviews_count
+      FROM classes c
+      JOIN account a ON c.tutor_id = a.id
+      WHERE c.course_id = $1 AND a.status = 'ACTIVE'
+    `;
+    const tutorsRes = await pool.query(tutorsQuery, [id]);
+    
+    course.tutors_list = tutorsRes.rows;
+
+    // Fetch classes and their sessions
+    const classesQuery = `
+      SELECT 
+        c.id, c.name, 
+        (
+          SELECT json_agg(json_build_object('date', cs.date, 'slot', cs.slot) ORDER BY cs.date, cs.slot) 
+          FROM class_sessions cs 
+          WHERE cs.class_id = c.id
+        ) as class_sessions
+      FROM classes c
+      WHERE c.course_id = $1
+    `;
+    const classesRes = await pool.query(classesQuery, [id]);
+    course.classes_list = classesRes.rows;
+
     return course;
   }
 
