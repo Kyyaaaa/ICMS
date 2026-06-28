@@ -9,7 +9,8 @@ interface FinanceTableProps {
 export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTableProps) => {
     const formatDate = (dateString: string) => {
         try {
-            return formatDate(dateString); // DD/MM/YYYY
+            const d = new Date(dateString);
+            return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         } catch {
             return dateString;
         }

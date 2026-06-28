@@ -74,6 +74,25 @@ export class FinanceService {
     };
   }
 
+  private static mapPayrollToTransaction(p: any): Transaction {
+    const roleName = p.account?.roles?.name || p.account?.roles?.[0]?.name || 'Staff';
+    return {
+      id: p.payroll_code,
+      type: 'expense',
+      category: 'Salary Payment',
+      description: `Salary for ${p.payroll_month}`,
+      user: { 
+        name: p.account?.full_name || 'Unknown', 
+        role: roleName.charAt(0).toUpperCase() + roleName.slice(1).toLowerCase(),
+        accountCode: p.account?.account_code || 'Unknown'
+      },
+      date: p.payment_date || p.updated_at || p.created_at,
+      amount: p.net_pay,
+      paidAmount: p.net_pay,
+      status: 'Completed'
+    };
+  }
+
   static async getAllTransactions(): Promise<Transaction[]> {
     const invoices = await FinanceRepository.getAllInvoices();
     const transactions = invoices.map(inv => FinanceService.mapInvoiceToTransaction(inv));
@@ -81,7 +100,11 @@ export class FinanceService {
     const refunds = await FinanceRepository.getAllRefunds();
     const refundTransactions = refunds.map(r => FinanceService.mapRefundToTransaction(r));
 
+    const payrolls = await FinanceRepository.getAllPaidPayrolls();
+    const payrollTransactions = payrolls.map(p => FinanceService.mapPayrollToTransaction(p));
+
     transactions.push(...refundTransactions);
+    transactions.push(...payrollTransactions);
 
     // Sort transactions by date descending
     transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

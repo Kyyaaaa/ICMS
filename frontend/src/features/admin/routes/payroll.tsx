@@ -124,14 +124,15 @@ const AdminPayroll = () => {
     };
 
     const handleGeneratePayroll = async () => {
-        const isConfirmed = await showConfirmModal('Confirm Generation', `Are you sure you want to generate payroll for ${selectedMonth}?`, 'warning');
+        const formattedMonth = selectedMonth.split('-').reverse().join('/');
+        const isConfirmed = await showConfirmModal('Confirm Generation', `Are you sure you want to generate payroll for ${formattedMonth}?`, 'warning');
         if (!isConfirmed) return;
 
         const currentDate = new Date();
         const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
         
         if (selectedMonth > currentYearMonth) {
-            showAlertModal('Error', `Error: Cannot finalize payroll for ${selectedMonth}!\nYou can only generate payroll for past or current months.`, 'error');
+            showAlertModal('Error', `Error: Cannot finalize payroll for ${formattedMonth}!\nYou can only generate payroll for past or current months.`, 'error');
             return;
         }
 
@@ -140,10 +141,10 @@ const AdminPayroll = () => {
             // Reload all records
             const records = await PayrollService.getRecords();
             setPayrolls(records);
-            showAlertModal('Success', `Success! Payroll generated for ${selectedMonth}.`, 'success');
-        } catch (error: unknown) {
-            const err = error as { response?: { data?: { error?: string } } };
-            showAlertModal('Error', err.response?.data?.error || `Error generating payroll for ${selectedMonth}.`, 'error');
+            showAlertModal('Success', `Success! Payroll generated for ${formattedMonth}.`, 'success');
+        } catch (error: any) {
+            const errorMsg = error.error || error.message || `Error generating payroll for ${formattedMonth}.`;
+            showAlertModal('Error', errorMsg, 'error');
         }
     };
 

@@ -21,17 +21,17 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in overflow-y-auto">
-            <div className="bg-white rounded-2xl w-full max-w-4xl shadow-xl overflow-hidden animate-slide-up my-auto">
-                <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f7fafc]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+            <div className="bg-white rounded-2xl w-full max-w-4xl shadow-xl flex flex-col max-h-[90vh] overflow-hidden animate-slide-up my-auto">
+                <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f7fafc] shrink-0">
                     <div className="flex items-center gap-3">
                         <Wallet className="text-[#0061a5]" size={24} />
-                        <h2 className="text-xl font-bold text-[#002045]">Payslip Details: {record.month}</h2>
+                        <h2 className="text-xl font-bold text-[#002045]">Payslip Details: {record.month.split('-').reverse().join('/')}</h2>
                     </div>
                     <button onClick={onClose} className="text-[#74777f] hover:text-[#181c1e] transition-colors"><X size={24} /></button>
                 </div>
 
-                <div className="p-6">
+                <div className="p-6 overflow-y-auto flex-1">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b border-[#e0e3e5]">
                         <div>
                             <h2 className="text-2xl font-bold text-[#181c1e]">{record.staffName}</h2>
@@ -214,7 +214,9 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                         </span>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4 border-t border-[#e0e3e5]">
+                    </div>
+
+                <div className="flex justify-end gap-3 p-4 border-t border-[#e0e3e5] bg-[#f7fafc] shrink-0">
                         <button onClick={onClose} className="px-6 py-3 text-sm font-bold text-[#43474e] hover:bg-[#e0e3e5] rounded-xl transition-colors">
                             Close
                         </button>
@@ -228,7 +230,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                             </button>
                         )}
 
-                        {formData.status === 'Processed' && (
+                        {record.status === 'Processed' && formData.status === 'Processed' && (
                             <button
                                 onClick={() => { setFormData({ ...formData, status: 'Paid', paymentDate: getLocalDateString() }); }}
                                 className="px-6 py-3 text-sm font-bold text-white bg-[#137333] hover:bg-[#0d5022] rounded-xl transition-colors flex items-center gap-2"
@@ -237,7 +239,16 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                             </button>
                         )}
 
-                        {(formData.status === 'Processed' || formData.status === 'Paid') && (
+                        {(formData.status === 'Processed' && record.status === 'Pending') && (
+                            <button
+                                onClick={onSave}
+                                className="px-6 py-3 text-sm font-bold text-white bg-[#181c1e] hover:bg-[#000000] rounded-xl transition-colors"
+                            >
+                                Save Changes
+                            </button>
+                        )}
+
+                        {formData.status === 'Paid' && (
                             <button
                                 onClick={onSave}
                                 className="px-6 py-3 text-sm font-bold text-white bg-[#181c1e] hover:bg-[#000000] rounded-xl transition-colors"
@@ -257,6 +268,5 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                     </div>
                 </div>
             </div>
-        </div>
     );
 };

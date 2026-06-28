@@ -25,19 +25,29 @@ class PayrollService {
     async generatePayroll(dto: GeneratePayrollDTO) {
         const { month } = dto;
         
-        // 1. Check if payrolls already exist for this month
-        const exists = await payrollRepository.checkPayrollsExist(month);
-        if (exists) {
-            throw new Error(`Payroll for month ${month} has already been generated.`);
-        }
+        // 1. Fetch existing payrolls for this month
+        const existingPayrolls = await payrollRepository.getPayrollsByMonth(month);
+        const paidAccountIds = new Set(
+            existingPayrolls.filter(p => p.status === 'Paid').map(p => p.account_id)
+        );
 
-        // 2. Fetch eligible accounts and their configs
-        const [configs, tutorSessionCounts] = await Promise.all([
+        // 2. Delete pending payrolls so we can overwrite them
+        await payrollRepository.deletePendingPayrolls(month);
+
+        // 3. Fetch eligible accounts and their configs
+        const [allConfigs, tutorSessionCounts] = await Promise.all([
             payrollRepository.getSalaryConfigs(),
             payrollRepository.getTutorCompletedSessionsCount(month)
         ]);
+
+        // Filter out configs that are already Paid
+        const configs = allConfigs.filter(c => !paidAccountIds.has(c.account_id));
         
-        // 3. Get the latest payroll code to start auto-incrementing
+        if (configs.length === 0) {
+            return { message: `No pending payrolls to generate for ${month} (All might be paid).`, count: 0 };
+        }
+
+        // 4. Get the latest payroll code to start auto-incrementing
         const lastPayroll = await payrollRepository.getLatestPayrollCode();
         let nextCodeNumber = 1;
         if (lastPayroll && lastPayroll.payroll_code && /^PAY\d+$/.test(lastPayroll.payroll_code)) {
@@ -47,16 +57,18 @@ class PayrollService {
             }
         }
 
-        // 4. Generate raw payroll records
+        // 5. Generate raw payroll records
         const recordsToInsert = configs.map(config => {
-            const code = `PAY${String(nextCodeNumber).padStart(6, '0')}`;
-            nextCodeNumber++;
+            const existing = existingPayrolls.find(p => p.account_id === config.account_id);
+            const code = existing ? existing.payroll_code : `PAY${String(nextCodeNumber).padStart(6, '0')}`;
+            if (!existing) nextCodeNumber++;
             
-            const overtimeHours = 0;
+            const overtimeHours = existing ? existing.overtime_hours : 0;
             const isTutor = config.role === 'TUTOR';
             const teachingSessions = isTutor ? (tutorSessionCounts[config.account_id] || 0) : 0;
-            const bonus = 0;
-            const deductions: DeductionItem[] = [];
+            const bonus = existing ? existing.bonus : 0;
+            const deductions: DeductionItem[] = existing ? (existing.deductions || []) : [];
+            const status = existing ? existing.status : 'Pending';
             
             const netPay = this.calculateNetPay(
                 config.base_salary,
@@ -80,11 +92,11 @@ class PayrollService {
                 bonus: bonus,
                 deductions: deductions,
                 net_pay: netPay,
-                status: 'Pending'
+                status: status
             };
         });
 
-        // 4. Save to DB
+        // 6. Save to DB
         await payrollRepository.createPayrolls(recordsToInsert);
         
         return { message: `Successfully generated payroll for ${month}.`, count: recordsToInsert.length };

@@ -40,4 +40,25 @@ export class FinanceRepository {
 
     return data;
   }
+
+  static async getAllPaidPayrolls() {
+    const { data, error } = await supabaseAdmin
+      .from('payrolls')
+      .select(`
+        *,
+        account:account_id (
+          account_code,
+          full_name,
+          roles:role_id ( name )
+        )
+      `)
+      .eq('status', 'Paid')
+      .order('payment_date', { ascending: false });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data || [];
+  }
 }

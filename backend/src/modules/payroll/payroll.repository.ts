@@ -130,10 +130,15 @@ class PayrollRepository {
     }
     
     async getMyHistory(accountId: string): Promise<any[]> {
+        // Find current year-month
+        const currentDate = new Date();
+        const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
         const { data, error } = await this.db
             .from('payrolls')
             .select('*')
             .eq('account_id', accountId)
+            .lt('payroll_month', currentYearMonth) // Only show past months
             .order('payroll_month', { ascending: false });
 
         if (error) {
@@ -224,6 +229,32 @@ class PayrollRepository {
         }
         
         return (count || 0) > 0;
+    }
+
+    async deletePendingPayrolls(month: string): Promise<void> {
+        const { error } = await this.db
+            .from('payrolls')
+            .delete()
+            .eq('payroll_month', month)
+            .neq('status', 'Paid');
+
+        if (error) {
+            console.error('Error deleting pending payrolls:', error);
+            throw error;
+        }
+    }
+
+    async getPayrollsByMonth(month: string): Promise<PayrollRecord[]> {
+        const { data, error } = await this.db
+            .from('payrolls')
+            .select('*')
+            .eq('payroll_month', month);
+
+        if (error) {
+            console.error('Error fetching payrolls by month:', error);
+            throw error;
+        }
+        return data || [];
     }
 }
 

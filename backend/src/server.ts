@@ -12,6 +12,7 @@ import { initClassStatusCron } from './modules/class/cron/class-status.cron';
 import { initSupportTicketCron } from './modules/support-ticket/cron/support-ticket.cron';
 import { initDiscountStatusCron } from './modules/discount-code/cron/discount-status.cron';
 import { initClassroomStatusCron } from './modules/classroom/cron/classroom-status.cron';
+import { initPayrollCron } from './modules/payroll/cron/payroll.cron';
 
 // Khởi tạo kết nối tới database
 connectDB();
@@ -22,6 +23,7 @@ initClassStatusCron();
 initSupportTicketCron();
 initDiscountStatusCron();
 initClassroomStatusCron();
+initPayrollCron();
 
 const PORT = process.env.PORT || 5000;
 

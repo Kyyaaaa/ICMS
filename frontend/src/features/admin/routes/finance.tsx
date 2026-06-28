@@ -64,30 +64,32 @@ const AdminFinance = () => {
                 netRevenue={netRevenue} 
             />
 
-            <FinanceFilters 
-                searchTerm={searchTerm} 
-                setSearchTerm={setSearchTerm} 
-                filterType={filterType} 
-                setFilterType={setFilterType} 
-                filterStatus={filterStatus}
-                setFilterStatus={setFilterStatus}
-                filterCategory={filterCategory}
-                setFilterCategory={setFilterCategory}
-                filterMonth={filterMonth}
-                setFilterMonth={setFilterMonth}
-                categories={categories}
-            />
-
-            {loading ? (
-                <div className="flex items-center justify-center h-64 border border-[#e0e3e5] border-t-0 rounded-b-[12px] bg-white shadow-sm">
-                    <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
-                </div>
-            ) : (
-                <FinanceTable 
-                    transactions={filteredTransactions} 
-                    setSelectedTransaction={setSelectedTransaction} 
+            <div>
+                <FinanceFilters 
+                    searchTerm={searchTerm} 
+                    setSearchTerm={setSearchTerm} 
+                    filterType={filterType} 
+                    setFilterType={setFilterType} 
+                    filterStatus={filterStatus}
+                    setFilterStatus={setFilterStatus}
+                    filterCategory={filterCategory}
+                    setFilterCategory={setFilterCategory}
+                    filterMonth={filterMonth}
+                    setFilterMonth={setFilterMonth}
+                    categories={categories}
                 />
-            )}
+
+                {loading ? (
+                    <div className="flex items-center justify-center h-64 border border-[#e0e3e5] border-t-0 rounded-b-[12px] bg-white shadow-sm">
+                        <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                ) : (
+                    <FinanceTable 
+                        transactions={filteredTransactions} 
+                        setSelectedTransaction={setSelectedTransaction} 
+                    />
+                )}
+            </div>
 
             {selectedTransaction && (
                 <TransactionModal 
