@@ -7,7 +7,7 @@ import { LearnerPaymentsService } from '../services/payments.service';
 const PaymentCheckout = () => {
     const { id } = useParams(); // Using invoice id or course id based on route
 
-    const [invoiceData, setInvoiceData] = useState<{ amount: number, classes?: { courses?: { title: string, price: number, band?: number, sessions?: number, format?: string, allow_installments?: boolean, number_of_installments?: number }, name: string } } | null>(null);
+    const [invoiceData, setInvoiceData] = useState<{ amount: number, discount?: number, classes?: { courses?: { title: string, price: number, band?: number, sessions?: number, format?: string, allow_installments?: boolean, number_of_installments?: number }, name: string } } | null>(null);
     const [loading, setLoading] = useState(true);
 
     const [paymentPlan, setPaymentPlan] = useState<'full' | 'installment'>('full');
@@ -45,7 +45,9 @@ const PaymentCheckout = () => {
     const numInstallments = courseData?.number_of_installments || 3;
 
     const priceValue = invoiceData.amount || 0;
-    const initialPayment = paymentPlan === 'full' ? priceValue : Math.round(priceValue / numInstallments);
+    const recurringPayment = Math.round(priceValue / numInstallments);
+    const firstPayment = priceValue - recurringPayment * (numInstallments - 1);
+    const initialPayment = paymentPlan === 'full' ? priceValue : firstPayment;
 
         const handlePay = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -132,7 +134,9 @@ const PaymentCheckout = () => {
                                         </div>
                                         <span className="text-lg font-bold text-[#002045]">{numInstallments} Installments</span>
                                     </div>
-                                    <p className="text-sm text-[#43474e] ml-13">Pay {Math.round(priceValue/numInstallments).toLocaleString('vi-VN')} đ today, and {Math.round(priceValue/numInstallments).toLocaleString('vi-VN')} đ periodically for {numInstallments - 1} terms.</p>
+                                    <p className="text-sm text-[#43474e] ml-13">
+                                        Pay {firstPayment.toLocaleString('vi-VN')} đ today, and {recurringPayment.toLocaleString('vi-VN')} đ periodically for {numInstallments - 1} terms.
+                                    </p>
                                 </label>
                             )}
                         </div>
@@ -149,16 +153,22 @@ const PaymentCheckout = () => {
                         <div className="flex flex-col gap-4 mb-6 text-sm">
                             <div className="flex justify-between items-center">
                                 <span className="text-[#adc7f7]">Course Tuition</span>
-                                <span className="font-bold">{priceValue.toLocaleString('vi-VN')} đ</span>
+                                <span className="font-bold">{(priceValue + (invoiceData.discount || 0)).toLocaleString('vi-VN')} đ</span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-[#adc7f7]">Registration Fee</span>
                                 <span className="font-bold">Free</span>
                             </div>
+                            {invoiceData.discount ? (
+                                <div className="flex justify-between items-center text-[#ffb4ab]">
+                                    <span className="text-[#adc7f7]">Discount</span>
+                                    <span className="font-bold">-{(invoiceData.discount).toLocaleString('vi-VN')} đ</span>
+                                </div>
+                            ) : null}
                             {paymentPlan === 'installment' && (
                                 <div className="flex justify-between items-center text-[#ffb4ab]">
                                     <span className="text-[#adc7f7]">Installment Plan</span>
-                                    <span className="font-bold">3 Terms</span>
+                                    <span className="font-bold">{numInstallments} Terms</span>
                                 </div>
                             )}
                         </div>

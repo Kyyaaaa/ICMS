@@ -1,8 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { CalendarDays, ChevronLeft, ChevronRight, MapPin, User } from 'lucide-react';
 import type { ScheduleSession } from '../types/schedule';
 import { ScheduleService } from '../services/schedule.service';
-import { EditScheduleModal } from '../components/EditScheduleModal';
+import { EditSessionModal } from '../components/EditSessionModal';
+import { ClassroomsService } from '@/shared/services/classrooms.service';
+import type { Classroom } from '@/shared/services/classrooms.service';
+import { AccountsService } from '../services/accounts.service';
+import { ClassesService } from '../services/classes.service';
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
+import type { Session } from '../types/class';
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -33,22 +39,51 @@ const formatDate = (d: Date) => {
 
 const MasterSchedule = () => {
     const [currentMonday, setCurrentMonday] = useState(() => getMonday(new Date()));
+    const [displayedMonday, setDisplayedMonday] = useState(currentMonday);
     const [schedule, setSchedule] = useState<ScheduleSession[]>([]);
+    const [_isLoading, setIsLoading] = useState(false);
     const [selectedSession, setSelectedSession] = useState<ScheduleSession | null>(null);
     const dateInputRef = useRef<HTMLInputElement>(null);
+    
+    const [availableRooms, setAvailableRooms] = useState<Classroom[]>([]);
+    const [availableTutors, setAvailableTutors] = useState<{ id: string; full_name: string }[]>([]);
 
     const weekDates = DAY_NAMES.map((_, i) => {
-        const d = new Date(currentMonday);
+        const d = new Date(displayedMonday);
         d.setDate(d.getDate() + i);
         return d;
     });
 
-    const sundayDate = weekDates[6];
+    useEffect(() => {
+        const fetchCommonData = async () => {
+            try {
+                const [rooms, tutors] = await Promise.all([
+                    ClassroomsService.getAll(),
+                    AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' })
+                ]);
+                setAvailableRooms(rooms);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                setAvailableTutors((tutors as any).data?.data || []);
+            } catch (err) {
+                console.error("Failed to load tutors or rooms", err);
+            }
+        };
+        fetchCommonData();
+    }, []);
+
+    const sundayDate = useMemo(() => {
+        const d = new Date(currentMonday);
+        d.setDate(d.getDate() + 6);
+        return d;
+    }, [currentMonday]);
 
     useEffect(() => {
         const loadSchedule = async () => {
+            setIsLoading(true);
             const data = await ScheduleService.getSchedule(currentMonday, sundayDate);
             setSchedule(data);
+            setDisplayedMonday(currentMonday);
+            setIsLoading(false);
         };
         loadSchedule();
     }, [currentMonday, sundayDate]);
@@ -76,10 +111,27 @@ const MasterSchedule = () => {
         }
     };
 
-    const handleSaveSession = async (updatedSession: ScheduleSession) => {
-        await ScheduleService.updateSession(updatedSession);
-        setSchedule(schedule.map(s => s.id === updatedSession.id ? updatedSession : s));
-        setSelectedSession(null);
+    const handleSaveSession = async (updatedSession: Partial<Session>) => {
+        const isConfirmed = await showConfirmModal('Confirm Update', 'Are you sure you want to update this session schedule?', 'warning');
+        if (!isConfirmed) return;
+
+        try {
+            if (!selectedSession || !selectedSession.rawSession) return;
+            const classId = selectedSession.rawSession.class_id;
+            
+            await ClassesService.updateSession(classId, updatedSession.id as string, {
+                tutor_id: updatedSession.tutor_id,
+                classroom_id: updatedSession.classroom_id,
+                date: updatedSession.date,
+                slot: updatedSession.slot
+            });
+            showAlertModal('Success', 'Session updated successfully', 'success');
+            setSelectedSession(null);
+            const data = await ScheduleService.getSchedule(currentMonday, sundayDate);
+            setSchedule(data);
+        } catch (err: unknown) {
+            showAlertModal('Conflict', (err as Error).message || 'Error updating session', 'error');
+        }
     };
 
     const weekLabel = `${formatDate(currentMonday)} to ${formatDate(sundayDate)}`;
@@ -132,7 +184,8 @@ const MasterSchedule = () => {
                         })}
                     </div>
 
-                    <div className="divide-y divide-[#f1f4f6] flex-1 overflow-y-auto">
+                    <div className="divide-y divide-[#f1f4f6] flex-1 overflow-y-auto relative">
+
                         {SHIFTS.map(shift => {
                             const hasSessionsInShift = DAY_NAMES.some((_, dayIdx) => 
                                 schedule.some(s => s.dayIndex === dayIdx && s.startTime === shift.startTime)
@@ -181,9 +234,11 @@ const MasterSchedule = () => {
                 </div>
             </div>
 
-            {selectedSession && (
-                <EditScheduleModal 
-                    session={selectedSession} 
+            {selectedSession && selectedSession.rawSession && (
+                <EditSessionModal 
+                    session={selectedSession.rawSession} 
+                    availableRooms={availableRooms}
+                    availableTutors={availableTutors}
                     onClose={() => setSelectedSession(null)} 
                     onSave={handleSaveSession} 
                 />

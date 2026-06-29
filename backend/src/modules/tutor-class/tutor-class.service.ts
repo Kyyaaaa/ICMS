@@ -1,0 +1,88 @@
+import { TutorClassRepository } from './tutor-class.repository';
+import * as crypto from 'crypto';
+import { supabaseAdmin } from '../../configs/supabase';
+
+export class TutorClassService {
+  static async getGradebook(classId: string) {
+    const assessments = await TutorClassRepository.getAssessments(classId);
+    const { enrollments, grades } = await TutorClassRepository.getStudentsWithGrades(classId);
+    
+    // Fetch grading_status
+    const { data: classData } = await supabaseAdmin.from('classes').select('grading_status').eq('id', classId).single();
+    const grading_status = classData?.grading_status || 'PENDING';
+
+    // Map the enrollments to StudentWithGrades format
+    const students = enrollments.map((enrollment: any) => {
+      const studentGrades = grades.filter((g: any) => g.learner_id === enrollment.learner_id);
+      
+      const gradesMap: Record<string, any> = {};
+      studentGrades.forEach((g: any) => {
+        gradesMap[g.assessment_id] = {
+          score: g.score,
+          feedback: g.feedback
+        };
+      });
+
+      return {
+        id: enrollment.learner_id,
+        name: enrollment.account?.full_name,
+        email: enrollment.account?.email,
+        grades: gradesMap
+      };
+    });
+
+    return {
+      assessments,
+      students,
+      grading_status
+    };
+  }
+
+  static async saveGradebook(classId: string, payload: any) {
+    const { deletedAssessmentIds = [], upsertAssessments = [], upsertGrades = [] } = payload;
+
+    // 1. Delete assessments
+    if (deletedAssessmentIds.length > 0) {
+      await TutorClassRepository.deleteAssessments(deletedAssessmentIds);
+    }
+
+    // 2. Upsert assessments
+    // Make sure all assessments have class_id
+    const preparedAssessments = upsertAssessments.map((a: any) => ({
+      id: a.id || crypto.randomUUID(),
+      class_id: classId,
+      name: a.name,
+      order_index: a.order_index
+    }));
+
+    if (preparedAssessments.length > 0) {
+      await TutorClassRepository.upsertAssessments(preparedAssessments);
+    }
+
+    // 3. Upsert grades
+    // Validate scores
+    const preparedGrades = upsertGrades.map((g: any) => {
+      let score = parseFloat(g.score);
+      if (isNaN(score) || score < 0) score = 0;
+      if (score > 9) score = 9;
+
+      return {
+        assessment_id: g.assessment_id,
+        learner_id: g.learner_id,
+        score: score,
+        feedback: g.feedback
+      };
+    });
+
+    if (preparedGrades.length > 0) {
+      await TutorClassRepository.upsertGrades(preparedGrades);
+    }
+
+    return true;
+  }
+
+  static async publishGrades(classId: string) {
+    await TutorClassRepository.updateClassGradingStatus(classId, 'PUBLISHED');
+    return true;
+  }
+}

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Wallet, CalendarDays, TrendingUp, Eye, ChevronDown, Search, Filter } from 'lucide-react';
-import type { SalaryRecord } from '../types/salary';
-import { SalaryService } from '../services/salary.service';
-import { PayslipModal } from '../components/PayslipModal';
+import type { SalaryRecord } from '@/shared/types/salary';
+import { SalaryService } from '@/shared/services/salary.service';
+import { PayslipModal } from '../../../shared/components/common/PayslipModal';
 
 const SalaryHistory = () => {
     const [selectedYear] = useState('2026');
@@ -11,7 +11,7 @@ const SalaryHistory = () => {
 
     useEffect(() => {
         const loadSalary = async () => {
-            const data = await SalaryService.getSalaryHistory();
+            const data = await SalaryService.getMySalaryHistory();
             setSalaryRecords(data);
         };
         loadSalary();

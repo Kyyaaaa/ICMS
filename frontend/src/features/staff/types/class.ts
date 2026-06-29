@@ -30,6 +30,7 @@ export interface Session {
     updated_at: string;
     tutor?: { id: string; full_name: string; email: string };
     classroom?: { id: string; room_name: string };
+    class?: { id: string; name: string; course?: { title: string } };
 }
 
 export interface SessionConfig {

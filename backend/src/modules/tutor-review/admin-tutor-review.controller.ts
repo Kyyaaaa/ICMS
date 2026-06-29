@@ -20,7 +20,7 @@ export class AdminTutorReviewController {
                 return;
             }
 
-            const result = await AdminTutorReviewRepository.getTutorReviewDetail(tutorId);
+            const result = await AdminTutorReviewRepository.getTutorReviewDetail(tutorId as string);
             res.status(200).json({ success: true, data: result });
         } catch (error: any) {
             console.error('[AdminTutorReviewController] getTutorReviewDetail Error:', error);

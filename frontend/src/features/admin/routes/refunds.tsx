@@ -1,3 +1,4 @@
+import { formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { Search, Eye, CheckCircle2, XCircle, RefreshCcw, Landmark, Clock, FileText, X } from 'lucide-react';
 import type { RefundRequest } from '../types/refund';
@@ -29,9 +30,11 @@ const AdminRefunds = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const handleProcess = async (id: string, newStatus: 'Approved' | 'Completed' | 'Rejected') => {
-        const updated = await AdminRefundsService.processRefund(id, newStatus, processNote);
-        setRefunds(refunds.map(r => r.id === id ? updated : r));
+    const handleProcess = async (dbId: string, id: string, newStatus: 'APPROVED' | 'COMPLETED' | 'REJECTED') => {
+        const success = await AdminRefundsService.updateStatus(dbId, newStatus, processNote);
+        if (success) {
+            setRefunds(refunds.map(r => r.id === id ? { ...r, status: newStatus === 'APPROVED' ? 'Approved' : newStatus === 'COMPLETED' ? 'Completed' : 'Rejected', notes: processNote } : r));
+        }
         setSelectedRefund(null);
         setProcessNote('');
     };
@@ -89,13 +92,13 @@ const AdminRefunds = () => {
                     <table className="w-full text-left border-collapse min-w-250">
                         <thead>
                             <tr className="bg-[#f7fafc] border-b border-[#e0e3e5]">
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Request / Invoice</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Student / Course</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Total Paid</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Refund Amt</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Req. Date</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e]">Status</th>
-                                <th className="py-4 px-6 text-sm font-semibold text-[#43474e] text-right">Actions</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Request / Invoice</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Student / Course</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Total Paid</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Refund Amt</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Req. Date</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Status</th>
+                                <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -118,7 +121,7 @@ const AdminRefunds = () => {
                                         {r.refundAmount.toLocaleString()} đ
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
-                                        {new Date(r.requestedDate).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short', hour12: false })}
+                                        {formatDateTime(r.requestedDate)}
                                     </td>
                                     <td className="py-4 px-6">
                                         <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${getStatusBadge(r.status)}`}>
@@ -228,13 +231,13 @@ const AdminRefunds = () => {
                                     {selectedRefund.status === 'Pending' && (
                                         <div className="flex gap-3 mt-4">
                                             <button 
-                                                onClick={() => handleProcess(selectedRefund.id, 'Approved')}
+                                                onClick={() => handleProcess(selectedRefund.dbId!, selectedRefund.id, 'APPROVED')}
                                                 className="flex-1 bg-[#137333] text-white py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#0d5022] transition-colors"
                                             >
                                                 <CheckCircle2 size={18} /> Approve
                                             </button>
                                             <button 
-                                                onClick={() => handleProcess(selectedRefund.id, 'Rejected')}
+                                                onClick={() => handleProcess(selectedRefund.dbId!, selectedRefund.id, 'REJECTED')}
                                                 className="flex-1 bg-[#ba1a1a] text-white py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#93000a] transition-colors"
                                             >
                                                 <XCircle size={18} /> Reject
@@ -245,7 +248,7 @@ const AdminRefunds = () => {
                                     {selectedRefund.status === 'Approved' && (
                                         <div className="flex gap-3 mt-4">
                                             <button 
-                                                onClick={() => handleProcess(selectedRefund.id, 'Completed')}
+                                                onClick={() => handleProcess(selectedRefund.dbId!, selectedRefund.id, 'COMPLETED')}
                                                 className="w-full bg-[#0061a5] text-white py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#004d80] transition-colors"
                                             >
                                                 Mark as Completed (Transferred)

@@ -99,7 +99,7 @@ const Homepage = () => {
         { name: "James Sterling", ielts: "8.5", role: "Speaking Specialist", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200&h=200" },
         { name: "Sophia Chen", ielts: "8.5", role: "Writing & Reading Expert", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200&h=200" },
         { name: "Michael Chang", ielts: "8.5", role: "Listening Master", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200" },
-        { name: "Emma Thompson", ielts: "9.0", role: "Academic Writing Lead", img: "https://images.unsplash.com/photo-1598550874175-4d0ef43ce902?auto=format&fit=crop&q=80&w=200&h=200" },
+        { name: "Emma Thompson", ielts: "9.0", role: "Academic Writing Lead", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200&h=200" },
         { name: "David Miller", ielts: "8.5", role: "General Training Pro", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200&h=200" },
     ];
     // Duplicate for seamless loop

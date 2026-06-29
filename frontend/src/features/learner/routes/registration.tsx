@@ -1,6 +1,7 @@
+import { formatDate } from "../../../shared/utils/date";
 import { useState, useEffect } from "react";
 import { BookOpen, MapPin, Calendar, Clock } from "lucide-react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 import { TopNav } from "@/shared/components/layout/TopNav";
 import type {
@@ -86,6 +87,9 @@ const ClassRegistration = () => {
     fetchInvoice();
   }, [courseId, selectedClass]);
 
+  const location = useLocation();
+  const discountCode = location.state?.discountCode;
+
   const handleConfirm = async () => {
     if (!courseId || !selectedClass) return;
 
@@ -104,6 +108,7 @@ const ClassRegistration = () => {
       const invoiceId = await LearnerRegistrationService.createInvoice(
         courseId,
         selectedClass,
+        discountCode
       );
       navigate(`/learner/payments/${invoiceId}/checkout`);
     } catch (error: unknown) {
@@ -259,9 +264,7 @@ const ClassRegistration = () => {
                             <span>
                               <Calendar className="w-4 h-4 inline mr-1" />{" "}
                               {session.date
-                                ? new Date(session.date).toLocaleDateString(
-                                    "en-GB",
-                                  )
+                                ? formatDate(session.date)
                                 : "TBA"}
                             </span>
                             <span>

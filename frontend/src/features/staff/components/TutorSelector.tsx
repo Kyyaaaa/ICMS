@@ -1,7 +1,7 @@
 import { showConfirmModal } from "@/utils/modal";
 import { useState } from "react";
 import { Search, Lock, ChevronDown } from "lucide-react";
-import type { TutorAvailabilityProfile } from "../types/tutor-availability";
+import type { TutorAvailabilityProfile } from "@/shared/types/tutor-availability";
 
 interface TutorSelectorProps {
   tutors: TutorAvailabilityProfile[];
@@ -64,7 +64,7 @@ export const TutorSelector = ({
               <div className="w-9 h-9 rounded-full bg-[#e3f2fd] text-[#0061a5] flex items-center justify-center font-bold text-xs shrink-0">
                 {selectedTutor.name
                   .split(" ")
-                  .map((n) => n[0])
+                  .map((n: string) => n[0])
                   .join("")
                   .substring(0, 2)
                   .toUpperCase()}
@@ -123,7 +123,7 @@ export const TutorSelector = ({
                   .map((tutor) => {
                     const initials = tutor.name
                       .split(" ")
-                      .map((n) => n[0])
+                      .map((n: string) => n[0])
                       .join("")
                       .substring(0, 2)
                       .toUpperCase();

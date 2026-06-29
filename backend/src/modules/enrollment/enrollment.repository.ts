@@ -196,4 +196,41 @@ export class EnrollmentRepository {
     if (error) throw error;
     return true;
   }
+
+  static async getLearnerAttendance(learnerId: string, classId: string) {
+    const { data: sessions, error } = await supabaseAdmin
+      .from('class_sessions')
+      .select(`
+        id, session_number, date, slot,
+        tutor:account!tutor_id(id, full_name),
+        classroom:classroom!classroom_id(id, room_name)
+      `)
+      .eq('class_id', classId)
+      .order('session_number', { ascending: true });
+      
+    if (error) throw error;
+    if (!sessions || sessions.length === 0) return [];
+    
+    const sessionIds = sessions.map(s => s.id);
+    const { data: attendances } = await supabaseAdmin
+      .from('attendances')
+      .select('session_id, status')
+      .eq('learner_id', learnerId)
+      .in('session_id', sessionIds);
+      
+    const attMap = new Map((attendances || []).map(a => [a.session_id, a.status]));
+    
+    return sessions.map(s => {
+       const status = attMap.get(s.id) || 'NOT_YET';
+       return {
+         id: s.id,
+         session_number: s.session_number,
+         date: s.date,
+         time: s.slot, 
+         tutor: s.tutor ? (s.tutor as any).full_name : 'TBA',
+         room: s.classroom ? (s.classroom as any).room_name : 'TBA',
+         status: status.toLowerCase()
+       };
+    });
+  }
 }

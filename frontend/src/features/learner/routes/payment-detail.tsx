@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, CheckCircle2, Clock, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
@@ -62,7 +63,7 @@ const PaymentDetail = () => {
                 let pendingMessage = 'This invoice is pending payment. Please complete your payment soon.';
                 if (invoice && invoice.createdAt) {
                     const expiry = new Date(new Date(invoice.createdAt).getTime() + 15 * 60 * 1000);
-                    pendingMessage = `This invoice is pending payment. Please complete your payment before ${expiry.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} on ${expiry.toLocaleDateString('en-GB')}.`;
+                    pendingMessage = `This invoice is pending payment. Please complete your payment before ${expiry.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} on ${formatDate(expiry)}.`;
                 }
                 return {
                     color: 'text-[#b45309]',
@@ -277,15 +278,20 @@ const PaymentDetail = () => {
                                                 )}
                                             </td>
                                             <td className="py-3 px-4 text-right">
-                                                {(inst.status === 'pending' || inst.status === 'overdue') && (
+                                                {(inst.status === 'pending' || inst.status === 'overdue') && !invoice.hasPendingRefund && (
                                                     <Link to={`/learner/payments/${invoice.id}/checkout?installment=${inst.id}`} className="px-4 py-1.5 bg-[#ef4444] text-white text-xs font-bold rounded-lg hover:bg-[#dc2626] transition-colors">
                                                         Pay
                                                     </Link>
                                                 )}
-                                                {inst.status === 'paid' && (
+                                                {inst.status === 'paid' && !invoice.hasPendingRefund && (
                                                     <Link to={`/learner/payments/${invoice.id}/refund?installment=${inst.id}`} className="px-4 py-1.5 bg-white border border-[#002045]/20 text-[#002045] text-xs font-bold rounded-lg hover:bg-[#f8f9fc] transition-colors inline-block ml-2">
                                                         Refund
                                                     </Link>
+                                                )}
+                                                {inst.status === 'paid' && invoice.hasPendingRefund && (
+                                                    <button disabled className="px-4 py-1.5 bg-[#fff3e0] text-[#e65100] text-xs font-bold rounded-lg border border-[#e65100]/20 cursor-not-allowed inline-block ml-2">
+                                                        Refund Pending
+                                                    </button>
                                                 )}
                                             </td>
                                         </tr>
@@ -312,7 +318,7 @@ const PaymentDetail = () => {
                             </Link>
                         </>
                     )}
-                    {invoice.status === 'partial' && (
+                    {invoice.status === 'partial' && !invoice.hasPendingRefund && (
                         <button 
                             onClick={handleCancel}
                             disabled={isCancelling}
@@ -321,10 +327,15 @@ const PaymentDetail = () => {
                             {isCancelling ? 'Cancelling...' : 'Cancel Remaining Installments'}
                         </button>
                     )}
-                    {invoice.status === 'paid' && (
+                    {invoice.status === 'paid' && !invoice.hasPendingRefund && (
                         <Link to={`/learner/payments/${invoice.id}/refund`} className="w-full sm:w-auto px-6 py-3 bg-white border border-[#002045]/20 text-[#002045] text-sm font-bold rounded-xl hover:bg-[#f8f9fc] transition-all text-center">
                             Request Refund
                         </Link>
+                    )}
+                    {invoice.status === 'paid' && invoice.hasPendingRefund && (
+                        <button disabled className="w-full sm:w-auto px-6 py-3 bg-[#fff3e0] text-[#e65100] text-sm font-bold rounded-xl border border-[#e65100]/20 cursor-not-allowed">
+                            Refund Pending
+                        </button>
                     )}
                     {(invoice.status === 'cancelled' || invoice.status === 'expired' || invoice.status === 'refunded') && (
                         <Link to="/courses" className="w-full sm:w-auto px-6 py-3 bg-[#0061a5] text-white text-sm font-bold rounded-xl hover:bg-[#004a77] transition-all text-center">

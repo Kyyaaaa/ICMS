@@ -4,8 +4,8 @@
  */
 export const getCycleNameFromDate = (dateString: string): string => {
   const date = new Date(dateString);
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return `${monthNames[date.getMonth()]} - ${date.getFullYear()}`;
+  const monthStr = String(date.getMonth() + 1).padStart(2, '0');
+  return `${monthStr}/${date.getFullYear()}`;
 };
 
 /**

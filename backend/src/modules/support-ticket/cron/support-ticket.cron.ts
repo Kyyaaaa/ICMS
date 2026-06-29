@@ -26,7 +26,7 @@ export const initSupportTicketCron = () => {
     } catch (error) {
       console.error('[Cron Job] Unknown error in support ticket cron:', error);
     }
-  });
+  }, { timezone: 'Asia/Ho_Chi_Minh' });
 
   console.log('[Cron Job] Support Ticket Auto-Resolver has been initialized.');
 };

@@ -12,7 +12,6 @@ export interface Course {
   title: string;
   code: string;
   band: string;
-  duration: string;
   sessions: number;
   format: string;
   category: string;

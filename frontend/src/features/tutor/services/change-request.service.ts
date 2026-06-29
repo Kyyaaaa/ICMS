@@ -1,67 +1,68 @@
-import type { TutorChangeRequest, CreateChangeRequestData } from '../types/change-request';
-
-const MOCK_REQUESTS: TutorChangeRequest[] = [
-    { 
-        id: 1, 
-        className: 'IELTS-A01', 
-        session: 5,
-        type: 'Reschedule', 
-        originalTime: '10-10-2026 (18:00 - 20:00)', 
-        proposedTime: '11-10-2026 (18:00 - 20:00)', 
-        reason: 'Personal emergency, need to move the class to the next day.',
-        status: 'Pending', 
-        submittedAt: '05-10-2026',
-        staffNote: '',
-        finalTime: ''
-    },
-    { 
-        id: 4, 
-        className: 'IELTS-A01', 
-        session: 12,
-        type: 'Reschedule', 
-        originalTime: '20-10-2026 (18:00 - 20:00)', 
-        proposedTime: null, 
-        reason: 'I am sick, please reschedule this session for me but I am not sure when I can teach yet.',
-        status: 'Pending', 
-        submittedAt: '18-10-2026',
-        staffNote: '',
-        finalTime: ''
-    },
-    { 
-        id: 3, 
-        className: 'IELTS-A02', 
-        session: 8,
-        type: 'Reschedule', 
-        originalTime: '15-10-2026 (18:00 - 20:00)', 
-        proposedTime: '16-10-2026 (18:00 - 20:00)', 
-        reason: 'Conflict with another schedule.',
-        status: 'Approved', 
-        submittedAt: '01-10-2026',
-        staffNote: 'Rescheduled as requested.',
-        finalTime: '16-10-2026 (18:00 - 20:00) • Room 102'
-    },
-];
+import axiosClient from "../../../shared/services/axiosClient";
+import { formatDate } from "../../../shared/utils/date";
+import type { TutorChangeRequest, CreateChangeRequestData } from "../types/change-request";
 
 export const ChangeRequestService = {
     getRequests: async (): Promise<TutorChangeRequest[]> => {
-        return new Promise(resolve => setTimeout(() => resolve(MOCK_REQUESTS), 200));
+        try {
+            const response = await axiosClient.get("/change-requests/my-requests");
+            const data = Array.isArray((response as {data?: unknown[]})?.data) ? (response as {data?: unknown[]}).data : (Array.isArray(response) ? response : []);
+            return ((data as any[]) || []).map((req: any) => ({
+                id: String(req.id),
+                className: req.class ? `${req.class.course?.title || "Unknown Course"} - ${req.class.name || "Unknown Class"}` : "Unknown Class",
+                session: req.session?.session_number || 1,
+                type: req.type,
+                originalTime: req.original_time,
+                proposedTime: req.proposed_time,
+                reason: req.reason,
+                status: req.status as "Pending" | "Approved" | "Rejected" | "Cancelled",
+                submittedAt: formatDate(req.created_at),
+                staffNote: req.staff_note || "",
+                finalTime: req.final_time || ""
+            }));
+        } catch (error) {
+            console.error("Failed to fetch tutor change requests:", error);
+            return [];
+        }
     },
     createRequest: async (data: CreateChangeRequestData): Promise<TutorChangeRequest> => {
-        return new Promise(resolve => setTimeout(() => {
-            const newReq: TutorChangeRequest = {
-                id: Date.now(),
+        try {
+            const response = await axiosClient.post("/change-requests", {
+                tutor_id: data.tutor_id,
+                class_id: data.class_id,
+                session_id: data.session_id,
+                type: data.type,
+                original_time: data.originalTime,
+                proposed_time: data.proposedTime,
+                reason: data.reason
+            });
+            const req = (response as {data?: unknown})?.data as Record<string, unknown> || (response as unknown as Record<string, unknown>);
+            return {
+                id: String(req.id),
                 className: data.className,
                 session: data.session,
-                type: data.type,
-                originalTime: 'TBD',
-                proposedTime: data.proposedTime,
-                reason: data.reason,
-                status: 'Pending',
-                submittedAt: new Date().toLocaleDateString('en-GB').replace(/\//g, '-'),
-                staffNote: '',
-                finalTime: ''
+                type: String(req.type || data.type),
+                originalTime: String(req.original_time || "TBD"),
+                proposedTime: String(req.proposed_time || data.proposedTime),
+                reason: String(req.reason || data.reason),
+                status: (req.status || "Pending") as "Pending" | "Approved" | "Rejected" | "Cancelled",
+                submittedAt: formatDate(req.created_at ? String(req.created_at) : new Date().toISOString()),
+                staffNote: req.staff_note ? String(req.staff_note) : "",
+                finalTime: req.final_time ? String(req.final_time) : "",
             };
-            resolve(newReq);
-        }, 200));
+        } catch (error) {
+            console.error("Failed to create change request:", error);
+            throw error;
+        }
+    },
+    cancelRequest: async (id: string): Promise<void> => {
+        try {
+            await axiosClient.patch(`/change-requests/${id}/status`, {
+                status: "Cancelled"
+            });
+        } catch (error) {
+            console.error("Failed to cancel change request:", error);
+            throw error;
+        }
     }
 };

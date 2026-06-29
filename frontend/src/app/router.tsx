@@ -36,7 +36,7 @@ import ConsultationList from "@/features/staff/routes/consultations.tsx";
 import ManageClasses from "@/features/staff/routes/classes.tsx";
 import CreateClass from "@/features/staff/routes/create-class.tsx";
 import StaffClassDetail from "@/features/staff/routes/class-detail.tsx";
-import StaffClassAttendance from "@/features/staff/routes/attendance.tsx";
+import SharedAttendanceRoute from "@/shared/components/common/SharedAttendanceRoute.tsx";
 import MasterSchedule from "@/features/staff/routes/master-schedule.tsx";
 import ChangeRequests from "@/features/staff/routes/change-requests.tsx";
 import InvoiceList from "@/features/staff/routes/invoices.tsx";
@@ -66,7 +66,6 @@ import AdminRefundDetail from "@/features/admin/routes/refund-detail.tsx";
 import AdminPayroll from "@/features/admin/routes/payroll.tsx";
 import AdminPayrollDetail from "@/features/admin/routes/payroll-detail.tsx";
 import AdminAnnouncements from "@/features/admin/routes/announcements.tsx";
-import AdminAuditLogs from "@/features/admin/routes/audit-logs.tsx";
 import AdminProfile from "@/features/admin/routes/profile.tsx";
 import AdminFinance from "@/features/admin/routes/finance.tsx";
 
@@ -82,7 +81,7 @@ import TutorSalaryHistory from "@/features/tutor/routes/salary.tsx";
 // import { TutorSupportTickets } from "@/features/tutor/routes/support-tickets.tsx";
 import TutorClasses from "@/features/tutor/routes/classes";
 import TutorClassDetail from "@/features/tutor/routes/class-detail";
-import TutorAttendance from "@/features/tutor/routes/attendance.tsx";
+// TutorAttendance removed, already importing SharedAttendanceRoute
 import TutorGradebook from "@/features/tutor/routes/gradebook.tsx";
 // Shared Views
 import { NotificationsPage } from "@/shared/components/common/NotificationsPage.tsx";
@@ -162,7 +161,7 @@ export const AppRouter = () => {
           <Route path="/staff/classes/create" element={<CreateClass />} />
           <Route path="/staff/classes/edit/:id" element={<CreateClass />} />
           <Route path="/staff/classes/:id" element={<StaffClassDetail />} />
-          <Route path="/staff/classes/:id/attendance" element={<StaffClassAttendance />} />
+          <Route path="/staff/classes/:id/attendance" element={<SharedAttendanceRoute />} />
           <Route path="/staff/master-schedule" element={<MasterSchedule />} />
           <Route
             path="/staff/tutor-availability"
@@ -204,7 +203,6 @@ export const AppRouter = () => {
           <Route path="/admin/payroll" element={<AdminPayroll />} />
           <Route path="/admin/payroll/:id" element={<AdminPayrollDetail />} />
           <Route path="/admin/announcements" element={<AdminAnnouncements />} />
-          <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
         </Route>
       </Route>
 
@@ -222,7 +220,7 @@ export const AppRouter = () => {
           <Route path="/tutor/schedule" element={<TeachingSchedule />} />
           <Route path="/tutor/classes" element={<TutorClasses />} />
           <Route path="/tutor/classes/:id" element={<TutorClassDetail />}>
-            <Route path="attendance" element={<TutorAttendance />} />
+            <Route path="attendance" element={<SharedAttendanceRoute />} />
             <Route path="grades" element={<TutorGradebook />} />
           </Route>
           <Route

@@ -1,3 +1,5 @@
+import type { Session } from './class';
+
 export interface ScheduleSession {
     id: number;
     class: string;
@@ -7,4 +9,5 @@ export interface ScheduleSession {
     startTime: string;
     endTime: string;
     color: string;
+    rawSession?: Session;
 }

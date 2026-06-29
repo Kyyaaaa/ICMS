@@ -1,3 +1,5 @@
+import { getLocalDateString } from '../../../utils/date';
+import { formatDate } from "../../utils/date";
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Camera, Eye, EyeOff, CheckCircle2, User, Phone, Mail, CalendarDays, Users } from 'lucide-react';
@@ -112,7 +114,7 @@ export const ProfileView = ({
                 return;
             }
             const dateString = account.date_of_birth;
-            if (dob.toISOString().split('T')[0] !== dateString) {
+            if (getLocalDateString(dob) !== dateString) {
                 showAlertModal('Error', 'Invalid Date of Birth. The date does not exist (e.g., February 30th).', 'error');
                 return;
             }
@@ -292,10 +294,9 @@ export const ProfileView = ({
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] p-6 flex flex-col items-center text-center">
                         <label className="relative w-32 h-32 rounded-full bg-[#edf4fb] flex items-center justify-center text-[#0061a5] font-bold text-5xl border-4 border-[#e6f0fa] shadow-sm overflow-hidden group cursor-pointer mb-4">
-                            {account.avatar_url ? (
-                                <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                            ) : (
-                                <span>{initials}</span>
+                            <span>{initials}</span>
+                            {account.avatar_url && (
+                                <img src={account.avatar_url} alt="Avatar" className="w-full h-full object-cover absolute inset-0 z-10" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                             )}
                             <div className={`absolute inset-0 bg-black/50 flex flex-col items-center justify-center transition-opacity ${isUploadingAvatar ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                                 {isUploadingAvatar ? (
@@ -318,7 +319,7 @@ export const ProfileView = ({
                             </div>
                             <div className="flex items-center gap-3 text-sm text-[#43474e]">
                                 <CalendarDays className="w-5 h-5 text-[#74777f] shrink-0" />
-                                <span>Joined {account.created_at ? new Date(account.created_at).toLocaleDateString('en-GB') : ''}</span>
+                                <span>Joined {account.created_at ? formatDate(account.created_at) : ''}</span>
                             </div>
                         </div>
                     </div>
@@ -352,7 +353,7 @@ export const ProfileView = ({
                                     <label className="text-xs font-bold text-[#43474e] uppercase tracking-wider">Date of Birth</label>
                                     <div className="relative">
                                         <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#74777f]" />
-                                        <input type="date" value={account.date_of_birth} onChange={e => setAccount({...account, date_of_birth: e.target.value})} max={new Date().toISOString().split('T')[0]} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" required />
+                                        <input type="date" value={account.date_of_birth} onChange={e => setAccount({...account, date_of_birth: e.target.value})} max={getLocalDateString()} className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl text-sm focus:bg-white focus:outline-none focus:border-[#0061a5] transition-colors text-[#181c1e]" required />
                                     </div>
                                 </div>
                                 <div className="space-y-2">

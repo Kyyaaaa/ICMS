@@ -1,5 +1,5 @@
 import { Wallet, CalendarDays, TrendingUp } from 'lucide-react';
-import type { SalaryRecord } from '../types/salary';
+import type { SalaryRecord } from '@/shared/types/salary';
 
 interface SalaryCardsProps {
     records: SalaryRecord[];

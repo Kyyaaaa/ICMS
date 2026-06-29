@@ -323,3 +323,63 @@ Thay thế dữ liệu Mock trên giao diện quản lý hóa đơn của Staff 
   - Truy cập route `/staff/invoices` với tài khoản Staff. Kiểm tra xem các dòng hóa đơn có hiển thị chính xác không.
   - Soi kỹ cột "Progress" và "Amount" xem có khớp với số lượng installment thực tế trong database không.
   - Kiểm tra xem các bộ lọc (Status) và tìm kiếm (Search) trên giao diện có hoạt động đúng với dữ liệu thật hay không.
+
+---
+
+## 📊 20. Bảng điểm động (Dynamic Gradebook) cho Tutor
+
+Xây dựng cấu trúc DB và API để tích hợp dữ liệu thật vào Bảng nhập điểm động của Tutor. Bảng điểm hỗ trợ cột động, thêm nhận xét và thang điểm luôn từ 0-9.
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-37: Database Schema for Gradebook**
+  - Viết logic/script SQL để tạo 2 bảng `assessments` (cột điểm động) và `student_grades` (lưu trữ điểm và feedback).
+- `[x]` **BE-38: API Lấy dữ liệu Bảng Điểm**
+  - Tạo endpoint `GET /api/tutor/classes/:classId/gradebook`.
+  - API cần trả về danh sách `assessments` và danh sách học viên trong lớp kèm điểm số đã match theo `assessment.id` (dạng `StudentWithGrades[]`).
+- `[x]` **BE-39: API Lưu toàn bộ Bảng Điểm (Bulk Save)**
+  - Tạo endpoint `PUT /api/tutor/classes/:classId/gradebook/save`.
+  - Transaction xử lý: Delete cột bị xóa, Insert cột mới, Upsert dữ liệu vào `student_grades` dựa theo payload `gradesData`.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-40: Tích hợp API Gradebook**
+  - Trong `frontend/src/features/tutor/services/gradebook.service.ts`: Xóa mock data.
+  - Cấu hình gọi `axiosClient` tới 2 endpoint mới của Backend.
+  - Sửa lại logic sinh ID cho cột mới thay vì `a${Date.now()}` thì dùng `UUID v4` hoặc để Backend tự sinh. Kiểm tra Validation điểm nhập chỉ từ 0 đến 9.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-32: Kiểm thử Bảng điểm động**
+  - Test luồng cơ bản: Thêm 1 cột -> Nhập điểm -> Lưu -> Reload trang kiểm tra dữ liệu.
+  - Xóa 1 cột -> Lưu -> Reload trang kiểm tra dữ liệu có bị xóa không.
+  - Nhập Feedback dài cho 1 ô điểm -> Lưu -> Load lại kiểm tra hiển thị.
+  - Đảm bảo điểm số không được phép lớn hơn 9.
+
+---
+
+## 📜 21. Nâng cấp Gradebook & Transcript (UC-42, UC-43)
+
+Hoàn thiện quy trình nhập điểm của Tutor bằng cơ chế Chốt điểm (Publish) và cho phép Learner xem bảng điểm cá nhân được tính toán trực tiếp từ dữ liệu hệ thống. (Lưu ý: Không lưu điểm trung bình vào Database, chỉ tính toán on the fly).
+
+### 🧑‍💻 Backend Agent
+- `[x]` **BE-40: Nâng cấp DB Schema**
+  - Viết script SQL thêm cột `grading_status` (mặc định 'PENDING') vào bảng `classes`.
+- `[x]` **BE-41: API Chốt điểm (Publish Grades)**
+  - Tạo endpoint `POST /api/tutor/classes/:classId/publish-grades`.
+  - Endpoint này đổi `grading_status` của class sang `PUBLISHED`.
+- `[x]` **BE-42: API Academic Transcript cho Learner**
+  - Tạo endpoint `GET /api/learner/transcript` trả về danh sách các lớp học mà Learner đã tham gia và có `grading_status == 'PUBLISHED'`.
+  - Trong dữ liệu trả về, join `assessments` và `student_grades` để lấy điểm từng thành phần.
+  - Tính toán điểm trung bình tổng khóa học (overall band) on the fly trước khi gửi JSON về Client.
+
+### 🎨 Frontend Agent
+- `[x]` **FE-41: Tích hợp nút Publish trên Gradebook**
+  - Gắn nút "Publish Grades" bên cạnh "Save Grades" ở `gradebook.tsx` (chỉ hiển thị khi `grading_status != 'PUBLISHED'`).
+  - Gọi API `/publish-grades` và show modal xác nhận.
+- `[x]` **FE-42: Tích hợp dữ liệu thật cho Learner Grades**
+  - Sửa file `frontend/src/features/learner/routes/grades.tsx`.
+  - Xóa `MOCK_COURSES`. Gọi API `/api/learner/transcript` để hiển thị.
+  - Xử lý lại logic màu sắc và progress bar nếu cần.
+
+### 🕵️‍♂️ QA Agent
+- `[x]` **QA-33: Kiểm thử luồng Gradebook -> Transcript**
+  - Đăng nhập Tutor: Lớp chưa publish -> Learner KHÔNG xem được.
+  - Tutor bấm Publish -> Learner đăng nhập xem được Academic Transcript chính xác (kể cả điểm tính toán on the fly).

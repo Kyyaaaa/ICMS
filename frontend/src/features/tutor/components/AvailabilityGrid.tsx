@@ -1,6 +1,5 @@
 import { Check } from 'lucide-react';
-import { SHIFTS, DAYS } from '../services/availability.service';
-import type { AvailabilityStatus } from '../types/availability';
+import { SHIFTS, DAYS, type AvailabilityStatus } from '@/shared/types/tutor-availability';
 
 interface AvailabilityGridProps {
     selectedSlots: Set<string>;

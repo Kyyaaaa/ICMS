@@ -99,13 +99,13 @@ const InvoiceList = () => {
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-[#f8f9fa] border-b border-[#e0e3e5]">
                         <tr>
-                            <th className="p-4 font-semibold text-[#43474e]">Invoice ID</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Learner & Course</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Payment Method</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Progress</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Amount</th>
-                            <th className="p-4 font-semibold text-[#43474e]">Status</th>
-                            <th className="p-4 font-semibold text-[#43474e] text-right">Actions</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Invoice ID</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Learner & Course</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Payment Method</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Progress</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Amount</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Status</th>
+                            <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>

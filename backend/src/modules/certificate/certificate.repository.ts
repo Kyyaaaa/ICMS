@@ -21,11 +21,9 @@ export class CertificateRepository {
       .from('tutor_certificates')
       .select(`
         *,
-        tutor (
-          account (
-            full_name,
-            email
-          )
+        tutor:account!tutor_id (
+          full_name,
+          email
         )
       `)
       .order('created_at', { ascending: false });

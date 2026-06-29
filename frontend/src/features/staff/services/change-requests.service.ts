@@ -1,62 +1,57 @@
+import { formatDate } from "../../../shared/utils/date";
+import axiosClient from '../../../shared/services/axiosClient';
 import type { ChangeRequest } from '../types/change-request';
-
-const MOCK_REQUESTS: ChangeRequest[] = [
-    { 
-        id: 1, 
-        tutor: 'Dr. Sarah Connor', 
-        className: 'IELTS-A01', 
-        session: 5,
-        type: 'Reschedule', 
-        originalTime: '10-10-2026 (18:00 - 20:00)', 
-        proposedTime: '11-10-2026 (18:00 - 20:00)', 
-        reason: 'Personal emergency, need to move the class to the next day.',
-        status: 'Pending', 
-        submittedAt: '05-10-2026' 
-    },
-    { 
-        id: 2, 
-        tutor: 'Mr. James Bond', 
-        className: 'TOEIC-B01', 
-        session: 2,
-        type: 'Substitute', 
-        originalTime: '12-10-2026 (19:00 - 21:00)', 
-        proposedTime: null, 
-        reason: 'Attending a conference, please find a substitute for this session.',
-        status: 'Pending', 
-        submittedAt: '06-10-2026' 
-    },
-    { 
-        id: 3, 
-        tutor: 'Ms. Emily Blunt', 
-        className: 'IELTS-A02', 
-        session: 8,
-        type: 'Reschedule', 
-        originalTime: '15-10-2026 (18:00 - 20:00)', 
-        proposedTime: '16-10-2026 (18:00 - 20:00)', 
-        reason: 'Conflict with another schedule.',
-        status: 'Approved', 
-        submittedAt: '01-10-2026' 
-    },
-    { 
-        id: 4, 
-        tutor: 'Dr. Sarah Connor', 
-        className: 'IELTS-A01', 
-        session: 12,
-        type: 'Reschedule', 
-        originalTime: '20-10-2026 (18:00 - 20:00)', 
-        proposedTime: null, 
-        reason: 'I am sick, please reschedule this session for me but I am not sure when I can teach yet.',
-        status: 'Pending', 
-        submittedAt: '18-10-2026' 
-    },
-];
 
 export const ChangeRequestsService = {
     getRequests: async (): Promise<ChangeRequest[]> => {
-        return new Promise(resolve => setTimeout(() => resolve([...MOCK_REQUESTS]), 200));
+        try {
+            const response = await axiosClient.get('/change-requests');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const data = Array.isArray((response as any)?.data) ? (response as any).data : (Array.isArray(response) ? response : []);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return data.map((req: any) => ({
+                id: req.id,
+                tutor: req.tutor?.full_name || 'Unknown Tutor',
+                tutorId: req.tutor_id || req.tutor?.id || '',
+                className: req.class ? `${req.class.course?.title || 'Unknown Course'} - ${req.class.name || 'Unknown Class'}` : 'Unknown Class',
+                session: req.session?.session_number || 1,
+                type: req.type,
+                originalTime: req.original_time,
+                proposedTime: req.proposed_time,
+                reason: req.reason,
+                status: req.status,
+                submittedAt: formatDate(req.created_at),
+                staffNote: req.staff_note || '',
+                finalTime: req.final_time || '',
+                originalRoomId: req.class?.classroom_id || req.session?.classroom_id
+            }));
+        } catch (error) {
+            console.error('Failed to fetch change requests:', error);
+            return [];
+        }
     },
 
-    updateRequest: async (_updatedRequest: ChangeRequest): Promise<void> => {
-        return new Promise(resolve => setTimeout(resolve, 200));
+    updateRequest: async (
+        updatedRequest: ChangeRequest, 
+        substituteTutorId?: string,
+        newDate?: string,
+        newSlot?: string,
+        newRoomId?: string
+    ): Promise<void> => {
+        try {
+            const payload: any = {
+                status: updatedRequest.status,
+                final_time: updatedRequest.finalTime,
+                staff_note: updatedRequest.staffNote
+            };
+            if (substituteTutorId) payload.substitute_tutor_id = substituteTutorId;
+            if (newDate) payload.new_date = newDate;
+            if (newSlot) payload.new_slot = newSlot;
+            if (newRoomId) payload.new_room_id = newRoomId;
+            await axiosClient.patch(`/change-requests/${updatedRequest.id}/status`, payload);
+        } catch (error) {
+            console.error('Failed to update change request:', error);
+            throw error;
+        }
     }
 };

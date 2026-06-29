@@ -54,18 +54,22 @@ export class ClassService {
         if (sess.slot && !ALLOWED_SLOTS.includes(sess.slot)) {
           throw { status: 400, message: `Invalid slot: ${sess.slot}` };
         }
-        // Check conflict if tutor and classroom are provided for the class
+        // Check conflict if tutor and classroom are provided for the session or class
         if (sess.date && sess.slot) {
-          if (data.tutor_id) {
-            const hasTutorConflict = await ClassRepository.checkTutorConflict(data.tutor_id, sess.date, sess.slot);
+          const checkTutorId = sess.tutor_id || data.tutor_id;
+          if (checkTutorId) {
+            const hasTutorConflict = await ClassRepository.checkScheduleConflict('tutor_id', checkTutorId, sess.date, sess.slot);
             if (hasTutorConflict) {
-              throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${sess.slot}` };
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${formattedSlot}` };
             }
           }
-          if (data.classroom_id) {
-            const hasRoomConflict = await ClassRepository.checkClassroomConflict(data.classroom_id, sess.date, sess.slot);
+          const checkClassroomId = sess.classroom_id || data.classroom_id;
+          if (checkClassroomId) {
+            const hasRoomConflict = await ClassRepository.checkScheduleConflict('classroom_id', checkClassroomId, sess.date, sess.slot);
             if (hasRoomConflict) {
-              throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${sess.slot}` };
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${formattedSlot}` };
             }
           }
         }
@@ -121,8 +125,8 @@ export class ClassService {
         title: sessionTitle,
         date: sessDate,
         slot: sessSlot,
-        tutor_id: data.tutor_id || null,
-        classroom_id: data.classroom_id || null
+        tutor_id: config?.tutor_id || data.tutor_id || null,
+        classroom_id: config?.classroom_id || data.classroom_id || null
       });
     }
 
@@ -163,6 +167,30 @@ export class ClassService {
       }
     }
 
+    // Validate conflicts
+    if (sessions && sessions.length > 0) {
+      for (const sess of sessions) {
+        if (sess.date && sess.slot) {
+          const checkTutorId = sess.tutor_id || classUpdates.tutor_id || updatedClass?.tutor_id;
+          if (checkTutorId) {
+            const hasTutorConflict = await ClassRepository.checkScheduleConflict('tutor_id', checkTutorId, sess.date, sess.slot, undefined, id);
+            if (hasTutorConflict) {
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${formattedSlot}` };
+            }
+          }
+          const checkClassroomId = sess.classroom_id || classUpdates.classroom_id || updatedClass?.classroom_id;
+          if (checkClassroomId) {
+            const hasRoomConflict = await ClassRepository.checkScheduleConflict('classroom_id', checkClassroomId, sess.date, sess.slot, undefined, id);
+            if (hasRoomConflict) {
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${formattedSlot}` };
+            }
+          }
+        }
+      }
+    }
+
     // If sessions are provided, overwrite existing sessions
     if (sessions && sessions.length > 0) {
       await ClassRepository.deleteClassSessions(id);
@@ -184,8 +212,8 @@ export class ClassService {
           title: sessionTitle,
           date: config.date,
           slot: config.slot,
-          tutor_id: classUpdates.tutor_id || updatedClass.tutor_id || null,
-          classroom_id: classUpdates.classroom_id || updatedClass.classroom_id || null
+          tutor_id: config.tutor_id || classUpdates.tutor_id || updatedClass?.tutor_id || null,
+          classroom_id: config.classroom_id || classUpdates.classroom_id || updatedClass?.classroom_id || null
         });
       }
 
@@ -214,13 +242,13 @@ export class ClassService {
     // If date and slot are provided, we must check for conflicts
     if (updates.date && updates.slot) {
       if (updates.tutor_id) {
-        const hasTutorConflict = await ClassRepository.checkTutorConflict(updates.tutor_id, updates.date, updates.slot, sessionId);
+        const hasTutorConflict = await ClassRepository.checkScheduleConflict('tutor_id', updates.tutor_id, updates.date, updates.slot, undefined, sessionId);
         if (hasTutorConflict) {
           throw { status: 409, message: 'Conflict Schedule: Tutor is already busy at this time' };
         }
       }
       if (updates.classroom_id) {
-        const hasRoomConflict = await ClassRepository.checkClassroomConflict(updates.classroom_id, updates.date, updates.slot, sessionId);
+        const hasRoomConflict = await ClassRepository.checkScheduleConflict('classroom_id', updates.classroom_id, updates.date, updates.slot, undefined, sessionId);
         if (hasRoomConflict) {
           throw { status: 409, message: 'Conflict Schedule: Classroom is already booked at this time' };
         }
@@ -231,7 +259,13 @@ export class ClassService {
     if (updates.tutor_id && updates.date && updates.slot) {
       // Get class to find start_date
       const targetClass = await ClassRepository.getClassById(classId);
-      if (targetClass && targetClass.start_date) {
+      const originalSession = await ClassRepository.getSessionById(sessionId);
+
+      // Only check availability if we are changing to a DIFFERENT tutor.
+      // If we are rescheduling for the SAME tutor, we bypass availability check.
+      const isSameTutor = originalSession && originalSession.tutor_id === updates.tutor_id;
+
+      if (targetClass && targetClass.start_date && !isSameTutor) {
         const cycleName = getCycleNameFromDate(targetClass.start_date);
         const slotKey = getAvailabilitySlotKey(updates.date, updates.slot);
         try {

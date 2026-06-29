@@ -38,6 +38,12 @@ const TutorChangeRequests = () => {
         setIsCreating(false);
     };
 
+    const handleCancelRequest = async (id: string) => {
+        await ChangeRequestService.cancelRequest(id);
+        setRequests(requests.map(r => r.id === id ? { ...r, status: 'Cancelled' } : r));
+        setSelectedRequest(null);
+    };
+
     return (
         <div className="space-y-6 animate-fade-in-up pb-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -97,7 +103,8 @@ const TutorChangeRequests = () => {
             {selectedRequest && (
                 <ChangeRequestDetail 
                     request={selectedRequest} 
-                    onClose={() => setSelectedRequest(null)} 
+                    onClose={() => setSelectedRequest(null)}
+                    onCancel={() => handleCancelRequest(selectedRequest.id)}
                 />
             )}
 

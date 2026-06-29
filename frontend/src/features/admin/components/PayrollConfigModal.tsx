@@ -12,7 +12,7 @@ interface PayrollConfigModalProps {
 export const PayrollConfigModal = ({ config, formData, setFormData, onClose, onSave }: PayrollConfigModalProps) => {
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in overflow-y-auto">
-            <div className="bg-white rounded-2xl w-full max-w-xl shadow-xl overflow-hidden animate-slide-up my-auto">
+            <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden animate-slide-up my-auto">
                 <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f7fafc]">
                     <div className="flex items-center gap-3">
                         <Settings className="text-[#0061a5]" size={24} />
@@ -23,17 +23,17 @@ export const PayrollConfigModal = ({ config, formData, setFormData, onClose, onS
                 <div className="p-6">
                     <div className="mb-6 pb-6 border-b border-[#e0e3e5]">
                         <h2 className="text-xl font-bold text-[#181c1e]">{config.staffName}</h2>
-                        <p className="text-[#43474e]">{config.role} • {config.staffId}</p>
+                        <p className="text-[#43474e]">{config.role} • {config.email} • {config.accountCode}</p>
                     </div>
                     
                     <div className="space-y-4">
-                        {formData.role !== 'Tutor' ? (
+                        {formData.role !== 'TUTOR' ? (
                             <>
                                 <div>
                                     <label className="block text-xs font-bold text-[#43474e] mb-1">Monthly Base Salary (đ)</label>
                                     <input 
                                         type="number" 
-                                        value={formData.baseSalary} 
+                                        value={formData.baseSalary || ''} 
                                         onChange={e => setFormData({...formData, baseSalary: parseInt(e.target.value) || 0})}
                                         className="w-full px-3 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]"
                                     />
@@ -42,7 +42,7 @@ export const PayrollConfigModal = ({ config, formData, setFormData, onClose, onS
                                     <label className="block text-xs font-bold text-[#43474e] mb-1">Overtime Rate per Hour (đ)</label>
                                     <input 
                                         type="number" 
-                                        value={formData.overtimeRate} 
+                                        value={formData.overtimeRate || ''} 
                                         onChange={e => setFormData({...formData, overtimeRate: parseInt(e.target.value) || 0})}
                                         className="w-full px-3 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]"
                                     />
@@ -54,7 +54,7 @@ export const PayrollConfigModal = ({ config, formData, setFormData, onClose, onS
                                     <label className="block text-xs font-bold text-[#43474e] mb-1">Default Rate per Session (đ)</label>
                                     <input 
                                         type="number" 
-                                        value={formData.ratePerSession} 
+                                        value={formData.ratePerSession || ''} 
                                         onChange={e => setFormData({...formData, ratePerSession: parseInt(e.target.value) || 0})}
                                         className="w-full px-3 py-2 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5]"
                                     />

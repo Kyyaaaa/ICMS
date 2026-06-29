@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, ArrowLeft, Calendar, BookOpen, MessageSquare } from 'lucide-react';
@@ -92,7 +93,7 @@ export default function AdminTutorReviewDetail() {
     const paginatedReviews = sortedReviews.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const initials = tutorInfo.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
-    const joinedDate = new Date(tutorInfo.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const joinedDate = formatDate(tutorInfo.created_at);
 
     return (
         <div className="space-y-6 max-w-5xl mx-auto">
@@ -267,7 +268,7 @@ export default function AdminTutorReviewDetail() {
                                                     ))}
                                                 </div>
                                                 <span className="text-xs text-[#74777f]">
-                                                    {new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                                    {formatDate(review.created_at)}
                                                 </span>
                                             </div>
                                         </div>

@@ -2,14 +2,14 @@ import { useState, useEffect, useMemo } from "react";
 
 import { CalendarClock, Info, Lock, Send, ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  AvailabilityService,
-  SHIFTS,
-  DAYS,
-} from "../services/availability.service";
-import type { AvailabilityStatus } from "../types/availability";
+  TutorAvailabilityService,
+  type AvailabilityCycle,
+} from "@/shared/services/tutor-availability.service";
+import { SHIFTS, DAYS } from '@/shared/types/tutor-availability';
+import type { AvailabilityStatus } from "@/shared/types/tutor-availability";
 import { AvailabilityGrid } from "../components/AvailabilityGrid";
 import { showConfirmModal, showAlertModal } from "@/utils/modal";
-import type { AvailabilityCycle } from "../services/availability.service";
+import { formatMonthYear } from "@/shared/utils/date";
 
 const AvailabilityRegistration = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -47,11 +47,11 @@ const AvailabilityRegistration = () => {
         const month = currentDate.getMonth() + 1;
         const year = currentDate.getFullYear();
         
-        const cycle = await AvailabilityService.getCycleByMonth(month, year);
+        const cycle = await TutorAvailabilityService.getCycleByMonth(month, year);
         
         const [slotsData, statusData] = await Promise.all([
-          AvailabilityService.getInitialSlots(cycle.id),
-          AvailabilityService.getInitialStatus(cycle.id),
+          TutorAvailabilityService.getInitialSlots(cycle.id),
+          TutorAvailabilityService.getInitialStatus(cycle.id),
         ]);
 
         setCurrentCycle(cycle);
@@ -116,7 +116,7 @@ const AvailabilityRegistration = () => {
     }
     setIsSubmitting(true);
     try {
-      await AvailabilityService.submitAvailability(
+      await TutorAvailabilityService.submitAvailability(
         currentCycle.id,
         selectedSlots,
         "submitted",
@@ -132,7 +132,7 @@ const AvailabilityRegistration = () => {
     if (!currentCycle) return;
     setIsSavingDraft(true);
     try {
-      await AvailabilityService.submitAvailability(
+      await TutorAvailabilityService.submitAvailability(
         currentCycle.id,
         selectedSlots,
         "draft",
@@ -166,8 +166,8 @@ const AvailabilityRegistration = () => {
   const handleSelectAll = () => {
     if (isLocked) return;
     const allSlots = new Set<string>();
-    DAYS.forEach(day => {
-      SHIFTS.forEach(shift => {
+    DAYS.forEach((day: string) => {
+      SHIFTS.forEach((shift: any) => {
         allSlots.add(`${day}-${shift.id}`);
       });
     });
@@ -223,7 +223,7 @@ const AvailabilityRegistration = () => {
             </button>
             
             <div className="px-2 py-1.5 text-sm font-bold text-[#002045] min-w-35 text-center flex items-center justify-center gap-2 max-w-full">
-              <span>{currentDate.toLocaleString('default', { month: 'long' })} - {currentDate.getFullYear()}</span>
+              <span>{formatMonthYear(currentDate)}</span>
               {currentCycle && (
                 <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                   currentCycle.status === 'ACTIVE' ? 'bg-[#e3f2fd] text-[#0061a5]' : 

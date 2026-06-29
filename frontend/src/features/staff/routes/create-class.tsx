@@ -1,15 +1,18 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Users, MapPin, ChevronRight, ChevronDown } from 'lucide-react';
 import { CoursesService } from '@/shared/services/courses.service';
 import type { Course } from '@/shared/types/course';
 import { AccountsService } from '../services/accounts.service';
-import { TutorAvailabilityService } from '../services/tutor-availability.service';
-import type { TutorAvailabilityProfile } from '../types/tutor-availability';
+import type { TutorAvailabilityProfile } from '@/shared/types/tutor-availability';
+import { TutorAvailabilityService } from '@/shared/services/tutor-availability.service';
+import type { AvailabilityCycle } from '@/shared/services/tutor-availability.service';
 import { ClassroomsService } from '@/shared/services/classrooms.service';
 import type { Classroom } from '@/shared/services/classrooms.service';
 import { ClassesService } from '../services/classes.service';
+import type { Session } from '../types/class';
 import { showAlertModal } from '@/utils/modal';
+import { formatDate } from '@/shared/utils/date';
 
 const CreateClass = () => {
     const location = useLocation();
@@ -28,64 +31,83 @@ const CreateClass = () => {
     const [tutor, setTutor] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [capacity, setCapacity] = useState(20);
+    const [capacity, setCapacity] = useState<number | ''>(20);
     const [status, setStatus] = useState('UPCOMING');
 
     const [allCourses, setAllCourses] = useState<Course[]>([]);
     const [allTutors, setAllTutors] = useState<{id: string, full_name: string}[]>([]);
+    const [cycles, setCycles] = useState<AvailabilityCycle[]>([]);
     const [tutorsAvailability, setTutorsAvailability] = useState<TutorAvailabilityProfile[]>([]);
     const [availableRooms, setAvailableRooms] = useState<Classroom[]>([]);
     
     const [weeklySchedule, setWeeklySchedule] = useState<{dayOfWeek: number, slot: string}[]>([]);
     const [generatedSessions, setGeneratedSessions] = useState<{session_number: number, date: string, slot: string}[]>([]);
     const [hasLearners, setHasLearners] = useState(false);
-    const [occupiedGlobalSlots, setOccupiedGlobalSlots] = useState<{dayOfWeek: number, slot: string}[]>([]);
+    const [allGlobalSessions, setAllGlobalSessions] = useState<Session[]>([]);
 
     useEffect(() => {
-        const fetchOccupied = async () => {
-            if (tutor && startDate) {
-                const sessions = await ClassesService.getOccupiedSessions({ 
-                    tutor_id: tutor, 
-                    start_date: startDate,
-                    exclude_class_id: isEdit ? id : undefined
-                });
-                
-                const occupied: {dayOfWeek: number, slot: string}[] = [];
-                sessions.forEach(session => {
-                    if (session.date && session.slot) {
-                        const dateObj = new Date(session.date);
-                        const dayOfWeek = dateObj.getDay();
-                        if (!occupied.some(o => o.dayOfWeek === dayOfWeek && o.slot === session.slot)) {
-                            occupied.push({ dayOfWeek, slot: session.slot });
-                        }
-                    }
-                });
-                setOccupiedGlobalSlots(occupied);
-            } else {
-                setOccupiedGlobalSlots([]);
+        const fetchAllSessions = async () => {
+            if (!startDate) {
+                setAllGlobalSessions([]);
+                return;
             }
+            const sessions = await ClassesService.getOccupiedSessions({
+                start_date: startDate,
+                exclude_class_id: isEdit ? id : undefined
+            });
+            setAllGlobalSessions(sessions);
         };
-        fetchOccupied();
-    }, [tutor, startDate, id, isEdit]);
+        fetchAllSessions();
+    }, [startDate, id, isEdit]);
+
+    const occupiedGlobalSlots = useMemo(() => {
+        const occupied: {dayOfWeek: number, slot: string}[] = [];
+        allGlobalSessions.forEach(session => {
+            if ((tutor && session.tutor_id === tutor) || (selectedRoom && session.classroom_id === selectedRoom.id)) {
+                if (session.date && session.slot) {
+                    const dateObj = new Date(session.date);
+                    const dayOfWeek = dateObj.getDay();
+                    if (!occupied.some(o => o.dayOfWeek === dayOfWeek && o.slot === session.slot)) {
+                        occupied.push({ dayOfWeek, slot: session.slot });
+                    }
+                }
+            }
+        });
+        return occupied;
+    }, [allGlobalSessions, tutor, selectedRoom]);
+
+    const filteredRooms = useMemo(() => {
+        let rooms = availableRooms;
+        if (typeof capacity === 'number') {
+            rooms = rooms.filter(r => r.capacity >= capacity);
+        }
+
+        if (generatedSessions.length === 0) return rooms;
+        
+        return rooms.filter(room => {
+            const conflicts = allGlobalSessions.some(session => {
+                if (session.classroom_id !== room.id) return false;
+                return generatedSessions.some(gs => gs.date === session.date && gs.slot === session.slot);
+            });
+            return !conflicts;
+        });
+    }, [availableRooms, allGlobalSessions, generatedSessions, capacity]);
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 const cyclesData = await TutorAvailabilityService.getCycles();
-                const defaultCycle = cyclesData.find(c => c.status === 'OPEN') || cyclesData[0];
-                const cycleId = defaultCycle ? defaultCycle.id : '';
+                setCycles(cyclesData);
 
-                const [coursesData, tutorsData, roomsData, availabilityData] = await Promise.all([
+                const [coursesData, tutorsData, roomsData] = await Promise.all([
                     CoursesService.getCourses(),
                     AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' }),
-                    ClassroomsService.getAll(),
-                    cycleId ? TutorAvailabilityService.getTutors(cycleId) : Promise.resolve([])
+                    ClassroomsService.getAll()
                 ]);
                 setAllCourses(coursesData);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 setAllTutors((tutorsData as any).data?.data || []);
                 setAvailableRooms(roomsData);
-                setTutorsAvailability(availabilityData || []);
 
                 if (isEdit && id) {
                     const classData = await ClassesService.getClassById(id);
@@ -101,7 +123,8 @@ const CreateClass = () => {
                         const existingSchedule: { dayOfWeek: number, slot: string }[] = [];
                         classData.sessions.forEach((session) => {
                             if (session.date && session.slot) {
-                                const dateObj = new Date(session.date);
+                                const [yStr, mStr, dStr] = session.date.split('-');
+                                const dateObj = new Date(Number(yStr), Number(mStr) - 1, Number(dStr));
                                 const dayOfWeek = dateObj.getDay();
                                 if (!existingSchedule.some(s => s.dayOfWeek === dayOfWeek && s.slot === session.slot)) {
                                     existingSchedule.push({ dayOfWeek, slot: session.slot });
@@ -128,6 +151,31 @@ const CreateClass = () => {
     }, [isEdit, id]);
 
     useEffect(() => {
+        const fetchAvailability = async () => {
+            if (!startDate || cycles.length === 0) {
+                setTutorsAvailability([]);
+                return;
+            }
+            const [yearStr, monthStr, dayStr] = startDate.split('-');
+            const date = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
+            
+            try {
+                const targetCycle = await TutorAvailabilityService.getCycleByMonth(date.getMonth() + 1, date.getFullYear());
+                if (targetCycle) {
+                    const availabilityData = await TutorAvailabilityService.getTutorProfiles(targetCycle.id);
+                    setTutorsAvailability(availabilityData || []);
+                } else {
+                    setTutorsAvailability([]);
+                }
+            } catch (err) {
+                console.error("Failed to load tutor availability or cycle", err);
+                setTutorsAvailability([]);
+            }
+        };
+        fetchAvailability();
+    }, [startDate, cycles]);
+
+    useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (roomDropdownRef.current && !roomDropdownRef.current.contains(event.target as Node)) {
                 setIsRoomDropdownOpen(false);
@@ -152,7 +200,8 @@ const CreateClass = () => {
         const numSessions = parseInt(String(selectedCourse.sessions)) || 0;
         if (numSessions <= 0) return;
 
-        const current = new Date(startDate);
+        const [yearStr, monthStr, dayStr] = startDate.split('-');
+        const current = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
         const sessions: {session_number: number, date: string, slot: string}[] = [];
         let sessionCount = 1;
         
@@ -165,9 +214,13 @@ const CreateClass = () => {
 
             for (const match of matches) {
                 if (sessionCount > numSessions) break;
+                const year = current.getFullYear();
+                const month = String(current.getMonth() + 1).padStart(2, '0');
+                const dateNum = String(current.getDate()).padStart(2, '0');
+                
                 sessions.push({
                     session_number: sessionCount,
-                    date: current.toISOString().split('T')[0],
+                    date: `${year}-${month}-${dateNum}`,
                     slot: match.slot
                 });
                 sessionCount++;
@@ -201,7 +254,10 @@ const CreateClass = () => {
                 } else {
                     const d = new Date(nc);
                     if (!isNaN(d.getTime())) {
-                        setStartDate(d.toISOString().split('T')[0]);
+                        const year = d.getFullYear();
+                        const month = String(d.getMonth() + 1).padStart(2, '0');
+                        const dateNum = String(d.getDate()).padStart(2, '0');
+                        setStartDate(`${year}-${month}-${dateNum}`);
                     }
                 }
             }, 0);
@@ -237,10 +293,32 @@ const CreateClass = () => {
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e]">Course Program <span className="text-red-500">*</span></label>
                                 <select disabled={isEdit} value={course} onChange={(e) => setCourse(e.target.value)} className={`w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 ${isEdit ? 'bg-gray-100 cursor-not-allowed' : 'bg-[#f8f9fa]'}`}>
-                                    <option value="">-- Select Course --</option>
-                                    {allCourses.map(c => (
-                                        <option key={c.id} value={c.id}>{c.title}</option>
-                                    ))}
+                                    <option value="" disabled hidden>Select Course</option>
+                                    {allCourses.map(c => {
+                                        let isStarted = false;
+                                        if (c.next_cohort) {
+                                            const nc = String(c.next_cohort);
+                                            let dateVal = 0;
+                                            if (nc.includes('/')) {
+                                                const parts = nc.split('/');
+                                                if (parts.length === 3) {
+                                                    dateVal = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).getTime();
+                                                }
+                                            } else {
+                                                dateVal = new Date(nc).getTime();
+                                            }
+                                            // Set to true if the course start date is in the past (before today)
+                                            if (dateVal && dateVal < new Date().setHours(0,0,0,0)) {
+                                                isStarted = true;
+                                            }
+                                        }
+
+                                        return (
+                                            <option key={c.id} value={c.id} disabled={isStarted}>
+                                                {c.title} {isStarted ? '(Already Started)' : ''}
+                                            </option>
+                                        );
+                                    })}
                                 </select>
                             </div>
                             <div className="space-y-2">
@@ -261,7 +339,7 @@ const CreateClass = () => {
                                     // Reset weekly schedule if tutor changes because availability changes
                                     setWeeklySchedule([]);
                                 }} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20">
-                                    <option value="">-- Select Available Tutor --</option>
+                                    <option value="">No Tutor Assigned</option>
                                     {allTutors.map(t => (
                                         <option key={t.id} value={t.id}>{t.full_name}</option>
                                     ))}
@@ -279,7 +357,7 @@ const CreateClass = () => {
                                             {selectedRoom.room_name} (Cap: {selectedRoom.capacity})
                                         </span>
                                     ) : (
-                                        <span className="text-gray-500">-- Select Available Room --</span>
+                                        <span className="text-gray-500">Select Available Room</span>
                                     )}
                                     <ChevronDown className={`w-4 h-4 shrink-0 text-gray-500 transition-transform ${isRoomDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
@@ -290,13 +368,17 @@ const CreateClass = () => {
                                             className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors text-gray-500"
                                             onClick={() => { setSelectedRoom(null); setIsRoomDropdownOpen(false); }}
                                         >
-                                            -- Select Available Room --
+                                            No Room Assigned
                                         </button>
-                                        {availableRooms.map((room) => (
+                                        {filteredRooms.map((room) => (
                                             <button 
                                                 key={room.id}
                                                 className="w-full text-left px-4 py-2 hover:bg-[#f0f7ff] transition-colors truncate"
-                                                onClick={() => { setSelectedRoom(room); setIsRoomDropdownOpen(false); }}
+                                                onClick={() => { 
+                                                    setSelectedRoom(room); 
+                                                    setIsRoomDropdownOpen(false); 
+                                                    if (typeof capacity === 'number' && capacity > room.capacity) setCapacity(room.capacity);
+                                                }}
                                             >
                                                 {room.room_name} (Cap: {room.capacity})
                                             </button>
@@ -306,7 +388,25 @@ const CreateClass = () => {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-[#181c1e]">Capacity <span className="text-red-500">*</span></label>
-                                <input type="number" min="1" value={capacity} onChange={(e) => setCapacity(parseInt(e.target.value))} className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" />
+                                <input 
+                                    type="number" 
+                                    min="1" 
+                                    max={selectedRoom ? selectedRoom.capacity : undefined}
+                                    value={capacity || ''} 
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        if (isNaN(val)) {
+                                            setCapacity(''); // allow clear
+                                            return;
+                                        }
+                                        if (selectedRoom && val > selectedRoom.capacity) {
+                                            setCapacity(selectedRoom.capacity);
+                                        } else {
+                                            setCapacity(val);
+                                        }
+                                    }} 
+                                    className="w-full px-4 py-3 border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20" 
+                                />
                             </div>
                             {isEdit && (
                                 <div className="space-y-2">
@@ -346,7 +446,11 @@ const CreateClass = () => {
                             )}
 
                             <div className="space-y-2 mt-2">
-                                    {!tutor ? (
+                                    {!course ? (
+                                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center text-gray-500">
+                                            Please select a course program first to determine the schedule timeline.
+                                        </div>
+                                    ) : !tutor ? (
                                         <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center text-gray-500">
                                             Please select a tutor to view their available slots.
                                         </div>
@@ -364,32 +468,35 @@ const CreateClass = () => {
                                             </div>
                                             <div className="space-y-3">
                                                 {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(dayName => {
-                                                    const daySlots = tutorSlots.filter(s => s.startsWith(`${dayName}-`));
+                                                    const daySlots = tutorSlots.filter((s: string) => s.startsWith(`${dayName}-`)).sort((a: string, b: string) => {
+                                                        const shiftToSlotMap: Record<string, string> = {
+                                                            'slot1': 'slot1', 'slot2': 'slot2',
+                                                            'slot3': 'slot3', 'slot4': 'slot4',
+                                                            'slot5': 'slot5', 'slot6': 'slot6'
+                                                        };
+                                                        const slotA = shiftToSlotMap[a.split('-')[1]] || a.split('-')[1];
+                                                        const slotB = shiftToSlotMap[b.split('-')[1]] || b.split('-')[1];
+                                                        return slotA.localeCompare(slotB);
+                                                    });
                                                     if (daySlots.length === 0) return null;
 
                                                     return (
                                                         <div key={dayName} className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center border-b border-gray-100 pb-3 last:border-0 last:pb-0">
                                                             <span className="text-sm font-bold text-[#002045] w-24 shrink-0">{dayName}</span>
                                                             <div className="flex flex-wrap gap-2">
-                                                                {daySlots.map(slotStr => {
+                                                                {daySlots.map((slotStr: string) => {
                                                                     const fullDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                                                                    const shiftToSlotMap: Record<string, string> = {
-                                                                        'M1': 'slot1', 'M2': 'slot2',
-                                                                        'A1': 'slot3', 'A2': 'slot4',
-                                                                        'E1': 'slot5', 'E2': 'slot6'
-                                                                    };
-                                                                    const shiftToLabelMap: Record<string, string> = {
-                                                                        'M1': 'Slot 1 (07:30 - 09:30)', 'M2': 'Slot 2 (09:30 - 11:30)',
-                                                                        'A1': 'Slot 3 (13:30 - 15:30)', 'A2': 'Slot 4 (15:30 - 17:30)',
-                                                                        'E1': 'Slot 5 (18:00 - 20:00)', 'E2': 'Slot 6 (20:00 - 22:00)'
+                                                                    const slotLabels: Record<string, string> = {
+                                                                        'slot1': 'Slot 1 (07:30 - 09:30)', 'slot2': 'Slot 2 (09:30 - 11:30)',
+                                                                        'slot3': 'Slot 3 (13:30 - 15:30)', 'slot4': 'Slot 4 (15:30 - 17:30)',
+                                                                        'slot5': 'Slot 5 (18:00 - 20:00)', 'slot6': 'Slot 6 (20:00 - 22:00)'
                                                                     };
 
-                                                                    const shiftName = slotStr.split('-')[1];
-                                                                    if (!shiftName) return null;
+                                                                    const slotCode = slotStr.split('-')[1];
+                                                                    if (!slotCode) return null;
 
                                                                     const dayIndex = fullDays.indexOf(dayName);
-                                                                    const slotCode = shiftToSlotMap[shiftName] || shiftName;
-                                                                    const label = shiftToLabelMap[shiftName] || shiftName;
+                                                                    const label = slotLabels[slotCode] || slotCode;
 
                                                                     const isSelected = weeklySchedule.some(s => s.dayOfWeek === dayIndex && s.slot === slotCode);
                                                                     const isOccupied = occupiedGlobalSlots.some(s => s.dayOfWeek === dayIndex && s.slot === slotCode);
@@ -437,11 +544,11 @@ const CreateClass = () => {
                                             <div className="grid grid-cols-3 gap-4 text-sm bg-white p-3 rounded-lg border border-[#e0e3e5] shadow-sm">
                                                 <div>
                                                     <p className="text-[#74777f] mb-1">Starts on</p>
-                                                    <p className="font-bold">{startDate.split('-').reverse().join('/')}</p>
+                                                    <p className="font-bold">{formatDate(startDate)}</p>
                                                 </div>
                                                 <div>
                                                     <p className="text-[#74777f] mb-1">Ends on</p>
-                                                    <p className="font-bold">{endDate.split('-').reverse().join('/')}</p>
+                                                    <p className="font-bold">{formatDate(endDate)}</p>
                                                 </div>
                                                 <div>
                                                     <p className="text-[#74777f] mb-1">Total Sessions</p>
@@ -464,6 +571,10 @@ const CreateClass = () => {
                         onClick={async () => {
                             if (!course || !className || !startDate || !endDate || !capacity) {
                                 showAlertModal('Error', 'Please fill in all required fields (*)', 'error');
+                                return;
+                            }
+                            if (selectedRoom && capacity > selectedRoom.capacity) {
+                                showAlertModal('Error', `Class capacity (${capacity}) cannot exceed the selected room's capacity (${selectedRoom.capacity}).`, 'error');
                                 return;
                             }
                             setIsSubmitting(true);

@@ -7,10 +7,25 @@ interface TransactionModalProps {
 }
 
 export const TransactionModal = ({ transaction, onClose }: TransactionModalProps) => {
+    const formatDate = (dateString: string) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            return date.toLocaleString('en-GB', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch {
+            return dateString;
+        }
+    };
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in overflow-y-auto">
-            <div className="bg-white rounded-2xl w-full max-w-2xl shadow-xl overflow-hidden animate-slide-up my-auto">
-                <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f7fafc]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+            <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-xl overflow-hidden animate-slide-up">
+                <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f7fafc] shrink-0">
                     <div className="flex items-center gap-3">
                         {transaction.category === 'Course Registration' && <Receipt className="text-[#0061a5]" size={24} />}
                         {transaction.category === 'Course Refund' && <Undo className="text-[#ba1a1a]" size={24} />}
@@ -25,18 +40,18 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                     <button onClick={onClose} className="text-[#74777f] hover:text-[#181c1e] transition-colors"><X size={24} /></button>
                 </div>
                 
-                <div className="p-6">
+                <div className="p-6 overflow-y-auto">
                     {/* COURSE REGISTRATION (INVOICE) */}
                     {transaction.category === 'Course Registration' && (
                         <div className="space-y-6">
                             <div className="flex justify-between items-start border-b border-[#e0e3e5] pb-6">
                                 <div>
                                     <h2 className="text-2xl font-bold text-[#181c1e]">{transaction.user.name}</h2>
-                                    <p className="text-[#43474e]">{transaction.user.role} • Student ID: STD-{transaction.id.split('-')[1] || '10293'}</p>
+                                    <p className="text-[#43474e]">{transaction.user.role} • Account Code: {transaction.user.accountCode || 'N/A'}</p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-xs text-[#74777f] font-bold uppercase mb-1">Status</p>
-                                    <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full uppercase ${transaction.status === 'Completed' ? 'bg-[#e6f4ea] text-[#137333]' : transaction.status === 'Processing' ? 'bg-[#e6f0fa] text-[#0061a5]' : 'bg-[#fceeee] text-[#ba1a1a]'}`}>
+                                    <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full uppercase ${transaction.status === 'Completed' ? 'bg-[#e6f4ea] text-[#137333]' : transaction.status === 'Processing' ? 'bg-[#e6f0fa] text-[#0061a5]' : transaction.status === 'Refunded' ? 'bg-[#f3f4f6] text-[#43474e]' : 'bg-[#fceeee] text-[#ba1a1a]'}`}>
                                         {transaction.status}
                                     </span>
                                 </div>
@@ -49,7 +64,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[#74777f] font-bold uppercase mb-1 text-xs">Date of Issue</p>
-                                    <p className="font-bold text-[#181c1e]">{transaction.date}</p>
+                                    <p className="font-bold text-[#181c1e]">{formatDate(transaction.date)}</p>
                                 </div>
                             </div>
 
@@ -62,14 +77,30 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td className="py-4 px-4 text-sm font-bold text-[#002045] border-b border-[#e0e3e5]">
-                                            {transaction.description}
-                                            <div className="text-xs font-normal text-[#74777f] mt-1">Course Tuition Fee</div>
-                                        </td>
-                                        <td className="py-4 px-4 text-sm text-center border-b border-[#e0e3e5]">1</td>
-                                        <td className="py-4 px-4 text-sm font-bold text-right border-b border-[#e0e3e5]">{transaction.amount.toLocaleString()} đ</td>
-                                    </tr>
+                                    {transaction.isInstallment && transaction.installments && transaction.installments.length > 0 ? (
+                                        transaction.installments.map((inst, index) => (
+                                            <tr key={index}>
+                                                <td className="py-4 px-4 text-sm font-bold text-[#002045] border-b border-[#e0e3e5]">
+                                                    {transaction.description}
+                                                    <div className="text-xs font-normal text-[#74777f] mt-1 flex items-center gap-2">
+                                                        Installment {inst.installment_number} • {inst.status === 'PAID' && inst.paid_date ? `Paid on ${formatDate(inst.paid_date)}` : `Due ${formatDate(inst.due_date)}`}
+                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${inst.status === 'PAID' ? 'bg-[#e6f4ea] text-[#137333]' : 'bg-[#fff8e1] text-[#c9a82c]'}`}>{inst.status}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 px-4 text-sm text-center border-b border-[#e0e3e5]">1</td>
+                                                <td className="py-4 px-4 text-sm font-bold text-right border-b border-[#e0e3e5]">{inst.amount.toLocaleString()} đ</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td className="py-4 px-4 text-sm font-bold text-[#002045] border-b border-[#e0e3e5]">
+                                                {transaction.description}
+                                                <div className="text-xs font-normal text-[#74777f] mt-1">Course Tuition Fee</div>
+                                            </td>
+                                            <td className="py-4 px-4 text-sm text-center border-b border-[#e0e3e5]">1</td>
+                                            <td className="py-4 px-4 text-sm font-bold text-right border-b border-[#e0e3e5]">{transaction.amount.toLocaleString()} đ</td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
 
@@ -84,9 +115,15 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                         <span className="font-bold">0 đ</span>
                                     </div>
                                     <div className="flex justify-between py-3">
-                                        <span className="text-base font-bold text-[#002045]">Total</span>
-                                        <span className="text-xl font-extrabold text-[#137333]">{transaction.amount.toLocaleString()} đ</span>
+                                        <span className="text-base font-bold text-[#002045]">Total Invoice</span>
+                                        <span className="text-xl font-extrabold text-[#002045]">{transaction.amount.toLocaleString()} đ</span>
                                     </div>
+                                    {transaction.isInstallment && (
+                                    <div className="flex justify-between py-2 border-t border-[#e0e3e5] mt-1 pt-3">
+                                        <span className="text-base font-bold text-[#137333]">Total Paid</span>
+                                        <span className="text-xl font-extrabold text-[#137333]">{transaction.paidAmount?.toLocaleString() || 0} đ</span>
+                                    </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -98,7 +135,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                             <div className="flex justify-between items-start border-b border-[#e0e3e5] pb-6">
                                 <div>
                                     <h2 className="text-2xl font-bold text-[#181c1e]">{transaction.user.name}</h2>
-                                    <p className="text-[#43474e]">{transaction.user.role} • Student ID: STD-{transaction.id.split('-')[1] || '10293'}</p>
+                                    <p className="text-[#43474e]">{transaction.user.role} • Account Code: {transaction.user.accountCode || 'N/A'}</p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-xs text-[#74777f] font-bold uppercase mb-1">Status</p>
@@ -115,7 +152,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                 </div>
                                 <div className="bg-[#f7fafc] p-4 rounded-xl border border-[#e0e3e5]">
                                     <span className="text-xs text-[#74777f] font-bold uppercase block mb-1">Date Processed</span>
-                                    <span className="text-sm font-bold text-[#181c1e]">{transaction.date}</span>
+                                    <span className="text-sm font-bold text-[#181c1e]">{formatDate(transaction.date)}</span>
                                 </div>
                                 <div className="bg-[#f7fafc] p-4 rounded-xl border border-[#e0e3e5]">
                                     <span className="text-xs text-[#74777f] font-bold uppercase block mb-1">Original Course</span>
@@ -123,7 +160,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                 </div>
                                 <div className="bg-[#f7fafc] p-4 rounded-xl border border-[#e0e3e5]">
                                     <span className="text-xs text-[#74777f] font-bold uppercase block mb-1">Reason</span>
-                                    <span className="text-sm text-[#43474e]">Requested by learner before course start date.</span>
+                                    <span className="text-sm text-[#43474e]">{transaction.reason || 'Requested by learner before course start date.'}</span>
                                 </div>
                             </div>
 
@@ -231,7 +268,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                 </div>
                                 <div className="bg-[#f7fafc] p-4 rounded-xl border border-[#e0e3e5]">
                                     <span className="text-xs text-[#74777f] font-bold uppercase block mb-1">Date</span>
-                                    <span className="text-sm font-bold text-[#181c1e]">{transaction.date}</span>
+                                    <span className="text-sm font-bold text-[#181c1e]">{formatDate(transaction.date)}</span>
                                 </div>
                                 <div className="bg-[#f7fafc] p-4 rounded-xl border border-[#e0e3e5]">
                                     <span className="text-xs text-[#74777f] font-bold uppercase block mb-1">Category</span>

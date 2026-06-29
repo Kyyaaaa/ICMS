@@ -1,20 +1,22 @@
+import { formatDate } from "../../../shared/utils/date";
 import type { PaymentInvoice, PaymentCourseInfo, PaymentClassInfo, PaymentInstallment } from '../types/payment';
 import axiosClient from '@/shared/services/axiosClient';
 
 export const LearnerPaymentsService = {
     getInvoices: async (): Promise<PaymentInvoice[]> => {
         try {
-            const res = await axiosClient.get('/invoices') as { data: { id: string; invoice_code: string; amount: number; created_at: string; status: string; classes?: { courses?: { title: string } }; account?: { full_name?: string; email?: string } }[] };
+            const res = await axiosClient.get('/invoices') as { data: { id: string; invoice_code: string; amount: number; discount?: number; created_at: string; status: string; classes?: { courses?: { title: string } }; account?: { full_name?: string; email?: string }; refund_requests?: { status: string }[] }[] };
             const data = res.data;
             return data.map((inv) => ({
                 id: inv.invoice_code || inv.id,
                 course: inv.classes?.courses?.title || 'Unknown Course',
-                date: new Date(inv.created_at).toLocaleDateString('en-GB'),
+                date: formatDate(inv.created_at),
                 amount: inv.amount,
-                discount: 0,
+                discount: inv.discount || 0,
                 status: inv.status.toLowerCase() as PaymentInvoice['status'],
                 learnerName: inv.account?.full_name,
-                learnerEmail: inv.account?.email
+                learnerEmail: inv.account?.email,
+                hasPendingRefund: inv.refund_requests?.some(r => r.status === 'PENDING' || r.status === 'APPROVED') || false
             }));
         } catch (error) {
             console.error("Failed to fetch invoices", error);
@@ -24,7 +26,7 @@ export const LearnerPaymentsService = {
 
     getInvoiceById: async (id: string): Promise<PaymentInvoice | undefined> => {
         try {
-            const res = await axiosClient.get(`/invoices/${id}`) as { data: { id: string; invoice_code: string; amount: number; created_at: string; status: string; classes?: { courses?: { title: string } }; account?: { full_name?: string; email?: string }; invoice_installments?: { id: string; installment_number: number; amount: number; due_date: string; status: string; paid_date?: string }[] } };
+            const res = await axiosClient.get(`/invoices/${id}`) as { data: { id: string; invoice_code: string; amount: number; discount?: number; created_at: string; status: string; classes?: { courses?: { title: string } }; account?: { full_name?: string; email?: string }; invoice_installments?: { id: string; installment_number: number; amount: number; due_date: string; status: string; paid_date?: string }[]; refund_requests?: { status: string }[] } };
             const inv = res.data;
             if (!inv) return undefined;
 
@@ -32,22 +34,24 @@ export const LearnerPaymentsService = {
                 id: inst.id,
                 installmentNumber: inst.installment_number,
                 amount: inst.amount,
-                dueDate: new Date(inst.due_date).toLocaleDateString('en-GB'),
+                dueDate: formatDate(inst.due_date),
                 status: inst.status.toLowerCase() as PaymentInstallment['status'],
-                paidDate: inst.paid_date ? new Date(inst.paid_date).toLocaleDateString('en-GB') : undefined
+                paidDate: inst.paid_date ? formatDate(inst.paid_date) : undefined
             })) || [];
 
             return {
                 id: inv.invoice_code || inv.id,
+                dbId: inv.id,
                 course: inv.classes?.courses?.title || 'Unknown Course',
-                date: new Date(inv.created_at).toLocaleDateString('en-GB'),
+                date: formatDate(inv.created_at),
                 amount: inv.amount,
-                discount: 0,
+                discount: inv.discount || 0,
                 status: inv.status.toLowerCase() as PaymentInvoice['status'],
                 installments: mappedInstallments,
                 learnerName: inv.account?.full_name,
                 learnerEmail: inv.account?.email,
-                createdAt: inv.created_at
+                createdAt: inv.created_at,
+                hasPendingRefund: inv.refund_requests?.some(r => r.status === 'PENDING' || r.status === 'APPROVED') || false
             };
         } catch {
             return undefined;
@@ -99,7 +103,12 @@ export const LearnerPaymentsService = {
         return new Promise(resolve => setTimeout(() => resolve(true), 2000));
     },
 
-    requestRefund: async (_invoiceId: string, _reason: string, _details?: string): Promise<boolean> => {
-        return new Promise(resolve => setTimeout(() => resolve(true), 1500));
+    requestRefund: async (payload: { invoice_id: string, amount: number, reason: string, admin_notes?: string, bank_name: string, bank_account_name: string, bank_account_number: string }): Promise<boolean> => {
+        try {
+            await axiosClient.post('/refunds/learner', payload);
+            return true;
+        } catch {
+            return false;
+        }
     }
 };

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Wallet } from 'lucide-react';
-import type { SalaryRecord } from '../types/salary';
-import { SalaryService } from '../services/salary.service';
+import type { SalaryRecord } from '@/shared/types/salary';
+import { SalaryService } from '@/shared/services/salary.service';
 import { SalaryCards } from '../components/SalaryCards';
 import { SalaryTable } from '../components/SalaryTable';
-import { PayslipModal } from '../components/PayslipModal';
+import { PayslipModal } from '../../../shared/components/common/PayslipModal';
 
 const TutorSalaryHistory = () => {
     const [selectedYear] = useState('2026');

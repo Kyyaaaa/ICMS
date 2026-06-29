@@ -1,4 +1,4 @@
-import { Clock, Edit } from 'lucide-react';
+import { Clock, Edit, Eye } from 'lucide-react';
 import { getSlotLabel } from '@/shared/lib/utils';
 import type { Session } from '../types/class';
 
@@ -57,13 +57,18 @@ export const ClassScheduleTab = ({ scheduleData, onEditSession }: ClassScheduleT
                                 </div>
                             </td>
                             <td className="p-4 text-right">
-                                <button 
-                                    onClick={() => onEditSession(item)}
-                                    className="p-2 bg-blue-50 text-[#0061a5] rounded-lg hover:bg-blue-100 transition-colors tooltip-trigger" 
-                                    title="Edit Schedule"
-                                >
-                                    <Edit className="w-4 h-4"/>
-                                </button>
+                                {(() => {
+                                    const isPast = new Date(item.date) < new Date(new Date().setHours(0,0,0,0));
+                                    return (
+                                        <button 
+                                            onClick={() => onEditSession(item)}
+                                            className={`p-2 rounded-lg transition-colors tooltip-trigger ${isPast ? 'bg-gray-50 text-gray-500 hover:bg-gray-100' : 'bg-blue-50 text-[#0061a5] hover:bg-blue-100'}`} 
+                                            title={isPast ? "View Details" : "Edit Schedule"}
+                                        >
+                                            {isPast ? <Eye className="w-4 h-4"/> : <Edit className="w-4 h-4"/>}
+                                        </button>
+                                    );
+                                })()}
                             </td>
                         </tr>
                     ))}

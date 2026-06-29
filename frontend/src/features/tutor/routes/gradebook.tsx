@@ -13,9 +13,10 @@ const TutorGradebook = () => {
     const [gradesData, setGradesData] = useState<StudentWithGrades[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isPublishing, setIsPublishing] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [defaultScaleInput, setDefaultScaleInput] = useState<string>('9');
-    const defaultScale = Number(defaultScaleInput) || 9;
+    const [gradingStatus, setGradingStatus] = useState<string>('PENDING');
+    const defaultScale = 9;
     
     // Side Panel State
     const [selectedCell, setSelectedCell] = useState<{ studentId: string, assId: string } | null>(null);
@@ -23,17 +24,21 @@ const TutorGradebook = () => {
     // Modal State for Adding Column
     const [showAddModal, setShowAddModal] = useState(false);
     const [newAssTitle, setNewAssTitle] = useState('');
+    
+    const [deletedAssessmentIds, setDeletedAssessmentIds] = useState<string[]>([]);
 
     useEffect(() => {
         if (!classId) return;
         const loadData = async () => {
             setIsLoading(true);
-            const [assData, stuData] = await Promise.all([
-                GradebookService.getAssessments(classId),
-                GradebookService.getStudentsWithGrades(classId)
-            ]);
-            setAssessments(assData);
-            setGradesData(stuData);
+            try {
+                const data = await GradebookService.getGradebook(classId);
+                setAssessments(data.assessments);
+                setGradesData(data.students);
+                setGradingStatus(data.grading_status);
+            } catch (_error) {
+                showAlertModal('Error', 'Failed to load gradebook data.', 'error');
+            }
             setIsLoading(false);
         };
         loadData();
@@ -98,11 +103,84 @@ const TutorGradebook = () => {
 
     const handleSaveGrades = async () => {
         if (!classId) return;
+
+        // Validation for max score
+        for (const student of gradesData) {
+            for (const assId of Object.keys(student.grades)) {
+                const score = student.grades[assId].score;
+                if (score !== null && score > 9) {
+                    showAlertModal('Validation Error', `Scores cannot exceed 9. Please check grades for ${student.name}.`, 'error');
+                    return;
+                }
+            }
+        }
+
         setIsSaving(true);
-        await GradebookService.saveGrades(classId, gradesData);
-        setIsSaving(false);
-        setIsEditing(false);
-        showAlertModal('Grades Saved', 'All learner grades and feedback have been successfully saved.', 'success');
+        
+        const upsertAssessments = assessments.map((a, index) => ({
+            id: a.id,
+            name: a.title,
+            order_index: index
+        }));
+
+        const upsertGrades: { assessment_id: string, learner_id: string, score: number, feedback: string }[] = [];
+        gradesData.forEach(student => {
+            Object.keys(student.grades).forEach(assId => {
+                const grade = student.grades[assId];
+                if (grade.score !== null || (grade.feedback && grade.feedback.trim() !== '')) {
+                    upsertGrades.push({
+                        assessment_id: assId,
+                        learner_id: student.id,
+                        score: grade.score || 0,
+                        feedback: grade.feedback || ''
+                    });
+                }
+            });
+        });
+
+        try {
+            await GradebookService.saveGrades(classId, {
+                deletedAssessmentIds,
+                upsertAssessments,
+                upsertGrades
+            });
+            setIsSaving(false);
+            setIsEditing(false);
+            setDeletedAssessmentIds([]);
+            showAlertModal('Grades Saved', 'All learner grades and feedback have been successfully saved.', 'success');
+        } catch (_error) {
+            setIsSaving(false);
+            showAlertModal('Error', 'Failed to save grades.', 'error');
+        }
+    };
+
+    const handlePublishGrades = async () => {
+        if (!classId) return;
+        
+        const confirm = await showConfirmModal(
+            'Publish Grades', 
+            'Are you sure you want to publish these grades? Once published, learners will be able to view their Academic Transcript. This action cannot be easily undone.', 
+            'warning', 
+            'Publish', 
+            'Cancel'
+        );
+        if (!confirm) return;
+
+        setIsPublishing(true);
+        try {
+            // Wait for any pending saves first if we are in editing mode
+            if (isEditing) {
+                await handleSaveGrades();
+            }
+            
+            await GradebookService.publishGrades(classId);
+            setGradingStatus('PUBLISHED');
+            setIsPublishing(false);
+            showAlertModal('Grades Published', 'Grades have been published successfully. Learners can now view their transcripts.', 'success');
+        } catch (_error) {
+            setIsPublishing(false);
+            showAlertModal('Error', 'Failed to publish grades.', 'error');
+        }
     };
 
     const handleConfirmAddColumn = () => {
@@ -111,8 +189,9 @@ const TutorGradebook = () => {
             return;
         }
         
+        const newId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : `a${Date.now()}`;
         const newAss = {
-            id: `a${Date.now()}`,
+            id: newId,
             title: newAssTitle.trim(),
             maxScore: defaultScale
         };
@@ -125,6 +204,7 @@ const TutorGradebook = () => {
         const confirm = await showConfirmModal('Delete Assessment', 'Are you sure you want to delete this assessment column?', 'error', 'Delete', 'Cancel');
         if (!confirm) return;
         
+        setDeletedAssessmentIds(prev => [...prev, id]);
         setAssessments(prev => prev.filter(a => a.id !== id));
         setGradesData(prev => prev.map(student => {
             const newGrades = { ...student.grades };
@@ -202,21 +282,7 @@ const TutorGradebook = () => {
                             <div className="flex flex-wrap items-center justify-end gap-3">
                                 {isEditing && (
                                     <>
-                                        <div className="flex items-center gap-2 pr-3 sm:border-r border-[#e2e2e9]">
-                                            <label className="text-xs font-semibold text-[#43474e]">Scale:</label>
-                                            <input 
-                                                type="number"
-                                                min="1"
-                                                value={defaultScaleInput}
-                                                onChange={(e) => setDefaultScaleInput(e.target.value)}
-                                                onBlur={(e) => {
-                                                    if (!e.target.value || Number(e.target.value) <= 0) {
-                                                        setDefaultScaleInput('9');
-                                                    }
-                                                }}
-                                                className="w-14 px-2 py-1.5 bg-white border border-[#e2e2e9] rounded-lg text-center font-bold text-[#002045] focus:outline-none focus:ring-2 focus:ring-[#0061a5]/30 focus:border-[#0061a5] transition-all shadow-sm"
-                                            />
-                                        </div>
+
 
                                         <button 
                                             onClick={() => {
@@ -229,6 +295,20 @@ const TutorGradebook = () => {
                                             Add Column
                                         </button>
                                     </>
+                                )}
+                                
+                                {gradingStatus !== 'PUBLISHED' && (
+                                    <button 
+                                        onClick={handlePublishGrades}
+                                        disabled={isPublishing || isSaving}
+                                        className={`px-4 py-2 font-semibold bg-white border shadow-sm rounded-xl transition-colors flex items-center gap-2 text-sm ${
+                                            isPublishing || isSaving
+                                                ? 'border-[#e2e2e9] text-[#74777f] cursor-not-allowed'
+                                                : 'border-[#059669] text-[#059669] hover:bg-[#ecfdf5]'
+                                        }`}
+                                    >
+                                        {isPublishing ? 'Publishing...' : 'Publish Grades'}
+                                    </button>
                                 )}
                                 
                                 {isEditing ? (

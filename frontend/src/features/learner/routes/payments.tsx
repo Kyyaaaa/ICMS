@@ -18,8 +18,11 @@ const PaymentHistory = () => {
 
 
 
-    const getStatusBadge = (status: string) => {
-        switch (status) {
+    const getStatusBadge = (inv: PaymentInvoice) => {
+        if (inv.hasPendingRefund) {
+            return <span className="px-3 py-1.5 bg-[#fff3e0] text-[#e65100] text-xs font-black rounded-full uppercase tracking-widest border border-[#e65100]/20 shadow-sm animate-pulse">Refund Pending</span>;
+        }
+        switch (inv.status) {
             case 'paid': return <span className="px-3 py-1.5 bg-[#e6f4ea] text-[#137333] text-xs font-black rounded-full uppercase tracking-widest border border-[#137333]/20 shadow-sm">Paid</span>;
             case 'partial': return <span className="px-3 py-1.5 bg-[#e3f2fd] text-[#0061a5] text-xs font-black rounded-full uppercase tracking-widest border border-[#0061a5]/20 shadow-sm">Partially Paid</span>;
             case 'pending': return <span className="px-3 py-1.5 bg-[#fff8e1] text-[#b45309] text-xs font-black rounded-full uppercase tracking-widest border border-[#b45309]/20 shadow-sm animate-pulse">Pending</span>;
@@ -66,7 +69,7 @@ const PaymentHistory = () => {
                                     <td className="py-5 px-6 font-black text-slate-900">{inv.amount.toLocaleString('vi-VN')} đ</td>
                                     <td className="py-5 px-6">
                                         <div className="flex items-center gap-2">
-                                            {getStatusBadge(inv.status)}
+                                            {getStatusBadge(inv)}
                                         </div>
                                     </td>
                                     <td className="py-5 px-6 text-right">

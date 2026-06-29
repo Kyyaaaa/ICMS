@@ -9,5 +9,7 @@ export interface TutorScheduleSession {
     dayIndex: number;
     startTime: string;
     endTime: string;
-    attendance: 'taken' | 'pending';
+    attendance: 'taken' | 'pending' | 'not_yet';
+    attendanceStatus?: 'taken' | 'pending' | 'not_yet';
+    date?: Date;
 }

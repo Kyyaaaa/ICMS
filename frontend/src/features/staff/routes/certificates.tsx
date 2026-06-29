@@ -1,3 +1,4 @@
+import { formatDate, formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect } from "react";
 import { Eye, Search, CheckCircle, XCircle, X, ShieldAlert, ShieldCheck, ShieldX, Download } from "lucide-react";
 import { StaffCertificatesService } from "../services/certificates.service";
@@ -119,11 +120,7 @@ const StaffCertificates = () => {
     return matchesSearch && matchesStatus;
   }).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return "N/A";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-GB');
-  };
+
 
   return (
     <div className="space-y-6 animate-fade-in-up">
@@ -246,7 +243,7 @@ const StaffCertificates = () => {
                   <td className="p-4 text-[#43474e]">{item.issuer}</td>
                   <td className="p-4 text-[#43474e]">
                     <p className="text-xs font-medium">
-                      {new Date(item.created_at).toLocaleString("vi-VN")}
+                      {formatDateTime(item.created_at)}
                     </p>
                   </td>
                   <td className="p-4">
@@ -374,7 +371,7 @@ const StaffCertificates = () => {
                     Submitted On
                   </p>
                   <p className="font-medium text-[#181c1e] text-sm">
-                    {new Date(selectedQual.created_at).toLocaleString("vi-VN")}
+                    {formatDateTime(selectedQual.created_at)}
                   </p>
                 </div>
 

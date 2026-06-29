@@ -1,12 +1,12 @@
 export interface TutorChangeRequest {
-    id: number;
+    id: string;
     className: string;
     session: number;
     type: string;
     originalTime: string;
     proposedTime: string | null;
     reason: string;
-    status: 'Pending' | 'Approved' | 'Rejected';
+    status: 'Pending' | 'Approved' | 'Rejected' | 'Cancelled';
     submittedAt: string;
     staffNote: string;
     finalTime: string;
@@ -18,4 +18,8 @@ export interface CreateChangeRequestData {
     type: string;
     proposedTime: string | null;
     reason: string;
+    class_id: string;
+    session_id: string;
+    tutor_id: string;
+    originalTime: string;
 }

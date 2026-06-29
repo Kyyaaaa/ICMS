@@ -1,6 +1,7 @@
 export interface ChangeRequest {
-    id: number;
+    id: string;
     tutor: string;
+    tutorId: string;
     className: string;
     session: number;
     type: string;
@@ -11,4 +12,5 @@ export interface ChangeRequest {
     submittedAt: string;
     finalTime?: string;
     staffNote?: string;
+    originalRoomId?: string;
 }

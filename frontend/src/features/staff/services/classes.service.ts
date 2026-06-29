@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import type { Class, CourseGroup, CreateClassDTO, UpdateClassDTO, UpdateClassSessionDTO, Session } from '../types/class';
 import axiosClient from '@/shared/services/axiosClient';
 import { formatAccountID } from '@/shared/lib/utils';
@@ -93,7 +94,7 @@ export const ClassesService = {
                     code: formatAccountID(typedItem.account?.account_code || typedItem.account?.id || typedItem.learner_id || typedItem.id, 'LEARNER'),
                     name: typedItem.account?.full_name || 'Unknown',
                     email: typedItem.account?.email || 'N/A',
-                    joinedDate: typedItem.enrollment_date ? new Date(typedItem.enrollment_date).toLocaleDateString('en-GB') : 'TBA',
+                    joinedDate: typedItem.enrollment_date ? formatDate(typedItem.enrollment_date) : 'TBA',
                     attendanceRate: 100 // Mock attendance rate for now
                 };
             });

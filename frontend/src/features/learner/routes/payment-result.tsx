@@ -1,3 +1,4 @@
+import { formatDate } from "../../../shared/utils/date";
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
@@ -58,7 +59,7 @@ const PaymentResult = () => {
                             <div className="bg-[#f7fafc] border border-[#e0e3e5] rounded-2xl p-6 mb-10 text-left max-w-md mx-auto">
                                 <div className="flex justify-between mb-3 text-sm"><span className="text-[#74777f]">Order Info:</span> <span className="font-bold text-[#002045]">{orderInfo}</span></div>
                                 <div className="flex justify-between mb-3 text-sm"><span className="text-[#74777f]">Payment Method:</span> <span className="font-bold text-[#002045]">VNPay</span></div>
-                                <div className="flex justify-between text-sm"><span className="text-[#74777f]">Date:</span> <span className="font-bold text-[#002045]">{new Date().toLocaleDateString('en-GB')}</span></div>
+                                <div className="flex justify-between text-sm"><span className="text-[#74777f]">Date:</span> <span className="font-bold text-[#002045]">{formatDate(new Date())}</span></div>
                             </div>
                             <Link to={`/learner/classes`} className="inline-flex items-center gap-2 px-8 py-4 bg-[#0061a5] text-white rounded-xl font-bold hover:bg-[#004d80] transition-colors shadow-md hover:shadow-lg">
                                 View My Classes <ArrowRight className="w-5 h-5" />

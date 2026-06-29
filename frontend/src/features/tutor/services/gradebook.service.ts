@@ -1,7 +1,10 @@
+import axiosClient from '../../../shared/services/axiosClient';
+
 export interface Assessment {
     id: string;
     title: string;
     maxScore: number;
+    order_index?: number;
 }
 
 export interface StudentGrade {
@@ -16,42 +19,71 @@ export interface StudentWithGrades {
     grades: Record<string, StudentGrade>;
 }
 
-const MOCK_ASSESSMENTS: Assessment[] = [
-    { id: 'a1', title: 'Listening', maxScore: 9 },
-    { id: 'a2', title: 'Reading', maxScore: 9 },
-    { id: 'a3', title: 'Writing', maxScore: 9 },
-    { id: 'a4', title: 'Speaking', maxScore: 9 }
-];
+interface ApiAssessment {
+    id: string;
+    name: string;
+    order_index: number;
+}
 
-const MOCK_STUDENTS: StudentWithGrades[] = [
-    { 
-        id: 's1', 
-        name: 'Nguyễn Văn A', 
-        code: 'LE000001',
-        grades: { 'a1': { score: 6.5, feedback: 'Good listening skills' }, 'a2': { score: 7.0, feedback: 'Skimming needs practice' }, 'a3': { score: 6.0, feedback: '' }, 'a4': { score: 6.5, feedback: 'Good fluency' } }
-    },
-    { 
-        id: 's2', 
-        name: 'Trần Thị B', 
-        code: 'LE000002',
-        grades: { 'a1': { score: 5.5, feedback: 'Missed some plural nouns' }, 'a2': { score: 6.0, feedback: '' }, 'a3': { score: 5.0, feedback: 'Task achievement is low' }, 'a4': { score: 5.5, feedback: '' } }
-    },
-    { 
-        id: 's3', 
-        name: 'Lê Hoàng C', 
-        code: 'LE000003',
-        grades: { 'a1': { score: 8.0, feedback: 'Excellent' }, 'a2': { score: 8.5, feedback: '' }, 'a3': { score: 7.0, feedback: '' }, 'a4': { score: 7.0, feedback: 'Try more complex structures' } }
-    }
-];
+interface ApiStudent {
+    id: string;
+    name: string;
+    email: string;
+    grades: Record<string, StudentGrade>;
+}
 
 export const GradebookService = {
-    getAssessments: async (_classId: string): Promise<Assessment[]> => {
-        return new Promise(resolve => setTimeout(() => resolve(MOCK_ASSESSMENTS), 300));
+    getGradebook: async (classId: string): Promise<{ assessments: Assessment[], students: StudentWithGrades[], grading_status: string }> => {
+        try {
+            const res = await axiosClient.get<unknown>(`/tutor/classes/${classId}/gradebook`);
+            const resData = res as { data?: { assessments: ApiAssessment[], students: ApiStudent[], grading_status: string }, assessments?: ApiAssessment[], students?: ApiStudent[], grading_status?: string };
+            
+            const rawAssessments = resData.data?.assessments || resData.assessments || [];
+            const rawStudents = resData.data?.students || resData.students || [];
+            const grading_status = resData.data?.grading_status || resData.grading_status || 'PENDING';
+            
+            const assessments = rawAssessments.map((a: ApiAssessment) => ({
+                id: a.id,
+                title: a.name,
+                maxScore: 9,
+                order_index: a.order_index
+            }));
+            
+            const students = rawStudents.map((s: ApiStudent) => ({
+                id: s.id,
+                name: s.name || 'Unknown Learner',
+                code: s.email || 'Unknown',
+                grades: s.grades || {}
+            }));
+
+            return { assessments, students, grading_status };
+        } catch (error) {
+            console.error('Error fetching gradebook:', error);
+            throw error;
+        }
     },
-    getStudentsWithGrades: async (_classId: string): Promise<StudentWithGrades[]> => {
-        return new Promise(resolve => setTimeout(() => resolve(MOCK_STUDENTS), 300));
+
+    saveGrades: async (classId: string, payload: {
+        deletedAssessmentIds: string[],
+        upsertAssessments: { id: string, name: string, order_index: number }[],
+        upsertGrades: { assessment_id: string, learner_id: string, score: number, feedback: string }[]
+    }): Promise<boolean> => {
+        try {
+            await axiosClient.put(`/tutor/classes/${classId}/gradebook/save`, payload);
+            return true;
+        } catch (error) {
+            console.error('Error saving gradebook:', error);
+            throw error;
+        }
     },
-    saveGrades: async (_classId: string, _gradesData: StudentWithGrades[]): Promise<boolean> => {
-        return new Promise(resolve => setTimeout(() => resolve(true), 800));
+
+    publishGrades: async (classId: string): Promise<boolean> => {
+        try {
+            await axiosClient.post(`/tutor/classes/${classId}/publish-grades`);
+            return true;
+        } catch (error) {
+            console.error('Error publishing grades:', error);
+            throw error;
+        }
     }
 };

@@ -92,7 +92,7 @@ const InvoiceDetail = () => {
                             <div className="font-extrabold text-[#002045] text-lg">{invoice.learner.name}</div>
                             <div className="text-[#43474e]">Learner ID: {invoice.learner.id}</div>
                             <div className="text-[#43474e]">{invoice.learner.email}</div>
-                            <div className="text-[#43474e]">{invoice.learner.phone}</div>
+                            {invoice.learner.phone !== 'N/A' && <div className="text-[#43474e]">{invoice.learner.phone}</div>}
                         </div>
                     </div>
 
@@ -118,7 +118,7 @@ const InvoiceDetail = () => {
                 <div className="p-8">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-lg font-extrabold text-[#002045] flex items-center gap-2">
-                            <DollarSign className="w-5 h-5 text-[#0061a5]" /> Installment Breakdown
+                            <DollarSign className="w-5 h-5 text-[#0061a5]" /> {invoice.payment.method === 'Full Payment' ? 'Payment Details' : 'Installment Breakdown'}
                         </h3>
                         <span className="text-sm font-bold text-[#43474e] bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
                             Payment Method: <span className="text-[#002045]">{invoice.payment.method}</span>
@@ -129,11 +129,11 @@ const InvoiceDetail = () => {
                         <table className="w-full text-left">
                             <thead className="bg-[#f8f9fa] border-b border-[#e0e3e5]">
                                 <tr>
-                                    <th className="p-4 font-semibold text-[#43474e]">Term / Description</th>
-                                    <th className="p-4 font-semibold text-[#43474e]">Due Date</th>
-                                    <th className="p-4 font-semibold text-[#43474e]">Status</th>
-                                    <th className="p-4 font-semibold text-[#43474e]">Payment Info</th>
-                                    <th className="p-4 font-semibold text-[#43474e] text-right">Amount</th>
+                                    <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Term / Description</th>
+                                    <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Due Date</th>
+                                    <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Status</th>
+                                    <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider">Payment Info</th>
+                                    <th className="p-4 text-xs font-bold text-[#74777f] uppercase tracking-wider text-right">Amount</th>
                                 </tr>
                             </thead>
                             <tbody>

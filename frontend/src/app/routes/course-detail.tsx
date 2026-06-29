@@ -18,6 +18,7 @@ import Cookies from "js-cookie";
 import type { ErrorInfo, ReactNode } from "react";
 import { Component } from "react";
 import { CoursesService } from "@/shared/services/courses.service";
+import { formatDate } from "@/shared/utils/date";
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -84,6 +85,32 @@ const CourseDetailInner = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("syllabus");
+  
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string, value: number } | null>(null);
+
+  const handleApplyPromo = async () => {
+    if (!promoCodeInput.trim()) return;
+    setIsApplyingPromo(true);
+    setPromoError(null);
+    try {
+      const { LearnerRegistrationService } = await import('@/features/learner/services/registration.service');
+      const res = await LearnerRegistrationService.validateDiscountCode(promoCodeInput.trim());
+      if (res && res.data) {
+        setAppliedDiscount({ code: promoCodeInput.trim(), value: res.data.value });
+        setPromoError(null);
+      }
+    } catch (e: unknown) {
+      setAppliedDiscount(null);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setPromoError((e as any).message || 'Invalid discount code');
+    } finally {
+      setIsApplyingPromo(false);
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -141,6 +168,25 @@ const CourseDetailInner = () => {
     description?: string;
   }
 
+  interface CourseTutor {
+    id: string | number;
+    full_name: string;
+    avatar_url?: string;
+    rating?: number;
+    reviews_count?: number;
+  }
+
+  interface CourseClassSession {
+    date: string;
+    slot: string;
+  }
+
+  interface CourseClass {
+    id: string | number;
+    name: string;
+    class_sessions?: CourseClassSession[];
+  }
+
   interface Course {
     id: number | string;
     title: string;
@@ -159,6 +205,8 @@ const CourseDetailInner = () => {
     nextCohort?: string;
     next_cohort?: string;
     sessions_list?: CourseSession[];
+    tutors_list?: CourseTutor[];
+    classes_list?: CourseClass[];
   }
 
   return (
@@ -239,6 +287,7 @@ const CourseDetailInner = () => {
           {/* Enrollment Action Box */}
           <div className="bg-white rounded-2xl p-8 shadow-xl w-full md:w-85 z-10 flex flex-col border border-[#e0e3e5]">
             <div className="flex flex-col mb-6">
+              {/* Show original price if exists */}
               {(course.original_price || course.originalPrice) && (
                 <span className="text-base text-[#74777f] line-through font-medium mb-1 whitespace-nowrap">
                   {new Intl.NumberFormat("vi-VN").format(
@@ -247,10 +296,19 @@ const CourseDetailInner = () => {
                   đ
                 </span>
               )}
+              
+              {/* Show base price crossed out if a discount code is applied */}
+              {appliedDiscount && (
+                <span className="text-lg text-[#0061a5] line-through font-bold mb-1 whitespace-nowrap">
+                  {new Intl.NumberFormat("vi-VN").format(Number(course.price || 0))} đ
+                </span>
+              )}
+
+              {/* Show final price */}
               <span className="text-4xl font-extrabold text-[#002045] leading-none tracking-tight whitespace-nowrap">
-                {course.price
-                  ? new Intl.NumberFormat("vi-VN").format(Number(course.price))
-                  : "0"}{" "}
+                {new Intl.NumberFormat("vi-VN").format(
+                  Math.max(0, Number(course.price || 0) - (appliedDiscount ? appliedDiscount.value : 0))
+                )}{" "}
                 đ
               </span>
             </div>
@@ -260,13 +318,15 @@ const CourseDetailInner = () => {
                 Course starts:
                 <br />
                 <span className="font-bold text-[#002045] text-base">
-                  {course.next_cohort || course.nextCohort}
+                  {formatDate(course.next_cohort || course.nextCohort)}
                 </span>
               </div>
             </div>
             <button
               onClick={() => {
-                navigate(`/courses/${id}/register`);
+                navigate(`/courses/${id}/register`, {
+                  state: { discountCode: appliedDiscount?.code, discountValue: appliedDiscount?.value }
+                });
               }}
               className="w-full bg-[#0061a5] text-white font-bold py-4 rounded-xl shadow-md hover:bg-[#004a80] hover:shadow-lg hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2 mb-4"
             >
@@ -282,7 +342,7 @@ const CourseDetailInner = () => {
           <div className="lg:col-span-8 flex flex-col gap-8">
             {/* Tab Navigation */}
             <div className="border-b border-[#e0e3e5] flex overflow-x-auto hide-scrollbar gap-8">
-              {["syllabus", "tutors", "reviews", "schedule"].map((tab) => (
+              {["syllabus", "tutors", "schedule"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -335,115 +395,135 @@ const CourseDetailInner = () => {
                 <h2 className="text-2xl font-bold text-[#002045]">
                   Lead Instructors
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Tutor 1 */}
-                  <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                    <img
-                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200&h=200"
-                      alt="Tutor"
-                      className="w-20 h-20 rounded-full object-cover shrink-0"
-                    />
-                    <div className="flex flex-col">
-                      <h3 className="text-lg font-bold text-[#002045]">
-                        James Sterling
-                      </h3>
-                      <span className="text-xs font-bold text-[#0061a5] mb-2 uppercase tracking-wide">
-                        Ex-IELTS Examiner
-                      </span>
-                      <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] mb-2">
-                        <Star className="w-4 h-4 fill-[#ffd200] text-[#ffd200]" />{" "}
-                        4.9 (120 reviews)
+                {course.tutors_list && course.tutors_list.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {course.tutors_list.map((tutor) => (
+                      <div
+                        key={tutor.id}
+                        className="bg-white border border-[#c4c6cf] rounded-2xl p-6 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                      >
+                        <img
+                          src={
+                            tutor.avatar_url ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.full_name)}&background=e6f0fa&color=0061a5&size=128`
+                          }
+                          alt={tutor.full_name}
+                          className="w-16 h-16 rounded-full object-cover shrink-0"
+                        />
+                        <div className="flex flex-col">
+                          <h3 className="text-lg font-bold text-[#002045]">
+                            {tutor.full_name}
+                          </h3>
+                          {tutor.rating !== undefined && (
+                            <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] mt-1">
+                              <Star className="w-4 h-4 fill-[#ffd200] text-[#ffd200]" />{" "}
+                              {Number(tutor.rating).toFixed(1)} ({tutor.reviews_count || 0} reviews)
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-sm text-[#43474e] line-clamp-2">
-                        Specializes in Advanced Writing Task 2 structure and
-                        logic.
-                      </p>
-                    </div>
+                    ))}
                   </div>
-                  {/* Tutor 2 */}
-                  <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                    <img
-                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200"
-                      alt="Tutor"
-                      className="w-20 h-20 rounded-full object-cover shrink-0"
-                    />
-                    <div className="flex flex-col">
-                      <h3 className="text-lg font-bold text-[#002045]">
-                        Dr. Eleanor Vance
-                      </h3>
-                      <span className="text-xs font-bold text-[#0061a5] mb-2 uppercase tracking-wide">
-                        Reading Specialist
-                      </span>
-                      <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] mb-2">
-                        <Star className="w-4 h-4 fill-[#ffd200] text-[#ffd200]" />{" "}
-                        4.9 (95 reviews)
-                      </div>
-                      <p className="text-sm text-[#43474e] line-clamp-2">
-                        Focuses on critical thinking and complex text analysis.
-                      </p>
-                    </div>
+                ) : (
+                  <div className="text-sm text-[#74777f] py-4 bg-white border border-[#e0e3e5] rounded-xl text-center">
+                    No tutors currently assigned to this course.
                   </div>
-                  {/* Tutor 3 */}
-                  <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                    <img
-                      src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200&h=200"
-                      alt="Tutor"
-                      className="w-20 h-20 rounded-full object-cover shrink-0"
-                    />
-                    <div className="flex flex-col">
-                      <h3 className="text-lg font-bold text-[#002045]">
-                        Sophia Chen
-                      </h3>
-                      <span className="text-xs font-bold text-[#0061a5] mb-2 uppercase tracking-wide">
-                        Speaking Coach
-                      </span>
-                      <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] mb-2">
-                        <Star className="w-4 h-4 fill-[#ffd200] text-[#ffd200]" />{" "}
-                        5.0 (210 reviews)
-                      </div>
-                      <p className="text-sm text-[#43474e] line-clamp-2">
-                        Helps students achieve natural fluency and
-                        pronunciation.
-                      </p>
-                    </div>
-                  </div>
-                  {/* Tutor 4 */}
-                  <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                    <img
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200"
-                      alt="Tutor"
-                      className="w-20 h-20 rounded-full object-cover shrink-0"
-                    />
-                    <div className="flex flex-col">
-                      <h3 className="text-lg font-bold text-[#002045]">
-                        Michael Chang
-                      </h3>
-                      <span className="text-xs font-bold text-[#0061a5] mb-2 uppercase tracking-wide">
-                        Listening Master
-                      </span>
-                      <div className="flex items-center gap-1 text-xs font-bold text-[#74777f] mb-2">
-                        <Star className="w-4 h-4 fill-[#ffd200] text-[#ffd200]" />{" "}
-                        4.8 (88 reviews)
-                      </div>
-                      <p className="text-sm text-[#43474e] line-clamp-2">
-                        Expert in breaking down fast-paced native accents.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
             )}
 
-            {/* Other tabs can remain empty for now */}
-            {["reviews", "schedule"].includes(activeTab) && (
-              <div className="flex items-center justify-center h-50 bg-white border border-[#e0e3e5] rounded-2xl text-[#74777f] animate-fade-in">
-                Content for {activeTab} will be available soon.
+            {activeTab === "schedule" && (
+              <div className="flex flex-col gap-6 animate-fade-in">
+                <h2 className="text-2xl font-bold text-[#002045]">
+                  Class Schedule
+                </h2>
+                {course.classes_list && course.classes_list.length > 0 ? (
+                  <div className="flex flex-col gap-4">
+                    {course.classes_list.map((cls) => {
+                      let scheduleText = 'Not scheduled yet';
+                      if (cls.class_sessions && cls.class_sessions.length > 0) {
+                        const slotMap = new Map<string, Set<number>>();
+                        cls.class_sessions.forEach(s => {
+                          const d = new Date(s.date);
+                          if (!isNaN(d.getTime())) {
+                            if (!slotMap.has(s.slot)) slotMap.set(s.slot, new Set());
+                            slotMap.get(s.slot)!.add(d.getDay());
+                          }
+                        });
+                        const daysStr = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                        const SLOT_TIMES: Record<string, string> = {
+                          slot1: "07:30 - 09:30",
+                          slot2: "09:45 - 11:45",
+                          slot3: "13:30 - 15:30",
+                          slot4: "15:45 - 17:45",
+                          slot5: "18:00 - 20:00",
+                          slot6: "20:00 - 22:00"
+                        };
+                        const parts: string[] = [];
+                        slotMap.forEach((daysSet, slot) => {
+                          const days = Array.from(daysSet).sort().map(d => daysStr[d]).join(', ');
+                          const timeRange = SLOT_TIMES[slot];
+                          const slotName = slot.replace('slot', 'Slot ');
+                          parts.push(`${days} - ${slotName}${timeRange ? ` (${timeRange})` : ''}`);
+                        });
+                        if (parts.length > 0) {
+                          scheduleText = parts.join(' | ');
+                        }
+                      }
+                      return (
+                        <div key={cls.id} className="bg-white border border-[#e0e3e5] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                          <h3 className="text-lg font-bold text-[#0061a5] mb-2">{cls.name}</h3>
+                          <div className="flex items-center gap-2 text-[#43474e]">
+                            <Clock className="w-5 h-5 text-[#74777f]" />
+                            <span className="text-base font-medium">{scheduleText}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-sm text-[#74777f] py-4 bg-white border border-[#e0e3e5] rounded-xl text-center">
+                    No classes scheduled for this course yet.
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           {/* Sidebar (Desktop) / Bottom section (Mobile) */}
           <aside className="lg:col-span-4 flex flex-col gap-6">
+            {/* Promotional / Promo Code Box */}
+            <div className="bg-[#002045] rounded-2xl p-6 shadow-sm text-white">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <Ticket className="text-[#ffd200]" /> Apply Promo Code
+              </h3>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <input
+                    value={promoCodeInput}
+                    onChange={(e) => setPromoCodeInput(e.target.value)}
+                    className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#adc7f7] placeholder:text-white/50"
+                    placeholder="Enter code"
+                    type="text"
+                    disabled={isApplyingPromo}
+                  />
+                  <button 
+                    onClick={handleApplyPromo}
+                    disabled={isApplyingPromo || !promoCodeInput.trim()}
+                    className="bg-white text-[#002045] font-bold px-6 py-3 rounded-xl hover:bg-[#f1f4f6] transition-colors disabled:opacity-50"
+                  >
+                    {isApplyingPromo ? "Applying..." : "Apply"}
+                  </button>
+                </div>
+                {promoError && <div className="text-red-400 text-sm mt-1">{promoError}</div>}
+                {appliedDiscount && (
+                  <div className="text-[#adc7f7] text-sm mt-1 font-medium">
+                    Code applied! You will get a discount of {new Intl.NumberFormat("vi-VN").format(appliedDiscount.value)} đ.
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Key Information Card */}
             <div className="bg-white border border-[#c4c6cf] rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-bold text-[#002045] border-b border-[#e0e3e5] pb-4 mb-6">
@@ -492,23 +572,6 @@ const CourseDetailInner = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Promotional / Promo Code Box */}
-            <div className="bg-[#002045] rounded-2xl p-6 shadow-sm text-white">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <Ticket className="text-[#ffd200]" /> Apply Promo Code
-              </h3>
-              <div className="flex gap-2">
-                <input
-                  className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#adc7f7] placeholder:text-white/50"
-                  placeholder="Enter code"
-                  type="text"
-                />
-                <button className="bg-white text-[#002045] font-bold px-6 py-3 rounded-xl hover:bg-[#f1f4f6] transition-colors">
-                  Apply
-                </button>
               </div>
             </div>
           </aside>

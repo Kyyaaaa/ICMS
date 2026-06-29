@@ -8,6 +8,8 @@ interface AnnouncementCardProps {
     onDelete: (id: string) => void;
 }
 
+import { formatDate, formatDateTime } from '../../../shared/utils/date';
+
 export const AnnouncementCard = ({ announcement, availableClasses, onEdit, onDelete }: AnnouncementCardProps) => {
     const formatAudienceText = (audience: TargetAudience) => {
         if (audience.scope === 'System Wide') return "All Users (System Wide)";
@@ -44,10 +46,10 @@ export const AnnouncementCard = ({ announcement, availableClasses, onEdit, onDel
                         <div className="flex flex-wrap items-center gap-3 mt-4 text-xs font-bold">
                             {announcement.status === 'Scheduled' ? (
                                 <span className="text-[#854c0e] bg-[#fef08a] px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-                                    <CalendarClock size={14} /> Scheduled for: {announcement.scheduledFor?.replace('T', ' ')}
+                                    <CalendarClock size={14} /> Scheduled for: {formatDateTime(announcement.scheduledFor)}
                                 </span>
                             ) : (
-                                <span className="text-[#74777f] bg-[#f1f4f6] px-3 py-1.5 rounded-lg">Posted: {announcement.date}</span>
+                                <span className="text-[#74777f] bg-[#f1f4f6] px-3 py-1.5 rounded-lg">Posted: {formatDate(announcement.date)}</span>
                             )}
                             <span className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 ${
                                 announcement.audience.scope === 'System Wide' ? 'text-green-700 bg-green-50 border border-green-200' :

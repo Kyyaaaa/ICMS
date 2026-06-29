@@ -93,9 +93,15 @@ export const LearnerRegistrationService = {
         return true;
     },
 
-    createInvoice: async (_courseId: string, classId: number | string): Promise<string> => {
+    validateDiscountCode: async (code: string) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const res = await axiosClient.post('/invoices/checkout', { class_id: classId, payment_plan: 'full' }) as any;
+        const res = await axiosClient.get(`/public/discount-codes/validate/${code}`) as any;
+        return res;
+    },
+
+    createInvoice: async (_courseId: string, classId: number | string, discountCode?: string): Promise<string> => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const res = await axiosClient.post('/invoices/checkout', { class_id: classId, payment_plan: 'full', discount_code: discountCode }) as any;
         const invoiceId = res?.data?.data?.invoice_code || res?.data?.data?.id || res?.data?.id;
         return invoiceId || '';
     }

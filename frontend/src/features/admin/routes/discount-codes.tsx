@@ -1,3 +1,4 @@
+import { formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { Tags, Search, Plus, Trash2, Edit, X } from 'lucide-react';
 import type { DiscountCode } from '../types/discount-code';
@@ -35,8 +36,17 @@ const AdminDiscountCodes = () => {
         setError(null);
         if (code) {
             setEditingId(code.id);
-            const [startDate, startTime] = code.validFrom ? code.validFrom.split('T') : ['', ''];
-            const [endDate, endTime] = code.validUntil ? code.validUntil.split('T') : ['', ''];
+            let startDate = '', startTime = '', endDate = '', endTime = '';
+            if (code.validFrom) {
+                const d = new Date(code.validFrom);
+                startDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                startTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            }
+            if (code.validUntil) {
+                const d = new Date(code.validUntil);
+                endDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                endTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            }
             
             setFormData({ 
                 ...code,
@@ -59,21 +69,27 @@ const AdminDiscountCodes = () => {
     const handleSave = async () => {
         setError(null);
 
-        if (!formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime) {
-            setError('Please fill in both start and end date/time.');
+        if (!formData.startDate || !formData.endDate) {
+            setError('Please fill in both start and end dates.');
             return;
         }
 
-        const validFrom = `${formData.startDate}T${formData.startTime}`;
-        const validUntil = `${formData.endDate}T${formData.endTime}`;
+        const startTimeStr = formData.startTime || '00:00';
+        const endTimeStr = formData.endTime || '00:00';
 
-        const startDateTime = new Date(validFrom);
-        const endDateTime = new Date(validUntil);
+        const validFromLocal = `${formData.startDate}T${startTimeStr}`;
+        const validUntilLocal = `${formData.endDate}T${endTimeStr}`;
+
+        const startDateTime = new Date(validFromLocal);
+        const endDateTime = new Date(validUntilLocal);
 
         if (endDateTime <= startDateTime) {
             setError('End Date/Time must be strictly after the Start Date/Time.');
             return;
         }
+
+        const validFrom = startDateTime.toISOString();
+        const validUntil = endDateTime.toISOString();
 
         if (editingId) {
             const updated = await AdminDiscountCodesService.updateDiscountCode(editingId, { ...formData, validFrom, validUntil });
@@ -149,10 +165,10 @@ const AdminDiscountCodes = () => {
                                         {code.value.toLocaleString()} đ
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
-                                        {code.validFrom ? new Date(code.validFrom).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A'}
+                                        {code.validFrom ? formatDateTime(code.validFrom) : 'N/A'}
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
-                                        {code.validUntil ? new Date(code.validUntil).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A'}
+                                        {code.validUntil ? formatDateTime(code.validUntil) : 'N/A'}
                                     </td>
                                     <td className="py-4 px-6">
                                         <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${

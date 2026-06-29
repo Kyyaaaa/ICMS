@@ -114,8 +114,8 @@ export class AvailableTimeSlotRepository {
   }
 
   static async getOrCreateCycleByMonth(month: number, year: number) {
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const cycleName = `${monthNames[month - 1]} - ${year}`;
+    const monthStr = String(month).padStart(2, '0');
+    const cycleName = `${monthStr}/${year}`;
     
     const { data: existingCycle, error: fetchError } = await supabaseAdmin
       .from('availability_cycles')
@@ -200,7 +200,7 @@ export class AvailableTimeSlotRepository {
 
     if (requiredSlotKeys.length === 0) return true;
 
-    // 3. Fetch all slots and normalize them to handle legacy data (e.g. M1 -> slot1)
+    // 3. Fetch all slots
     const { data: slots, error: slotsError } = await supabaseAdmin
       .from('tutor_available_time_slots')
       .select('slot_key')
@@ -215,7 +215,8 @@ export class AvailableTimeSlotRepository {
     
     for (const reqKey of requiredSlotKeys) {
       if (!availableKeys.has(reqKey)) {
-        throw new Error(`Tutor is not available at slot: ${reqKey}`);
+        const formattedKey = reqKey.replace(/-slot(\d+)/i, ' - Slot $1');
+        throw new Error(`Tutor is not available at ${formattedKey}`);
       }
     }
 

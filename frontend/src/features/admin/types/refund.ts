@@ -15,4 +15,5 @@ export interface RefundRequest {
     processedDate?: string;
     status: 'Pending' | 'Approved' | 'Completed' | 'Rejected';
     notes?: string;
+    dbId?: string;
 }

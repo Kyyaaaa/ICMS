@@ -62,7 +62,8 @@ export class ClassRepository {
                 courses(id, title, code),
                 tutor:account!tutor_id(id, full_name, email),
                 classroom:classroom!classroom_id(id, room_name),
-                class_sessions(slot, date)
+                class_sessions(slot, date),
+                students:enrollments(id, status)
             `, { count: 'exact' });
 
         if (statusFilter) {
@@ -105,7 +106,8 @@ export class ClassRepository {
             .select(`
                 *,
                 tutor:account!tutor_id(id, full_name, email),
-                classroom:classroom!classroom_id(id, room_name)
+                classroom:classroom!classroom_id(id, room_name),
+                attendances(id, status)
             `)
             .eq('class_id', id)
             .order('date', { ascending: true })
@@ -126,6 +128,20 @@ export class ClassRepository {
 
         return { ...classData, sessions: sessions || [], students: students || [] };
     }
+
+  static async getSessionById(sessionId: string) {
+    const { data, error } = await supabase
+      .from('class_sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching class session by id:', error);
+      throw error;
+    }
+    return data;
+  }
 
   static async updateClass(id: string, updates: UpdateClassDTO) {
     const { data, error } = await supabase
@@ -173,34 +189,19 @@ export class ClassRepository {
     return data;
   }
 
-  static async checkTutorConflict(tutorId: string, date: string, slot: string, excludeSessionId?: string) {
+  static async checkScheduleConflict(type: 'tutor_id' | 'classroom_id', id: string, date: string, slot: string, excludeSessionId?: string, excludeClassId?: string) {
     let query = supabase
       .from('class_sessions')
       .select('id')
-      .eq('tutor_id', tutorId)
+      .eq(type, id)
       .eq('date', date)
       .eq('slot', slot);
       
     if (excludeSessionId) {
       query = query.neq('id', excludeSessionId);
     }
-
-    const { data, error } = await query;
-    if (error) throw new Error(error.message);
-    
-    return data && data.length > 0;
-  }
-
-  static async checkClassroomConflict(classroomId: string, date: string, slot: string, excludeSessionId?: string) {
-    let query = supabase
-      .from('class_sessions')
-      .select('id')
-      .eq('classroom_id', classroomId)
-      .eq('date', date)
-      .eq('slot', slot);
-      
-    if (excludeSessionId) {
-      query = query.neq('id', excludeSessionId);
+    if (excludeClassId) {
+      query = query.neq('class_id', excludeClassId);
     }
 
     const { data, error } = await query;
