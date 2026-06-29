@@ -73,12 +73,24 @@ export const ClassroomService = {
         throw new Error('Missing required fields');
     }
 
+    const existingRoom = await ClassroomRepository.findByRoomName(classData.room_name);
+    if (existingRoom) {
+      throw { status: 409, message: `Classroom name '${classData.room_name}' already exists` };
+    }
+
     const { classroom, maintenance } = await ClassroomRepository.create(classData as CreateClassroomDTO, maintData);
     return mapToRoom(classroom, maintenance);
   },
 
   async updateClassroom(id: string, data: any) {
     const { classData, maintData } = mapToDB(data);
+    
+    if (classData.room_name) {
+      const existingRoom = await ClassroomRepository.findByRoomName(classData.room_name, id);
+      if (existingRoom) {
+        throw { status: 409, message: `Classroom name '${classData.room_name}' already exists` };
+      }
+    }
     const { classroom, maintenance } = await ClassroomRepository.update(id, classData as UpdateClassroomDTO, maintData);
     return mapToRoom(classroom, maintenance);
   },

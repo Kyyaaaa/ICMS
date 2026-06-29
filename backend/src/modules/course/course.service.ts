@@ -12,6 +12,14 @@ export class CourseService {
         throw new Error('Title and band are required fields.');
     }
 
+    const existingCourse = await CourseRepository.checkCourseCodeOrTitleExists(courseData.code || '', courseData.title);
+    if (existingCourse) {
+      if (courseData.code && existingCourse.code?.toLowerCase() === courseData.code?.toLowerCase()) {
+         throw new Error('Course code already exists.');
+      }
+      throw new Error('Course title already exists.');
+    }
+
     return await CourseRepository.createCourse(courseData, sessions_list);
   }
 
@@ -56,6 +64,18 @@ export class CourseService {
         
         const existingCourse = await CourseRepository.getCourseById(id);
         if (!existingCourse) throw new Error('Course not found.');
+
+        const duplicateCourse = await CourseRepository.checkCourseCodeOrTitleExists(
+            courseData.code || existingCourse.code, 
+            courseData.title || existingCourse.title, 
+            id
+        );
+        if (duplicateCourse) {
+          if ((courseData.code || existingCourse.code) && duplicateCourse.code?.toLowerCase() === (courseData.code || existingCourse.code)?.toLowerCase()) {
+            throw new Error('Course code already exists.');
+          }
+          throw new Error('Course title already exists.');
+        }
 
         if (existingCourse.next_cohort) {
             let startDate: Date;

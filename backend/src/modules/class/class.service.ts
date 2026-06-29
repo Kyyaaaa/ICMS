@@ -29,6 +29,13 @@ export class ClassService {
   }
 
   static async createClass(data: CreateClassDTO) {
+    if (data.name) {
+      const existingClass = await ClassRepository.getClassByName(data.name);
+      if (existingClass) {
+        throw { status: 409, message: 'Class name already exists' };
+      }
+    }
+
     if (new Date(data.end_date) <= new Date(data.start_date)) {
       throw { status: 400, message: 'End date must be greater than start date' };
     }
@@ -139,6 +146,13 @@ export class ClassService {
   }
 
   static async updateClass(id: string, updates: UpdateClassDTO) {
+    if (updates.name) {
+      const existingClass = await ClassRepository.getClassByName(updates.name, id);
+      if (existingClass) {
+        throw { status: 409, message: 'Class name already exists' };
+      }
+    }
+
     const { sessions, ...classUpdates } = updates;
 
     const updatedClass = await ClassRepository.updateClass(id, classUpdates);

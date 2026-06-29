@@ -86,6 +86,17 @@ export class CourseRepository {
     }
   }
 
+  static async checkCourseCodeOrTitleExists(code: string, title: string, excludeId?: string) {
+    let query = `SELECT id, code, title FROM courses WHERE (code ILIKE $1 OR title ILIKE $2)`;
+    const values: any[] = [code, title];
+    if (excludeId) {
+      query += ` AND id != $3`;
+      values.push(excludeId);
+    }
+    const res = await pool.query(query, values);
+    return res.rows.length > 0 ? res.rows[0] : null;
+  }
+
   static async getAllCourses() {
     const query = `
             SELECT * FROM courses 
