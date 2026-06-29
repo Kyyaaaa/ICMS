@@ -62,6 +62,22 @@ export const ClassroomRepository = {
     return { classroom, maintenance: maintenanceData };
   },
 
+  async findByRoomName(roomName: string, excludeId?: string) {
+    let query = supabaseAdmin
+      .from('classroom')
+      .select('id')
+      .ilike('room_name', roomName);
+      
+    if (excludeId) {
+      query = query.neq('id', excludeId);
+    }
+    
+    const { data, error } = await query.limit(1);
+    if (error) throw error;
+    
+    return data && data.length > 0 ? data[0] : null;
+  },
+
   async create(data: CreateClassroomDTO, maintenanceData?: MaintenanceDTO) {
     const { data: newClassroom, error } = await supabaseAdmin
       .from('classroom')

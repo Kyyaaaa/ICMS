@@ -44,6 +44,7 @@ const CreateClass = () => {
     const [generatedSessions, setGeneratedSessions] = useState<{session_number: number, date: string, slot: string}[]>([]);
     const [hasLearners, setHasLearners] = useState(false);
     const [allGlobalSessions, setAllGlobalSessions] = useState<Session[]>([]);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     useEffect(() => {
         const fetchAllSessions = async () => {
@@ -58,7 +59,7 @@ const CreateClass = () => {
             setAllGlobalSessions(sessions);
         };
         fetchAllSessions();
-    }, [startDate, id, isEdit]);
+    }, [startDate, id, isEdit, refreshTrigger]);
 
     const occupiedGlobalSlots = useMemo(() => {
         const occupied: {dayOfWeek: number, slot: string}[] = [];
@@ -610,6 +611,8 @@ const CreateClass = () => {
                                 }
                             } catch (err: unknown) {
                                 showAlertModal('Error', (err as Error).message || 'Error saving class', 'error');
+                                setRefreshTrigger(prev => prev + 1);
+                                ClassroomsService.getAll().then(setAvailableRooms).catch(console.error);
                             } finally {
                                 setIsSubmitting(false);
                             }

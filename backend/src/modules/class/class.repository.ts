@@ -87,6 +87,22 @@ export class ClassRepository {
         return { data, total: count || 0 };
     }
 
+    static async getClassByName(name: string, excludeId?: string) {
+        let query = supabase
+            .from('classes')
+            .select('id')
+            .ilike('name', name);
+            
+        if (excludeId) {
+            query = query.neq('id', excludeId);
+        }
+
+        const { data, error } = await query.limit(1);
+        if (error) throw new Error(error.message);
+
+        return data && data.length > 0 ? data[0] : null;
+    }
+
     static async getClassById(id: string) {
         const { data: classData, error: classError } = await supabase
             .from('classes')

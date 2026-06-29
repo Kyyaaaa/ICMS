@@ -91,20 +91,27 @@ const AdminDiscountCodes = () => {
         const validFrom = startDateTime.toISOString();
         const validUntil = endDateTime.toISOString();
 
-        if (editingId) {
-            const updated = await AdminDiscountCodesService.updateDiscountCode(editingId, { ...formData, validFrom, validUntil });
-            setCodes(codes.map(c => c.id === editingId ? updated : c));
-        } else {
-            const newCode = await AdminDiscountCodesService.createDiscountCode({
-                code: formData.code?.toUpperCase() || 'NEWCODE',
-                value: formData.value || 0,
-                validFrom,
-                validUntil,
-                status: formData.status as 'Active' | 'Expired' | 'Disabled' || 'Active'
-            });
-            setCodes([...codes, newCode]);
+        try {
+            if (editingId) {
+                const updated = await AdminDiscountCodesService.updateDiscountCode(editingId, { ...formData, validFrom, validUntil });
+                setCodes(codes.map(c => c.id === editingId ? updated : c));
+            } else {
+                const newCode = await AdminDiscountCodesService.createDiscountCode({
+                    code: formData.code?.toUpperCase() || 'NEWCODE',
+                    value: formData.value || 0,
+                    validFrom,
+                    validUntil,
+                    status: formData.status as 'Active' | 'Expired' | 'Disabled' || 'Active'
+                });
+                setCodes([...codes, newCode]);
+            }
+            setIsModalOpen(false);
+        } catch (error: unknown) {
+            const msg = (error as Error).message || 'Failed to save discount code.';
+            setError(msg);
+            const data = await AdminDiscountCodesService.getDiscountCodes();
+            setCodes(data);
         }
-        setIsModalOpen(false);
     };
 
     const handleDelete = async (id: string) => {
