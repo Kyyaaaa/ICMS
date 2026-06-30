@@ -68,6 +68,19 @@ export class InvoiceRepository {
     return invoice;
   }
 
+  static async checkDiscountCodeUsed(learnerId: string, discountCodeId: string): Promise<boolean> {
+    const { data, error } = await supabaseAdmin
+      .from('invoices')
+      .select('id')
+      .eq('learner_id', learnerId)
+      .eq('discount_code_id', discountCodeId)
+      .neq('status', 'CANCELLED')
+      .limit(1);
+
+    if (error) throw new Error(error.message);
+    return data && data.length > 0;
+  }
+
   static async generateInstallments(invoiceId: string, amount: number) {
     const { data: invoiceData } = await supabaseAdmin
       .from('invoices')

@@ -115,7 +115,7 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
         setIsLoadingRooms(true);
         ClassesService.getOccupiedSessions({ date: selectedNewDate, slot: selectedNewTime })
             .then(occupiedSessions => {
-                const occupiedRoomIdsList = occupiedSessions.map(s => s.classroom_id).filter(Boolean);
+                const occupiedRoomIdsList = occupiedSessions.map(s => s.classroom_id).filter((id): id is string => Boolean(id));
                 setOccupiedRoomIds(occupiedRoomIdsList);
 
                 if (request.originalRoomId && !occupiedRoomIdsList.includes(request.originalRoomId)) {
@@ -125,7 +125,7 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                     }
                 }
                 
-                const occupiedTutorIds = occupiedSessions.map(s => s.tutor_id).filter(Boolean);
+                const occupiedTutorIds = occupiedSessions.map(s => s.tutor_id).filter((id): id is string => Boolean(id));
                 setIsTutorOccupied(occupiedTutorIds.includes(request.tutorId));
             })
             .finally(() => setIsLoadingRooms(false));

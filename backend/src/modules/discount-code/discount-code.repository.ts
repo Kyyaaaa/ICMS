@@ -17,10 +17,6 @@ export class DiscountCodeRepository {
     return result.rows[0] || null;
   }
 
-  async incrementUsage(id: string): Promise<void> {
-    await pool.query('UPDATE discount_codes SET usage_count = usage_count + 1 WHERE id = $1', [id]);
-  }
-
   async create(data: CreateDiscountCodeDTO): Promise<DiscountCode> {
     const { code, value, validFrom, validUntil, status } = data;
     const result = await pool.query(

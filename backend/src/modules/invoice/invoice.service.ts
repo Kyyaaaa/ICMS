@@ -43,11 +43,13 @@ export class InvoiceService {
         throw new Error('This discount code has expired');
       }
 
+      const isUsed = await InvoiceRepository.checkDiscountCodeUsed(learnerId, codeData.id);
+      if (isUsed) {
+        throw new Error('You have already used this discount code');
+      }
+
       discountAmount = codeData.value;
       discountCodeId = codeData.id;
-
-      // Increment usage count
-      await discountRepo.incrementUsage(codeData.id);
     }
 
     // 4. Create new invoice
