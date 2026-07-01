@@ -297,19 +297,17 @@ const TutorGradebook = () => {
                                     </>
                                 )}
                                 
-                                {gradingStatus !== 'PUBLISHED' && (
-                                    <button 
-                                        onClick={handlePublishGrades}
-                                        disabled={isPublishing || isSaving}
-                                        className={`px-4 py-2 font-semibold bg-white border shadow-sm rounded-xl transition-colors flex items-center gap-2 text-sm ${
-                                            isPublishing || isSaving
-                                                ? 'border-[#e2e2e9] text-[#74777f] cursor-not-allowed'
-                                                : 'border-[#059669] text-[#059669] hover:bg-[#ecfdf5]'
-                                        }`}
-                                    >
-                                        {isPublishing ? 'Publishing...' : 'Publish Grades'}
-                                    </button>
-                                )}
+                                <button 
+                                    onClick={handlePublishGrades}
+                                    disabled={isPublishing || isSaving}
+                                    className={`px-4 py-2 font-semibold bg-white border shadow-sm rounded-xl transition-colors flex items-center gap-2 text-sm ${
+                                        isPublishing || isSaving
+                                            ? 'border-[#e2e2e9] text-[#74777f] cursor-not-allowed'
+                                            : 'border-[#059669] text-[#059669] hover:bg-[#ecfdf5]'
+                                    }`}
+                                >
+                                    {isPublishing ? 'Publishing...' : (gradingStatus === 'PUBLISHED' ? 'Update Published' : 'Publish Grades')}
+                                </button>
                                 
                                 {isEditing ? (
                                     <button 

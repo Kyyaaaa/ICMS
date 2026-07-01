@@ -35,18 +35,24 @@ export class LearnerService {
    * Lấy Transcript (bảng điểm)
    */
   static async getTranscript(learnerId: string) {
-    const { enrollments, assessments, grades } = await LearnerRepository.getTranscript(learnerId);
+    const { enrollments } = await LearnerRepository.getTranscript(learnerId);
 
     const transcript = enrollments.map((e: any) => {
       const cls = e.classes;
-      const classAssessments = assessments.filter((a: any) => a.class_id === cls.id);
       
+      const gradebook = cls.published_gradebook || { assessments: [], students: [] };
+      const classAssessments = gradebook.assessments || [];
+      const students = gradebook.students || [];
+      
+      const studentData = students.find((s: any) => s.id === learnerId);
+      const studentGrades = studentData?.grades || {};
+
       const componentGrades: any[] = [];
       let totalScore = 0;
       let scoreCount = 0;
 
       classAssessments.forEach((a: any) => {
-        const grade = grades.find((g: any) => g.assessment_id === a.id);
+        const grade = studentGrades[a.id];
         let score = 0;
         
         if (grade && grade.score !== null && grade.score !== undefined) {
@@ -56,7 +62,7 @@ export class LearnerService {
         }
         
         componentGrades.push({
-          assessment_name: a.name,
+          assessment_name: a.name || a.title,
           score: score,
           feedback: grade?.feedback || ''
         });

@@ -82,7 +82,8 @@ export class TutorClassService {
   }
 
   static async publishGrades(classId: string) {
-    await TutorClassRepository.updateClassGradingStatus(classId, 'PUBLISHED');
+    const gradebook = await TutorClassService.getGradebook(classId);
+    await TutorClassRepository.updateClassGradingStatus(classId, 'PUBLISHED', gradebook);
     return true;
   }
 }

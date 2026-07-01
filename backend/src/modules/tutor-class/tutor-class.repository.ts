@@ -79,10 +79,14 @@ export class TutorClassRepository {
     return data;
   }
 
-  static async updateClassGradingStatus(classId: string, status: string) {
+  static async updateClassGradingStatus(classId: string, status: string, publishedGradebook?: any) {
+    const updateData: any = { grading_status: status };
+    if (publishedGradebook !== undefined) {
+      updateData.published_gradebook = publishedGradebook;
+    }
     const { error } = await supabaseAdmin
       .from('classes')
-      .update({ grading_status: status })
+      .update(updateData)
       .eq('id', classId);
     if (error) throw new Error(error.message);
   }
