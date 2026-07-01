@@ -4,6 +4,20 @@ import { ChangeRequestService } from './change-request.service';
 const changeRequestService = new ChangeRequestService();
 
 export const ChangeRequestController = {
+    checkAvailability: async (req: Request, res: Response) => {
+        try {
+            const tutorId = (req as any).user.id;
+            const { class_id, session_id, date, slot } = req.query;
+            if (!class_id || !session_id || !date || !slot) {
+                return res.status(400).json({ error: 'Missing required parameters: class_id, session_id, date, slot' });
+            }
+            const result = await changeRequestService.checkAvailability(tutorId, class_id as string, session_id as string, date as string, slot as string);
+            res.json(result);
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
     getMyRequests: async (req: Request, res: Response) => {
         try {
             const tutorId = (req as any).user.id;

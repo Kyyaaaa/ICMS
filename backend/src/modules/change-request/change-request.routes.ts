@@ -4,6 +4,7 @@ import { verifyToken } from '../../middlewares/auth.middleware';
 
 const router = Router();
 
+router.get('/check-availability', verifyToken, ChangeRequestController.checkAvailability);
 router.get('/my-requests', verifyToken, ChangeRequestController.getMyRequests);
 router.get('/', ChangeRequestController.getAll);
 router.get('/tutor/:tutorId', ChangeRequestController.getByTutorId);

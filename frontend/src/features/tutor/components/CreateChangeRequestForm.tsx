@@ -5,6 +5,7 @@ import { X, FileEdit, Calendar, Users, Send, ChevronDown } from 'lucide-react';
 import { ScheduleService } from '../services/schedule.service';
 import type { TutorScheduleSession } from '../types/schedule';
 import Cookies from 'js-cookie';
+import { ChangeRequestService } from '../services/change-request.service';
 import type { CreateChangeRequestData } from '../types/change-request';
 
 interface CreateChangeRequestFormProps {
@@ -12,15 +13,36 @@ interface CreateChangeRequestFormProps {
     onSubmit: (data: CreateChangeRequestData) => void;
 }
 
+const getMinDateForReschedule = () => {
+    const today = new Date();
+    const currentHours = today.getHours();
+    const currentMinutes = today.getMinutes();
+    
+    // Slot 6 starts at 20:00. If current time is past 20:00, today has no slots left.
+    if (currentHours > 20 || (currentHours === 20 && currentMinutes >= 0)) {
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return getLocalDateString(tomorrow);
+    }
+    return getLocalDateString(today);
+};
+
 export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeRequestFormProps) => {
     const [newType, setNewType] = useState('Reschedule');
     const [selectedClass, setSelectedClass] = useState('');
     const [newClassSession, setNewClassSession] = useState('');
     const [newProposedDate, setNewProposedDate] = useState('');
     const [newProposedTimeSlot, setNewProposedTimeSlot] = useState('');
+    const [newProposedRoom, setNewProposedRoom] = useState('');
     const [newReason, setNewReason] = useState('');
     const [isSessionDropdownOpen, setIsSessionDropdownOpen] = useState(false);
+    const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+    const [availabilityError, setAvailabilityError] = useState('');
+    const [roomWarning, setRoomWarning] = useState('');
+    const [availableRooms, setAvailableRooms] = useState<any[]>([]);
     const sessionDropdownRef = useRef<HTMLDivElement>(null);
+    const [upcomingSessions, setUpcomingSessions] = useState<TutorScheduleSession[]>([]);
+    const [isLoadingSessions, setIsLoadingSessions] = useState(true);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -31,15 +53,54 @@ export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeReque
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-    const [upcomingSessions, setUpcomingSessions] = useState<TutorScheduleSession[]>([]);
-    const [isLoadingSessions, setIsLoadingSessions] = useState(true);
+
+    useEffect(() => {
+        if (newType !== 'Reschedule' || !newProposedDate || !newProposedTimeSlot || !selectedClass) {
+            setAvailableRooms([]);
+            setAvailabilityError('');
+            return;
+        }
+        const checkAvail = async () => {
+            const selectedSession = upcomingSessions.find(s => s.sessionId === newClassSession);
+            if (!selectedSession) return;
+            setIsCheckingAvailability(true);
+            setAvailabilityError('');
+            setRoomWarning('');
+            try {
+                const res = await ChangeRequestService.checkAvailability(selectedSession.classId, selectedSession.sessionId, newProposedDate, newProposedTimeSlot);
+                if (!res.available) {
+                    setAvailabilityError(res.conflictReason || 'Conflict detected.');
+                    setAvailableRooms([]);
+                } else {
+                    setAvailableRooms(res.availableRooms || []);
+                    if (res.availableRooms && res.availableRooms.length > 0) {
+                        const originalRoom = selectedSession.room; 
+                        const matchedRoom = res.availableRooms.find((r: any) => r.room_name === originalRoom);
+                        if (matchedRoom) {
+                            setNewProposedRoom(matchedRoom.id);
+                        } else {
+                            setNewProposedRoom('');
+                            setRoomWarning(`Note: The original room (${originalRoom || 'N/A'}) is occupied at this time. Please select a different room.`);
+                        }
+                    } else {
+                        setAvailabilityError('No rooms are available at this time.');
+                    }
+                }
+            } catch (err) {
+                setAvailabilityError('Failed to check availability.');
+            } finally {
+                setIsCheckingAvailability(false);
+            }
+        };
+        checkAvail();
+    }, [newProposedDate, newProposedTimeSlot, selectedClass, newClassSession, upcomingSessions, newType]);
 
     useEffect(() => {
         const fetchSessions = async () => {
             setIsLoadingSessions(true);
             try {
                 const sessions = await ScheduleService.getSchedule();
-                setUpcomingSessions(sessions.filter(s => s.attendance === 'pending' || s.attendance === 'not_yet'));
+                setUpcomingSessions(sessions.filter(s => s.attendance === 'not_yet'));
             } catch (error) {
                 console.error("Failed to load sessions", error);
             } finally {
@@ -49,15 +110,32 @@ export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeReque
         fetchSessions();
     }, []);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        if (newType === 'Reschedule') {
+            if (!newProposedDate || !newProposedTimeSlot || !newProposedRoom) {
+                setAvailabilityError("Date, time slot, and room are required for rescheduling.");
+                return;
+            }
+            if (availabilityError) return;
+        }
+
+        const timeMap: Record<string, string> = {
+            'slot1': '07:30 - 09:30', 'slot2': '09:30 - 11:30',
+            'slot3': '13:30 - 15:30', 'slot4': '15:30 - 17:30',
+            'slot5': '18:00 - 20:00', 'slot6': '20:00 - 22:00'
+        };
+
         const proposedString = newType === 'Reschedule' && newProposedDate 
-            ? `${formatDate(newProposedDate)} (${newProposedTimeSlot || 'Any Time'})` 
+            ? `${formatDate(newProposedDate)} (${timeMap[newProposedTimeSlot] || newProposedTimeSlot})` 
             : null;
 
         const selectedSession = upcomingSessions.find(s => s.sessionId === newClassSession);
-        if (!selectedSession) return;
+        if (!selectedSession) {
+            setAvailabilityError("Please select a session to change.");
+            return;
+        }
         
         const userInfo = Cookies.get('user_info');
         const user = userInfo ? JSON.parse(userInfo) : { id: '' };
@@ -71,6 +149,9 @@ export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeReque
             type: newType.toUpperCase(),
             originalTime: `${formatDate(selectedSession.date)} (${selectedSession.startTime} - ${selectedSession.endTime})`,
             proposedTime: proposedString,
+            proposed_date: newType === 'Reschedule' ? newProposedDate : null,
+            proposed_slot: newType === 'Reschedule' ? newProposedTimeSlot : null,
+            proposed_room_id: newType === 'Reschedule' ? newProposedRoom : null,
             reason: newReason
         };
         
@@ -176,17 +257,21 @@ export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeReque
                                 )}
                             </div>
                         </div>
+                        {availabilityError && newType === 'Substitute' && (
+                            <p className="text-sm font-bold text-rose-500">{availabilityError}</p>
+                        )}
 
                     {newType === 'Reschedule' && (
                         <div className="p-4 bg-[#f0f7ff] border border-[#bbdefb] rounded-xl space-y-4">
-                            <p className="text-sm font-bold text-[#002045]">Proposed New Schedule (Optional)</p>
+                            <p className="text-sm font-bold text-[#002045]">Proposed New Schedule <span className="text-rose-500">*</span></p>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-sm font-bold text-[#002045] mb-2">Select Date</label>
+                                    <label className="block text-sm font-bold text-[#002045] mb-2">Select Date <span className="text-rose-500">*</span></label>
                                     <input 
+                                        required
                                         type="date" 
-                                        min={getLocalDateString()}
+                                        min={getMinDateForReschedule()}
                                         className="w-full px-3 py-2 bg-white border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] text-sm font-medium"
                                         value={newProposedDate}
                                         onChange={(e) => {
@@ -209,12 +294,12 @@ export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeReque
                                     >
                                         <option value="" disabled hidden>Select slot...</option>
                                         {[
-                                            { label: 'Slot 1 (07:30 - 09:30)', startTime: '07:30', value: '07:30 - 09:30' },
-                                            { label: 'Slot 2 (09:30 - 11:30)', startTime: '09:30', value: '09:30 - 11:30' },
-                                            { label: 'Slot 3 (13:30 - 15:30)', startTime: '13:30', value: '13:30 - 15:30' },
-                                            { label: 'Slot 4 (15:30 - 17:30)', startTime: '15:30', value: '15:30 - 17:30' },
-                                            { label: 'Slot 5 (18:00 - 20:00)', startTime: '18:00', value: '18:00 - 20:00' },
-                                            { label: 'Slot 6 (20:00 - 22:00)', startTime: '20:00', value: '20:00 - 22:00' }
+                                            { label: 'Slot 1 (07:30 - 09:30)', startTime: '07:30', value: 'slot1' },
+                                            { label: 'Slot 2 (09:30 - 11:30)', startTime: '09:30', value: 'slot2' },
+                                            { label: 'Slot 3 (13:30 - 15:30)', startTime: '13:30', value: 'slot3' },
+                                            { label: 'Slot 4 (15:30 - 17:30)', startTime: '15:30', value: 'slot4' },
+                                            { label: 'Slot 5 (18:00 - 20:00)', startTime: '18:00', value: 'slot5' },
+                                            { label: 'Slot 6 (20:00 - 22:00)', startTime: '20:00', value: 'slot6' }
                                         ].filter(slot => {
                                             const todayStr = getLocalDateString();
                                             if (newProposedDate === todayStr) {
@@ -238,8 +323,27 @@ export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeReque
                                         ))}
                                     </select>
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-[#002045] mb-2">Select Room <span className="text-rose-500">*</span></label>
+                                    <select 
+                                        required
+                                        className="w-full px-3 py-2 bg-white border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] text-sm font-medium disabled:bg-[#f1f4f6] disabled:text-[#74777f]"
+                                        value={newProposedRoom}
+                                        onChange={(e) => setNewProposedRoom(e.target.value)}
+                                        disabled={!newProposedDate || !newProposedTimeSlot || availableRooms.length === 0 || !!availabilityError}
+                                    >
+                                        <option value="" disabled hidden>
+                                            {(!newProposedDate || !newProposedTimeSlot) ? 'Select time first...' : (availableRooms.length === 0 ? 'No rooms available' : 'Select room...')}
+                                        </option>
+                                        {availableRooms.map(room => (
+                                            <option key={room.id} value={room.id}>{room.room_name} (Cap: {room.capacity})</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
-                            <p className="text-sm text-[#74777f]">Leave Date blank if you want staff to arrange a time for you.</p>
+                            {isCheckingAvailability && <p className="text-sm font-bold text-[#0061a5]">Checking availability...</p>}
+                            {availabilityError && <p className="text-sm font-bold text-rose-500">{availabilityError}</p>}
+                            {!availabilityError && roomWarning && !newProposedRoom && <p className="text-sm font-bold text-[#eab308]">{roomWarning}</p>}
                         </div>
                     )}
 
@@ -259,7 +363,11 @@ export const CreateChangeRequestForm = ({ onClose, onSubmit }: CreateChangeReque
                     
                     <div className="flex justify-end gap-3 p-5 border-t border-[#e0e3e5] bg-[#f8f9fa] shrink-0">
                         <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl font-bold text-[#43474e] hover:bg-[#f1f4f6] transition-colors">Cancel</button>
-                        <button type="submit" className="px-6 py-2.5 rounded-xl font-bold text-white bg-[#0061a5] hover:bg-[#004a80] transition-colors shadow-sm flex items-center gap-2">
+                        <button 
+                            type="submit" 
+                            disabled={isCheckingAvailability}
+                            className="px-6 py-2.5 rounded-xl font-bold text-white bg-[#0061a5] hover:bg-[#004a80] transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                             <Send className="w-4 h-4" /> Submit
                         </button>
                     </div>

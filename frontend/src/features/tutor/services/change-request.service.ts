@@ -25,6 +25,15 @@ export const ChangeRequestService = {
             return [];
         }
     },
+    checkAvailability: async (classId: string, sessionId: string, date: string, slot: string): Promise<{available: boolean, conflictReason?: string, availableRooms?: any[]}> => {
+        try {
+            const response = await axiosClient.get(`/change-requests/check-availability?class_id=${classId}&session_id=${sessionId}&date=${date}&slot=${slot}`);
+            return (response as any).data || response;
+        } catch (error) {
+            console.error("Failed to check availability:", error);
+            throw error;
+        }
+    },
     createRequest: async (data: CreateChangeRequestData): Promise<TutorChangeRequest> => {
         try {
             const response = await axiosClient.post("/change-requests", {
@@ -34,6 +43,9 @@ export const ChangeRequestService = {
                 type: data.type,
                 original_time: data.originalTime,
                 proposed_time: data.proposedTime,
+                proposed_date: data.proposed_date,
+                proposed_slot: data.proposed_slot,
+                proposed_room_id: data.proposed_room_id,
                 reason: data.reason
             });
             const req = (response as {data?: unknown})?.data as Record<string, unknown> || (response as unknown as Record<string, unknown>);

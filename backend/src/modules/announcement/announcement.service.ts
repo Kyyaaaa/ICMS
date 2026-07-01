@@ -50,7 +50,8 @@ export class AnnouncementService {
             audience: {
                 scope: backendData.scope,
                 roles: backendData.roles || [],
-                classes: backendData.announcement_classes ? backendData.announcement_classes.map((c: any) => c.class_id) : []
+                classes: backendData.announcement_classes ? backendData.announcement_classes.map((c: any) => c.class_id) : [],
+                users: backendData.announcement_users ? backendData.announcement_users.map((u: any) => u.user_id) : []
             },
             scheduledFor: backendData.scheduled_for || undefined,
             created_at: backendData.created_at,

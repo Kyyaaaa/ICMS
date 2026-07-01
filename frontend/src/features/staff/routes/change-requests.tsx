@@ -36,9 +36,10 @@ const ChangeRequests = () => {
                 const updatedRequest = { ...request, status: newStatus, finalTime: finalTime || request.finalTime, staffNote: staffNote };
                 await ChangeRequestsService.updateRequest(updatedRequest, substituteTutorId, newDate, newSlot, newRoomId);
                 setRequests(requests.map(r => r.id === id ? updatedRequest : r));
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error updating status:", error);
-                alert("Failed to update status. Please try again.");
+                const backendMsg = error?.response?.data?.error || error?.response?.data?.message;
+                alert(backendMsg || "Failed to update status. Please try again.");
             }
         }
         setSelectedRequest(null);

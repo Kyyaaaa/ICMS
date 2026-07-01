@@ -33,9 +33,15 @@ const TutorChangeRequests = () => {
     });
 
     const handleCreateRequest = async (data: CreateChangeRequestData) => {
-        const newReq = await ChangeRequestService.createRequest(data);
-        setRequests([newReq, ...requests]);
-        setIsCreating(false);
+        try {
+            const newReq = await ChangeRequestService.createRequest(data);
+            setRequests([newReq, ...requests]);
+            setIsCreating(false);
+            alert('Change request submitted successfully');
+        } catch (error: any) {
+            const backendError = error.response?.data?.error;
+            alert(backendError || 'Failed to submit change request. Please try again.');
+        }
     };
 
     const handleCancelRequest = async (id: string) => {

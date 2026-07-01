@@ -22,4 +22,7 @@ export interface CreateChangeRequestData {
     session_id: string;
     tutor_id: string;
     originalTime: string;
+    proposed_date?: string | null;
+    proposed_slot?: string | null;
+    proposed_room_id?: string | null;
 }

@@ -1,5 +1,6 @@
 import { supabaseAdmin as supabase } from '../../configs/supabase';
 import { CreateClassDTO, UpdateClassDTO, UpdateClassSessionDTO } from './class.model';
+import { AnnouncementRepository } from '../announcement/announcement.repository';
 
 export class ClassRepository {
   static async createClass(data: CreateClassDTO) {
@@ -21,6 +22,24 @@ export class ClassRepository {
       .single();
 
     if (error) throw new Error(error.message);
+    
+    if (data.tutor_id) {
+        const { data: courseData } = await supabase.from('courses').select('title').eq('id', data.course_id).single();
+        const courseTitle = courseData?.title || 'Unknown Course';
+        try {
+            await AnnouncementRepository.createAnnouncement({
+                title: `New Class Assignment: ${courseTitle} - ${data.name}`,
+                content: `You have been assigned to teach the new class ${data.name} for the course ${courseTitle}.`,
+                audience: {
+                    scope: 'Specific Users',
+                    users: [data.tutor_id]
+                }
+            });
+        } catch (annError) {
+            console.error('Failed to send announcement for new class:', annError);
+        }
+    }
+
     return result;
   }
 

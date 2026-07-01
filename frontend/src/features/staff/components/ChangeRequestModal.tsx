@@ -133,7 +133,9 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
 
     const handleApprove = () => {
         let finalArranged = '';
-        if (request.type?.toLowerCase() === 'reschedule' || request.type?.toLowerCase() === 'change room') {
+        if (request.type?.toLowerCase() === 'reschedule') {
+            finalArranged = request.proposedTime || 'TBD';
+        } else if (request.type?.toLowerCase() === 'change room') {
             const roomObj = allRooms.find(r => r.id === selectedNewRoom);
             const roomName = roomObj ? roomObj.room_name : selectedNewRoom;
             const timeMap: Record<string, string> = {
@@ -221,11 +223,9 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                         )}
                     </div>
 
-                    {(request.type?.toLowerCase() === 'reschedule' || request.type?.toLowerCase() === 'change room') && request.status === 'Pending' && (
+                    {(request.type?.toLowerCase() === 'change room') && request.status === 'Pending' && (
                         <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl space-y-4">
-                            <p className="text-sm font-bold text-[#002045]">
-                                {request.type?.toLowerCase() === 'change room' ? 'Assign Final Room' : 'Assign Final Reschedule'}
-                            </p>
+                            <p className="text-sm font-bold text-[#002045]">Assign Final Room</p>
                             
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
@@ -386,7 +386,7 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                         </button>
                         <button 
                             onClick={handleApprove}
-                            disabled={((request.type?.toLowerCase() === 'reschedule' || request.type?.toLowerCase() === 'change room') && (!selectedNewDate || !selectedNewTime || !selectedNewRoom)) || isTutorOccupied || ((request.type?.toLowerCase() === 'substitute tutor' || request.type?.toLowerCase() === 'substitute') && !selectedSubstituteTutorId)}
+                            disabled={((request.type?.toLowerCase() === 'change room') && (!selectedNewDate || !selectedNewTime || !selectedNewRoom)) || isTutorOccupied || ((request.type?.toLowerCase() === 'substitute tutor' || request.type?.toLowerCase() === 'substitute') && !selectedSubstituteTutorId)}
                             className="px-6 py-2.5 font-semibold text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <CheckCircle className="w-5 h-5" /> Approve
