@@ -1,8 +1,10 @@
 import { SessionService } from '../session.service';
 import { SessionRepository } from '../session.repository';
 import { UpdateAttendanceDTO } from '../session.model';
+import { ClassRepository } from '../../class/class.repository';
 
 jest.mock('../session.repository');
+jest.mock('../../class/class.repository');
 
 describe('SessionService QA Tests', () => {
   beforeEach(() => {
@@ -45,7 +47,10 @@ describe('SessionService QA Tests', () => {
       const sessionId = 'session-1';
       
       // Mock session exists
-      (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({ id: sessionId, class_id: 'class-1' });
+      (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({ id: sessionId, class_id: 'class-1', date: '2023-01-01' });
+
+      // Mock Class exists and is not CANCELED
+      (ClassRepository.getClassById as jest.Mock).mockResolvedValue({ id: 'class-1', status: 'ONGOING' });
 
       const updateData: UpdateAttendanceDTO[] = [
         { learner_id: 'learner-1', status: 'PRESENT', notes: 'Present today' }
@@ -67,7 +72,10 @@ describe('SessionService QA Tests', () => {
       const sessionId = 'session-1';
       
       // Mock session exists
-      (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({ id: sessionId, class_id: 'class-1' });
+      (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({ id: sessionId, class_id: 'class-1', date: '2023-01-01' });
+
+      // Mock Class exists and is not CANCELED
+      (ClassRepository.getClassById as jest.Mock).mockResolvedValue({ id: 'class-1', status: 'ONGOING' });
 
       const updateData: UpdateAttendanceDTO[] = [
         { learner_id: 'learner-1', status: 'ABSENT', notes: 'No show' }

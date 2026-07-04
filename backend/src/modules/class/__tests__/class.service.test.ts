@@ -1,8 +1,10 @@
 import { ClassService } from '../class.service';
 import { ClassRepository } from '../class.repository';
 import { CreateClassDTO } from '../class.model';
+import { CourseService } from '../../course/course.service';
 
 jest.mock('../class.repository');
+jest.mock('../../course/course.service');
 
 describe('ClassService QA Tests', () => {
   beforeEach(() => {
@@ -23,12 +25,12 @@ describe('ClassService QA Tests', () => {
         ]
       };
 
-      (ClassRepository.getCourseById as jest.Mock).mockResolvedValue({ id: 'course-1', sessions: 10 });
+      (CourseService.getCourseById as jest.Mock).mockResolvedValue({ id: 'course-1', sessions: 10 });
       (ClassRepository.checkScheduleConflict as jest.Mock).mockResolvedValue(true); // Conflict exists
 
       await expect(ClassService.createClass(mockPayload))
         .rejects
-        .toEqual({ status: 409, message: 'Tutor schedule conflict at date 2026-01-05 and slot1' });
+        .toEqual({ status: 409, message: 'Tutor schedule conflict at date 2026-01-05 and Slot 1' });
     });
 
     it('should throw 409 Conflict if classroom is already booked when updating session', async () => {
@@ -56,7 +58,7 @@ describe('ClassService QA Tests', () => {
         sessions: [] // no advanced configs
       };
 
-      (ClassRepository.getCourseById as jest.Mock).mockResolvedValue({ id: 'course-1', sessions: 5 });
+      (CourseService.getCourseById as jest.Mock).mockResolvedValue({ id: 'course-1', sessions: 5 });
       (ClassRepository.createClass as jest.Mock).mockResolvedValue({ id: 'class-new' });
       (ClassRepository.insertClassSessions as jest.Mock).mockImplementation((sessions) => sessions);
 

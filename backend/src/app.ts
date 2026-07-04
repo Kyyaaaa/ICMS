@@ -37,6 +37,8 @@ app.use(helmet()); // Set security HTTP headers
 app.use(cors()); // Cho phép Client gọi API không bị lỗi Block CORS
 app.use(express.json()); // Cho phép Server đọc dữ liệu JSON gửi lên từ Client
 
+const skipRateLimit = process.env.NODE_ENV === 'test';
+
 // Rate limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -44,12 +46,14 @@ const apiLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again after 15 minutes',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => skipRateLimit
 });
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 30, // limit each IP to 30 requests per windowMs for auth routes
   message: 'Too many login attempts from this IP, please try again after 15 minutes',
+  skip: () => skipRateLimit
 });
 
 // Apply global rate limiter
