@@ -19,7 +19,7 @@ import type { ErrorInfo, ReactNode } from "react";
 import { Component } from "react";
 import { CoursesService } from "@/shared/services/courses.service";
 import { formatDate } from "@/shared/utils/date";
-
+import { LearnerRegistrationService } from "@/features/learner/services/registration.service";
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { hasError: boolean; error: Error | null }
@@ -96,7 +96,6 @@ const CourseDetailInner = () => {
     setIsApplyingPromo(true);
     setPromoError(null);
     try {
-      const { LearnerRegistrationService } = await import('@/features/learner/services/registration.service');
       const res = await LearnerRegistrationService.validateDiscountCode(promoCodeInput.trim());
       if (res && res.data) {
         setAppliedDiscount({ code: promoCodeInput.trim(), value: res.data.value });

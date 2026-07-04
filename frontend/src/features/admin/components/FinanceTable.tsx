@@ -62,7 +62,7 @@ export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTa
                             </td>
                             <td className="py-4 px-6 text-right">
                                 <div className={`text-sm font-bold ${txn.status === 'Failed' && !txn.paidAmount ? 'text-[#74777f] line-through opacity-70' : txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
-                                    {txn.type === 'income' ? '+' : '-'} {(txn.paidAmount ?? txn.amount).toLocaleString()} đ
+                                    {txn.type === 'income' ? '+' : '-'} {txn.amount.toLocaleString('vi-VN')} đ
                                 </div>
                             </td>
                             <td className="py-4 px-6">

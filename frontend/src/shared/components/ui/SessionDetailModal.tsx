@@ -5,7 +5,7 @@ import { Button } from './button';
 interface SessionDetailModalProps {
     isOpen: boolean;
     onClose: () => void;
-    session: unknown;
+    session: any;
     dateStr: string;
     onTakeAttendance?: () => void;
 }

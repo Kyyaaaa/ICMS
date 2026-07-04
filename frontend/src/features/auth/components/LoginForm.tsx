@@ -24,7 +24,7 @@ export const LoginForm = () => {
         setLoading(true);
         setShowError(false);
         try {
-            const data = await AuthService.login({ email, password });
+            const data: any = await AuthService.login({ email, password });
             
             // axiosClient interceptor returns data directly if success
             if (data?.success || data?.data) {

@@ -24,7 +24,7 @@ export const StaffCertificatesService = {
         }
         const response = await axiosClient.get(url) as any;
         const items = Array.isArray(response) ? response : (Array.isArray(response?.data) ? response.data : []);
-        return items.map((item: unknown) => ({
+        return items.map((item: any) => ({
             ...item,
             account: item.tutor?.account || item.tutor || { full_name: 'Unknown', email: '' }
         })) as StaffCertificate[];

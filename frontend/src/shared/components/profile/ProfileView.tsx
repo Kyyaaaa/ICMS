@@ -58,7 +58,7 @@ export const ProfileView = ({
                 if (!userInfoStr) return;
                 const userInfo = JSON.parse(userInfoStr);
                 
-                const data = await ProfileService.getProfile(userInfo.id);
+                const data = await ProfileService.getProfile(userInfo.id) as any;
                 if (data.success) {
                     if (data && typeof data === 'object' && 'data' in data && data.data) {
                         const responseData = data.data as ProfileData;
@@ -136,7 +136,7 @@ export const ProfileView = ({
                 phone_number: account.phone_number,
                 date_of_birth: account.date_of_birth,
                 gender: account.gender
-            });
+            }) as any;
             
             if (data.success) {
                 const userInfoStr = Cookies.get('user_info');
@@ -179,11 +179,11 @@ export const ProfileView = ({
 
         setIsUploadingAvatar(true);
         try {
-            const uploadData = await ProfileService.uploadAvatar(file);
+            const uploadData = await ProfileService.uploadAvatar(file) as any;
             
             if (uploadData.success) {
                 const newAvatarUrl = (uploadData as { url: string }).url;
-                const saveData = await ProfileService.updateProfile(account.id, { avatar_url: newAvatarUrl });
+                const saveData = await ProfileService.updateProfile(account.id, { avatar_url: newAvatarUrl }) as any;
                 
                 if (saveData.success) {
                     setAccount({ ...account, avatar_url: newAvatarUrl });
@@ -229,7 +229,7 @@ export const ProfileView = ({
             const data = await ProfileService.updatePassword(account.id, {
                 old_password: passwords.oldPassword,
                 password: passwords.newPassword
-            });
+            }) as any;
             
             if (data.success) {
                 setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });

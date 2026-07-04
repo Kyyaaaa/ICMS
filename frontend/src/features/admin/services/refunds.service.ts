@@ -5,7 +5,7 @@ export const AdminRefundsService = {
     getRefunds: async (): Promise<RefundRequest[]> => {
         try {
             const res = await axiosClient.get('/refunds/admin') as { data: unknown[] };
-            return res.data.map((r: unknown) => {
+            return res.data.map((r: any) => {
                 let installment = 'Refund';
                 let reason = r.reason;
                 const match = r.reason.match(/^(Term \d+) \| (.*)$/);

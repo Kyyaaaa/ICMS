@@ -18,7 +18,7 @@ const StaffClassDetail = () => {
 
     const [activeTab, setActiveTab] = useState('schedule');
     const [classData, setClassData] = useState<Class | null>(null);
-    const [students, setStudents] = useState<unknown[]>([]);
+    const [students, setStudents] = useState<any[]>([]);
     const [availableRooms, setAvailableRooms] = useState<Classroom[]>([]);
     const [availableTutors, setAvailableTutors] = useState<{ id: string; full_name: string }[]>([]);
 

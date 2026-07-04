@@ -7,7 +7,7 @@ export const LearnerClassDetailService = {
 
         try {
             const res = await axiosClient.get(`/staff/classes/${id}`) as { data?: { data?: unknown } | any };
-            const data: unknown = res.data && typeof res.data === 'object' && 'data' in res.data ? res.data.data : res.data;
+            const data: any = res.data && typeof res.data === 'object' && 'data' in res.data ? res.data.data : res.data;
             if (!data) return undefined;
 
             const sessions = data.sessions || [];

@@ -7,7 +7,7 @@ interface DashboardStatsProps {
 
 export const DashboardStats = ({ stats }: DashboardStatsProps) => {
     const items = [
-        { title: 'Total Learners', value: stats.totalLearners.toLocaleString(), icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
+        { title: 'Total Learners', value: stats.totalLearners.toLocaleString('vi-VN'), icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
         { title: 'Active Classes', value: stats.activeClasses, icon: BookOpen, color: 'text-emerald-600', bg: 'bg-emerald-100' },
         { title: 'Pending Invoices', value: stats.pendingInvoices, icon: DollarSign, color: 'text-amber-600', bg: 'bg-amber-100' },
         { title: 'Open Tickets', value: stats.openTickets, icon: Activity, color: 'text-rose-600', bg: 'bg-rose-100' }

@@ -32,7 +32,7 @@ export const ScheduleService = {
             const res = await axiosClient.get(url);
             const data = Array.isArray((res as any)?.data?.data) ? (res as any).data.data : (Array.isArray((res as any)?.data) ? (res as any).data : (Array.isArray(res) ? res : []));
             
-            return data.map((s: unknown) => {
+            return data.map((s: any) => {
                 const times = getSlotTimes(s.slot);
                 const d = new Date(s.date);
                 let dayIndex = d.getDay() - 1;

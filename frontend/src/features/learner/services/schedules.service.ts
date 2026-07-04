@@ -37,7 +37,7 @@ export const LearnerSchedulesService = {
             const res = await axiosClient.get(`/sessions/my-schedule?start_date=${startStr}&end_date=${endStr}`);
             const data = (res as any)?.data || [];
             
-            return data.map((s: unknown) => {
+            return data.map((s: any) => {
                 const times = getSlotTimes(s.slot);
                 const d = new Date(s.date);
                 let dayIndex = d.getDay() - 1;

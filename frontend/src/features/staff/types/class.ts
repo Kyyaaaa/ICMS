@@ -14,7 +14,7 @@ export interface Class {
     tutor?: { id: string; full_name: string; email: string };
     classroom?: { id: string; room_name: string };
     sessions?: Session[];
-    students?: unknown[];
+    students?: any[];
 }
 
 export interface Session {

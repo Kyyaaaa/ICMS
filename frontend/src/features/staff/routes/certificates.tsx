@@ -65,7 +65,7 @@ const StaffCertificates = () => {
       try {
         const data = await StaffCertificatesService.getAllCertificates();
         setCertificates(data);
-      } catch (error: unknown) {
+      } catch (error: any) {
         console.error("Failed to fetch Certificates", error);
         setFetchError(error.message || JSON.stringify(error));
       }
