@@ -7,11 +7,13 @@ export class ConsultationRequestController {
   // Public API: Guest gửi yêu cầu
   static async createConsultation(req: Request, res: Response) {
     try {
-      const { guest_name, guest_phone, guest_email, inquiry_details } = req.body;
+      const { guest_name, guest_phone, guest_email, course_of_interest, course, inquiry_details } = req.body;
       const newRequest = await ConsultationRequestService.createRequest({
         guest_name,
         guest_phone,
         guest_email,
+        course_of_interest,
+        course,
         inquiry_details
       });
 

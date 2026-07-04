@@ -9,6 +9,7 @@ Content-Type: application/json
     "guest_name": "Test User",
     "guest_phone": "0123456789",
     "guest_email": "test@gmail.com",
+    "course_of_interest": "IELTS Masterclass",
     "inquiry_details": "I would like to ask about the course"
 }
 

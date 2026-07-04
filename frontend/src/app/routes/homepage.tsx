@@ -70,8 +70,17 @@ const Homepage = () => {
 
     const handleConsultationSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.guest_name || !formData.guest_phone) return;
-        
+        if (!formData.guest_name.trim() || !formData.guest_phone.trim() || !formData.guest_email.trim() || !formData.course) {
+            showAlertModal('Error', 'Please fill in all required fields: Full Name, Phone Number, Email Address, and Course of Interest.', 'error');
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.guest_email.trim())) {
+            showAlertModal('Error', 'Please enter a valid email address.', 'error');
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             const inquiry_details = formData.course 
@@ -82,6 +91,8 @@ const Homepage = () => {
                 guest_name: formData.guest_name,
                 guest_phone: formData.guest_phone,
                 guest_email: formData.guest_email,
+                course_of_interest: formData.course,
+                course: formData.course,
                 inquiry_details: inquiry_details.trim() || 'General Consultation'
             });
             showAlertModal('Success', 'Thank you! Your consultation request has been sent. We will contact you shortly.', 'success');
@@ -349,12 +360,12 @@ const Homepage = () => {
                                         <input type="tel" className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-sm text-[#181c1e] transition-all" placeholder="09xx xxx xxx" required value={formData.guest_phone} onChange={e => setFormData({...formData, guest_phone: e.target.value})} />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-[#002045] mb-1.5 uppercase tracking-wide">Email Address</label>
-                                        <input type="email" className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-sm text-[#181c1e] transition-all" placeholder="email@example.com" value={formData.guest_email} onChange={e => setFormData({...formData, guest_email: e.target.value})} />
+                                        <label className="block text-xs font-bold text-[#002045] mb-1.5 uppercase tracking-wide">Email Address *</label>
+                                        <input type="email" className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-sm text-[#181c1e] transition-all" placeholder="email@example.com" required value={formData.guest_email} onChange={e => setFormData({...formData, guest_email: e.target.value})} />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-[#002045] mb-1.5 uppercase tracking-wide">Course of Interest</label>
-                                        <select className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-[#43474e] text-sm cursor-pointer transition-all" value={formData.course} onChange={e => setFormData({...formData, course: e.target.value})}>
+                                        <label className="block text-xs font-bold text-[#002045] mb-1.5 uppercase tracking-wide">Course of Interest *</label>
+                                        <select className="w-full px-4 py-3 bg-[#f7fafc] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 text-[#43474e] text-sm cursor-pointer transition-all" required value={formData.course} onChange={e => setFormData({...formData, course: e.target.value})}>
                                             <option value="">Select a Course</option>
                                             <option value="IELTS Masterclass">IELTS Masterclass</option>
                                             <option value="Academic Fundamentals">Academic Fundamentals</option>
