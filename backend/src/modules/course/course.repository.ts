@@ -97,11 +97,12 @@ export class CourseRepository {
     return res.rows.length > 0 ? res.rows[0] : null;
   }
 
-  static async getAllCourses() {
-    const query = `
-            SELECT * FROM courses 
-            ORDER BY created_at DESC;
-        `;
+  static async getAllCourses(options: { onlyActive?: boolean } = {}) {
+    let query = `SELECT * FROM courses`;
+    if (options.onlyActive) {
+      query += ` WHERE status ILIKE 'active'`;
+    }
+    query += ` ORDER BY created_at DESC;`;
     const res = await pool.query(query);
     return res.rows;
   }

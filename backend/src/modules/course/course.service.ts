@@ -24,14 +24,17 @@ export class CourseService {
   }
 
 
-  static async getAllCourses() {
-    return await CourseRepository.getAllCourses();
+  static async getAllCourses(options: { onlyActive?: boolean } = {}) {
+    return await CourseRepository.getAllCourses(options);
   }
 
-  static async getCourseById(id: string) {
+  static async getCourseById(id: string, options: { onlyActive?: boolean } = {}) {
     if (!id) throw new Error('Course ID is required.');
     const course = await CourseRepository.getCourseById(id);
     if (!course) throw new Error('Course not found.');
+    if (options.onlyActive && course.status && course.status.toLowerCase() !== 'active') {
+      throw new Error('Course not found.');
+    }
     return course;
   }
 

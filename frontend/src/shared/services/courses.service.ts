@@ -16,7 +16,7 @@ const getAuthHeaders = () => {
 export const CoursesService = {
     getCourses: async (): Promise<Course[]> => {
         try {
-            const response = await axios.get(API_URL);
+            const response = await axios.get(API_URL, getAuthHeaders());
             return response.data.data || [];
         } catch (error) {
             console.error('Error fetching courses:', error);
@@ -26,7 +26,7 @@ export const CoursesService = {
 
     getCourseById: async (id: string): Promise<Course | null> => {
         try {
-            const response = await axios.get(`${API_URL}/${id}`);
+            const response = await axios.get(`${API_URL}/${id}`, getAuthHeaders());
             return response.data.data;
         } catch (error) {
             console.error('Error fetching course:', error);
