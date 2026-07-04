@@ -6,10 +6,8 @@ export const LearnerClassDetailService = {
     getClassDetail: async (id: string): Promise<ClassDetailData | undefined> => {
 
         try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const res = await axiosClient.get(`/staff/classes/${id}`) as { data?: { data?: any } | any };
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const data: any = res.data && typeof res.data === 'object' && 'data' in res.data ? res.data.data : res.data;
+            const res = await axiosClient.get(`/staff/classes/${id}`) as { data?: { data?: unknown } | any };
+            const data: unknown = res.data && typeof res.data === 'object' && 'data' in res.data ? res.data.data : res.data;
             if (!data) return undefined;
 
             const sessions = data.sessions || [];

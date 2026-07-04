@@ -87,8 +87,10 @@ export const TutorAvailabilityService = {
     },
 
     getTutorAvailability: async (cycleId: string, tutorId: string): Promise<string[]> => {
-        const res = await axiosClient.get(`/available-time-slots/cycles/${cycleId}/tutors/${tutorId}`);
-        return (res as { data: { slots: string[] } }).data.slots;
+        // Find it from the profiles list since there is no direct endpoint
+        const profiles = await TutorAvailabilityService.getTutorProfiles(cycleId);
+        const tutor = profiles.find(p => p.id === tutorId);
+        return tutor ? tutor.slots : [];
     },
 
     exportCycleToCSV: async (cycleId: string): Promise<Blob> => {
@@ -96,8 +98,8 @@ export const TutorAvailabilityService = {
         return res as unknown as Blob;
     },
 
-    updateTutor: async (cycleId: string, tutorId: string, slots: string[]): Promise<void> => {
-        await axiosClient.put(`/available-time-slots/cycles/${cycleId}/tutors/${tutorId}`, { slots });
+    updateTutor: async (cycleId: string, tutorId: string, slots: string[], status?: AvailabilityStatus): Promise<void> => {
+        await axiosClient.put(`/available-time-slots/staff/tutors/${tutorId}`, { cycle_id: cycleId, slots, status });
         // Invalidate cache
         delete tutorsCache[cycleId];
     },

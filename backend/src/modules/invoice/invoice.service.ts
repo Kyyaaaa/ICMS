@@ -1,5 +1,5 @@
 import { InvoiceRepository } from './invoice.repository';
-import { Invoice } from './invoice.model';
+import { } from './invoice.model';
 import { EnrollmentService } from '../enrollment/enrollment.service';
 
 import { DiscountCodeRepository } from '../discount-code/discount-code.repository';

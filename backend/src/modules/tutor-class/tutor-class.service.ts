@@ -1,6 +1,5 @@
 import { TutorClassRepository } from './tutor-class.repository';
 import * as crypto from 'crypto';
-import { supabaseAdmin } from '../../configs/supabase';
 
 export class TutorClassService {
   static async getGradebook(classId: string) {
@@ -8,8 +7,7 @@ export class TutorClassService {
     const { enrollments, grades } = await TutorClassRepository.getStudentsWithGrades(classId);
     
     // Fetch grading_status
-    const { data: classData } = await supabaseAdmin.from('classes').select('grading_status').eq('id', classId).single();
-    const grading_status = classData?.grading_status || 'PENDING';
+    const grading_status = await TutorClassRepository.getGradingStatus(classId);
 
     // Map the enrollments to StudentWithGrades format
     const students = enrollments.map((enrollment: any) => {

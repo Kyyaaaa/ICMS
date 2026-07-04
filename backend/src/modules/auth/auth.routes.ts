@@ -166,8 +166,28 @@ router.post('/refresh', validateRefreshTokenInput, AuthController.refreshToken);
  *       401:
  *         description: Token is invalid or expired
  */
-router.get('/verify', verifyToken, (_req: any, res: any) => {
-    return res.status(200).json({ success: true, message: 'Token is valid' });
+import { supabaseAdmin } from '../../configs/supabase';
+
+router.get('/verify', verifyToken, async (req: any, res: any) => {
+    let has_updated_availability = true;
+    if (req.user?.role === 'TUTOR') {
+        try {
+            const { count, error } = await supabaseAdmin
+                .from('tutor_available_time_slots')
+                .select('*', { count: 'exact', head: true })
+                .eq('tutor_id', req.user.id);
+            if (!error && count === 0) {
+                has_updated_availability = false;
+            }
+        } catch (error) {
+            console.error('Error checking tutor availability in verify:', error);
+        }
+    }
+    return res.status(200).json({ 
+        success: true, 
+        message: 'Token is valid',
+        has_updated_availability
+    });
 });
 
 /**

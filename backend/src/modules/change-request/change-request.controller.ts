@@ -28,7 +28,7 @@ export const ChangeRequestController = {
         }
     },
 
-    getAll: async (req: Request, res: Response) => {
+    getAll: async (_req: Request, res: Response) => {
         try {
             const requests = await changeRequestService.getAll();
             res.json(requests);

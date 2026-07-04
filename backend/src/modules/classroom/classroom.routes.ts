@@ -9,8 +9,8 @@ router.get('/', ClassroomController.getAll);
 router.get('/:id', ClassroomController.getById);
 
 // Admin & Staff only routes
-router.post('/', verifyToken, requireRole(['admin', 'ADMIN', 'staff', 'STAFF']), ClassroomController.create);
-router.put('/:id', verifyToken, requireRole(['admin', 'ADMIN', 'staff', 'STAFF']), ClassroomController.update);
-router.delete('/:id', verifyToken, requireRole(['admin', 'ADMIN', 'staff', 'STAFF']), ClassroomController.delete);
+router.post('/', verifyToken, requireRole(['ADMIN', 'STAFF']), ClassroomController.create);
+router.put('/:id', verifyToken, requireRole(['ADMIN', 'STAFF']), ClassroomController.update);
+router.delete('/:id', verifyToken, requireRole(['ADMIN', 'STAFF']), ClassroomController.delete);
 
 export default router;

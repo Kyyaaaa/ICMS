@@ -5,6 +5,7 @@ export interface TicketMessage {
     ticket_id: string;
     sender_id: string;
     sender_role: string;
+    sender_name?: string;
     text: string;
     created_at: string;
 }

@@ -1,4 +1,6 @@
 import { MapPin, Edit, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Pagination } from '@/shared/components/common/Pagination';
 import type { Room } from '../types/classroom';
 
 interface ClassroomsTableProps {
@@ -8,6 +10,9 @@ interface ClassroomsTableProps {
 }
 
 export const ClassroomsTable = ({ rooms, handleOpenModal, handleDelete }: ClassroomsTableProps) => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
+    
     return (
         <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] overflow-hidden">
             <div className="overflow-x-auto">
@@ -21,7 +26,7 @@ export const ClassroomsTable = ({ rooms, handleOpenModal, handleDelete }: Classr
                         </tr>
                     </thead>
                     <tbody>
-                        {rooms.map(room => (
+                        {rooms.slice((currentPage - 1) * limit, currentPage * limit).map(room => (
                             <tr key={room.id} className="border-b border-[#e0e3e5] hover:bg-[#f7fafc] group">
                                 <td className="py-3 px-4">
                                     <div className="flex items-center gap-3">
@@ -41,8 +46,8 @@ export const ClassroomsTable = ({ rooms, handleOpenModal, handleDelete }: Classr
                                         {room.status}
                                     </span>
                                     {room.status === 'Maintenance' && room.maintenanceSchedule && (
-                                        <div className="text-xs text-[#74777f] mt-1 line-clamp-1" title={`${room.maintenanceSchedule.date} ${room.maintenanceSchedule.startTime}-${room.maintenanceSchedule.endTime}: ${room.maintenanceSchedule.note}`}>
-                                            {room.maintenanceSchedule.date}, {room.maintenanceSchedule.startTime} - {room.maintenanceSchedule.endTime} ({room.maintenanceSchedule.note})
+                                        <div className="text-xs text-[#74777f] mt-1 line-clamp-1" title={`${room.maintenanceSchedule.date.split('-').reverse().join('/')} ${room.maintenanceSchedule.startTime.substring(0,5)}-${room.maintenanceSchedule.endTime.substring(0,5)}${room.maintenanceSchedule.note ? `: ${room.maintenanceSchedule.note}` : ''}`}>
+                                            {room.maintenanceSchedule.date.split('-').reverse().join('/')}, {room.maintenanceSchedule.startTime.substring(0,5)} - {room.maintenanceSchedule.endTime.substring(0,5)}{room.maintenanceSchedule.note ? ` (${room.maintenanceSchedule.note})` : ''}
                                         </div>
                                     )}
                                 </td>
@@ -62,6 +67,13 @@ export const ClassroomsTable = ({ rooms, handleOpenModal, handleDelete }: Classr
                     </tbody>
                 </table>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalItems={rooms.length}
+                itemsPerPage={limit}
+                onPageChange={setCurrentPage}
+                itemName="rooms"
+            />
         </div>
     );
 };

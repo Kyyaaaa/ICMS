@@ -111,7 +111,6 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
             return;
         }
         
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsLoadingRooms(true);
         ClassesService.getOccupiedSessions({ date: selectedNewDate, slot: selectedNewTime })
             .then(occupiedSessions => {

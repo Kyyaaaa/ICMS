@@ -9,8 +9,8 @@ router.get('/', CourseController.getAllCourses);
 router.get('/:id', CourseController.getCourseById);
 
 // Các route chỉ dành riêng cho quyền Admin
-router.post('/', verifyToken, requireRole(['admin', 'ADMIN']), CourseController.createCourse);
-router.put('/:id', verifyToken, requireRole(['admin', 'ADMIN']), CourseController.updateCourse);
-router.delete('/:id', verifyToken, requireRole(['admin', 'ADMIN']), CourseController.deleteCourse);
+router.post('/', verifyToken, requireRole(['ADMIN']), CourseController.createCourse);
+router.put('/:id', verifyToken, requireRole(['ADMIN']), CourseController.updateCourse);
+router.delete('/:id', verifyToken, requireRole(['ADMIN']), CourseController.deleteCourse);
 
 export default router;

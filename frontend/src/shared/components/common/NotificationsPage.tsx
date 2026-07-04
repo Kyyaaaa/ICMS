@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Bell, CheckCircle2, Circle, Clock, MailOpen } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { AnnouncementsService } from '@/features/admin/services/announcements.service';
+import { formatDateTime } from '@/shared/utils/date';
 
 type NotificationItem = {
     id: string;
@@ -39,7 +40,7 @@ export const NotificationsPage = () => {
                     title: ann.title,
                     message: ann.content,
                     time: 'Recent', 
-                    date: ann.date,
+                    date: formatDateTime(ann.date),
                     unread: !readSet.has(ann.id)
                 }));
                 
@@ -53,7 +54,6 @@ export const NotificationsPage = () => {
         };
         
         fetchNotifications();
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFilter('all');
     }, [currentRole, isGuest]);
 

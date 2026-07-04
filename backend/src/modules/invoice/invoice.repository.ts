@@ -43,6 +43,18 @@ export class InvoiceRepository {
     return data;
   }
 
+  static async getInvoiceById(invoiceId: string) {
+    const { data, error } = await supabaseAdmin
+      .from('invoices')
+      .select('*')
+      .eq('id', invoiceId)
+      .single();
+    if (error && error.code !== 'PGRST116') {
+      throw new Error(error.message);
+    }
+    return data;
+  }
+
   static async deleteInvoice(invoiceId: string) {
     const { error } = await supabaseAdmin.from('invoices').delete().eq('id', invoiceId);
     if (error) throw new Error(error.message);
@@ -50,7 +62,7 @@ export class InvoiceRepository {
 
   // checkRegistrationConflicts has been moved to EnrollmentService
 
-  static async createInvoice(learnerId: string, classId: string, amount: number, discount: number = 0, discountCodeId: string | null = null, paymentPlan: string = 'full') {
+  static async createInvoice(learnerId: string, classId: string, amount: number, discount: number = 0, discountCodeId: string | null = null, _paymentPlan: string = 'full') {
     const { data: invoice, error } = await supabaseAdmin
       .from('invoices')
       .insert({
@@ -179,9 +191,9 @@ export class InvoiceRepository {
     const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
     const expiredInvoices = data?.filter((inv: any) => inv.status === 'PENDING' && new Date(inv.created_at) < fifteenMinsAgo) || [];
     
+    // Do NOT update DB here to avoid missing EnrollmentService side-effects.
+    // The cron job `invoice-expiry.cron.ts` will handle this safely.
     if (expiredInvoices.length > 0) {
-      const expiredIds = expiredInvoices.map((inv: any) => inv.id);
-      await supabaseAdmin.from('invoices').update({ status: 'CANCELLED' }).in('id', expiredIds);
       expiredInvoices.forEach((inv: any) => inv.status = 'CANCELLED');
     }
 

@@ -23,7 +23,6 @@ export const AnnouncementFormModal = ({ mode, initialData, availableCourses, ava
 
     useEffect(() => {
         if (mode === 'edit' && initialData) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({
                 title: initialData.title,
                 content: initialData.content,

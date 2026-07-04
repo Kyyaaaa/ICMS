@@ -56,7 +56,7 @@ const AdminRefundDetail = () => {
                             refund.status === 'Rejected' ? 'bg-[#fceeee] text-[#ba1a1a]' :
                             'bg-[#fff8e1] text-[#c9a82c]'
                         }`}>
-                            {refund.status}
+                            {refund.status === 'Pending' ? 'Pending Approval' : refund.status === 'Approved' ? 'Pending Refund' : refund.status}
                         </span>
                     </div>
                 </div>

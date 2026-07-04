@@ -24,7 +24,7 @@ export class RefundController {
     }
   }
 
-  static async getAllRefunds(req: Request, res: Response) {
+  static async getAllRefunds(_req: Request, res: Response) {
     try {
       const data = await RefundService.getAllRefunds();
       res.json({ data });

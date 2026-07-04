@@ -3,6 +3,67 @@ import { CreateChangeRequestDTO, UpdateChangeRequestStatusDTO } from './change-r
 import { AnnouncementRepository } from '../announcement/announcement.repository';
 
 export class ChangeRequestRepository {
+    async getLearnerConflictClass(classId: string, date: string, slot: string, sessionId: string): Promise<string | null> {
+        const { data: enrollments } = await supabaseAdmin
+            .from('enrollments')
+            .select('learner_id')
+            .eq('class_id', classId)
+            .eq('status', 'ACTIVE');
+        
+        if (enrollments && enrollments.length > 0) {
+            const learnerIds = enrollments.map(e => e.learner_id);
+            const { data: otherEnrollments } = await supabaseAdmin
+                .from('enrollments')
+                .select('class_id')
+                .in('learner_id', learnerIds)
+                .eq('status', 'ACTIVE');
+            
+            if (otherEnrollments && otherEnrollments.length > 0) {
+                const otherClassIds = [...new Set(otherEnrollments.map(e => e.class_id))];
+                const { data: conflictingSessions } = await supabaseAdmin
+                    .from('class_sessions')
+                    .select('class_id, classes(name)')
+                    .eq('date', date)
+                    .eq('slot', slot)
+                    .in('class_id', otherClassIds)
+                    .neq('id', sessionId);
+                
+                if (conflictingSessions && conflictingSessions.length > 0) {
+                    return (conflictingSessions[0] as any).classes?.name || 'another class';
+                }
+            }
+        }
+        return null;
+    }
+
+    async getAvailableRooms(occupiedRoomIds: string[]): Promise<any[]> {
+        const { data: allRooms } = await supabaseAdmin
+            .from('classroom')
+            .select('id, room_name, capacity')
+            .eq('status', 'AVAILABLE');
+        
+        return (allRooms || []).filter(r => !occupiedRoomIds.includes(r.id));
+    }
+
+    async hasPendingRequestForSession(sessionId: string): Promise<boolean> {
+        const { data: existing } = await supabaseAdmin
+            .from('change_requests')
+            .select('id')
+            .eq('session_id', sessionId)
+            .eq('status', 'Pending')
+            .limit(1);
+        return existing && existing.length > 0 ? true : false;
+    }
+
+    async getSessionDate(sessionId: string): Promise<string | null> {
+        const { data: sessionInfo } = await supabaseAdmin
+            .from('class_sessions')
+            .select('date')
+            .eq('id', sessionId)
+            .single();
+        return sessionInfo ? sessionInfo.date : null;
+    }
+
     async findAll() {
         const { data, error } = await supabaseAdmin
             .from('change_requests')

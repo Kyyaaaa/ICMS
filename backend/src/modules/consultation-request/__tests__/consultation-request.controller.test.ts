@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../../../app';
 import { ConsultationRequestService } from '../consultation-request.service';
 import { supabase } from '../../../configs/supabase';
-import { AuthError } from '@supabase/supabase-js';
+import { } from '@supabase/supabase-js';
 
 // Mock dependencies
 jest.mock('../consultation-request.service');

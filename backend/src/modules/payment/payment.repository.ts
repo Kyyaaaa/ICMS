@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../configs/supabase';
+import { EnrollmentRepository } from '../enrollment/enrollment.repository';
 
 export class PaymentRepository {
   static async recordPaymentAndEnroll(txnRef: string, amount: number, transactionNo: string) {
@@ -13,7 +14,7 @@ export class PaymentRepository {
 
     const { data: invoice, error: invoiceError } = await supabaseAdmin
       .from('invoices')
-      .select('*, invoice_installments(*)')
+      .select('*, invoice_installments(*), classes(capacity)')
       .eq('invoice_code', invoiceCode)
       .single();
       
@@ -50,13 +51,8 @@ export class PaymentRepository {
           .update({ status: 'PARTIAL' })
           .eq('id', invoice.id);
 
-        await supabaseAdmin
-          .from('enrollments')
-          .insert({
-            learner_id: invoice.learner_id,
-            class_id: invoice.class_id,
-            status: 'ACTIVE'
-          });
+        const maxCapacity = invoice.classes?.capacity || 999;
+        await EnrollmentRepository.createEnrollmentAtomic(invoice.learner_id, invoice.class_id, maxCapacity);
       } else {
         // Check if all installments are paid
         const { data: allInsts } = await supabaseAdmin
@@ -92,13 +88,8 @@ export class PaymentRepository {
       .eq('id', invoice.id);
 
     if (invoice.status === 'PENDING') {
-      await supabaseAdmin
-        .from('enrollments')
-        .insert({
-          learner_id: invoice.learner_id,
-          class_id: invoice.class_id,
-          status: 'ACTIVE'
-        });
+      const maxCapacity = invoice.classes?.capacity || 999;
+      await EnrollmentRepository.createEnrollmentAtomic(invoice.learner_id, invoice.class_id, maxCapacity);
     }
 
     return invoice;

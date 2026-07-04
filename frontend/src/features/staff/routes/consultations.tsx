@@ -5,6 +5,7 @@ import type { ConsultationRequest } from '../types/consultation';
 import { ConsultationsService } from '../services/consultations.service';
 import { ConsultationModal } from '../components/ConsultationModal';
 import { showAlertModal } from '@/utils/modal';
+import { Pagination } from '@/shared/components/common/Pagination';
 
 const ConsultationList = () => {
     const [consultations, setConsultations] = useState<ConsultationRequest[]>([]);
@@ -15,7 +16,7 @@ const ConsultationList = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
     const limit = 10;
 
     const loadData = useCallback(async () => {
@@ -27,7 +28,7 @@ const ConsultationList = () => {
                 limit: limit
             });
             setConsultations(response.data);
-            setTotalPages(Math.ceil(response.total / limit));
+            setTotalItems(response.total);
         } catch (error) {
             console.error(error);
             showAlertModal('Error', 'Cannot load consultation requests.', 'error');
@@ -37,7 +38,6 @@ const ConsultationList = () => {
     }, [currentPage, statusFilter]);
 
     useEffect(() => {
-        // eslint-disable-next-line
         loadData();
     }, [loadData]);
 
@@ -154,26 +154,14 @@ const ConsultationList = () => {
             </div>
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
-                <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-[#e0e3e5] shadow-sm">
-                    <span className="text-sm text-[#43474e] font-medium">Page {currentPage} of {totalPages}</span>
-                    <div className="flex gap-2">
-                        <button 
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            className="px-4 py-2 border border-[#c4c6cf] rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors font-semibold text-sm text-[#43474e] bg-white shadow-sm"
-                        >
-                            Previous
-                        </button>
-                        <button 
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            className="px-4 py-2 border border-[#c4c6cf] rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors font-semibold text-sm text-[#43474e] bg-white shadow-sm"
-                        >
-                            Next
-                        </button>
-                    </div>
-                </div>
+            {totalItems > limit && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={limit}
+                    onPageChange={setCurrentPage}
+                    itemName="consultations"
+                />
             )}
 
             {selectedConsultation && (

@@ -18,6 +18,8 @@ export interface TutorPendingTask {
 export interface TutorUpcomingClass {
     time: string;
     name: string;
+    courseName: string;
+    sessionNumber: number;
     room: string;
     status: 'In Progress' | 'Upcoming';
 }

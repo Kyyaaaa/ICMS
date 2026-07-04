@@ -25,7 +25,7 @@ export class AuthService {
     };
 
     try {
-      const userAccount = await AuthRepository.getAccountByEmail(email);
+      const _userAccount = await AuthRepository.getAccountByEmail(email);
     } catch (error) {
       throw new Error("Error checking existing email: " + error);
     }

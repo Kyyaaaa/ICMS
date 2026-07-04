@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CheckCircle, Clock } from 'lucide-react';
 import type { DashboardTransaction } from '../types/dashboard';
+import { formatDateTime } from '@/shared/utils/date';
 
 interface DashboardTransactionsProps {
     transactions: DashboardTransaction[];
@@ -29,7 +30,12 @@ export const DashboardTransactions = ({ transactions }: DashboardTransactionsPro
                         {transactions.map(txn => (
                             <tr key={txn.id} className="border-b border-[#e0e3e5] last:border-0 hover:bg-[#f7fafc]">
                                 <td className="py-4 px-6">
-                                    <span className={`text-xs font-bold px-2 py-1 rounded-md ${txn.type === 'income' ? 'text-[#0061a5] bg-[#e6f0fa]' : 'text-[#ba1a1a] bg-[#fceeee]'}`}>
+                                    <span className={`text-xs font-bold px-2 py-1 rounded-md ${
+                                        txn.id.startsWith('INV') ? 'text-[#0061a5] bg-[#e6f0fa]' :
+                                        txn.id.startsWith('REF') ? 'text-[#ba1a1a] bg-[#fceeee]' :
+                                        txn.id.startsWith('PAY') ? 'text-[#c2410c] bg-[#fff7ed]' :
+                                        'text-[#43474e] bg-[#f1f4f6]'
+                                    }`}>
                                         {txn.id}
                                     </span>
                                 </td>
@@ -43,7 +49,7 @@ export const DashboardTransactions = ({ transactions }: DashboardTransactionsPro
                                     <div className="text-sm font-bold text-[#181c1e]">{txn.user.name}</div>
                                     <div className="text-xs text-[#74777f]">{txn.user.role}</div>
                                 </td>
-                                <td className="py-4 px-6 text-sm text-[#43474e]">{txn.date}</td>
+                                <td className="py-4 px-6 text-sm text-[#43474e]">{formatDateTime(txn.date)}</td>
                                 <td className="py-4 px-6 text-right">
                                     <span className={`text-sm font-bold ${txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
                                         {txn.type === 'income' ? '+ ' : '- '} {txn.amount.toLocaleString()} đ

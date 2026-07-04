@@ -21,7 +21,7 @@ export const DashboardPendingTasks = ({ tasks }: DashboardPendingTasksProps) => 
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h2 className="text-lg font-bold text-[#002045]">Pending Tasks</h2>
-                    <p className="text-sm text-[#43474e] mt-1">Assignments and payments due</p>
+                    <p className="text-sm text-[#43474e] mt-1">Unpaid invoices</p>
                 </div>
             </div>
 

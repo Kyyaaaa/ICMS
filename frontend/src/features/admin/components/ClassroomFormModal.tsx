@@ -16,6 +16,25 @@ export const ClassroomFormModal = ({
     handleCloseModal,
     handleSave
 }: ClassroomFormModalProps) => {
+
+    const handleSaveClick = () => {
+        if (formData.status === 'Maintenance') {
+            const sched = formData.maintenanceSchedule;
+            if (!sched?.date || !sched?.startTime || !sched?.endTime) {
+                window.dispatchEvent(new CustomEvent('SHOW_GLOBAL_MODAL', {
+                    detail: { 
+                        title: 'Missing Information', 
+                        message: 'Please provide the Date, From time, and To time for the maintenance schedule.', 
+                        mode: 'alert', 
+                        type: 'error' 
+                    }
+                }));
+                return;
+            }
+        }
+        handleSave();
+    };
+
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in">
             <div className="bg-white rounded-2xl w-full max-w-lg mx-4 shadow-xl overflow-hidden animate-slide-up">
@@ -108,7 +127,7 @@ export const ClassroomFormModal = ({
                 </div>
                 <div className="p-4 border-t border-[#e0e3e5] flex justify-end gap-2 bg-[#f7fafc]">
                     <button onClick={handleCloseModal} className="px-4 py-2 text-sm font-bold text-[#43474e] hover:bg-[#e0e3e5] rounded-xl transition-colors">Cancel</button>
-                    <button onClick={handleSave} className="px-4 py-2 text-sm font-bold text-white bg-[#0061a5] hover:bg-[#004d80] rounded-xl transition-colors">Save Room</button>
+                    <button onClick={handleSaveClick} className="px-4 py-2 text-sm font-bold text-white bg-[#0061a5] hover:bg-[#004d80] rounded-xl transition-colors">Save Room</button>
                 </div>
             </div>
         </div>

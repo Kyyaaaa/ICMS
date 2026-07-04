@@ -2,56 +2,13 @@ import type { DashboardStatsData, DashboardTransaction } from '../types/dashboar
 import { FinanceService } from './finance.service';
 import axiosClient from '@/shared/services/axiosClient';
 
-const extractTotal = (res: unknown): number => {
-    if (!res || typeof res !== 'object') return 0;
 
-    const obj = res as Record<string, unknown>;
-    const data = obj.data as Record<string, unknown> | undefined;
-
-    if (data && typeof data.total === 'number') return data.total;
-    if (typeof obj.total === 'number') return obj.total;
-    if (Array.isArray(res)) return res.length;
-    if (Array.isArray(obj.data)) return obj.data.length;
-    if (data && Array.isArray(data.data)) return data.data.length;
-
-    return 0;
-};
 
 export const DashboardService = {
     getStats: async (): Promise<DashboardStatsData> => {
         try {
-            const [transactions, accountsRes, coursesRes, classesRes, classroomsRes] = await Promise.all([
-                FinanceService.getTransactions().catch(() => []),
-                axiosClient.get('/accounts?role=LEARNER&page=1&limit=1').catch(() => null),
-                axiosClient.get('/courses').catch(() => null),
-                axiosClient.get('/staff/classes?page=1&limit=1').catch(() => null),
-                axiosClient.get('/classrooms').catch(() => null)
-            ]);
-
-            // Calculate net balance for the current month
-            const now = new Date();
-            const currentMonthTransactions = transactions.filter(txn => {
-                const txnDate = new Date(txn.date);
-                return txnDate.getMonth() === now.getMonth() && txnDate.getFullYear() === now.getFullYear();
-            });
-
-            const totalIncome = currentMonthTransactions
-                .filter(t => t.type === 'income')
-                .reduce((sum, t) => sum + (t.paidAmount || 0), 0);
-
-            const totalExpense = currentMonthTransactions
-                .filter(t => t.type === 'expense' && (t.status === 'Completed' || t.status === 'Refunded'))
-                .reduce((acc, t) => acc + t.amount, 0);
-
-            const netRevenue = totalIncome - totalExpense;
-
-            return {
-                totalRevenue: netRevenue,
-                totalLearners: extractTotal(accountsRes),
-                totalCourses: extractTotal(coursesRes),
-                totalClasses: extractTotal(classesRes),
-                totalClassrooms: extractTotal(classroomsRes)
-            };
+            const response = await axiosClient.get('/dashboard/admin/stats');
+            return response as any;
         } catch (error) {
             console.error('Error fetching stats:', error);
             return {

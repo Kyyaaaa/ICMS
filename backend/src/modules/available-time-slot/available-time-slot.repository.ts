@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../../configs/supabase';
 import { AvailabilityResponse, TutorAvailabilityProfile } from './available-time-slot.model';
+import { CacheService } from '../../utils/cache';
 
 export class AvailableTimeSlotRepository {
   /**
@@ -104,13 +105,15 @@ export class AvailableTimeSlotRepository {
    * Cycles Management
    */
   static async getCycles() {
-    const { data, error } = await supabaseAdmin
-      .from('availability_cycles')
-      .select('*')
-      .order('start_date', { ascending: false });
-    
-    if (error) throw error;
-    return data;
+    return await CacheService.getOrSet('availability_cycles', async () => {
+      const { data, error } = await supabaseAdmin
+        .from('availability_cycles')
+        .select('*')
+        .order('start_date', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    });
   }
 
   static async getOrCreateCycleByMonth(month: number, year: number) {
@@ -221,5 +224,15 @@ export class AvailableTimeSlotRepository {
     }
 
     return true;
+  }
+
+  static async checkTutorHasAnyAvailability(tutorId: string): Promise<boolean> {
+    const { count, error } = await supabaseAdmin
+      .from('tutor_available_time_slots')
+      .select('*', { count: 'exact', head: true })
+      .eq('tutor_id', tutorId);
+    
+    if (error) return true; // Default to true to prevent bypassing checks on error
+    return count !== null && count > 0;
   }
 }

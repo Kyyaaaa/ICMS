@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { ClassroomService } from './classroom.service';
 
 export const ClassroomController = {
-  async getAll(req: Request, res: Response) {
+  async getAll(_req: Request, res: Response) {
     try {
       const classrooms = await ClassroomService.getAllClassrooms();
       res.json(classrooms);

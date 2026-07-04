@@ -1,5 +1,5 @@
 import { DiscountCodeRepository } from './discount-code.repository';
-import { DiscountCode, CreateDiscountCodeDTO, UpdateDiscountCodeDTO } from './discount-code.model';
+import { CreateDiscountCodeDTO, UpdateDiscountCodeDTO } from './discount-code.model';
 
 export class DiscountCodeService {
   private repository: DiscountCodeRepository;

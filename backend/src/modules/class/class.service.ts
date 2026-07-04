@@ -1,4 +1,5 @@
 import { ClassRepository } from './class.repository';
+import { EnrollmentRepository } from '../enrollment/enrollment.repository';
 import { CourseService } from '../course/course.service';
 import { TutorReviewService } from '../tutor-review/tutor-review.service';
 import { AvailableTimeSlotService } from '../available-time-slot/available-time-slot.service';
@@ -25,7 +26,37 @@ export class ClassService {
   static async getClassStudents(id: string) {
     const data = await ClassRepository.getClassById(id);
     if (!data) throw new Error("Class not found");
-    return data.students;
+    
+    const sessions = data.sessions || [];
+    
+    return (data.students || []).map((student: any) => {
+      let presentCount = 0;
+      let gradedCount = 0;
+      
+      const studentId = student.learner_id || student.account?.id;
+
+      sessions.forEach((session: any) => {
+        const attendances = session.attendances || [];
+        const att = attendances.find((a: any) => a.learner_id === studentId);
+        
+        if (att && att.status && att.status !== 'NOT_YET') {
+          gradedCount++;
+          if (att.status === 'PRESENT' || att.status === 'LATE') {
+             presentCount++;
+          }
+        }
+      });
+
+      let attendanceRate = 100;
+      if (gradedCount > 0) {
+        attendanceRate = Math.round((presentCount / gradedCount) * 100);
+      }
+
+      return {
+        ...student,
+        attendance_rate: attendanceRate
+      };
+    });
   }
 
   static async createClass(data: CreateClassDTO) {
@@ -238,9 +269,12 @@ export class ClassService {
   }
 
   static async deleteClass(id: string) {
-    // Optionally check if class has students before deleting
-    // but the DB constraint or controller might handle this.
-    // The frontend checks if enrolledStudents > 0 already.
+    // 1. Prevent deleting class if it has active enrollments
+    const activeEnrollmentsCount = await EnrollmentRepository.countClassEnrollments(id);
+    if (activeEnrollmentsCount > 0) {
+      throw { status: 400, message: 'Cannot delete class with active enrollments. Please cancel them first.' };
+    }
+    
     return await ClassRepository.deleteClass(id);
   }
 

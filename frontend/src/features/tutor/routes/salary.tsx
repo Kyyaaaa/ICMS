@@ -7,7 +7,7 @@ import { SalaryTable } from '../components/SalaryTable';
 import { PayslipModal } from '../../../shared/components/common/PayslipModal';
 
 const TutorSalaryHistory = () => {
-    const [selectedYear] = useState('2026');
+    const [selectedYear, setSelectedYear] = useState('2026');
     const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>([]);
     const [selectedRecord, setSelectedRecord] = useState<SalaryRecord | null>(null);
     const [loading, setLoading] = useState(true);
@@ -46,6 +46,7 @@ const TutorSalaryHistory = () => {
                 <SalaryTable 
                     records={salaryRecords} 
                     selectedYear={selectedYear} 
+                    setSelectedYear={setSelectedYear}
                     onViewRecord={setSelectedRecord} 
                 />
             )}

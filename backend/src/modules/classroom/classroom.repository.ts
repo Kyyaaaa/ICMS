@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../configs/supabase';
+import { CacheService } from '../../utils/cache';
 
 export interface CreateClassroomDTO {
   room_name: string;
@@ -21,20 +22,22 @@ export interface MaintenanceDTO {
 
 export const ClassroomRepository = {
   async findAll() {
-    const { data: classrooms, error: err1 } = await supabaseAdmin
-      .from('classroom')
-      .select('*')
-      .order('room_name', { ascending: true });
-    
-    if (err1) throw err1;
+    return await CacheService.getOrSet('classrooms', async () => {
+      const { data: classrooms, error: err1 } = await supabaseAdmin
+        .from('classroom')
+        .select('*')
+        .order('room_name', { ascending: true });
+      
+      if (err1) throw err1;
 
-    const { data: maintenance, error: err2 } = await supabaseAdmin
-      .from('classroom_maintenance')
-      .select('*');
+      const { data: maintenance, error: err2 } = await supabaseAdmin
+        .from('classroom_maintenance')
+        .select('*');
 
-    if (err2) throw err2;
+      if (err2) throw err2;
 
-    return { classrooms, maintenance };
+      return { classrooms, maintenance };
+    });
   },
 
   async findById(id: string) {
@@ -170,6 +173,7 @@ export const ClassroomRepository = {
       .eq('id', id);
 
     if (error) throw error;
+    CacheService.invalidate('classrooms');
     return true;
   }
 };

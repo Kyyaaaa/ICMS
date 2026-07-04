@@ -55,7 +55,7 @@ describe('EnrollmentService QA Tests', () => {
       (EnrollmentRepository.countClassEnrollments as jest.Mock).mockResolvedValue(1);
 
       // Mock successful enrollment
-      (EnrollmentRepository.createEnrollment as jest.Mock).mockResolvedValue({
+      (EnrollmentRepository.createEnrollmentAtomic as jest.Mock).mockResolvedValue({
         id: 'enrollment-1',
         learner_id: learnerId,
         class_id: classId,
@@ -64,7 +64,7 @@ describe('EnrollmentService QA Tests', () => {
 
       const result = await EnrollmentService.enrollLearner(learnerId, { class_id: classId });
       expect(result).toHaveProperty('id', 'enrollment-1');
-      expect(EnrollmentRepository.createEnrollment).toHaveBeenCalledWith(learnerId, classId);
+      expect(EnrollmentRepository.createEnrollmentAtomic).toHaveBeenCalledWith(learnerId, classId, 2);
     });
 
     it('should throw 400 error if learner is already enrolled in another class of the same course', async () => {

@@ -3,6 +3,7 @@ import { Eye, Search, Calendar, Users, MapPin } from 'lucide-react';
 import type { ChangeRequest } from '../types/change-request';
 import { ChangeRequestsService } from '../services/change-requests.service';
 import { ChangeRequestModal } from '../components/ChangeRequestModal';
+import { Pagination } from '@/shared/components/common/Pagination';
 
 const ChangeRequests = () => {
     const [requests, setRequests] = useState<ChangeRequest[]>([]);
@@ -11,6 +12,8 @@ const ChangeRequests = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [typeFilter, setTypeFilter] = useState('All');
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
 
     useEffect(() => {
         const loadRequests = async () => {
@@ -102,7 +105,7 @@ const ChangeRequests = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredRequests.map(item => (
+                        {filteredRequests.slice((currentPage - 1) * limit, currentPage * limit).map(item => (
                             <tr key={item.id} className="border-b border-[#e0e3e5] hover:bg-gray-50">
                                 <td className="p-4 font-bold text-[#002045]">{item.tutor}</td>
                                 <td className="p-4">
@@ -147,6 +150,14 @@ const ChangeRequests = () => {
                     </tbody>
                 </table>
             </div>
+            
+            <Pagination
+                currentPage={currentPage}
+                totalItems={filteredRequests.length}
+                itemsPerPage={limit}
+                onPageChange={setCurrentPage}
+                itemName="requests"
+            />
 
             {/* View Detail Modal */}
             {selectedRequest && (

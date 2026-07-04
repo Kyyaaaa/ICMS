@@ -7,6 +7,7 @@ import { DashboardTransactions } from '../components/DashboardTransactions';
 const AdminDashboard = () => {
     const [stats, setStats] = useState<DashboardStatsData | null>(null);
     const [transactions, setTransactions] = useState<DashboardTransaction[]>([]);
+    
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -14,7 +15,7 @@ const AdminDashboard = () => {
             setLoading(true);
             const [statsData, txnsData] = await Promise.all([
                 DashboardService.getStats(),
-                DashboardService.getRecentTransactions()
+                DashboardService.getRecentTransactions(),
             ]);
             setStats(statsData);
             setTransactions(txnsData);
@@ -32,12 +33,10 @@ const AdminDashboard = () => {
                     <div className="w-8 h-8 border-4 border-[#0061a5] border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (
-                <>
+                <div className="flex flex-col gap-6">
                     <DashboardStats stats={stats} />
-                    <div className="flex flex-col gap-6">
-                        <DashboardTransactions transactions={transactions} />
-                    </div>
-                </>
+                    <DashboardTransactions transactions={transactions} />
+                </div>
             )}
         </div>
     );

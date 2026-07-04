@@ -12,7 +12,7 @@ router.use(verifyToken);
 router.use(fileUpload({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   abortOnLimit: true,
-  limitHandler: (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  limitHandler: (_req: express.Request, res: express.Response, _next: express.NextFunction) => {
     res.status(413).json({
       success: false,
       message: 'File size limit exceeded. Maximum allowed size is 5MB.'
@@ -75,7 +75,7 @@ import { validateFileUploadInput } from '../../middlewares/validators/upload.val
 router.post('/image', validateFileUploadInput, UploadController.uploadImage);
 
 // Error handling middleware specific to this router
-router.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Upload Error:', err);
   res.status(500).json({
     success: false,

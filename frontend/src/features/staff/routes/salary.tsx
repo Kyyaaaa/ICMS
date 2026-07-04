@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Wallet, CalendarDays, TrendingUp, Eye, ChevronDown, Search, Filter } from 'lucide-react';
+import { Wallet, CalendarDays, TrendingUp, Eye, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { SalaryRecord } from '@/shared/types/salary';
 import { SalaryService } from '@/shared/services/salary.service';
 import { PayslipModal } from '../../../shared/components/common/PayslipModal';
+import { Pagination } from '@/shared/components/common/Pagination';
 
 const SalaryHistory = () => {
-    const [selectedYear] = useState('2026');
+    const [selectedYear, setSelectedYear] = useState('2026');
     const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>([]);
     const [selectedRecord, setSelectedRecord] = useState<SalaryRecord | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
 
     useEffect(() => {
         const loadSalary = async () => {
@@ -72,11 +75,23 @@ const SalaryHistory = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-3 py-2 border border-[#c4c6cf] bg-white rounded-lg text-[#43474e] text-sm font-bold hover:bg-[#f1f4f6] transition-colors">
-                            <Filter className="w-4 h-4" />
-                            Year: {selectedYear}
-                            <ChevronDown className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center bg-white border border-[#c4c6cf] rounded-lg overflow-hidden">
+                            <button 
+                                onClick={() => setSelectedYear((prev) => (parseInt(prev) - 1).toString())}
+                                className="p-2 text-[#43474e] hover:bg-[#f1f4f6] transition-colors"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <span className="px-3 py-1.5 text-[#43474e] text-sm font-bold min-w-16 text-center border-l border-r border-[#c4c6cf]">
+                                {selectedYear}
+                            </span>
+                            <button 
+                                onClick={() => setSelectedYear((prev) => (parseInt(prev) + 1).toString())}
+                                className="p-2 text-[#43474e] hover:bg-[#f1f4f6] transition-colors"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -94,7 +109,7 @@ const SalaryHistory = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#e0e3e5]">
-                            {salaryRecords.map((record) => (
+                            {salaryRecords.slice((currentPage - 1) * limit, currentPage * limit).map((record) => (
                                 <tr key={record.id} className="hover:bg-[#f8f9fa] transition-colors group">
                                     <td className="p-4">
                                         <div className="font-bold text-[#002045]">{record.period}</div>
@@ -118,6 +133,14 @@ const SalaryHistory = () => {
                         </tbody>
                     </table>
                 </div>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={salaryRecords.length}
+                    itemsPerPage={limit}
+                    onPageChange={setCurrentPage}
+                    itemName="records"
+                />
 
                 <div className="p-4 bg-[#f8f9fa] border-t border-[#e0e3e5] text-center text-[#74777f] text-xs">
                     <p>Salary is processed and confirmed by the Admin team. If you have any inquiries regarding your payslip, please contact HR.</p>

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { SessionService } from './session.service';
-import { SessionRepository } from './session.repository';
+import { } from './session.repository';
 
 export class SessionController {
 

@@ -45,16 +45,8 @@ export class EnrollmentService {
         }
     }
 
-    // 4. Kiểm tra sức chứa (Capacity Limit)
-    const currentEnrollments = await EnrollmentRepository.countClassEnrollments(class_id);
-    if (currentEnrollments >= classData.capacity) {
-      const err: any = new Error('Class is full');
-      err.status = 400;
-      throw err;
-    }
-
-    // 5. Thực hiện createEnrollment
-    return await EnrollmentRepository.createEnrollment(learnerId, class_id);
+    // 4. Thực hiện createEnrollmentAtomic (Sẽ tự động khóa dòng và check capacity chống Race Condition)
+    return await EnrollmentRepository.createEnrollmentAtomic(learnerId, class_id, classData.capacity || 15);
   }
 
   static async getLearnerEnrollments(learnerId: string) {

@@ -5,8 +5,7 @@ import { Button } from './button';
 interface SessionDetailModalProps {
     isOpen: boolean;
     onClose: () => void;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    session: any;
+    session: unknown;
     dateStr: string;
     onTakeAttendance?: () => void;
 }

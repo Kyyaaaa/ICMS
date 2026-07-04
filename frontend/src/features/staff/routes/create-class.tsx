@@ -106,7 +106,6 @@ const CreateClass = () => {
                     ClassroomsService.getAll()
                 ]);
                 setAllCourses(coursesData);
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 setAllTutors((tutorsData as any).data?.data || []);
                 setAvailableRooms(roomsData);
 
@@ -236,7 +235,6 @@ const CreateClass = () => {
                 setEndDate(sessions[sessions.length - 1].date);
             }
         }, 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [startDate, course, weeklySchedule, allCourses, isEdit]);
 
     // Update startDate automatically when course changes

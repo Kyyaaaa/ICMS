@@ -1,5 +1,6 @@
 import { AvailableTimeSlotRepository } from './available-time-slot.repository';
 import { AvailabilityResponse, SubmitAvailabilityDTO, TutorAvailabilityProfile, StaffUpdateTutorAvailabilityDTO } from './available-time-slot.model';
+import { supabaseAdmin } from '../../configs/supabase';
 
 export class AvailableTimeSlotService {
   static async getMyAvailability(tutorId: string, cycleId: string): Promise<AvailabilityResponse> {
@@ -10,6 +11,24 @@ export class AvailableTimeSlotService {
     const { cycle_id, slots, status } = data;
     
     if (!cycle_id) throw new Error('cycle_id is required');
+
+    // Check cycle status first
+    const cycles = await AvailableTimeSlotRepository.getCycles();
+    const targetCycle = cycles.find(c => c.id === cycle_id);
+    if (!targetCycle) {
+      throw new Error('Cycle not found');
+    }
+    if (targetCycle.status !== 'OPEN') {
+      const { count } = await supabaseAdmin
+        .from('tutor_available_time_slots')
+        .select('*', { count: 'exact', head: true })
+        .eq('tutor_id', tutorId);
+      
+      const isNewTutor = count === 0;
+      if (!isNewTutor) {
+        throw new Error(`Cannot submit availability because the cycle is currently ${targetCycle.status}. Registration is closed.`);
+      }
+    }
 
     // Validate slots
     if (!Array.isArray(slots)) {

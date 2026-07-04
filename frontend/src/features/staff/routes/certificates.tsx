@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Eye, Search, CheckCircle, XCircle, X, ShieldAlert, ShieldCheck, ShieldX, Download } from "lucide-react";
 import { StaffCertificatesService } from "../services/certificates.service";
 import type { StaffCertificate } from "../services/certificates.service";
+import { Pagination } from '@/shared/components/common/Pagination';
 const StaffCertificates = () => {
   const [Certificates, setCertificates] = useState<StaffCertificate[]>([]);
   const [selectedQual, setSelectedQual] = useState<StaffCertificate | null>(
@@ -18,6 +19,9 @@ const StaffCertificates = () => {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectError, setRejectError] = useState<string | null>(null);
   const [shakeKey, setShakeKey] = useState(0);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
 
   // We no longer need to fetch PDFs as blobs because Supabase Storage allows direct embedding.
   // The iframe can directly load the Supabase public URL.
@@ -61,8 +65,7 @@ const StaffCertificates = () => {
       try {
         const data = await StaffCertificatesService.getAllCertificates();
         setCertificates(data);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Failed to fetch Certificates", error);
         setFetchError(error.message || JSON.stringify(error));
       }
@@ -226,7 +229,7 @@ const StaffCertificates = () => {
                 </td>
               </tr>
             ) : (
-              filteredQuals.map((item) => (
+              filteredQuals.slice((currentPage - 1) * limit, currentPage * limit).map((item) => (
                 <tr
                   key={item.id}
                   className="border-b border-[#e0e3e5] hover:bg-gray-50"
@@ -273,6 +276,14 @@ const StaffCertificates = () => {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+          currentPage={currentPage}
+          totalItems={filteredQuals.length}
+          itemsPerPage={limit}
+          onPageChange={setCurrentPage}
+          itemName="certificates"
+      />
 
       {selectedQual && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">

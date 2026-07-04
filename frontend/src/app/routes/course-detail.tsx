@@ -104,7 +104,6 @@ const CourseDetailInner = () => {
       }
     } catch (e: unknown) {
       setAppliedDiscount(null);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setPromoError((e as any).message || 'Invalid discount code');
     } finally {
       setIsApplyingPromo(false);

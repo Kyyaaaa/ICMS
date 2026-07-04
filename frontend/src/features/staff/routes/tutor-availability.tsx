@@ -103,8 +103,11 @@ const StaffTutorAvailability = () => {
         try {
             const newStatus = selectedTutor.status === 'submitted' ? 'draft' : 'submitted';
             const updatedTutor = { ...selectedTutor, status: newStatus };
-            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots);
+            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots, updatedTutor.status as 'draft' | 'submitted');
             setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
+        } catch (error: any) {
+            console.error('Failed to lock/unlock:', error);
+            alert(`Lỗi: ${error.response?.data?.message || error.message}`);
         } finally {
             setIsLocking(false);
         }
@@ -115,9 +118,12 @@ const StaffTutorAvailability = () => {
         setIsSaving(true);
         try {
             const updatedTutor = { ...selectedTutor, slots: Array.from(draftSlots) };
-            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots);
+            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots, updatedTutor.status as 'draft' | 'submitted');
             setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
             setHasUnsavedChanges(false);
+        } catch (error: any) {
+            console.error('Failed to save changes:', error);
+            alert(`Lỗi: ${error.response?.data?.message || error.message}`);
         } finally {
             setIsSaving(false);
         }

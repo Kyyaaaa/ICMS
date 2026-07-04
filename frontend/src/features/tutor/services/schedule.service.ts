@@ -30,11 +30,9 @@ export const ScheduleService = {
         
         try {
             const res = await axiosClient.get(url);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const data = Array.isArray((res as any)?.data?.data) ? (res as any).data.data : (Array.isArray((res as any)?.data) ? (res as any).data : (Array.isArray(res) ? res : []));
             
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            return data.map((s: any) => {
+            return data.map((s: unknown) => {
                 const times = getSlotTimes(s.slot);
                 const d = new Date(s.date);
                 let dayIndex = d.getDay() - 1;

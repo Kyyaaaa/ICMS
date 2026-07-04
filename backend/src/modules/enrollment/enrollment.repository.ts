@@ -1,41 +1,63 @@
 import { supabaseAdmin } from '../../configs/supabase';
+import pool from '../../configs/database';
 import { Enrollment } from './enrollment.model';
 
 export class EnrollmentRepository {
-  static async createEnrollment(learnerId: string, classId: string): Promise<Enrollment> {
-    // Check if any record exists (ACTIVE or CANCELED)
-    const { data: existing, error: existErr } = await supabaseAdmin
-      .from('enrollments')
-      .select('id, status')
-      .eq('learner_id', learnerId)
-      .eq('class_id', classId)
-      .maybeSingle();
+  static async createEnrollmentAtomic(learnerId: string, classId: string, maxCapacity: number): Promise<Enrollment> {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
 
-    if (existing) {
-      if (existing.status === 'ACTIVE') throw new Error('Already enrolled');
-      // If CANCELED, update it back to ACTIVE
-      const { data, error } = await supabaseAdmin
-        .from('enrollments')
-        .update({ status: 'ACTIVE', enrollment_date: new Date().toISOString() })
-        .eq('id', existing.id)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      // 1. Lock the class row to prevent concurrent enrollments exceeding capacity
+      await client.query('SELECT id FROM classes WHERE id = $1 FOR UPDATE', [classId]);
+
+      // 2. Count current active enrollments
+      const countRes = await client.query(
+        'SELECT count(*) FROM enrollments WHERE class_id = $1 AND status = $2',
+        [classId, 'ACTIVE']
+      );
+      const currentEnrollments = parseInt(countRes.rows[0].count, 10);
+
+      if (currentEnrollments >= maxCapacity) {
+        throw new Error('Class is full');
+      }
+
+      // 3. Check existing enrollment for this learner
+      const existingRes = await client.query(
+        'SELECT id, status FROM enrollments WHERE learner_id = $1 AND class_id = $2',
+        [learnerId, classId]
+      );
+      
+      let finalEnrollment: any;
+
+      if (existingRes.rows.length > 0) {
+        const existing = existingRes.rows[0];
+        if (existing.status === 'ACTIVE') {
+          throw new Error('Already enrolled');
+        }
+        // If CANCELED, update it back to ACTIVE
+        const updateRes = await client.query(
+          'UPDATE enrollments SET status = $1, enrollment_date = NOW() WHERE id = $2 RETURNING *',
+          ['ACTIVE', existing.id]
+        );
+        finalEnrollment = updateRes.rows[0];
+      } else {
+        // Insert new enrollment
+        const insertRes = await client.query(
+          'INSERT INTO enrollments (learner_id, class_id, status) VALUES ($1, $2, $3) RETURNING *',
+          [learnerId, classId, 'ACTIVE']
+        );
+        finalEnrollment = insertRes.rows[0];
+      }
+
+      await client.query('COMMIT');
+      return finalEnrollment;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
     }
-
-    const { data, error } = await supabaseAdmin
-      .from('enrollments')
-      .insert({
-        learner_id: learnerId,
-        class_id: classId,
-        status: 'ACTIVE'
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
   }
 
   static async updateEnrollmentStatus(id: string, status: 'ACTIVE' | 'CANCELED'): Promise<Enrollment> {

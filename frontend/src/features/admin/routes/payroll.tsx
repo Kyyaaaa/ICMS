@@ -1,7 +1,9 @@
 import { formatMonthYear } from "../../../shared/utils/date";
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Calculator, Settings, FileText } from 'lucide-react';
+import { Search, Calculator, Settings, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+
+import { Pagination } from '@/shared/components/common/Pagination';
 
 import { type EmployeeSalaryConfig, type PayrollRecord, calculateNetPay } from '../types/payroll';
 import { PayrollService } from '../services/payroll.service';
@@ -46,10 +48,12 @@ const AdminPayroll = () => {
     const [roleFilter, setRoleFilter] = useState<'All' | 'Staff' | 'Tutor'>('All');
     const [selectedRecord, setSelectedRecord] = useState<PayrollRecord | null>(null);
     const [formData, setFormData] = useState<Partial<PayrollRecord>>({});
-
+    const [currentPageProcessing, setCurrentPageProcessing] = useState(1);
+    
     // CONFIG STATE
     const [selectedConfig, setSelectedConfig] = useState<EmployeeSalaryConfig | null>(null);
     const [configFormData, setConfigFormData] = useState<Partial<EmployeeSalaryConfig>>({});
+    const [currentPageConfig, setCurrentPageConfig] = useState(1);
 
     // --- COMPUTED DATA ---
     const filteredPayrolls = useMemo(() => {
@@ -87,6 +91,16 @@ const AdminPayroll = () => {
         const pendingCount = monthRecords.filter(p => p.status === 'Pending').length;
         return { totalNetPay, processedCount, pendingCount };
     }, [payrolls, selectedMonth]);
+
+    const handleMonthChange = (offset: number) => {
+        const [yearStr, monthStr] = selectedMonth.split('-');
+        let year = parseInt(yearStr);
+        let month = parseInt(monthStr) - 1;
+        month += offset;
+        if (month < 0) { month = 11; year -= 1; }
+        else if (month > 11) { month = 0; year += 1; }
+        setSelectedMonth(`${year}-${String(month + 1).padStart(2, '0')}`);
+    };
 
     // --- ACTIONS ---
     const openPayrollModal = (record: PayrollRecord) => {
@@ -159,22 +173,36 @@ const AdminPayroll = () => {
                 </div>
                 {viewMode === 'Processing' && (
                     <div className="flex flex-wrap items-center gap-3 bg-white p-2 rounded-xl shadow-sm border border-[#e0e3e5]">
-                        <div 
-                            className="relative flex items-center px-3 py-1.5 min-w-35 cursor-pointer"
-                            onClick={() => {
-                                try { dateInputRef.current?.showPicker(); } catch (_e) { console.debug('Picker not supported'); }
-                            }}
-                        >
-                            <span className="text-sm font-bold text-[#002045] pointer-events-none w-full text-center">
-                                {selectedMonth ? formatMonthYear(selectedMonth + '-01') : ''}
-                            </span>
-                            <input 
-                                ref={dateInputRef}
-                                type="month" 
-                                value={selectedMonth}
-                                onChange={(e) => setSelectedMonth(e.target.value)}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer pointer-events-none"
-                            />
+                        <div className="flex items-center">
+                            <button 
+                                onClick={() => handleMonthChange(-1)}
+                                className="p-1.5 hover:bg-[#f1f4f6] rounded-lg text-[#43474e] transition-colors"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <div 
+                                className="relative flex items-center px-3 py-1.5 min-w-32 cursor-pointer"
+                                onClick={() => {
+                                    try { dateInputRef.current?.showPicker(); } catch (_e) { console.debug('Picker not supported'); }
+                                }}
+                            >
+                                <span className="text-sm font-bold text-[#002045] pointer-events-none w-full text-center">
+                                    {selectedMonth ? formatMonthYear(selectedMonth + '-01') : ''}
+                                </span>
+                                <input 
+                                    ref={dateInputRef}
+                                    type="month" 
+                                    value={selectedMonth}
+                                    onChange={(e) => setSelectedMonth(e.target.value)}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer pointer-events-none"
+                                />
+                            </div>
+                            <button 
+                                onClick={() => handleMonthChange(1)}
+                                className="p-1.5 hover:bg-[#f1f4f6] rounded-lg text-[#43474e] transition-colors"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
                         </div>
                         <div className="hidden md:block w-px h-6 bg-[#e0e3e5]"></div>
                         <button 
@@ -235,7 +263,14 @@ const AdminPayroll = () => {
                                 </select>
                             </div>
                         </div>
-                        <PayrollConfigTable configs={filteredConfigs} onEdit={openConfigModal} />
+                        <PayrollConfigTable configs={filteredConfigs.slice((currentPageConfig - 1) * 10, currentPageConfig * 10)} onEdit={openConfigModal} />
+                        <Pagination
+                            currentPage={currentPageConfig}
+                            totalItems={filteredConfigs.length}
+                            itemsPerPage={10}
+                            onPageChange={setCurrentPageConfig}
+                            itemName="configs"
+                        />
                     </div>
                 </div>
             )}
@@ -296,7 +331,14 @@ const AdminPayroll = () => {
                                 </select>
                             </div>
                         </div>
-                        <PayrollRecordsTable records={filteredPayrolls} onView={openPayrollModal} />
+                        <PayrollRecordsTable records={filteredPayrolls.slice((currentPageProcessing - 1) * 10, currentPageProcessing * 10)} onView={openPayrollModal} />
+                        <Pagination
+                            currentPage={currentPageProcessing}
+                            totalItems={filteredPayrolls.length}
+                            itemsPerPage={10}
+                            onPageChange={setCurrentPageProcessing}
+                            itemName="records"
+                        />
                     </div>
                 </div>
             )}

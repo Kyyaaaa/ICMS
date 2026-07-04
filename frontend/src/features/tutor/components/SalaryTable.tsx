@@ -1,13 +1,19 @@
-import { Eye, Search, Filter, ChevronDown } from 'lucide-react';
+import { Eye, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { Pagination } from '@/shared/components/common/Pagination';
 import type { SalaryRecord } from '@/shared/types/salary';
 
 interface SalaryTableProps {
     records: SalaryRecord[];
     selectedYear: string;
+    setSelectedYear: (year: string | ((prev: string) => string)) => void;
     onViewRecord: (record: SalaryRecord) => void;
 }
 
-export const SalaryTable = ({ records, selectedYear, onViewRecord }: SalaryTableProps) => {
+export const SalaryTable = ({ records, selectedYear, setSelectedYear, onViewRecord }: SalaryTableProps) => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
+    
     return (
         <div className="bg-white border border-[#e0e3e5] rounded-2xl shadow-sm overflow-hidden">
             <div className="p-5 border-b border-[#e0e3e5] flex flex-col sm:flex-row justify-between items-center gap-4 bg-[#f8f9fa]">
@@ -22,11 +28,23 @@ export const SalaryTable = ({ records, selectedYear, onViewRecord }: SalaryTable
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-3 py-2 border border-[#c4c6cf] bg-white rounded-lg text-[#43474e] text-sm font-bold hover:bg-[#f1f4f6] transition-colors">
-                        <Filter className="w-4 h-4" />
-                        Year: {selectedYear}
-                        <ChevronDown className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center bg-white border border-[#c4c6cf] rounded-lg overflow-hidden">
+                        <button 
+                            onClick={() => setSelectedYear((prev) => (parseInt(prev) - 1).toString())}
+                            className="p-2 text-[#43474e] hover:bg-[#f1f4f6] transition-colors"
+                        >
+                            <ChevronLeft size={16} />
+                        </button>
+                        <span className="px-3 py-1.5 text-[#43474e] text-sm font-bold min-w-16 text-center border-l border-r border-[#c4c6cf]">
+                            {selectedYear}
+                        </span>
+                        <button 
+                            onClick={() => setSelectedYear((prev) => (parseInt(prev) + 1).toString())}
+                            className="p-2 text-[#43474e] hover:bg-[#f1f4f6] transition-colors"
+                        >
+                            <ChevronRight size={16} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -44,7 +62,7 @@ export const SalaryTable = ({ records, selectedYear, onViewRecord }: SalaryTable
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#e0e3e5]">
-                        {records.map((record) => (
+                        {records.slice((currentPage - 1) * limit, currentPage * limit).map((record) => (
                             <tr key={record.id} className="hover:bg-[#f8f9fa] transition-colors group">
                                 <td className="p-4">
                                     <div className="font-bold text-[#002045]">{record.period}</div>
@@ -68,6 +86,14 @@ export const SalaryTable = ({ records, selectedYear, onViewRecord }: SalaryTable
                     </tbody>
                 </table>
             </div>
+
+            <Pagination
+                currentPage={currentPage}
+                totalItems={records.length}
+                itemsPerPage={limit}
+                onPageChange={setCurrentPage}
+                itemName="records"
+            />
 
             <div className="p-4 bg-[#f8f9fa] border-t border-[#e0e3e5] text-center text-[#74777f] text-xs">
                 <p>Salary is processed and confirmed by the Admin team. If you have any inquiries regarding your payslip or hours, please submit a Support Ticket.</p>

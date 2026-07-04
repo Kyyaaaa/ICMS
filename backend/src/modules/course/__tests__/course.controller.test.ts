@@ -1,15 +1,15 @@
 import request from 'supertest';
 import app from '../../../app';
 import { CourseService } from '../course.service';
-import { verifyToken, requireRole } from '../../../middlewares/auth.middleware';
+
 
 // Mock the CourseService
 jest.mock('../course.service');
 
 // Mock auth middlewares to bypass authentication for tests
 jest.mock('../../../middlewares/auth.middleware', () => ({
-  verifyToken: jest.fn((req: any, res: any, next: any) => next()),
-  requireRole: jest.fn(() => (req: any, res: any, next: any) => next())
+  verifyToken: jest.fn((_req: any, _res: any, next: any) => next()),
+  requireRole: jest.fn(() => (_req: any, _res: any, next: any) => next())
 }));
 
 describe('CourseController API Tests', () => {

@@ -5,8 +5,8 @@ export class AccountRepository {
    * Get all users from public.account with optional filtering
    */
   static async listAccounts(callerRole: string, filterRole?: string, search?: string, page: number = 1, limit: number = 50) {
-    const from = (page - 1) * limit;
-    const to = from + limit; // for slice later
+
+
 
     let query = supabaseAdmin
       .from('account')

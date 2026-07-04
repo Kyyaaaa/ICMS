@@ -13,9 +13,7 @@ export const initDiscountStatusCron = () => {
       `);
 
       if (updateResult.rowCount && updateResult.rowCount > 0) {
-        console.log(
-          `[CronJob] Updated ${updateResult.rowCount} discount codes to Expired.`,
-        );
+        
       }
 
       // We could also do valid_from logic to set them from disabled/pending to Active,
@@ -26,7 +24,7 @@ export const initDiscountStatusCron = () => {
         error,
       );
     }
-  });
+  }, { timezone: 'Asia/Ho_Chi_Minh' });
 
-  console.log("[Cron Job] Discount Status cron initialized.");
+  
 };

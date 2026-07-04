@@ -32,7 +32,6 @@ export const ScheduleService = {
         
         try {
             const res = await axiosClient.get(`/sessions/my-schedule?start_date=${startStr}&end_date=${endStr}`);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const data = (res as any)?.data || [];
             
             return data.map((s: { id: string, date: string, slot: number | string, class?: { name: string, course?: { title?: string } }, tutor?: { full_name?: string }, classroom?: { room_name?: string } }, index: number) => {

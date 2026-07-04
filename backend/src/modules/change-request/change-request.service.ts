@@ -1,6 +1,6 @@
 import { ChangeRequestRepository } from './change-request.repository';
 import { CreateChangeRequestDTO, UpdateChangeRequestStatusDTO } from './change-request.model';
-import { supabaseAdmin as supabase } from '../../configs/supabase';
+
 import { ClassRepository } from '../class/class.repository';
 
 export class ChangeRequestService {
@@ -26,75 +26,34 @@ export class ChangeRequestService {
         }
 
         // Validation 2: Learner Conflict
-        const { data: enrollments } = await supabase
-            .from('enrollments')
-            .select('learner_id')
-            .eq('class_id', classId)
-            .eq('status', 'ACTIVE');
-        
-        if (enrollments && enrollments.length > 0) {
-            const learnerIds = enrollments.map(e => e.learner_id);
-            const { data: otherEnrollments } = await supabase
-                .from('enrollments')
-                .select('class_id')
-                .in('learner_id', learnerIds)
-                .eq('status', 'ACTIVE');
-            
-            if (otherEnrollments && otherEnrollments.length > 0) {
-                const otherClassIds = [...new Set(otherEnrollments.map(e => e.class_id))];
-                const { data: conflictingSessions } = await supabase
-                    .from('class_sessions')
-                    .select('class_id, classes(name)')
-                    .eq('date', date)
-                    .eq('slot', slot)
-                    .in('class_id', otherClassIds)
-                    .neq('id', sessionId);
-                
-                if (conflictingSessions && conflictingSessions.length > 0) {
-                    const conflictClassName = (conflictingSessions[0] as any).classes?.name || 'another class';
-                    return { available: false, conflictReason: `Schedule conflict: One or more learners in this class are already enrolled in "${conflictClassName}" at this time.` };
-                }
-            }
+        const conflictClassName = await this.changeRequestRepository.getLearnerConflictClass(classId, date, slot, sessionId);
+        if (conflictClassName) {
+            return { available: false, conflictReason: `Schedule conflict: One or more learners in this class are already enrolled in "${conflictClassName}" at this time.` };
         }
 
         // If no conflicts, fetch available rooms
         const occupiedSessions = await ClassRepository.getOccupiedSessions({ date, slot });
         const occupiedRoomIds = occupiedSessions.map(s => s.classroom_id).filter(Boolean);
 
-        const { data: allRooms } = await supabase
-            .from('classroom')
-            .select('id, room_name, capacity')
-            .eq('status', 'AVAILABLE');
-        
-        const availableRooms = (allRooms || []).filter(r => !occupiedRoomIds.includes(r.id));
+        const availableRooms = await this.changeRequestRepository.getAvailableRooms(occupiedRoomIds as string[]);
         return { available: true, availableRooms };
     }
 
     async create(data: CreateChangeRequestDTO) {
-        const { data: existing } = await supabase
-            .from('change_requests')
-            .select('id')
-            .eq('session_id', data.session_id)
-            .eq('status', 'Pending')
-            .limit(1);
+        const hasPending = await this.changeRequestRepository.hasPendingRequestForSession(data.session_id);
         
-        if (existing && existing.length > 0) {
+        if (hasPending) {
             throw new Error('A pending change request already exists for this session.');
         }
 
         // Check if the session is in the past
-        const { data: sessionInfo } = await supabase
-            .from('class_sessions')
-            .select('date')
-            .eq('id', data.session_id)
-            .single();
+        const sessionDateStr = await this.changeRequestRepository.getSessionDate(data.session_id);
             
-        if (sessionInfo) {
-            const sessionDate = new Date(sessionInfo.date);
+        if (sessionDateStr) {
             const todayDate = new Date();
-            sessionDate.setHours(0,0,0,0);
-            todayDate.setHours(0,0,0,0);
-            if (sessionDate < todayDate) {
+            const todayStr = todayDate.getFullYear() + '-' + String(todayDate.getMonth() + 1).padStart(2, '0') + '-' + String(todayDate.getDate()).padStart(2, '0');
+            
+            if (sessionDateStr < todayStr) {
                 throw new Error('Cannot create a change request for a session that has already passed.');
             }
         }

@@ -1,6 +1,7 @@
 import { formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { Search, Eye, CheckCircle2, XCircle, RefreshCcw, Landmark, Clock, FileText, X } from 'lucide-react';
+import { Pagination } from '@/shared/components/common/Pagination';
 import type { RefundRequest } from '../types/refund';
 import { AdminRefundsService } from '../services/refunds.service';
 
@@ -9,6 +10,7 @@ const AdminRefunds = () => {
     
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('All');
+    const [currentPage, setCurrentPage] = useState(1);
 
     // For Modal processing/viewing in-page (keeps state synced)
     const [selectedRefund, setSelectedRefund] = useState<RefundRequest | null>(null);
@@ -26,9 +28,15 @@ const AdminRefunds = () => {
         const matchesSearch = r.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               r.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                               r.invoiceId.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === 'All' || r.status === statusFilter;
+        const matchesStatus = statusFilter === 'All' || getDisplayStatus(r.status) === statusFilter;
         return matchesSearch && matchesStatus;
     });
+
+    const getDisplayStatus = (status: string) => {
+        if (status === 'Pending') return 'Pending Approval';
+        if (status === 'Approved') return 'Pending Refund';
+        return status;
+    };
 
     const handleProcess = async (dbId: string, id: string, newStatus: 'APPROVED' | 'COMPLETED' | 'REJECTED') => {
         const success = await AdminRefundsService.updateStatus(dbId, newStatus, processNote);
@@ -40,9 +48,10 @@ const AdminRefunds = () => {
     };
 
     const getStatusBadge = (status: string) => {
-        switch(status) {
-            case 'Pending': return 'bg-[#fff8e1] text-[#c9a82c]';
-            case 'Approved': return 'bg-[#e6f0fa] text-[#0061a5]';
+        const display = getDisplayStatus(status);
+        switch(display) {
+            case 'Pending Approval': return 'bg-[#fff8e1] text-[#c9a82c]';
+            case 'Pending Refund': return 'bg-[#e6f0fa] text-[#0061a5]';
             case 'Completed': return 'bg-[#e6f4ea] text-[#137333]';
             case 'Rejected': return 'bg-[#ffebed] text-[#ba1a1a]';
             default: return 'bg-[#f1f4f6] text-[#74777f]';
@@ -57,7 +66,7 @@ const AdminRefunds = () => {
 
             {/* Stats/Filters */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {['All', 'Pending', 'Approved', 'Completed', 'Rejected'].map(status => (
+                {['All', 'Pending Approval', 'Pending Refund', 'Completed', 'Rejected'].map(status => (
                     <button 
                         key={status}
                         onClick={() => setStatusFilter(status)}
@@ -69,7 +78,7 @@ const AdminRefunds = () => {
                     >
                         <div className="text-xs font-bold uppercase mb-1">{status}</div>
                         <div className="text-2xl font-extrabold">
-                            {status === 'All' ? refunds.length : refunds.filter(r => r.status === status).length}
+                            {status === 'All' ? refunds.length : refunds.filter(r => getDisplayStatus(r.status) === status).length}
                         </div>
                     </button>
                 ))}
@@ -102,7 +111,7 @@ const AdminRefunds = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredRefunds.map(r => (
+                            {filteredRefunds.slice((currentPage - 1) * 10, currentPage * 10).map(r => (
                                 <tr key={r.id} className="border-b border-[#e0e3e5] hover:bg-[#f7fafc]">
                                     <td className="py-4 px-6">
                                         <div className="font-bold text-[#0061a5]">{r.id}</div>
@@ -125,7 +134,7 @@ const AdminRefunds = () => {
                                     </td>
                                     <td className="py-4 px-6">
                                         <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${getStatusBadge(r.status)}`}>
-                                            {r.status}
+                                            {getDisplayStatus(r.status)}
                                         </span>
                                     </td>
                                     <td className="py-4 px-6 text-right">
@@ -147,6 +156,13 @@ const AdminRefunds = () => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredRefunds.length}
+                    itemsPerPage={10}
+                    onPageChange={setCurrentPage}
+                    itemName="refunds"
+                />
             </div>
 
             {/* Detail / Processing Modal */}
@@ -216,7 +232,7 @@ const AdminRefunds = () => {
                                     <div className="flex justify-between items-center mb-2">
                                         <h3 className="text-xs font-bold text-[#74777f] uppercase tracking-wider flex items-center gap-2"><Clock size={16}/> Status & Processing</h3>
                                         <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${getStatusBadge(selectedRefund.status)}`}>
-                                            {selectedRefund.status}
+                                            {getDisplayStatus(selectedRefund.status)}
                                         </span>
                                     </div>
                                     

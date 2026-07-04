@@ -14,8 +14,7 @@ export interface Class {
     tutor?: { id: string; full_name: string; email: string };
     classroom?: { id: string; room_name: string };
     sessions?: Session[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    students?: any[];
+    students?: unknown[];
 }
 
 export interface Session {

@@ -19,7 +19,7 @@ export class CourseController {
         }
     }
 
-    static async getAllCourses(req: Request, res: Response) {
+    static async getAllCourses(_req: Request, res: Response) {
         try {
             const courses = await CourseService.getAllCourses();
             res.status(200).json({

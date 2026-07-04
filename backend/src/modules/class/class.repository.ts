@@ -142,7 +142,7 @@ export class ClassRepository {
                 *,
                 tutor:account!tutor_id(id, full_name, email),
                 classroom:classroom!classroom_id(id, room_name),
-                attendances(id, status)
+                attendances(id, status, learner_id)
             `)
             .eq('class_id', id)
             .order('date', { ascending: true })
@@ -156,6 +156,7 @@ export class ClassRepository {
             .select(`
                 id,
                 enrollment_date,
+                learner_id,
                 account:account!learner_id(id, full_name, email, account_code)
             `)
             .eq('class_id', id)

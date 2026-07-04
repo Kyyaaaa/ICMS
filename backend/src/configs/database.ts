@@ -16,7 +16,7 @@ const pool = new Pool({
 });
 
 // Catch any errors on idle clients
-pool.on('error', (err, client) => {
+pool.on('error', (err, _client) => {
   console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });

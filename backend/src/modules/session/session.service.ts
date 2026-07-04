@@ -1,4 +1,5 @@
 import { SessionRepository } from './session.repository';
+import { ClassRepository } from '../class/class.repository';
 import { UpdateAttendanceDTO, Attendance } from './session.model';
 
 export class SessionService {
@@ -56,6 +57,28 @@ export class SessionService {
       const err: any = new Error('Session not found');
       err.status = 404;
       throw err;
+    }
+
+    // Security check 1: Prevent marking attendance in the future
+    const sessionDate = session.date; // YYYY-MM-DD
+    const today = new Date();
+    // Convert to UTC+7 conceptually or just local date string:
+    const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+    
+    if (sessionDate && sessionDate > todayStr) {
+      const err: any = new Error('Cannot mark attendance for a session in the future');
+      err.status = 400;
+      throw err;
+    }
+
+    // Security check 2: Prevent marking attendance if class is canceled
+    if (session.class_id) {
+      const classData = await ClassRepository.getClassById(session.class_id);
+      if (classData && classData.status === 'CANCELED') {
+        const err: any = new Error('Cannot mark attendance because the class is canceled');
+        err.status = 400;
+        throw err;
+      }
     }
 
     if (!Array.isArray(updates) || updates.length === 0) {

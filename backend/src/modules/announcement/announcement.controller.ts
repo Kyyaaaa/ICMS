@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { AnnouncementService } from './announcement.service';
 
 export class AnnouncementController {
-    static async getAnnouncements(req: Request, res: Response) {
+    static async getAnnouncements(_req: Request, res: Response) {
         try {
             const data = await AnnouncementService.getAnnouncements();
             res.status(200).json({ success: true, data });
@@ -28,7 +28,7 @@ export class AnnouncementController {
         }
     }
 
-    static async getPublicNotifications(req: Request, res: Response) {
+    static async getPublicNotifications(_req: Request, res: Response) {
         try {
             const data = await AnnouncementService.getNotificationsByRole('Guest');
             res.status(200).json({ success: true, data });

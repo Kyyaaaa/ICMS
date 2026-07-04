@@ -12,6 +12,7 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     const location = useLocation();
     const [authState, setAuthState] = useState<'loading' | 'authenticated' | 'expired' | 'unauthorized'>('loading');
     const [userRole, setUserRole] = useState('');
+    const [hasAvailability, setHasAvailability] = useState(true);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -41,9 +42,16 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
             // Xác thực token với backend (gọi nhẹ 1 API bất kỳ cần auth)
             try {
-                await axios.get('http://localhost:5000/api/auth/verify', {
+                const verifyRes = await axios.get('http://localhost:5000/api/auth/verify', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                
+                if (verifyRes.data?.has_updated_availability === false) {
+                    setHasAvailability(false);
+                } else {
+                    setHasAvailability(true);
+                }
+
                 // Token còn hợp lệ
                 if (!allowedRoles.map(r => r.toUpperCase()).includes(role)) {
                     setAuthState('unauthorized');
@@ -144,6 +152,14 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
         const profilePath = `/${userRole.toLowerCase()}/profile`;
         if (location.pathname !== profilePath) {
             return <Navigate to={profilePath} replace state={{ requireProfileUpdate: true }} />;
+        }
+    }
+
+    // Force redirect to availability page for Tutors if profile is complete but availability is not
+    if (authState === 'authenticated' && isProfileComplete && userRole === 'TUTOR' && !hasAvailability) {
+        const availabilityPath = '/tutor/availability';
+        if (location.pathname !== availabilityPath) {
+            return <Navigate to={availabilityPath} replace state={{ requireAvailabilityUpdate: true, isNewTutor: true }} />;
         }
     }
 

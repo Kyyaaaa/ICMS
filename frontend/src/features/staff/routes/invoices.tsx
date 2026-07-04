@@ -3,6 +3,7 @@ import { Search, Eye, DollarSign, Clock, AlertCircle, CheckCircle2 } from 'lucid
 import { Link } from 'react-router-dom';
 import type { Invoice } from '../types/invoice';
 import { InvoicesService } from '../services/invoices.service';
+import { Pagination } from '@/shared/components/common/Pagination';
 
 const InvoiceList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -10,7 +11,7 @@ const InvoiceList = () => {
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
     const limit = 10;
 
     const loadInvoices = useCallback(async () => {
@@ -22,7 +23,7 @@ const InvoiceList = () => {
                 limit: limit
             });
             setInvoices(response.data);
-            setTotalPages(Math.ceil(response.total / limit));
+            setTotalItems(response.total);
         } catch (error) {
             console.error("Failed to load invoices", error);
         } finally {
@@ -31,7 +32,6 @@ const InvoiceList = () => {
     }, [currentPage, statusFilter]);
 
     useEffect(() => {
-        // eslint-disable-next-line
         loadInvoices();
     }, [loadInvoices]);
 
@@ -166,26 +166,14 @@ const InvoiceList = () => {
             </div>
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
-                <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-[#e0e3e5] shadow-sm">
-                    <span className="text-sm text-[#43474e] font-medium">Page {currentPage} of {totalPages}</span>
-                    <div className="flex gap-2">
-                        <button 
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            className="px-4 py-2 border border-[#c4c6cf] rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors font-semibold text-sm text-[#43474e] bg-white shadow-sm"
-                        >
-                            Previous
-                        </button>
-                        <button 
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            className="px-4 py-2 border border-[#c4c6cf] rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors font-semibold text-sm text-[#43474e] bg-white shadow-sm"
-                        >
-                            Next
-                        </button>
-                    </div>
-                </div>
+            {totalItems > limit && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={limit}
+                    onPageChange={setCurrentPage}
+                    itemName="invoices"
+                />
             )}
         </div>
     );

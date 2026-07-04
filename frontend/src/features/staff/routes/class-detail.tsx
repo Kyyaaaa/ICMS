@@ -18,8 +18,7 @@ const StaffClassDetail = () => {
 
     const [activeTab, setActiveTab] = useState('schedule');
     const [classData, setClassData] = useState<Class | null>(null);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [students, setStudents] = useState<any[]>([]);
+    const [students, setStudents] = useState<unknown[]>([]);
     const [availableRooms, setAvailableRooms] = useState<Classroom[]>([]);
     const [availableTutors, setAvailableTutors] = useState<{ id: string; full_name: string }[]>([]);
 
@@ -41,9 +40,7 @@ const StaffClassDetail = () => {
             setClassData(cls);
             setStudents(studentsData || []);
             setAvailableRooms(rooms);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setAvailableTutors((tutors as any).data?.data || []);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setAvailableLearners((learnersRes as any).data?.data || []);
         } catch (err) {
             console.error("Failed to load class details", err);
@@ -55,7 +52,6 @@ const StaffClassDetail = () => {
             await loadData();
         };
         fetchAll();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     const enrolledStudents = students.length;
@@ -93,7 +89,6 @@ const StaffClassDetail = () => {
             setIsAddStudentModalOpen(false);
             loadData();
         } catch (err: unknown) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             showAlertModal('Error', (err as any).response?.data?.message || (err as Error).message || 'Failed to add student', 'error');
         }
     };
@@ -205,7 +200,6 @@ const StaffClassDetail = () => {
             {activeTab !== 'attendance' ? (
                 <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] overflow-hidden">
                     {activeTab === 'schedule' && (
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         <ClassScheduleTab scheduleData={(classData as any).sessions || []} onEditSession={handleEditSession} />
                     )}
 

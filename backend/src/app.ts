@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './configs/swagger';
 import authRoutes from './modules/auth/auth.routes';
@@ -30,12 +32,31 @@ import changeRequestRoutes from './modules/change-request/change-request.routes'
 
 const app = express();
 
-// Middlewares toàn cục
+// Security Middlewares
+app.use(helmet()); // Set security HTTP headers
 app.use(cors()); // Cho phép Client gọi API không bị lỗi Block CORS
 app.use(express.json()); // Cho phép Server đọc dữ liệu JSON gửi lên từ Client
 
+// Rate limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300, // limit each IP to 300 requests per windowMs
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // limit each IP to 30 requests per windowMs for auth routes
+  message: 'Too many login attempts from this IP, please try again after 15 minutes',
+});
+
+// Apply global rate limiter
+app.use('/api', apiLimiter);
+
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/learners', learnerRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/upload', uploadRoutes);
@@ -65,7 +86,7 @@ app.use('/api/change-requests', changeRequestRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Route kiểm tra trạng thái Server (Health Check)
-app.get('/api/health', (req: Request, res: Response) => {
+app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ 
     status: 'OK',
     message: 'NodeJS + TypeScript Server is running smoothly!' 

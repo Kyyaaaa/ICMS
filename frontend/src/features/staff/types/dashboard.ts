@@ -21,4 +21,6 @@ export interface StaffUpcomingClass {
     room: string;
     tutor: string;
     status: 'In Progress' | 'Upcoming';
+    courseName: string;
+    sessionNumber: number;
 }

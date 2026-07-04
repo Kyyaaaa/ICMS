@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { AdminTutorReviewRepository } from './admin-tutor-review.repository';
+import { AdminTutorReviewService } from './admin-tutor-review.service';
 
 export class AdminTutorReviewController {
-    static async getAllTutorRatings(req: Request, res: Response): Promise<void> {
+    static async getAllTutorRatings(_req: Request, res: Response): Promise<void> {
         try {
-            const result = await AdminTutorReviewRepository.getAllTutorRatings();
+            const result = await AdminTutorReviewService.getAllTutorRatings();
             res.status(200).json({ success: true, data: result });
         } catch (error: any) {
             console.error('[AdminTutorReviewController] getAllTutorRatings Error:', error);
@@ -20,7 +20,7 @@ export class AdminTutorReviewController {
                 return;
             }
 
-            const result = await AdminTutorReviewRepository.getTutorReviewDetail(tutorId as string);
+            const result = await AdminTutorReviewService.getTutorReviewDetail(tutorId as string);
             res.status(200).json({ success: true, data: result });
         } catch (error: any) {
             console.error('[AdminTutorReviewController] getTutorReviewDetail Error:', error);

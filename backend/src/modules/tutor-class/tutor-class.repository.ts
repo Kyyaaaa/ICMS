@@ -1,6 +1,25 @@
 import { supabaseAdmin } from '../../configs/supabase';
 
 export class TutorClassRepository {
+  static async checkTutorOwnership(classId: string): Promise<string | null> {
+    const { data, error } = await supabaseAdmin
+      .from('classes')
+      .select('tutor_id')
+      .eq('id', classId)
+      .single();
+    if (error || !data) return null;
+    return data.tutor_id;
+  }
+
+  static async getGradingStatus(classId: string): Promise<string> {
+    const { data } = await supabaseAdmin
+      .from('classes')
+      .select('grading_status')
+      .eq('id', classId)
+      .single();
+    return data?.grading_status || 'PENDING';
+  }
+
   static async getAssessments(classId: string) {
     const { data, error } = await supabaseAdmin
       .from('assessments')

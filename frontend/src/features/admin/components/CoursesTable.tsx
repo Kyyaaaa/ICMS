@@ -1,5 +1,7 @@
 import { BookOpen, Edit, Eye, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Pagination } from '@/shared/components/common/Pagination';
 import type { Course } from '../../../shared/types/course';
 
 interface CoursesTableProps {
@@ -8,6 +10,9 @@ interface CoursesTableProps {
 }
 
 export const CoursesTable = ({ courses, handleDelete }: CoursesTableProps) => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
+    
     return (
         <div className="bg-white rounded-xl shadow-sm border border-[#e0e3e5] overflow-hidden">
             <div className="overflow-x-auto">
@@ -22,7 +27,7 @@ export const CoursesTable = ({ courses, handleDelete }: CoursesTableProps) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {courses.map(course => (
+                        {courses.slice((currentPage - 1) * limit, currentPage * limit).map(course => (
                             <tr key={course.id} className="border-b border-[#e0e3e5] hover:bg-[#f7fafc]">
                                 <td className="py-4 px-6">
                                     <div className="flex items-center gap-3">
@@ -58,6 +63,13 @@ export const CoursesTable = ({ courses, handleDelete }: CoursesTableProps) => {
                     </tbody>
                 </table>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalItems={courses.length}
+                itemsPerPage={limit}
+                onPageChange={setCurrentPage}
+                itemName="courses"
+            />
         </div>
     );
 };

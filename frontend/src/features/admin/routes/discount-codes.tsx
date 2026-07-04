@@ -1,6 +1,7 @@
 import { formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { Tags, Search, Plus, Trash2, Edit, X } from 'lucide-react';
+import { Pagination } from '@/shared/components/common/Pagination';
 import type { DiscountCode } from '../types/discount-code';
 import { AdminDiscountCodesService } from '../services/discount-codes.service';
 import { showConfirmModal } from '@/utils/modal';
@@ -8,6 +9,7 @@ const AdminDiscountCodes = () => {
     const [codes, setCodes] = useState<DiscountCode[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
     
     // CRUD Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -158,7 +160,7 @@ const AdminDiscountCodes = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredCodes.map(code => (
+                            {filteredCodes.slice((currentPage - 1) * 10, currentPage * 10).map(code => (
                                 <tr key={code.id} className="border-b border-[#e0e3e5] hover:bg-[#f7fafc]">
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-3">
@@ -202,6 +204,13 @@ const AdminDiscountCodes = () => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredCodes.length}
+                    itemsPerPage={10}
+                    onPageChange={setCurrentPage}
+                    itemName="discount codes"
+                />
             </div>
 
             {/* Modal */}
