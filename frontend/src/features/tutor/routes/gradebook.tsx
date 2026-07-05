@@ -84,6 +84,13 @@ const TutorGradebook = () => {
     };
 
     const handleGradeChange = (studentId: string, assessmentId: string, field: 'score' | 'feedback', value: string) => {
+        if (field === 'score' && value !== '') {
+            const num = Number(value);
+            if (isNaN(num) || num < 0 || num > 9) {
+                showAlertModal('Cảnh báo', 'Điểm số phải là số thập phân nằm trong khoảng từ 0 đến 9.', 'warning');
+                return;
+            }
+        }
         setGradesData(prev => prev.map(student => {
             if (student.id === studentId) {
                 return {
@@ -104,13 +111,16 @@ const TutorGradebook = () => {
     const handleSaveGrades = async () => {
         if (!classId) return;
 
-        // Validation for max score
+        // Validation for scores (0 -> 9, decimal)
         for (const student of gradesData) {
             for (const assId of Object.keys(student.grades)) {
                 const score = student.grades[assId].score;
-                if (score !== null && score > 9) {
-                    showAlertModal('Validation Error', `Scores cannot exceed 9. Please check grades for ${student.name}.`, 'error');
-                    return;
+                if (score !== null && score !== undefined && (score as any) !== '') {
+                    const numScore = Number(score);
+                    if (isNaN(numScore) || numScore < 0 || numScore > 9) {
+                        showAlertModal('Lỗi xác thực', `Điểm số của học viên ${student.name} phải là số thập phân nằm trong khoảng từ 0 đến 9.`, 'error');
+                        return;
+                    }
                 }
             }
         }
@@ -390,7 +400,7 @@ const TutorGradebook = () => {
                                                                 {isEditing ? (
                                                                     <input 
                                                                         type="number" 
-                                                                        min="0" max={ass.maxScore} step="0.5"
+                                                                        min="0" max="9" step="0.5"
                                                                         placeholder="-"
                                                                         value={grade.score ?? ''}
                                                                         onChange={(e) => handleGradeChange(student.id, ass.id, 'score', e.target.value)}

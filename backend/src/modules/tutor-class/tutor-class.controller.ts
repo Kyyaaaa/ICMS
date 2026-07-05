@@ -52,6 +52,10 @@ export class TutorClassController {
       await TutorClassService.saveGradebook(classId, req.body);
       res.status(200).json({ success: true, message: 'Gradebook saved successfully' });
     } catch (error: any) {
+      if (error.message && error.message.includes('Điểm số')) {
+        res.status(400).json({ success: false, message: error.message });
+        return;
+      }
       res.status(500).json({ success: false, message: error.message });
     }
   }

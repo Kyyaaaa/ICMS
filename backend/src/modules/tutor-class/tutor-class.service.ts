@@ -58,11 +58,12 @@ export class TutorClassService {
     }
 
     // 3. Upsert grades
-    // Validate scores
+    // Validate scores strictly
     const preparedGrades = upsertGrades.map((g: any) => {
-      let score = parseFloat(g.score);
-      if (isNaN(score) || score < 0) score = 0;
-      if (score > 9) score = 9;
+      const score = parseFloat(g.score);
+      if (isNaN(score) || typeof score !== 'number' || score < 0 || score > 9) {
+        throw new Error('Điểm số phải là số thập phân nằm trong khoảng từ 0 đến 9');
+      }
 
       return {
         assessment_id: g.assessment_id,
