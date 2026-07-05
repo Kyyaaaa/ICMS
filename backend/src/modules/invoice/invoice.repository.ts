@@ -1,6 +1,18 @@
 import { supabaseAdmin } from '../../configs/supabase';
+import { EnrollmentService } from '../enrollment/enrollment.service';
 
 export class InvoiceRepository {
+  static async expireInvoiceInDb(inv: any) {
+    try {
+      await supabaseAdmin.from('invoices').update({ status: 'CANCELLED' }).eq('id', inv.id);
+      await supabaseAdmin.from('invoice_installments').update({ status: 'CANCELLED' }).eq('invoice_id', inv.id).in('status', ['PENDING', 'OVERDUE']);
+      if (inv.learner_id && inv.class_id) {
+        await EnrollmentService.cancelEnrollmentByLearnerAndClass(inv.learner_id, inv.class_id);
+      }
+    } catch (e) {
+      console.error('[expireInvoiceInDb] Error:', e);
+    }
+  }
   static async getClassAndCourse(classId: string) {
     const { data, error } = await supabaseAdmin
       .from('classes')
@@ -169,6 +181,14 @@ export class InvoiceRepository {
         const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
         if (new Date(data.data.created_at) < fifteenMinsAgo) {
             data.data.status = 'CANCELLED';
+            if (data.data.invoice_installments) {
+                data.data.invoice_installments.forEach((inst: any) => {
+                    if (inst.status === 'PENDING' || inst.status === 'OVERDUE') {
+                        inst.status = 'CANCELLED';
+                    }
+                });
+            }
+            InvoiceRepository.expireInvoiceInDb(data.data);
         }
     }
 
@@ -198,10 +218,18 @@ export class InvoiceRepository {
     const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
     const expiredInvoices = data?.filter((inv: any) => inv.status === 'PENDING' && new Date(inv.created_at) < fifteenMinsAgo) || [];
     
-    // Do NOT update DB here to avoid missing EnrollmentService side-effects.
-    // The cron job `invoice-expiry.cron.ts` will handle this safely.
     if (expiredInvoices.length > 0) {
-      expiredInvoices.forEach((inv: any) => inv.status = 'CANCELLED');
+      expiredInvoices.forEach((inv: any) => {
+        inv.status = 'CANCELLED';
+        if (inv.invoice_installments) {
+          inv.invoice_installments.forEach((inst: any) => {
+            if (inst.status === 'PENDING' || inst.status === 'OVERDUE') {
+              inst.status = 'CANCELLED';
+            }
+          });
+        }
+        InvoiceRepository.expireInvoiceInDb(inv);
+      });
     }
 
     return data;

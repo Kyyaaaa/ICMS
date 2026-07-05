@@ -278,7 +278,7 @@ const PaymentDetail = () => {
                                                 )}
                                             </td>
                                             <td className="py-3 px-4 text-right">
-                                                {(inst.status === 'pending' || inst.status === 'overdue') && !invoice.hasPendingRefund && (
+                                                {invoice.status !== 'cancelled' && invoice.status !== 'expired' && (inst.status === 'pending' || inst.status === 'overdue') && !invoice.hasPendingRefund && (
                                                     <Link to={`/learner/payments/${invoice.id}/checkout?installment=${inst.id}`} className="px-4 py-1.5 bg-[#ef4444] text-white text-xs font-bold rounded-lg hover:bg-[#dc2626] transition-colors">
                                                         Pay
                                                     </Link>
