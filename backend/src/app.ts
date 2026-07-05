@@ -93,9 +93,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Route kiểm tra trạng thái Server (Health Check)
 app.get('/api/health', (_req: Request, res: Response) => {
-  res.json({ 
+  res.json({
     status: 'OK',
-    message: 'NodeJS + TypeScript Server is running smoothly!' 
+    message: 'NodeJS + TypeScript Server is running smoothly!'
   });
 });
 

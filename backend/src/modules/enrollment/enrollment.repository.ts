@@ -68,7 +68,14 @@ export class EnrollmentRepository {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === 'PGRST116') {
+        const notFoundErr: any = new Error('Enrollment not found');
+        notFoundErr.status = 404;
+        throw notFoundErr;
+      }
+      throw error;
+    }
     return data;
   }
 

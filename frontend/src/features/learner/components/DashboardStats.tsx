@@ -16,7 +16,6 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
                     <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-0.5">Active Classes</p>
                     <div className="flex items-baseline gap-1.5 mb-1">
                         <p className="text-2xl font-black text-[#002045] tracking-tight leading-none">{stats.activeClasses}</p>
-                        <p className="text-xs font-bold text-slate-400">classes</p>
                     </div>
                 </div>
             </div>
@@ -39,7 +38,6 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
                     <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-0.5">Completed Lessons</p>
                     <div className="flex items-baseline gap-1.5 mb-1">
                         <p className="text-2xl font-black text-[#002045] tracking-tight leading-none">{stats.completedLessons}</p>
-                        <p className="text-xs font-medium text-slate-400">lessons</p>
                     </div>
                 </div>
             </div>

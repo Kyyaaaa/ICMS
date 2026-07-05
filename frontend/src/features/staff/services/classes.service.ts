@@ -89,7 +89,7 @@ export const ClassesService = {
             return data.map((item: unknown) => {
                 const typedItem = item as { id: string, account?: { id?: string, full_name?: string, email?: string, account_code?: string }, enrollment_date?: string, learner_id?: string, attendance_rate?: number };
                 return {
-                    id: typedItem.account?.id || typedItem.id,
+                    id: typedItem.id || typedItem.account?.id,
                     code: formatAccountID(typedItem.account?.account_code || typedItem.account?.id || typedItem.learner_id || typedItem.id, 'LEARNER'),
                     name: typedItem.account?.full_name || 'Unknown',
                     email: typedItem.account?.email || 'N/A',
