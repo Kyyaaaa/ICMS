@@ -33,13 +33,13 @@ export const initInvoiceExpiryCron = () => {
           // 1. Update invoice status to CANCELLED
           await supabase
             .from('invoices')
-            .update({ status: 'CANCELLED', updated_at: new Date().toISOString() })
+            .update({ status: 'CANCELLED' })
             .eq('id', invoice.id);
 
           // 2. Update all associated pending/overdue installments to CANCELLED
           await supabase
             .from('invoice_installments')
-            .update({ status: 'CANCELLED', updated_at: new Date().toISOString() })
+            .update({ status: 'CANCELLED' })
             .eq('invoice_id', invoice.id)
             .in('status', ['PENDING', 'OVERDUE']);
 

@@ -41,9 +41,9 @@ export const DashboardRepository = {
   getLearnerPendingInvoices: async (learnerId: string) => {
     return supabaseAdmin
       .from('invoices')
-      .select('id, invoice_code, status, amount, due_date, classes(name)')
+      .select('id, invoice_code, status, amount, due_date, created_at, classes(name), invoice_installments(*)')
       .eq('learner_id', learnerId)
-      .in('status', ['PENDING', 'OVERDUE', 'PARTIAL'])
+      .in('status', ['PENDING', 'PARTIAL'])
       .order('due_date', { ascending: true })
       .limit(5);
   },

@@ -165,6 +165,13 @@ export class InvoiceRepository {
         }
     }
     
+    if (data.data.status === 'PENDING' && data.data.created_at) {
+        const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
+        if (new Date(data.data.created_at) < fifteenMinsAgo) {
+            data.data.status = 'CANCELLED';
+        }
+    }
+
     return data.data;
   }
 

@@ -61,13 +61,40 @@ export const DashboardService = {
     const { data: invoices } = await DashboardRepository.getLearnerPendingInvoices(learnerId);
     if (!invoices) return [];
 
-    return invoices.map((inv: any) => {
-        const isOverdue = inv.status === 'OVERDUE' || (inv.due_date && new Date(inv.due_date) < new Date());
+    const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
+    const validInvoices = invoices.filter((inv: any) => {
+        if (inv.status === 'PENDING' && inv.created_at && new Date(inv.created_at) < fifteenMinsAgo) {
+            return false;
+        }
+        return true;
+    });
+
+    return validInvoices.map((inv: any) => {
+        let title = `Pay Invoice ${inv.invoice_code}`;
+        let targetDueDate = inv.due_date;
+        let isOverdue = false;
+
+        if (inv.invoice_installments && inv.invoice_installments.length > 0) {
+            const nextInst = inv.invoice_installments
+                .filter((i: any) => i.status === 'PENDING' || i.status === 'OVERDUE')
+                .sort((a: any, b: any) => a.installment_number - b.installment_number)[0];
+
+            if (nextInst) {
+                title = `Pay Installment #${nextInst.installment_number} (${inv.invoice_code})`;
+                targetDueDate = nextInst.due_date || targetDueDate;
+                if (nextInst.status === 'OVERDUE' || (targetDueDate && new Date(targetDueDate) < new Date())) {
+                    isOverdue = true;
+                }
+            }
+        } else {
+            isOverdue = Boolean(targetDueDate && new Date(targetDueDate) < new Date());
+        }
+
         return {
             id: inv.id,
-            title: `Pay Invoice ${inv.invoice_code}`,
+            title,
             courseName: inv.classes?.name || 'Course Payment',
-            dueDate: isOverdue ? 'Overdue' : `Due on ${new Date(inv.due_date).toLocaleDateString('vi-VN')}`,
+            dueDate: isOverdue ? 'Overdue' : (targetDueDate ? `Due on ${new Date(targetDueDate).toLocaleDateString('vi-VN')}` : 'Pending Payment'),
             iconType: 'CreditCard',
             bg: isOverdue ? 'bg-red-50' : 'bg-amber-50',
             color: isOverdue ? 'text-red-600' : 'text-amber-600',
