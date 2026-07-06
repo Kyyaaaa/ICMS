@@ -5,6 +5,7 @@ import { TutorAvailabilityService, type AvailabilityCycle } from '@/shared/servi
 import { TutorSelector } from '../components/TutorSelector';
 import { AvailabilityGrid } from '../components/AvailabilityGrid';
 import { formatMonthYear } from '../../../shared/utils/date';
+import { showAlertModal } from '@/utils/modal';
 
 const StaffTutorAvailability = () => {
     const [tutors, setTutors] = useState<TutorAvailabilityProfile[]>([]);
@@ -107,7 +108,7 @@ const StaffTutorAvailability = () => {
             setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
         } catch (error: any) {
             console.error('Failed to lock/unlock:', error);
-            alert(`Lỗi: ${error.response?.data?.message || error.message}`);
+            showAlertModal('Error', `Lỗi: ${error.response?.data?.message || error.message}`, 'error');
         } finally {
             setIsLocking(false);
         }
@@ -123,7 +124,7 @@ const StaffTutorAvailability = () => {
             setHasUnsavedChanges(false);
         } catch (error: any) {
             console.error('Failed to save changes:', error);
-            alert(`Lỗi: ${error.response?.data?.message || error.message}`);
+            showAlertModal('Error', `Lỗi: ${error.response?.data?.message || error.message}`, 'error');
         } finally {
             setIsSaving(false);
         }
@@ -154,7 +155,7 @@ const StaffTutorAvailability = () => {
             setCurrentCycle(updatedCycle);
         } catch (error) {
             console.error('Failed to update cycle status', error);
-            alert('Lỗi: Không thể thay đổi trạng thái.');
+            showAlertModal('Error', 'Lỗi: Không thể thay đổi trạng thái.', 'error');
         } finally {
             setIsLocking(false);
         }

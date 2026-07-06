@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Megaphone, X, Save, Globe, Users, BookOpen } from 'lucide-react';
 import type { Announcement, AudienceScope, Role } from '../types/announcement';
+import { showAlertModal } from '@/utils/modal';
 
 interface AnnouncementFormModalProps {
     mode: 'create' | 'edit';
@@ -53,19 +54,19 @@ export const AnnouncementFormModal = ({ mode, initialData, availableCourses, ava
         e.preventDefault();
         
         if (formData.audience.scope === 'Specific Roles' && formData.audience.roles.length === 0) {
-            alert('Please select at least one role for the target audience.');
+            showAlertModal('Warning', 'Please select at least one role for the target audience.', 'warning');
             return;
         }
 
         if (publishMode === 'schedule') {
             if (!formData.scheduledFor) {
-                alert('Please select a date and time.');
+                showAlertModal('Warning', 'Please select a date and time.', 'warning');
                 return;
             }
             const selectedTime = new Date(formData.scheduledFor).getTime();
             const now = new Date().getTime();
             if (selectedTime < now) {
-                alert('Please select a date and time in the future.');
+                showAlertModal('Warning', 'Please select a date and time in the future.', 'warning');
                 return;
             }
         }

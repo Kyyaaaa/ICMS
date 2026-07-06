@@ -3,6 +3,7 @@ import { BookOpen, ArrowLeft, Clock, Calendar, ShieldCheck, CheckCircle2, MapPin
 import { Link, useParams } from 'react-router-dom';
 
 import { LearnerPaymentsService } from '../services/payments.service';
+import { showAlertModal } from '@/utils/modal';
 
 const PaymentCheckout = () => {
     const { id } = useParams(); // Using invoice id or course id based on route
@@ -60,7 +61,7 @@ const PaymentCheckout = () => {
                 throw new Error("Failed to generate payment link");
             }
         } catch (error: unknown) {
-            alert(error instanceof Error ? error.message : 'Error processing payment');
+            showAlertModal('Error', error instanceof Error ? error.message : 'Error processing payment', 'error');
             setIsProcessing(false);
         }
     };

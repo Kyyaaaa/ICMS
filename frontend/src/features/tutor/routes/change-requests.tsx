@@ -5,6 +5,7 @@ import type { TutorChangeRequest, CreateChangeRequestData } from '../types/chang
 import { ChangeRequestList } from '../components/ChangeRequestList';
 import { ChangeRequestDetail } from '../components/ChangeRequestDetail';
 import { CreateChangeRequestForm } from '../components/CreateChangeRequestForm';
+import { showAlertModal } from '@/utils/modal';
 
 const TutorChangeRequests = () => {
     const [requests, setRequests] = useState<TutorChangeRequest[]>([]);
@@ -37,10 +38,10 @@ const TutorChangeRequests = () => {
             const newReq = await ChangeRequestService.createRequest(data);
             setRequests([newReq, ...requests]);
             setIsCreating(false);
-            alert('Change request submitted successfully');
+            showAlertModal('Success', 'Change request submitted successfully', 'success');
         } catch (error: any) {
             const backendError = error.response?.data?.error;
-            alert(backendError || 'Failed to submit change request. Please try again.');
+            showAlertModal('Error', backendError || 'Failed to submit change request. Please try again.', 'error');
         }
     };
 

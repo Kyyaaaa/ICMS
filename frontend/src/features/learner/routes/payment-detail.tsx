@@ -4,6 +4,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, CheckCircle2, Clock, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { LearnerPaymentsService } from '../services/payments.service';
 import type { PaymentInvoice } from '../types/payment';
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
 
 const PaymentDetail = () => {
     const { id } = useParams();
@@ -28,7 +29,8 @@ const PaymentDetail = () => {
 
     const handleCancel = async () => {
         if (!invoice) return;
-        if (!window.confirm('Are you sure you want to cancel this registration?')) return;
+        const confirmed = await showConfirmModal('Confirm Cancel', 'Are you sure you want to cancel this registration?');
+        if (!confirmed) return;
         
         setIsCancelling(true);
         try {
@@ -42,7 +44,7 @@ const PaymentDetail = () => {
             }
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
-            alert(err.response?.data?.message || 'Failed to cancel invoice');
+            showAlertModal('Error', err.response?.data?.message || 'Failed to cancel invoice', 'error');
         } finally {
             setIsCancelling(false);
         }

@@ -4,6 +4,7 @@ import type { ChangeRequest } from '../types/change-request';
 import { ChangeRequestsService } from '../services/change-requests.service';
 import { ChangeRequestModal } from '../components/ChangeRequestModal';
 import { Pagination } from '@/shared/components/common/Pagination';
+import { showAlertModal } from '@/utils/modal';
 
 const ChangeRequests = () => {
     const [requests, setRequests] = useState<ChangeRequest[]>([]);
@@ -42,7 +43,7 @@ const ChangeRequests = () => {
             } catch (error: any) {
                 console.error("Error updating status:", error);
                 const backendMsg = error?.response?.data?.error || error?.response?.data?.message;
-                alert(backendMsg || "Failed to update status. Please try again.");
+                showAlertModal('Error', backendMsg || "Failed to update status. Please try again.", 'error');
             }
         }
         setSelectedRequest(null);

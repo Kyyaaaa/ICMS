@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import type { TutorChangeRequest } from '../types/change-request';
+import { showConfirmModal } from '@/utils/modal';
 
 interface ChangeRequestDetailProps {
     request: TutorChangeRequest;
@@ -91,8 +92,9 @@ export const ChangeRequestDetail = ({ request, onClose, onCancel }: ChangeReques
                 {request.status === 'Pending' && onCancel && (
                     <div className="p-5 border-t border-[#e0e3e5] bg-[#f8f9fa] flex justify-end">
                         <button 
-                            onClick={() => {
-                                if (window.confirm('Are you sure you want to cancel this request?')) {
+                            onClick={async () => {
+                                const confirmed = await showConfirmModal('Confirm', 'Are you sure you want to cancel this request?');
+                                if (confirmed) {
                                     onCancel();
                                 }
                             }}
