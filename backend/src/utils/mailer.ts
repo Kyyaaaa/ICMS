@@ -1,11 +1,11 @@
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 // Khởi tạo transporter sử dụng Gmail
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: "smtp.gmail.com",
   port: 465,
   secure: true, // true for 465, false for other ports
   auth: {
@@ -23,31 +23,65 @@ export const sendOtpEmail = async (toEmail: string, otp: string) => {
   const mailOptions = {
     from: `"ICMS Support" <${process.env.EMAIL_USER}>`,
     to: toEmail,
-    subject: 'Password Reset Verification Code',
+    subject: "Password Reset Verification Code",
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-        <h2 style="color: #007bff; text-align: center;">Password Reset</h2>
-        <p>Hello,</p>
-        <p>We received a request to reset the password for your account. Below is your 6-digit OTP verification code:</p>
-        <div style="text-align: center; margin: 20px 0;">
-          <span style="display: inline-block; padding: 15px 30px; font-size: 24px; font-weight: bold; color: #fff; background-color: #007bff; border-radius: 5px; letter-spacing: 5px;">
-            ${otp}
-          </span>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 40px 0; }
+          .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+          .header { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 30px; text-align: center; color: #ffffff; }
+          .header h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 1px; }
+          .content { padding: 40px 40px 20px; color: #374151; line-height: 1.6; }
+          .content p { margin: 0 0 15px; font-size: 16px; }
+          .otp-wrapper { background-color: #f8fafc; border: 2px dashed #93c5fd; border-radius: 10px; text-align: center; padding: 30px 20px; margin: 35px 0; }
+          .otp-code { font-size: 42px; font-weight: 800; color: #1e3a8a; letter-spacing: 12px; margin: 0; font-family: monospace; }
+          .otp-label { font-size: 14px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; font-weight: 600; }
+          .warning { color: #dc2626; font-size: 14px; font-weight: 500; text-align: center; margin-top: 15px; display: block; }
+          .divider { height: 1px; background-color: #e5e7eb; margin: 30px 0; }
+          .footer { background-color: #f9fafb; padding: 25px 40px; text-align: center; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; line-height: 1.5; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>ICMS</h1>
+          </div>
+          <div class="content">
+            <p>Hello,</p>
+            <p>We received a request to reset the password for your ICMS account. Please use the verification code below to securely change your password.</p>
+            
+            <div class="otp-wrapper">
+              <div class="otp-label">Your Verification Code</div>
+              <p class="otp-code">${otp}</p>
+            </div>
+            
+            <div class="warning">
+              This code is valid for 10 minutes.
+            </div>
+            
+            <div class="divider"></div>
+            
+            <p style="font-size: 14px; color: #6b7280;">If you didn't request a password reset, you can safely ignore this email. Your account remains secure.</p>
+          </div>
+          <div class="footer">
+            <p>This is an automated message from the ICMS. Please do not reply.</p>
+            <p>&copy; ${new Date().getFullYear()} ICMS. All rights reserved.</p>
+          </div>
         </div>
-        <p style="color: red; text-align: center;">This code will expire in 10 minutes.</p>
-        <p>If you did not make this request, please ignore this email.</p>
-        <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;" />
-        <p style="font-size: 12px; color: #777; text-align: center;">Best regards, <br />ICMS Management System</p>
-      </div>
+      </body>
+      </html>
     `,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    
+
     return true;
   } catch (error) {
-    console.error('Error sending email:', error);
-    throw new Error('Failed to send email. Please check your config.');
+    console.error("Error sending email:", error);
+    throw new Error("Failed to send email. Please check your config.");
   }
 };
