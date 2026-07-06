@@ -283,11 +283,6 @@ const PaymentDetail = () => {
                                                         Pay
                                                     </Link>
                                                 )}
-                                                {inst.status === 'paid' && !invoice.hasPendingRefund && (
-                                                    <Link to={`/learner/payments/${invoice.id}/refund?installment=${inst.id}`} className="px-4 py-1.5 bg-white border border-[#002045]/20 text-[#002045] text-xs font-bold rounded-lg hover:bg-[#f8f9fc] transition-colors inline-block ml-2">
-                                                        Refund
-                                                    </Link>
-                                                )}
                                                 {inst.status === 'paid' && invoice.hasPendingRefund && (
                                                     <button disabled className="px-4 py-1.5 bg-[#fff3e0] text-[#e65100] text-xs font-bold rounded-lg border border-[#e65100]/20 cursor-not-allowed inline-block ml-2">
                                                         Refund Pending
@@ -317,15 +312,6 @@ const PaymentDetail = () => {
                                 Pay Now
                             </Link>
                         </>
-                    )}
-                    {invoice.status === 'partial' && !invoice.hasPendingRefund && (
-                        <button 
-                            onClick={handleCancel}
-                            disabled={isCancelling}
-                            className={`w-full sm:w-auto px-6 py-3 bg-white border border-[#ef4444] text-[#ef4444] text-sm font-bold rounded-xl hover:bg-[#fce8e8] transition-all ${isCancelling ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            {isCancelling ? 'Cancelling...' : 'Cancel Remaining Installments'}
-                        </button>
                     )}
                     {invoice.status === 'paid' && !invoice.hasPendingRefund && (
                         <Link to={`/learner/payments/${invoice.id}/refund`} className="w-full sm:w-auto px-6 py-3 bg-white border border-[#002045]/20 text-[#002045] text-sm font-bold rounded-xl hover:bg-[#f8f9fc] transition-all text-center">

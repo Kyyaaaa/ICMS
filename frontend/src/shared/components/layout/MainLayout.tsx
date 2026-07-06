@@ -125,6 +125,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ role, title, basePath, n
     const roleText = userInfo?.role;
     const initials = fullName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
     const avatarUrl = userInfo?.avatar_url;
+    const roleBasePath = basePath.replace('/dashboard', '');
+    const notificationsPath = role.toLowerCase() === 'admin'
+        ? `${roleBasePath}/announcements`
+        : `${roleBasePath}/notifications`;
 
     return (
         <div className="min-h-screen bg-[#f7fafc] flex font-sans text-[#181c1e]">
@@ -244,7 +248,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ role, title, basePath, n
                                             )}
                                         </div>
                                         <div className="p-3 text-center border-t border-[#e0e3e5] bg-[#f8f9fa]">
-                                            <Link to={`${basePath.replace('/dashboard', '')}/announcements`} onClick={() => setShowNotifications(false)} className="text-xs font-bold text-[#0061a5] hover:underline block w-full">View All Notifications</Link>
+                                            <Link to={notificationsPath} onClick={() => setShowNotifications(false)} className="text-xs font-bold text-[#0061a5] hover:underline block w-full">View All Notifications</Link>
                                         </div>
                                     </div>
                                 </>

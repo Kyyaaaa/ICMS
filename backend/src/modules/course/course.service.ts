@@ -1,10 +1,11 @@
 import { CourseRepository } from './course.repository';
+import { CreateCourseDTO, UpdateCourseDTO, Course } from './course.model';
 
 import { ClassService } from '../class/class.service';
 import { EnrollmentService } from '../enrollment/enrollment.service';
 
 export class CourseService {
-  static async createCourse(data: any) {
+  static async createCourse(data: CreateCourseDTO & { sessions_list?: any[] }): Promise<Course> {
     const { sessions_list, ...courseData } = data;
     
     // Kiểm tra tính hợp lệ cơ bản của dữ liệu đầu vào
@@ -24,11 +25,11 @@ export class CourseService {
   }
 
 
-  static async getAllCourses(options: { onlyActive?: boolean } = {}) {
+  static async getAllCourses(options: { onlyActive?: boolean } = {}): Promise<Course[]> {
     return await CourseRepository.getAllCourses(options);
   }
 
-  static async getCourseById(id: string, options: { onlyActive?: boolean } = {}) {
+  static async getCourseById(id: string, options: { onlyActive?: boolean } = {}): Promise<Course> {
     if (!id) throw new Error('Course ID is required.');
     const course = await CourseRepository.getCourseById(id);
     if (!course) throw new Error('Course not found.');
@@ -62,7 +63,7 @@ export class CourseService {
     }
   }
 
-    static async updateCourse(id: string, courseData: any) {
+    static async updateCourse(id: string, courseData: UpdateCourseDTO & { sessions_list?: any[] }): Promise<Course> {
         if (!id) throw new Error('Course ID is required.');
         
         const existingCourse = await CourseRepository.getCourseById(id);

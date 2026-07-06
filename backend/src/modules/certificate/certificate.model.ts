@@ -12,14 +12,6 @@ export interface Certificate {
   updated_at: string;
 }
 
-export interface CreateCertificateInput {
-  name: string;
-  issuer: string;
-  issue_date: string;
-  expiration_date?: string | null;
-  file_url: string;
-}
-
 export interface UpdateCertificateInput {
   name?: string;
   issuer?: string;

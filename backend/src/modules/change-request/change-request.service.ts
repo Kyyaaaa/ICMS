@@ -19,6 +19,12 @@ export class ChangeRequestService {
     }
 
     async checkAvailability(tutorId: string, classId: string, sessionId: string, date: string, slot: string) {
+        const session = await this.changeRequestRepository.getSessionOwnership(sessionId);
+        if (session.tutor_id !== tutorId || session.class_id !== classId) {
+            const error: any = new Error('Forbidden: This session is not assigned to you');
+            error.status = 403;
+            throw error;
+        }
         // Validation 1: Tutor Conflict
         const isTutorOccupied = await ClassRepository.checkScheduleConflict('tutor_id', tutorId, date, slot, sessionId, undefined);
         if (isTutorOccupied) {
@@ -39,7 +45,14 @@ export class ChangeRequestService {
         return { available: true, availableRooms };
     }
 
-    async create(data: CreateChangeRequestDTO) {
+    async create(data: CreateChangeRequestDTO, tutorId: string) {
+        const session = await this.changeRequestRepository.getSessionOwnership(data.session_id);
+        if (session.tutor_id !== tutorId || session.class_id !== data.class_id) {
+            const error: any = new Error('Forbidden: You can only create requests for your own sessions');
+            error.status = 403;
+            throw error;
+        }
+        data = { ...data, tutor_id: tutorId, status: 'Pending' };
         const hasPending = await this.changeRequestRepository.hasPendingRequestForSession(data.session_id);
         
         if (hasPending) {

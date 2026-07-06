@@ -1,27 +1,10 @@
 import { supabaseAdmin } from '../../configs/supabase';
 import { CacheService } from '../../utils/cache';
 
-export interface CreateClassroomDTO {
-  room_name: string;
-  capacity: number;
-  status: string;
-}
-
-export interface UpdateClassroomDTO {
-  room_name?: string;
-  capacity?: number;
-  status?: string;
-}
-
-export interface MaintenanceDTO {
-  maintenance_date: string;
-  start_time: string;
-  end_time: string;
-  note: string;
-}
+import { Classroom, ClassroomMaintenance, CreateClassroomDTO, UpdateClassroomDTO, MaintenanceDTO } from './classroom.model';
 
 export const ClassroomRepository = {
-  async findAll() {
+  async findAll(): Promise<{ classrooms: Classroom[], maintenance: ClassroomMaintenance[] }> {
     return await CacheService.getOrSet('classrooms', async () => {
       const { data: classrooms, error: err1 } = await supabaseAdmin
         .from('classroom')
@@ -36,11 +19,11 @@ export const ClassroomRepository = {
 
       if (err2) throw err2;
 
-      return { classrooms, maintenance };
+      return { classrooms: classrooms as Classroom[], maintenance: maintenance as ClassroomMaintenance[] };
     });
   },
 
-  async findById(id: string) {
+  async findById(id: string): Promise<{ classroom: Classroom, maintenance: ClassroomMaintenance | null }> {
     const { data: classroom, error: err1 } = await supabaseAdmin
       .from('classroom')
       .select('*')
@@ -62,7 +45,7 @@ export const ClassroomRepository = {
         }
     }
 
-    return { classroom, maintenance: maintenanceData };
+    return { classroom: classroom as Classroom, maintenance: maintenanceData as ClassroomMaintenance | null };
   },
 
   async findByRoomName(roomName: string, excludeId?: string) {
@@ -81,7 +64,7 @@ export const ClassroomRepository = {
     return data && data.length > 0 ? data[0] : null;
   },
 
-  async create(data: CreateClassroomDTO, maintenanceData?: MaintenanceDTO) {
+  async create(data: CreateClassroomDTO, maintenanceData?: MaintenanceDTO): Promise<{ classroom: Classroom, maintenance: ClassroomMaintenance | null }> {
     const { data: newClassroom, error } = await supabaseAdmin
       .from('classroom')
       .insert([{
@@ -116,10 +99,10 @@ export const ClassroomRepository = {
         if (!err2) newMaintenance = maint;
     }
 
-    return { classroom: newClassroom, maintenance: newMaintenance };
+    return { classroom: newClassroom as Classroom, maintenance: newMaintenance as ClassroomMaintenance | null };
   },
 
-  async update(id: string, data: UpdateClassroomDTO, maintenanceData?: MaintenanceDTO) {
+  async update(id: string, data: UpdateClassroomDTO, maintenanceData?: MaintenanceDTO): Promise<{ classroom: Classroom, maintenance: ClassroomMaintenance | null }> {
     const { data: updatedClassroom, error } = await supabaseAdmin
       .from('classroom')
       .update({
@@ -157,7 +140,7 @@ export const ClassroomRepository = {
         if (!err2) updatedMaintenance = maint;
     }
 
-    return { classroom: updatedClassroom, maintenance: updatedMaintenance };
+    return { classroom: updatedClassroom as Classroom, maintenance: updatedMaintenance as ClassroomMaintenance | null };
   },
 
   async delete(id: string) {

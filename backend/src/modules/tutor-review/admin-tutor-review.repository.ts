@@ -1,7 +1,8 @@
 import { supabaseAdmin } from '../../configs/supabase';
+import { AdminTutorRatingSummary, AdminTutorProfileSummary } from './admin-tutor-review.model';
 
 export class AdminTutorReviewRepository {
-    static async getAllTutorRatings() {
+    static async getAllTutorRatings(): Promise<AdminTutorRatingSummary[]> {
         // Get all accounts with role TUTOR
         const { data: roles } = await supabaseAdmin.from('roles').select('id').eq('name', 'TUTOR').single();
         if (!roles) return [];
@@ -50,7 +51,7 @@ export class AdminTutorReviewRepository {
         });
     }
 
-    static async getTutorReviewDetail(tutorId: string) {
+    static async getTutorReviewDetail(tutorId: string): Promise<AdminTutorProfileSummary> {
         // Fetch tutor info
         const { data: tutor, error: tutorError } = await supabaseAdmin
             .from('account')

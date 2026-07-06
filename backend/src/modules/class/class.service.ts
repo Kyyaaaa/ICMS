@@ -80,7 +80,7 @@ export class ClassService {
     }
 
     // Number of sessions from course template
-    const numSessions = parseInt(course.sessions) || 0;
+    const numSessions = course.sessions || 0;
     if (numSessions <= 0) {
       throw { status: 400, message: 'Course has invalid number of sessions' };
     }

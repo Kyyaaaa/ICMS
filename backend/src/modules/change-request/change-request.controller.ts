@@ -14,7 +14,12 @@ export const ChangeRequestController = {
             const result = await changeRequestService.checkAvailability(tutorId, class_id as string, session_id as string, date as string, slot as string);
             res.json(result);
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            const responseStatus = error.message === 'Change request not found'
+                ? 404
+                : error.message?.includes('Invalid') || error.message?.includes('already') || error.message?.includes('Approval failed')
+                    ? 400
+                    : 500;
+            res.status(responseStatus).json({ error: error.message });
         }
     },
 
@@ -40,6 +45,10 @@ export const ChangeRequestController = {
     getByTutorId: async (req: Request, res: Response) => {
         try {
             const tutorId = req.params.tutorId as string;
+            const user = (req as any).user;
+            if (user.role === 'TUTOR' && user.id !== tutorId) {
+                return res.status(403).json({ error: 'Forbidden: You can only access your own requests' });
+            }
             const requests = await changeRequestService.getByTutorId(tutorId);
             res.json(requests);
         } catch (error: any) {
@@ -49,10 +58,11 @@ export const ChangeRequestController = {
 
     create: async (req: Request, res: Response) => {
         try {
-            const newRequest = await changeRequestService.create(req.body);
+            const tutorId = (req as any).user.id;
+            const newRequest = await changeRequestService.create(req.body, tutorId);
             res.status(201).json(newRequest);
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            res.status(error.status || 500).json({ error: error.message });
         }
     },
 

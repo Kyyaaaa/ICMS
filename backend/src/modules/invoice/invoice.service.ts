@@ -18,8 +18,7 @@ export class InvoiceService {
     // 2. Check if there is an existing PENDING invoice
     const pendingInvoice = await InvoiceRepository.getPendingInvoice(learnerId, classId);
     if (pendingInvoice) {
-      // If the user attempts to enroll again, we delete the old pending invoice to reset the 15-minute window and apply any new discounts
-      await InvoiceRepository.deleteInvoice(pendingInvoice.id);
+      return { invoice: pendingInvoice, isExisting: true };
     }
 
     // 3. Process discount code if provided

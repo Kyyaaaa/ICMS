@@ -2,7 +2,6 @@ import { RefundRepository } from './refund.repository';
 import { RefundRequest, RefundStatusUpdate } from './refund.model';
 
 import { InvoiceRepository } from '../invoice/invoice.repository';
-import { EnrollmentService } from '../enrollment/enrollment.service';
 
 export class RefundService {
   static async createRefundRequest(refundData: RefundRequest) {
@@ -29,18 +28,23 @@ export class RefundService {
       throw err;
     }
 
-    // 2. Generate REF number
-    const lastRefund = await RefundRepository.getLatestRefund();
-    let nextNum = 1;
-    if (lastRefund && lastRefund.refund_code) {
-      const match = lastRefund.refund_code.match(/^REF(\d+)$/);
-      if (match) {
-        nextNum = parseInt(match[1], 10) + 1;
-      }
+    const invoiceAmount = Number(invoice.amount);
+    const requestedAmount = Number(refundData.amount);
+    if (!Number.isFinite(requestedAmount) || requestedAmount <= 0 || requestedAmount !== invoiceAmount) {
+      const err: any = new Error('Refund amount must equal the fully paid invoice amount');
+      err.status = 400;
+      throw err;
     }
-    refundData.refund_code = `REF${nextNum.toString().padStart(6, '0')}`;
-    
-    // 3. Create request
+
+    if (!refundData.reason?.trim() || !refundData.bank_name?.trim() || !refundData.bank_account_name?.trim() || !refundData.bank_account_number?.trim()) {
+      const err: any = new Error('Refund reason and bank account details are required');
+      err.status = 400;
+      throw err;
+    }
+
+    refundData.amount = invoiceAmount;
+
+    // The repository allocates the refund code under an advisory lock.
     return await RefundRepository.create(refundData);
   }
 
@@ -53,19 +57,11 @@ export class RefundService {
   }
 
   static async updateRefundStatus(id: string, updateData: RefundStatusUpdate) {
-    const refund = await RefundRepository.updateStatus(id, updateData);
-    
-    if (updateData.status === 'COMPLETED' && refund.invoice_id) {
-        try {
-            const invoice = await InvoiceRepository.getInvoiceById(refund.invoice_id);
-            if (invoice && invoice.class_id) {
-                await EnrollmentService.cancelEnrollmentByLearnerAndClass(refund.learner_id, invoice.class_id);
-            }
-        } catch (error) {
-            console.error('Error cancelling enrollment after refund:', error);
-        }
+    if (!['APPROVED', 'COMPLETED', 'REJECTED'].includes(updateData.status)) {
+      const err: any = new Error('Invalid refund status');
+      err.status = 400;
+      throw err;
     }
-    
-    return refund;
+    return await RefundRepository.updateStatus(id, updateData);
   }
 }

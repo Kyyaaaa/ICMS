@@ -146,6 +146,7 @@ export class AuthRepository {
       .from("otps")
       .select("id, email, expires_at")
       .eq("reset_token", resetToken)
+      .gte("expires_at", new Date().toISOString())
       .maybeSingle();
   }
 
@@ -161,11 +162,22 @@ export class AuthRepository {
   /**
    * Xóa reset token sau khi đã đổi mật khẩu thành công
    */
-  static async clearResetToken(id: string) {
+  static async consumeResetToken(resetToken: string, currentTime: string) {
     return await supabaseAdmin
       .from("otps")
       .update({ reset_token: null })
-      .eq("id", id);
+      .eq("reset_token", resetToken)
+      .gte("expires_at", currentTime)
+      .select("id, email")
+      .maybeSingle();
+  }
+
+  static async restoreResetToken(id: string, resetToken: string) {
+    return await supabaseAdmin
+      .from("otps")
+      .update({ reset_token: resetToken })
+      .eq("id", id)
+      .is("reset_token", null);
   }
 
   /**

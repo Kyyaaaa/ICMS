@@ -11,6 +11,38 @@ describe('SessionService QA Tests', () => {
     jest.clearAllMocks();
   });
 
+  it('rejects a tutor accessing another tutor session', async () => {
+    (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({
+      id: 'session-1',
+      class_id: 'class-1',
+      tutor_id: 'tutor-owner'
+    });
+
+    await expect(
+      SessionService.getAttendance('session-1', 'tutor-other', 'TUTOR')
+    ).rejects.toMatchObject({ status: 403 });
+  });
+
+  it('rejects attendance for a learner outside the session class', async () => {
+    (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({
+      id: 'session-1',
+      class_id: 'class-1',
+      tutor_id: 'tutor-1',
+      date: '2023-01-01'
+    });
+    (ClassRepository.getClassById as jest.Mock).mockResolvedValue({ id: 'class-1', status: 'ONGOING' });
+    (SessionRepository.getClassEnrollments as jest.Mock).mockResolvedValue([{ learner_id: 'learner-1' }]);
+
+    await expect(
+      SessionService.updateAttendance(
+        'session-1',
+        [{ learner_id: 'learner-2', status: 'PRESENT' }],
+        'tutor-1',
+        'TUTOR'
+      )
+    ).rejects.toMatchObject({ status: 400 });
+  });
+
   describe('QA-26 & QA-27: Kiểm thử luồng Điểm danh End-to-End & Trạng thái NOT_YET', () => {
     it('should successfully get and auto-generate default attendance data with NOT_YET status', async () => {
       const sessionId = 'session-1';
@@ -33,7 +65,7 @@ describe('SessionService QA Tests', () => {
         { session_id: sessionId, learner_id: 'learner-2', status: 'NOT_YET' }
       ]);
 
-      const result = await SessionService.getAttendance(sessionId);
+      const result = await SessionService.getAttendance(sessionId, 'admin-1', 'admin');
 
       expect(SessionRepository.bulkUpsertAttendance).toHaveBeenCalledWith([
         { session_id: sessionId, learner_id: 'learner-1', status: 'NOT_YET' },
@@ -60,7 +92,7 @@ describe('SessionService QA Tests', () => {
         { session_id: sessionId, learner_id: 'learner-1', status: 'PRESENT', notes: 'Present today' }
       ]);
 
-      const result = await SessionService.updateAttendance(sessionId, updateData);
+      const result = await SessionService.updateAttendance(sessionId, updateData, 'admin-1', 'admin');
 
       expect(SessionRepository.bulkUpsertAttendance).toHaveBeenCalledWith([
         { session_id: sessionId, learner_id: 'learner-1', status: 'PRESENT', notes: 'Present today' }
@@ -85,7 +117,7 @@ describe('SessionService QA Tests', () => {
         { session_id: sessionId, learner_id: 'learner-1', status: 'ABSENT', notes: 'No show' }
       ]);
 
-      const result = await SessionService.updateAttendance(sessionId, updateData);
+      const result = await SessionService.updateAttendance(sessionId, updateData, 'admin-1', 'admin');
 
       expect(SessionRepository.bulkUpsertAttendance).toHaveBeenCalledWith([
         { session_id: sessionId, learner_id: 'learner-1', status: 'ABSENT', notes: 'No show' }

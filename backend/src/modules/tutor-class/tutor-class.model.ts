@@ -1,15 +1,30 @@
-export interface GradebookEntry {
+export interface Assessment {
+  id: string;
+  class_id: string;
+  name: string;
+  order_index: number;
+}
+
+export interface StudentGrade {
+  assessment_id: string;
   learner_id: string;
-  learner_name?: string;
-  learner_code?: string;
-  listening?: number | null;
-  reading?: number | null;
-  writing?: number | null;
-  speaking?: number | null;
-  overall?: number | null;
-  comments?: string | null;
+  score: number;
+  feedback?: string;
+}
+
+export interface SaveGradebookPayload {
+  deletedAssessmentIds?: string[];
+  upsertAssessments?: Partial<Assessment>[];
+  upsertGrades?: StudentGrade[];
 }
 
 export interface GradebookData {
-  entries: GradebookEntry[];
+  assessments: Assessment[];
+  students: {
+    id: string;
+    name: string;
+    email: string;
+    grades: Record<string, { score: number; feedback?: string }>;
+  }[];
+  grading_status: string;
 }

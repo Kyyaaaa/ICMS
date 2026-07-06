@@ -1,9 +1,10 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { showAlertModal } from '@/utils/modal';
+import { API_BASE_URL, apiUrl } from '@/config/api';
 
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -104,7 +105,7 @@ axiosClient.interceptors.response.use(
             try {
                 // Gọi API refresh token (dùng axios thường, không qua interceptor)
                 const response = await axios.post(
-                    'http://localhost:5000/api/auth/refresh',
+                    apiUrl('/auth/refresh'),
                     { refresh_token: refreshToken },
                     { headers: { 'Content-Type': 'application/json' } }
                 );

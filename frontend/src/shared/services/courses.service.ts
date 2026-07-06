@@ -1,8 +1,9 @@
 import type { Course } from '../types/course';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { apiUrl } from '@/config/api';
 
-const API_URL = 'http://localhost:5000/api/courses';
+const API_URL = apiUrl('/courses');
 
 const getAuthHeaders = () => {
     const token = Cookies.get('access_token');
@@ -72,7 +73,7 @@ export const CoursesService = {
             formData.append('folder', 'courses');
 
             const token = Cookies.get('access_token');
-            const response = await axios.post('http://localhost:5000/api/upload/image', formData, {
+            const response = await axios.post(apiUrl('/upload/image'), formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`

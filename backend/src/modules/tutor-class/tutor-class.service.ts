@@ -1,8 +1,9 @@
 import { TutorClassRepository } from './tutor-class.repository';
+import { GradebookData, SaveGradebookPayload } from './tutor-class.model';
 import * as crypto from 'crypto';
 
 export class TutorClassService {
-  static async getGradebook(classId: string) {
+  static async getGradebook(classId: string): Promise<GradebookData> {
     const assessments = await TutorClassRepository.getAssessments(classId);
     const { enrollments, grades } = await TutorClassRepository.getStudentsWithGrades(classId);
     
@@ -36,7 +37,7 @@ export class TutorClassService {
     };
   }
 
-  static async saveGradebook(classId: string, payload: any) {
+  static async saveGradebook(classId: string, payload: SaveGradebookPayload): Promise<boolean> {
     const { deletedAssessmentIds = [], upsertAssessments = [], upsertGrades = [] } = payload;
 
     // 1. Delete assessments
@@ -80,7 +81,7 @@ export class TutorClassService {
     return true;
   }
 
-  static async publishGrades(classId: string) {
+  static async publishGrades(classId: string): Promise<boolean> {
     const gradebook = await TutorClassService.getGradebook(classId);
     await TutorClassRepository.updateClassGradingStatus(classId, 'PUBLISHED', gradebook);
     return true;

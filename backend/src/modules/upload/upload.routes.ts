@@ -79,8 +79,7 @@ router.use((err: any, _req: express.Request, res: express.Response, _next: expre
   console.error('Upload Error:', err);
   res.status(500).json({
     success: false,
-    message: 'Upload processing failed: ' + (err.message || err.toString()),
-    error: err.stack
+    message: 'Upload processing failed'
   });
 });
 

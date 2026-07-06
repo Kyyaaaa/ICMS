@@ -10,6 +10,7 @@ jest.mock('../../../middlewares/auth.middleware', () => ({
     req.user = { id: '123e4567-e89b-12d3-a456-426614174000', role: 'ADMIN' };
     next();
   },
+  optionalVerifyToken: (_req: any, _res: any, next: any) => next(),
   requireRole: (_roles: string[]) => {
     return (_req: any, _res: any, next: any) => {
       next();

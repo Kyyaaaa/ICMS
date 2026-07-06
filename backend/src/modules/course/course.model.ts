@@ -30,4 +30,10 @@ export interface Course {
   created_at?: string;
   updated_at?: string;
   sessions_list?: CourseSession[];
+  tutors_list?: any[];
+  classes_list?: any[];
 }
+
+export type CreateCourseDTO = Partial<Omit<Course, 'id' | 'created_at' | 'updated_at' | 'tutors_list' | 'classes_list'>>;
+export type UpdateCourseDTO = Partial<Omit<Course, 'id' | 'created_at' | 'updated_at' | 'tutors_list' | 'classes_list'>>;
+

@@ -3,6 +3,15 @@ import { ClassRepository } from '../class/class.repository';
 import { UpdateAttendanceDTO, Attendance } from './session.model';
 
 export class SessionService {
+  private static assertSessionAccess(session: any, userId: string, role: string) {
+    const normalizedRole = role?.toUpperCase();
+    if (normalizedRole === 'TUTOR' && session.tutor_id !== userId) {
+      const err: any = new Error('Forbidden: You can only manage attendance for your own sessions');
+      err.status = 403;
+      throw err;
+    }
+  }
+
   static async getMySchedule(userId: string, role: string, startDate?: string, endDate?: string) {
     let sessions = await SessionRepository.getSessionsByDateRangeAndRole(userId, role, startDate, endDate);
     
@@ -11,7 +20,7 @@ export class SessionService {
     return sessions;
   }
 
-  static async getAttendance(sessionId: string) {
+  static async getAttendance(sessionId: string, userId: string, role: string) {
     if (!sessionId) {
       const err: any = new Error('session_id is required');
       err.status = 400;
@@ -24,6 +33,7 @@ export class SessionService {
       err.status = 404;
       throw err;
     }
+    this.assertSessionAccess(session, userId, role);
 
     let attendances = await SessionRepository.getSessionAttendance(sessionId);
 
@@ -45,7 +55,7 @@ export class SessionService {
     return attendances;
   }
 
-  static async updateAttendance(sessionId: string, updates: UpdateAttendanceDTO[]) {
+  static async updateAttendance(sessionId: string, updates: UpdateAttendanceDTO[], userId: string, role: string) {
     if (!sessionId) {
       const err: any = new Error('session_id is required');
       err.status = 400;
@@ -58,6 +68,7 @@ export class SessionService {
       err.status = 404;
       throw err;
     }
+    this.assertSessionAccess(session, userId, role);
 
     // Security check 1: Prevent marking attendance in the future
     const sessionDate = session.date; // YYYY-MM-DD
@@ -88,10 +99,17 @@ export class SessionService {
     }
 
     const validStatuses = ['NOT_YET', 'PRESENT', 'ABSENT'];
+    const enrollments = await SessionRepository.getClassEnrollments(session.class_id);
+    const enrolledLearnerIds = new Set((enrollments || []).map(enrollment => enrollment.learner_id));
 
     const recordsToUpsert: Attendance[] = updates.map(u => {
       if (!validStatuses.includes(u.status)) {
         const err: any = new Error(`Invalid status: ${u.status}`);
+        err.status = 400;
+        throw err;
+      }
+      if (!enrolledLearnerIds.has(u.learner_id)) {
+        const err: any = new Error('Learner is not actively enrolled in this class');
         err.status = 400;
         throw err;
       }

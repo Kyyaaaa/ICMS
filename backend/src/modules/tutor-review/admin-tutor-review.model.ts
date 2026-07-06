@@ -1,30 +1,33 @@
 export interface AdminTutorRatingSummary {
   id: string;
-  name: string;
-  avatar: string | null;
-  rating: number;
-  totalReviews: number;
-  ongoingClasses: number;
-  joinDate: string;
+  full_name: string;
+  avatar_url: string | null;
+  created_at: string;
+  averageRating: number;
+  reviewCount: number;
+  activeClassesCount: number;
 }
 
 export interface AdminTutorReviewDetail {
   id: string;
-  learner_name: string;
-  class_name: string;
   rating: number;
-  comment: string;
+  review: string;
   created_at: string;
+  learner_name: string;
+  learner_avatar_url: string | null;
+  course_name: string;
 }
 
 export interface AdminTutorProfileSummary {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string | null;
-  rating: number;
-  totalReviews: number;
-  joinDate: string;
-  bio?: string;
+  tutor: {
+    id: string;
+    full_name: string;
+    avatar_url: string | null;
+    created_at: string;
+    averageRating: number;
+    reviewCount: number;
+    activeClassesCount: number;
+    activeClasses: any[];
+  };
   reviews: AdminTutorReviewDetail[];
 }

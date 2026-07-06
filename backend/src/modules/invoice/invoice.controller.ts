@@ -32,9 +32,15 @@ export class InvoiceController {
   static async getInvoice(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id as string;
+      const currentUser = (req as any).user;
       const invoice = await InvoiceRepository.getInvoiceDetails(id);
       if (!invoice) {
         res.status(404).json({ success: false, message: 'Invoice not found' });
+        return;
+      }
+      const isPrivileged = currentUser?.role === 'ADMIN' || currentUser?.role === 'STAFF';
+      if (!isPrivileged && invoice.learner_id !== currentUser?.id) {
+        res.status(403).json({ success: false, message: 'Forbidden: You can only access your own invoices' });
         return;
       }
       res.status(200).json({ success: true, data: invoice });

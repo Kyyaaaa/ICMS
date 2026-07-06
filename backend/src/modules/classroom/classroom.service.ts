@@ -1,4 +1,5 @@
-import { ClassroomRepository, CreateClassroomDTO, UpdateClassroomDTO, MaintenanceDTO } from './classroom.repository';
+import { ClassroomRepository } from './classroom.repository';
+import { CreateClassroomDTO, UpdateClassroomDTO, MaintenanceDTO } from './classroom.model';
 
 // Helper to map DB format to Frontend format
 const mapToRoom = (classroom: any, maintenance?: any) => {

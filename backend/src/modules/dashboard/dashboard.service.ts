@@ -1,5 +1,11 @@
 import { DashboardRepository } from './dashboard.repository';
 import { FinanceService } from '../finance/finance.service';
+import {
+  LearnerDashboardStats, LearnerUpcomingClass, LearnerPendingTask,
+  TutorDashboardStats, TutorUpcomingClass, TutorPendingTask,
+  StaffDashboardStats, StaffUpcomingClass, StaffPendingTask,
+  AdminDashboardStats
+} from './dashboard.model';
 
 const SLOT_LABELS: Record<string, string> = {
   'slot1': '07:30 - 09:30',
@@ -17,7 +23,7 @@ function formatSlotTime(slot: string) {
 }
 
 export const DashboardService = {
-  getLearnerStats: async (learnerId: string) => {
+  getLearnerStats: async (learnerId: string): Promise<LearnerDashboardStats> => {
     const { count: activeClasses } = await DashboardRepository.getLearnerActiveClasses(learnerId);
     
     const { data: attendances } = await DashboardRepository.getLearnerAttendances(learnerId);
@@ -36,7 +42,7 @@ export const DashboardService = {
     };
   },
 
-  getLearnerUpcomingClasses: async (learnerId: string) => {
+  getLearnerUpcomingClasses: async (learnerId: string): Promise<LearnerUpcomingClass[]> => {
     const { data: enrollments } = await DashboardRepository.getLearnerEnrollments(learnerId);
     if (!enrollments || enrollments.length === 0) return [];
 
@@ -57,7 +63,7 @@ export const DashboardService = {
     }));
   },
 
-  getLearnerPendingTasks: async (learnerId: string) => {
+  getLearnerPendingTasks: async (learnerId: string): Promise<LearnerPendingTask[]> => {
     const { data: invoices } = await DashboardRepository.getLearnerPendingInvoices(learnerId);
     if (!invoices) return [];
 
@@ -103,7 +109,7 @@ export const DashboardService = {
     });
   },
 
-  getTutorStats: async (tutorId: string) => {
+  getTutorStats: async (tutorId: string): Promise<TutorDashboardStats> => {
     const { count: activeClasses } = await DashboardRepository.getTutorActiveClasses(tutorId);
     const { count: upcomingSessions } = await DashboardRepository.getTutorUpcomingSessionsCount(tutorId);
     const { count: pendingRequests } = await DashboardRepository.getTutorPendingRequestsCount(tutorId);
@@ -117,7 +123,7 @@ export const DashboardService = {
     };
   },
 
-  getTutorUpcomingClasses: async (tutorId: string) => {
+  getTutorUpcomingClasses: async (tutorId: string): Promise<TutorUpcomingClass[]> => {
     const { data: sessions } = await DashboardRepository.getTutorUpcomingSessions(tutorId);
     if (!sessions) return [];
     
@@ -133,7 +139,7 @@ export const DashboardService = {
     }));
   },
 
-  getTutorPendingTasks: async (tutorId: string) => {
+  getTutorPendingTasks: async (tutorId: string): Promise<TutorPendingTask[]> => {
     const { data: requests } = await DashboardRepository.getTutorPendingRequests(tutorId);
     
     if (!requests || requests.length === 0) return [];
@@ -149,7 +155,7 @@ export const DashboardService = {
     }));
   },
 
-  getStaffStats: async () => {
+  getStaffStats: async (): Promise<StaffDashboardStats> => {
     const { data: role } = await DashboardRepository.getRoleIdByName('LEARNER');
     let totalLearners = 0;
     if (role) {
@@ -169,7 +175,7 @@ export const DashboardService = {
     };
   },
 
-  getStaffUpcomingClasses: async () => {
+  getStaffUpcomingClasses: async (): Promise<StaffUpcomingClass[]> => {
     const { data: sessions } = await DashboardRepository.getGlobalUpcomingSessions();
     if (!sessions) return [];
     
@@ -186,7 +192,7 @@ export const DashboardService = {
     }));
   },
 
-  getStaffPendingTasks: async () => {
+  getStaffPendingTasks: async (): Promise<StaffPendingTask[]> => {
     const { data: tickets } = await DashboardRepository.getOpenTickets();
     if (!tickets || tickets.length === 0) return [];
 
@@ -201,7 +207,7 @@ export const DashboardService = {
     }));
   },
 
-  getAdminStats: async () => {
+  getAdminStats: async (): Promise<AdminDashboardStats> => {
     const { data: role } = await DashboardRepository.getRoleIdByName('LEARNER');
     let totalLearners = 0;
     if (role) {

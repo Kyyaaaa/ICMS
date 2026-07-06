@@ -12,7 +12,7 @@ test('guest create consultation request: happy case', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Any specific requirements?' }).click();
   await page.getByRole('textbox', { name: 'Any specific requirements?' }).fill('I need help');
   await page.getByRole('button', { name: 'Submit Request' }).click();
-  await expect(page.getByRole('heading', { name: 'Success' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Success', exact: true })).toBeVisible();
 });
 
 test('guest create consultation request: invalid data', async ({ page }) => {

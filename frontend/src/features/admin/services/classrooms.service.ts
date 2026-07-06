@@ -1,8 +1,9 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import type { Room } from '../types/classroom';
+import { apiUrl } from '@/config/api';
 
-const API_URL = 'http://localhost:5000/api/classrooms';
+const API_URL = apiUrl('/classrooms');
 
 const getHeaders = () => {
     const token = Cookies.get('access_token');

@@ -1,11 +1,16 @@
 import { test, expect } from '@playwright/test';
 
+const learnerEmail = process.env.E2E_LEARNER_EMAIL;
+const learnerPassword = process.env.E2E_LEARNER_PASSWORD;
+
+test.skip(!learnerEmail || !learnerPassword, 'E2E learner credentials are not configured');
+
 test('test enrollment (normal)', async ({ page }) => {
   await page.goto('http://localhost:5173/login');
   await page.getByRole('textbox', { name: 'Email Address' }).click();
-  await page.getByRole('textbox', { name: 'Email Address' }).fill('hoanglbp3300@gmail.com');
+  await page.getByRole('textbox', { name: 'Email Address' }).fill(learnerEmail!);
   await page.getByRole('textbox', { name: 'Password' }).click();
-  await page.getByRole('textbox', { name: 'Password' }).fill('Password@123');
+  await page.getByRole('textbox', { name: 'Password' }).fill(learnerPassword!);
   await page.getByRole('button', { name: 'Sign In', exact: true }).click();
   await page.getByRole('link', { name: 'Courses', exact: true }).click();
   await page.getByText('View Details').nth(2).click();
@@ -21,9 +26,9 @@ test('test enrollment (normal)', async ({ page }) => {
 test('test enrollment (with active discount code)', async ({ page }) => {
   await page.goto('http://localhost:5173/login');
   await page.getByRole('textbox', { name: 'Email Address' }).click();
-  await page.getByRole('textbox', { name: 'Email Address' }).fill('hoanglbp3300@gmail.com');
+  await page.getByRole('textbox', { name: 'Email Address' }).fill(learnerEmail!);
   await page.getByRole('textbox', { name: 'Password' }).click();
-  await page.getByRole('textbox', { name: 'Password' }).fill('Password@123');
+  await page.getByRole('textbox', { name: 'Password' }).fill(learnerPassword!);
   await page.getByRole('button', { name: 'Sign In', exact: true }).click();
   await page.getByRole('link', { name: 'Courses', exact: true }).click();
   await page.getByText('View Details').nth(2).click();
@@ -40,9 +45,9 @@ test('test enrollment (with active discount code)', async ({ page }) => {
 test('test enrollment (with expired discount code)', async ({ page }) => {
   await page.goto('http://localhost:5173/login');
   await page.getByRole('textbox', { name: 'Email Address' }).click();
-  await page.getByRole('textbox', { name: 'Email Address' }).fill('hoanglbp3300@gmail.com');
+  await page.getByRole('textbox', { name: 'Email Address' }).fill(learnerEmail!);
   await page.getByRole('textbox', { name: 'Password' }).click();
-  await page.getByRole('textbox', { name: 'Password' }).fill('Password@123');
+  await page.getByRole('textbox', { name: 'Password' }).fill(learnerPassword!);
   await page.getByRole('button', { name: 'Sign In', exact: true }).click();
   await page.getByRole('link', { name: 'Courses', exact: true }).click();
   await page.getByText('View Details').nth(2).click();
@@ -55,9 +60,9 @@ test('test enrollment (with expired discount code)', async ({ page }) => {
 test('test enrollment (with disabled discount code)', async ({ page }) => {
   await page.goto('http://localhost:5173/login');
   await page.getByRole('textbox', { name: 'Email Address' }).click();
-  await page.getByRole('textbox', { name: 'Email Address' }).fill('hoanglbp3300@gmail.com');
+  await page.getByRole('textbox', { name: 'Email Address' }).fill(learnerEmail!);
   await page.getByRole('textbox', { name: 'Password' }).click();
-  await page.getByRole('textbox', { name: 'Password' }).fill('Password@123');
+  await page.getByRole('textbox', { name: 'Password' }).fill(learnerPassword!);
   await page.getByRole('button', { name: 'Sign In', exact: true }).click();
   await page.getByRole('link', { name: 'Courses', exact: true }).click();
   await page.getByText('View Details').nth(2).click();
@@ -70,9 +75,9 @@ test('test enrollment (with disabled discount code)', async ({ page }) => {
 test('test enrollment (with invalid discount code)', async ({ page }) => {
   await page.goto('http://localhost:5173/login');
   await page.getByRole('textbox', { name: 'Email Address' }).click();
-  await page.getByRole('textbox', { name: 'Email Address' }).fill('hoanglbp3300@gmail.com');
+  await page.getByRole('textbox', { name: 'Email Address' }).fill(learnerEmail!);
   await page.getByRole('textbox', { name: 'Password' }).click();
-  await page.getByRole('textbox', { name: 'Password' }).fill('Password@123');
+  await page.getByRole('textbox', { name: 'Password' }).fill(learnerPassword!);
   await page.getByRole('button', { name: 'Sign In', exact: true }).click();
   await page.getByRole('link', { name: 'Courses', exact: true }).click();
   await page.getByText('View Details').nth(2).click();

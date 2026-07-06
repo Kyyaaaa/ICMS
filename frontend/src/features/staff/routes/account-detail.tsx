@@ -6,6 +6,7 @@ import { ArrowLeft, User, Mail, Phone, Calendar, CheckCircle2, ShieldAlert, Save
 import Cookies from 'js-cookie';
 import { validatePassword, validatePhoneNumber, validateFullName } from '@/shared/lib/utils';
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
+import { apiUrl } from '@/config/api';
 
 const StaffAccountDetail = () => {
     const { id } = useParams();
@@ -48,7 +49,7 @@ const StaffAccountDetail = () => {
             setIsLoading(true);
             try {
                 const token = Cookies.get('access_token');
-                const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+                const res = await fetch(apiUrl(`/accounts/${id}`), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -119,7 +120,7 @@ const StaffAccountDetail = () => {
             }
 
             const token = Cookies.get('access_token');
-            const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+            const res = await fetch(apiUrl(`/accounts/${id}`), {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({
@@ -163,7 +164,7 @@ const StaffAccountDetail = () => {
             }
 
             const token = Cookies.get('access_token');
-            const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+            const res = await fetch(apiUrl(`/accounts/${id}`), {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({

@@ -35,30 +35,25 @@ const app = express();
 
 // Security Middlewares
 app.use(helmet()); // Set security HTTP headers
-app.use(cors()); // Cho phép Client gọi API không bị lỗi Block CORS
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Origin is not allowed by CORS'));
+  }
+}));
 app.use(express.json()); // Cho phép Server đọc dữ liệu JSON gửi lên từ Client
 
-const skipRateLimit = process.env.NODE_ENV === 'test';
-
-// Rate limiting
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300, // limit each IP to 300 requests per windowMs
-  message: 'Too many requests from this IP, please try again after 15 minutes',
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: () => skipRateLimit
-});
-
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // limit each IP to 30 requests per windowMs for auth routes
-  message: 'Too many login attempts from this IP, please try again after 15 minutes',
-  skip: () => skipRateLimit
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test'
 });
-
-// Apply global rate limiter
-app.use('/api', apiLimiter);
 
 // Routes
 app.use('/api/auth', authLimiter, authRoutes);

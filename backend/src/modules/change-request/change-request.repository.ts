@@ -1,8 +1,19 @@
 import { supabaseAdmin } from '../../configs/supabase';
 import { CreateChangeRequestDTO, UpdateChangeRequestStatusDTO } from './change-request.model';
 import { AnnouncementRepository } from '../announcement/announcement.repository';
+import pool from '../../configs/database';
 
 export class ChangeRequestRepository {
+    async getSessionOwnership(sessionId: string) {
+        const { data, error } = await supabaseAdmin
+            .from('class_sessions')
+            .select('id, class_id, tutor_id, date')
+            .eq('id', sessionId)
+            .single();
+        if (error) throw error;
+        return data;
+    }
+
     async getLearnerConflictClass(classId: string, date: string, slot: string, sessionId: string): Promise<string | null> {
         const { data: enrollments } = await supabaseAdmin
             .from('enrollments')
@@ -142,30 +153,35 @@ export class ChangeRequestRepository {
 
     async updateStatus(id: string, updateData: UpdateChangeRequestStatusDTO) {
         const { new_date, new_slot, new_room_id, substitute_tutor_id, ...crUpdateData } = updateData;
-
-        const { data, error } = await supabaseAdmin
-            .from('change_requests')
-            .update(crUpdateData)
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Error updating change request:', error);
-            throw error;
+        if (!['Approved', 'Rejected'].includes(crUpdateData.status)) {
+            throw new Error('Invalid change request status');
         }
 
-        if (crUpdateData.status === 'Approved' && data.session_id) {
+        const client = await pool.connect();
+        let data: any;
+        try {
+            await client.query('BEGIN');
+            const requestResult = await client.query(
+                'SELECT * FROM change_requests WHERE id = $1 FOR UPDATE',
+                [id]
+            );
+            const currentRequest = requestResult.rows[0];
+            if (!currentRequest) throw new Error('Change request not found');
+            if (currentRequest.status !== 'Pending') {
+                throw new Error(`Change request is already ${currentRequest.status}`);
+            }
+
+            if (crUpdateData.status === 'Approved' && currentRequest.session_id) {
             const sessionUpdatePayload: any = {};
-            const typeStr = data.type?.toLowerCase();
+            const typeStr = currentRequest.type?.toLowerCase();
             
             if ((typeStr === 'substitute tutor' || typeStr === 'substitute') && substitute_tutor_id) {
                 sessionUpdatePayload.tutor_id = substitute_tutor_id;
             } else if (typeStr === 'reschedule' || typeStr === 'change room') {
-                if (data.proposed_date && data.proposed_slot && data.proposed_room_id) {
-                    sessionUpdatePayload.date = data.proposed_date;
-                    sessionUpdatePayload.slot = data.proposed_slot;
-                    sessionUpdatePayload.classroom_id = data.proposed_room_id;
+                if (currentRequest.proposed_date && currentRequest.proposed_slot && currentRequest.proposed_room_id) {
+                    sessionUpdatePayload.date = currentRequest.proposed_date;
+                    sessionUpdatePayload.slot = currentRequest.proposed_slot;
+                    sessionUpdatePayload.classroom_id = currentRequest.proposed_room_id;
                 } else if (new_date && new_slot && new_room_id) {
                     sessionUpdatePayload.date = new_date;
                     sessionUpdatePayload.slot = new_slot;
@@ -174,12 +190,12 @@ export class ChangeRequestRepository {
             }
 
             if (Object.keys(sessionUpdatePayload).length > 0) {
-                // Re-validate before updating
-                const { data: originalSession } = await supabaseAdmin
-                     .from('class_sessions')
-                     .select('date, slot, tutor_id, classroom_id')
-                     .eq('id', data.session_id)
-                     .single();
+                const sessionResult = await client.query(
+                    'SELECT date, slot, tutor_id, classroom_id FROM class_sessions WHERE id = $1 FOR UPDATE',
+                    [currentRequest.session_id]
+                );
+                const originalSession = sessionResult.rows[0];
+                if (!originalSession) throw new Error('Class session not found');
                      
                 const finalDate = sessionUpdatePayload.date || originalSession?.date;
                 const finalSlot = sessionUpdatePayload.slot || originalSession?.slot;
@@ -187,42 +203,54 @@ export class ChangeRequestRepository {
                 const finalRoomId = sessionUpdatePayload.classroom_id || originalSession?.classroom_id;
 
                 // 1. Check Tutor Conflict
-                const { data: tutorConflicts } = await supabaseAdmin
-                    .from('class_sessions')
-                    .select('id')
-                    .eq('tutor_id', finalTutorId)
-                    .eq('date', finalDate)
-                    .eq('slot', finalSlot)
-                    .neq('id', data.session_id);
+                const tutorConflicts = await client.query(
+                    `SELECT id FROM class_sessions
+                     WHERE tutor_id = $1 AND date = $2 AND slot = $3 AND id <> $4
+                     LIMIT 1`,
+                    [finalTutorId, finalDate, finalSlot, currentRequest.session_id]
+                );
                     
-                if (tutorConflicts && tutorConflicts.length > 0) {
+                if (tutorConflicts.rows.length > 0) {
                     throw new Error('Approval failed: The assigned tutor is no longer available at this time slot.');
                 }
 
-                // 2. Check Room Conflict
-                const { data: roomConflicts } = await supabaseAdmin
-                    .from('class_sessions')
-                    .select('id')
-                    .eq('classroom_id', finalRoomId)
-                    .eq('date', finalDate)
-                    .eq('slot', finalSlot)
-                    .neq('id', data.session_id);
+                const roomConflicts = await client.query(
+                    `SELECT id FROM class_sessions
+                     WHERE classroom_id = $1 AND date = $2 AND slot = $3 AND id <> $4
+                     LIMIT 1`,
+                    [finalRoomId, finalDate, finalSlot, currentRequest.session_id]
+                );
                     
-                if (roomConflicts && roomConflicts.length > 0) {
+                if (roomConflicts.rows.length > 0) {
                     throw new Error('Approval failed: The selected classroom is no longer available at this time slot.');
                 }
 
-                const { error: sessionError } = await supabaseAdmin
-                    .from('class_sessions')
-                    .update(sessionUpdatePayload)
-                    .eq('id', data.session_id);
-                
-                if (sessionError) {
-                    console.error('Error updating class session:', sessionError);
-                    throw sessionError;
-                }
+                await client.query(
+                    `UPDATE class_sessions
+                     SET date = $1, slot = $2, tutor_id = $3, classroom_id = $4
+                     WHERE id = $5`,
+                    [finalDate, finalSlot, finalTutorId, finalRoomId, currentRequest.session_id]
+                );
+            }
             }
 
+            const updateResult = await client.query(
+                `UPDATE change_requests
+                 SET status = $1, staff_note = $2, final_time = $3, updated_at = NOW()
+                 WHERE id = $4
+                 RETURNING *`,
+                [crUpdateData.status, crUpdateData.staff_note || null, crUpdateData.final_time || null, id]
+            );
+            data = updateResult.rows[0];
+            await client.query('COMMIT');
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+
+        if (crUpdateData.status === 'Approved' && data.session_id) {
             // Trigger Notifications
             const { data: classInfo } = await supabaseAdmin
                 .from('classes')

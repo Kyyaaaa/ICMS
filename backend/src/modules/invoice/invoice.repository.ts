@@ -188,7 +188,7 @@ export class InvoiceRepository {
                     }
                 });
             }
-            InvoiceRepository.expireInvoiceInDb(data.data);
+            await InvoiceRepository.expireInvoiceInDb(data.data);
         }
     }
 
@@ -219,7 +219,7 @@ export class InvoiceRepository {
     const expiredInvoices = data?.filter((inv: any) => inv.status === 'PENDING' && new Date(inv.created_at) < fifteenMinsAgo) || [];
     
     if (expiredInvoices.length > 0) {
-      expiredInvoices.forEach((inv: any) => {
+      await Promise.all(expiredInvoices.map(async (inv: any) => {
         inv.status = 'CANCELLED';
         if (inv.invoice_installments) {
           inv.invoice_installments.forEach((inst: any) => {
@@ -228,8 +228,8 @@ export class InvoiceRepository {
             }
           });
         }
-        InvoiceRepository.expireInvoiceInDb(inv);
-      });
+        await InvoiceRepository.expireInvoiceInDb(inv);
+      }));
     }
 
     return data;
@@ -286,7 +286,7 @@ export class InvoiceRepository {
     if (fetchError) throw new Error(fetchError.message);
     if (!invoice) throw new Error('Invoice not found');
     if (invoice.learner_id !== learnerId) throw new Error('Unauthorized to cancel this invoice');
-    if (invoice.status !== 'PENDING' && invoice.status !== 'PARTIAL') throw new Error('Only pending or partially paid invoices can be cancelled');
+    if (invoice.status !== 'PENDING') throw new Error('Only unpaid pending invoices can be cancelled');
 
     const { error: updateError } = await supabaseAdmin
       .from('invoices')

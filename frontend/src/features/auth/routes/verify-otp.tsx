@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { MailCheck, CheckCircle2, AlertCircle, BookOpen, ArrowLeft, Loader2 } from 'lucide-react';
+import { apiUrl } from '@/config/api';
 
 const VerifyOTP = () => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -90,7 +91,7 @@ const VerifyOTP = () => {
         setErrorMsg('');
         
         try {
-            const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+            const response = await fetch(apiUrl('/auth/forgot-password'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
@@ -128,7 +129,7 @@ const VerifyOTP = () => {
         setErrorMsg('');
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
+            const response = await fetch(apiUrl('/auth/verify-otp'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, otp: code }),

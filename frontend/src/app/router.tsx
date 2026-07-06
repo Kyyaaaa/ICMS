@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Link, Routes, Route } from "react-router-dom";
 
 // Auth Routes
 import Register from "@/features/auth/routes/register.tsx";
@@ -92,6 +92,19 @@ import { ProtectedRoute } from "@/features/auth/components/ProtectedRoute.tsx";
 import { GuestRoute } from "@/features/auth/components/GuestRoute.tsx";
 
 import PaymentResult from "@/features/learner/routes/payment-result.tsx";
+
+const NotFoundPage = () => (
+  <main className="min-h-screen bg-[#f8f9fa] px-6 py-16 flex items-center justify-center">
+    <section className="w-full max-w-xl rounded-3xl border border-[#e0e3e5] bg-white p-8 text-center shadow-sm" aria-labelledby="not-found-title">
+      <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-[#0061a5]">Error 404</p>
+      <h1 id="not-found-title" className="mt-3 text-3xl font-extrabold text-[#002045]">Page not found</h1>
+      <p className="mt-3 text-[#43474e]">The page may have been moved, deleted, or the address is incorrect.</p>
+      <Link to="/homepage" className="mt-8 inline-flex rounded-xl bg-[#0061a5] px-5 py-3 font-bold text-white transition-colors hover:bg-[#004f87] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0061a5]">
+        Back to Homepage
+      </Link>
+    </section>
+  </main>
+);
 
 export const AppRouter = () => {
   return (
@@ -234,6 +247,7 @@ export const AppRouter = () => {
           <Route path="/tutor/salary" element={<TutorSalaryHistory />} />
         </Route>
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

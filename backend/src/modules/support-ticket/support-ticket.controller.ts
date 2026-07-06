@@ -46,10 +46,11 @@ export const getTickets = async (req: Request, res: Response) => {
 export const getTicketMessages = async (req: Request, res: Response) => {
     try {
         const ticket_id = req.params.id as string;
-        const messages = await SupportTicketService.getTicketMessages(ticket_id);
+        const user = (req as any).user;
+        const messages = await SupportTicketService.getTicketMessages(ticket_id, user.id, user.role);
         res.json(messages);
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(error.status || 500).json({ message: error.message });
     }
 };
 
@@ -57,8 +58,8 @@ export const replyToTicket = async (req: Request, res: Response) => {
     try {
         const ticket_id = req.params.id as string;
         const user = (req as any).user;
-        const sender_id = user?.id || req.body.sender_id;
-        const sender_role = user?.role || req.body.sender_role;
+        const sender_id = user?.id;
+        const sender_role = user?.role;
 
         if (!sender_id || !sender_role) {
             return res.status(401).json({ message: 'Unauthorized' });
@@ -69,11 +70,11 @@ export const replyToTicket = async (req: Request, res: Response) => {
             sender_id,
             sender_role,
             text: req.body.text
-        });
+        }, sender_id, sender_role);
         
         res.status(201).json(message);
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(error.status || 500).json({ message: error.message });
     }
 };
 
@@ -81,9 +82,10 @@ export const updateTicketStatus = async (req: Request, res: Response) => {
     try {
         const ticket_id = req.params.id as string;
         const status = req.body.status;
-        const updatedTicket = await SupportTicketService.updateTicketStatus(ticket_id, status);
+        const user = (req as any).user;
+        const updatedTicket = await SupportTicketService.updateTicketStatus(ticket_id, status, user.id, user.role);
         res.json(updatedTicket);
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        res.status(error.status || 500).json({ message: error.message });
     }
 };

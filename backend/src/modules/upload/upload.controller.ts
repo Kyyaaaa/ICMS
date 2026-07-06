@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { UploadService } from './upload.service';
+import { UploadResponse } from './upload.model';
 
 export class UploadController {
   static async uploadImage(req: Request, res: Response) {
@@ -9,14 +10,20 @@ export class UploadController {
 
       const publicUrl = await UploadService.uploadFile(file, folderName);
 
-      return res.status(200).json({
+      const response: UploadResponse = {
         success: true,
         url: publicUrl,
         message: 'File uploaded successfully'
-      });
+      };
+
+      return res.status(200).json(response);
     } catch (error: any) {
       console.error('Supabase Upload Error:', error);
-      return res.status(500).json({ success: false, message: 'Upload failed', error: error.message });
+      const errorResponse: UploadResponse = { 
+        success: false, 
+        message: 'Upload failed: ' + error.message 
+      };
+      return res.status(500).json(errorResponse);
     }
   }
 }

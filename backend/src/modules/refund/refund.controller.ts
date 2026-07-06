@@ -10,7 +10,8 @@ export class RefundController {
       res.status(201).json({ message: 'Refund request created successfully', data });
     } catch (error: any) {
       console.error('Error creating refund request:', error);
-      res.status(500).json({ message: 'Error creating refund request', error: error.message });
+      const status = error.status || (error.message?.startsWith('Forbidden') ? 403 : 400);
+      res.status(status).json({ message: error.message || 'Error creating refund request' });
     }
   }
 
@@ -40,7 +41,8 @@ export class RefundController {
       const data = await RefundService.updateRefundStatus(id, { status, admin_notes });
       res.json({ message: 'Refund status updated successfully', data });
     } catch (error: any) {
-      res.status(500).json({ message: 'Error updating refund status', error: error.message });
+      const status = error.message === 'Refund request not found' ? 404 : 400;
+      res.status(status).json({ message: error.message || 'Error updating refund status' });
     }
   }
 }

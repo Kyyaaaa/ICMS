@@ -28,6 +28,7 @@ export const connectDB = async () => {
     client.release(); // release the client back to the pool
   } catch (err) {
     console.error('Error connecting to Supabase database:', err);
+    throw err;
   }
 };
 

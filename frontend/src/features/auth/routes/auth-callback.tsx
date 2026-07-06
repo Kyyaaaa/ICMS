@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import Cookies from 'js-cookie';
+import { apiUrl } from '@/config/api';
 
 const AuthCallback = () => {
     const navigate = useNavigate();
@@ -31,7 +32,7 @@ const AuthCallback = () => {
                 setStatus('Synchronizing data...');
 
                 // 2. Gửi token ngầm qua POST Body xuống Backend (Bảo mật tuyệt đối)
-                const res = await fetch('http://localhost:5000/api/auth/google-sync', {
+                const res = await fetch(apiUrl('/auth/google-sync'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
