@@ -14,5 +14,7 @@ export interface DashboardTransaction {
     user: { name: string; role: string };
     date: string;
     amount: number;
+    paidAmount?: number;
     status: string;
+    isInstallment?: boolean;
 }

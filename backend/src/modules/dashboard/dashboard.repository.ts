@@ -54,7 +54,7 @@ export const DashboardRepository = {
       .from('classes')
       .select('*', { count: 'exact', head: true })
       .eq('tutor_id', tutorId)
-      .eq('status', 'ONGOING');
+      .in('status', ['ONGOING', 'UPCOMING']);
   },
   getTutorUpcomingSessionsCount: async (tutorId: string) => {
     const now = new Date().toISOString().split('T')[0];
@@ -68,12 +68,17 @@ export const DashboardRepository = {
     return supabaseAdmin
       .from('change_requests')
       .select('*', { count: 'exact', head: true })
-      .eq('requester_id', tutorId)
+      .eq('tutor_id', tutorId)
       .eq('status', 'Pending');
   },
   getTutorTotalStudents: async (tutorId: string) => {
-    // get classes for this tutor
-    const { data: classes } = await supabaseAdmin.from('classes').select('id').eq('tutor_id', tutorId);
+    // get active classes for this tutor (upcoming and ongoing)
+    const { data: classes } = await supabaseAdmin
+      .from('classes')
+      .select('id')
+      .eq('tutor_id', tutorId)
+      .in('status', ['ONGOING', 'UPCOMING']);
+      
     if (!classes || classes.length === 0) return { count: 0 };
     const classIds = classes.map(c => c.id);
     
@@ -99,7 +104,7 @@ export const DashboardRepository = {
     return supabaseAdmin
       .from('change_requests')
       .select('id, type, created_at, status')
-      .eq('requester_id', tutorId)
+      .eq('tutor_id', tutorId)
       .eq('status', 'Pending')
       .limit(3);
   },

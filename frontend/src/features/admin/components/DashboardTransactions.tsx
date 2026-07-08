@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { CheckCircle, Clock } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import type { DashboardTransaction } from '../types/dashboard';
 import { formatDateTime } from '@/shared/utils/date';
 
@@ -41,8 +41,11 @@ export const DashboardTransactions = ({ transactions }: DashboardTransactionsPro
                                 </td>
                                 <td className="py-4 px-6">
                                     <div>
-                                        <div className="text-sm font-bold text-[#002045]">{txn.category}</div>
-                                        <div className="text-xs text-[#74777f]">{txn.description}</div>
+                                        <div className="text-sm font-bold text-[#002045]">
+                                            {txn.category}
+                                            {txn.isInstallment && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#e6f0fa] text-[#0061a5]">Installment</span>}
+                                        </div>
+                                        <div className="text-xs text-[#74777f] mt-0.5">{txn.description}</div>
                                     </div>
                                 </td>
                                 <td className="py-4 px-6">
@@ -51,9 +54,9 @@ export const DashboardTransactions = ({ transactions }: DashboardTransactionsPro
                                 </td>
                                 <td className="py-4 px-6 text-sm text-[#43474e]">{formatDateTime(txn.date)}</td>
                                 <td className="py-4 px-6 text-right">
-                                    <span className={`text-sm font-bold ${txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
-                                        {txn.type === 'income' ? '+ ' : '- '} {txn.amount.toLocaleString()} đ
-                                    </span>
+                                    <div className={`text-sm font-bold ${txn.status === 'Failed' && !txn.paidAmount ? 'text-[#74777f] line-through opacity-70' : txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
+                                        {txn.type === 'income' ? '+' : '-'} {txn.amount.toLocaleString('vi-VN')} đ
+                                    </div>
                                 </td>
                                 <td className="py-4 px-6">
                                     {txn.status === 'Completed' && (
@@ -66,6 +69,18 @@ export const DashboardTransactions = ({ transactions }: DashboardTransactionsPro
                                         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#e6f0fa] text-[#0061a5] rounded-md border border-[#d2e4ff]">
                                             <Clock size={14} />
                                             <span className="text-xs font-bold">Processing</span>
+                                        </div>
+                                    )}
+                                    {txn.status === 'Failed' && (
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#fceeee] text-[#ba1a1a] rounded-md border border-[#f9dede]">
+                                            <AlertCircle size={14} />
+                                            <span className="text-xs font-bold">Failed</span>
+                                        </div>
+                                    )}
+                                    {txn.status === 'Refunded' && (
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#f3f4f6] text-[#43474e] rounded-md border border-[#e0e3e5]">
+                                            <CheckCircle size={14} />
+                                            <span className="text-xs font-bold">Refunded</span>
                                         </div>
                                     )}
                                 </td>

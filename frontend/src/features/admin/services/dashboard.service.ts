@@ -35,7 +35,9 @@ export const DashboardService = {
                 user: { name: txn.user.name, role: txn.user.role },
                 date: txn.date,
                 amount: txn.amount,
-                status: txn.status
+                paidAmount: txn.paidAmount,
+                status: txn.status,
+                isInstallment: txn.isInstallment
             }));
         } catch (error) {
             console.error('Error fetching recent transactions:', error);
