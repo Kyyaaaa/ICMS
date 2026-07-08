@@ -93,7 +93,7 @@ const AdminRefunds = () => {
                             placeholder="Search by ID, Invoice, or Student..." 
                             type="text" 
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                         />
                     </div>
                 </div>

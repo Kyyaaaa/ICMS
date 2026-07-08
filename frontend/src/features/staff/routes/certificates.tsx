@@ -4,6 +4,7 @@ import { Eye, Search, CheckCircle, XCircle, X, ShieldAlert, ShieldCheck, ShieldX
 import { StaffCertificatesService } from "../services/certificates.service";
 import type { StaffCertificate } from "../services/certificates.service";
 import { Pagination } from '@/shared/components/common/Pagination';
+import { showAlertModal } from '@/utils/modal';
 const StaffCertificates = () => {
   const [Certificates, setCertificates] = useState<StaffCertificate[]>([]);
   const [selectedQual, setSelectedQual] = useState<StaffCertificate | null>(
@@ -83,8 +84,9 @@ const StaffCertificates = () => {
         )
       );
       setSelectedQual(null);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to verify", error);
+      showAlertModal("Error", "Failed to verify certificate: " + ((error as Error)?.message || "Unknown error"), "error");
     }
   };
 
@@ -106,8 +108,9 @@ const StaffCertificates = () => {
       setRejectReason("");
       setRejectError(null);
       setFetchError(null);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to reject", error);
+      showAlertModal("Error", "Failed to reject certificate: " + ((error as Error)?.message || "Unknown error"), "error");
     }
   };
 
@@ -139,7 +142,7 @@ const StaffCertificates = () => {
               placeholder="Search tutor or cert..."
               className="pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg w-75 focus:ring-2 focus:ring-[#0061a5] focus:outline-none"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             />
           </div>
           <select

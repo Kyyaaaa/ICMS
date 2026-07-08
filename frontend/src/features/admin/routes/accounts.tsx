@@ -222,9 +222,9 @@ const AdminAccounts = () => {
 
             <AccountsFilters 
                 searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
+                setSearchQuery={(q) => { setSearchQuery(q); setCurrentPage(1); }}
                 filterRole={filterRole}
-                setFilterRole={setFilterRole}
+                setFilterRole={(r) => { setFilterRole(r); setCurrentPage(1); }}
             />
 
             <AccountsTable 

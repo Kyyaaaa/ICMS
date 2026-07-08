@@ -127,6 +127,8 @@ const AvailabilityRegistration = () => {
       );
       setStatus("submitted");
       setInitialSlots(new Set(selectedSlots));
+    } catch (error: unknown) {
+      showAlertModal("Error", "Failed to submit availability: " + ((error as Error)?.message || "Unknown error"), "error");
     } finally {
       setIsSubmitting(false);
     }

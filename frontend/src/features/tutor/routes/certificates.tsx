@@ -5,6 +5,7 @@ import { CertificatesService } from '../services/certificates.service';
 import { CertificateUpload } from '../components/CertificateUpload';
 import { CertificateList } from '../components/CertificateList';
 import { CertificateModals } from '../components/CertificateModals';
+import { showAlertModal } from '@/utils/modal';
 
 const TutorCertificates = () => {
     const [isUploading, setIsUploading] = useState(false);
@@ -17,8 +18,9 @@ const TutorCertificates = () => {
             const data = await CertificatesService.getMyCertificates();
             const sortedData = data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
             setCertificates(sortedData);
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Failed to fetch Certificates", error);
+            showAlertModal("Error", "Failed to fetch Certificates: " + ((error as Error)?.message || "Unknown error"), "error");
         }
         setLoading(false);
     };
@@ -29,8 +31,9 @@ const TutorCertificates = () => {
                 const data = await CertificatesService.getMyCertificates();
                 const sortedData = data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
                 setCertificates(sortedData);
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error("Failed to fetch Certificates", error);
+                showAlertModal("Error", "Failed to fetch Certificates: " + ((error as Error)?.message || "Unknown error"), "error");
             }
             setLoading(false);
         };
@@ -49,8 +52,9 @@ const TutorCertificates = () => {
                 await CertificatesService.deleteCertificate(deleteQual.id.toString());
                 setCertificates(Certificates.filter(q => q.id !== deleteQual.id));
                 setDeleteQual(null);
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error("Failed to delete Certificate", error);
+                showAlertModal("Error", "Failed to delete Certificate: " + ((error as Error)?.message || "Unknown error"), "error");
             }
         }
     };

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, XCircle, RefreshCcw, Banknote, CreditCard, User, Landmark } from 'lucide-react';
 import { AdminRefundsService } from '../services/refunds.service';
 import type { RefundRequest } from '../types/refund';
-
+import { showAlertModal } from '@/utils/modal';
 const AdminRefundDetail = () => {
     const { id } = useParams();
     const [refund, setRefund] = useState<RefundRequest | null>(null);
@@ -13,12 +13,17 @@ const AdminRefundDetail = () => {
 
     useEffect(() => {
         const fetchRefund = async () => {
-            if (id) {
-                const data = await AdminRefundsService.getRefundById(id);
-                setRefund(data);
-                if (data?.notes) setNotes(data.notes);
+            try {
+                if (id) {
+                    const data = await AdminRefundsService.getRefundById(id);
+                    setRefund(data);
+                    if (data?.notes) setNotes(data.notes);
+                }
+            } catch (error: unknown) {
+                showAlertModal("Error", "Failed to fetch refund details: " + ((error as Error)?.message || "Unknown error"), "error");
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
         fetchRefund();
     }, [id]);
@@ -26,11 +31,16 @@ const AdminRefundDetail = () => {
     const handleUpdateStatus = async (status: 'APPROVED' | 'REJECTED' | 'COMPLETED') => {
         if (!refund?.dbId) return;
         setIsProcessing(true);
-        const success = await AdminRefundsService.updateStatus(refund.dbId, status, notes);
-        if (success) {
-            setRefund(prev => prev ? { ...prev, status: status === 'APPROVED' ? 'Approved' : status === 'COMPLETED' ? 'Completed' : 'Rejected' } : null);
+        try {
+            const success = await AdminRefundsService.updateStatus(refund.dbId, status, notes);
+            if (success) {
+                setRefund(prev => prev ? { ...prev, status: status === 'APPROVED' ? 'Approved' : status === 'COMPLETED' ? 'Completed' : 'Rejected' } : null);
+            }
+        } catch (error: unknown) {
+            showAlertModal("Error", "Failed to update status: " + ((error as Error)?.message || "Unknown error"), "error");
+        } finally {
+            setIsProcessing(false);
         }
-        setIsProcessing(false);
     };
 
     if (loading) return <div className="p-8 text-center">Loading...</div>;

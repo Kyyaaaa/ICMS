@@ -68,7 +68,7 @@ const ChangeRequests = () => {
                             placeholder="Search tutor or class..." 
                             className="pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg w-62.5 focus:ring-2 focus:ring-[#0061a5] focus:outline-none" 
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                         />
                     </div>
                     <select 

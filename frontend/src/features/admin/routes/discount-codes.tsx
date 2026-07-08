@@ -143,7 +143,7 @@ const AdminDiscountCodes = () => {
                             placeholder="SEARCH CODES..." 
                             type="text" 
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                         />
                     </div>
                 </div>

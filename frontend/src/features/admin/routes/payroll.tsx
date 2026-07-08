@@ -248,7 +248,7 @@ const AdminPayroll = () => {
                                     placeholder="Search configs..." 
                                     type="text" 
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPageConfig(1); }}
                                 />
                             </div>
                             <div className="w-full sm:w-auto">
@@ -306,7 +306,7 @@ const AdminPayroll = () => {
                                     placeholder="Search payslip..." 
                                     type="text" 
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPageProcessing(1); }}
                                 />
                             </div>
                             <div className="flex gap-3 w-full sm:w-auto">
