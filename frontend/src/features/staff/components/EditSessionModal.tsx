@@ -10,7 +10,7 @@ import type { TutorAvailabilityProfile } from '@/shared/types/tutor-availability
 interface EditSessionModalProps {
     session: Session;
     availableRooms: Classroom[];
-    availableTutors: { id: string; full_name: string }[];
+    availableTutors: { id: string; full_name: string; email?: string }[];
     onClose: () => void;
     onSave: (session: Partial<Session>) => void;
 }
@@ -23,6 +23,12 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
 
     const [isEditSlotDropdownOpen, setIsEditSlotDropdownOpen] = useState(false);
     const editSlotDropdownRef = useRef<HTMLDivElement>(null);
+
+    const [isEditTutorDropdownOpen, setIsEditTutorDropdownOpen] = useState(false);
+    const editTutorDropdownRef = useRef<HTMLDivElement>(null);
+
+    const [isEditRoomDropdownOpen, setIsEditRoomDropdownOpen] = useState(false);
+    const editRoomDropdownRef = useRef<HTMLDivElement>(null);
 
     const [allSessionsOnDate, setAllSessionsOnDate] = useState<Session[]>([]);
     const [cycles, setCycles] = useState<AvailabilityCycle[]>([]);
@@ -129,20 +135,23 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
     const tutorOptions = useMemo(() => {
         if (!dateInfo || !slot) return availableTutors.map(t => ({ ...t, isOccupied: false }));
 
-        return availableTutors.map(t => {
-            const isOccupied = allSessionsOnDate.some(sess => sess.slot === slot && sess.tutor_id === t.id);
-            const actuallyOccupied = isOccupied && t.id !== session.tutor_id;
-            return { ...t, isOccupied: actuallyOccupied };
-        });
+        return availableTutors
+            .filter(t => {
+                const isOccupied = allSessionsOnDate.some(sess => sess.slot === slot && sess.tutor_id === t.id);
+                return !(isOccupied && t.id !== session.tutor_id);
+            })
+            .map(t => ({ ...t, isOccupied: false }));
     }, [slot, availableTutors, allSessionsOnDate, session.tutor_id, dateInfo]);
 
     const roomOptions = useMemo(() => {
         if (!slot) return availableRooms.map(r => ({ ...r, isOccupied: false }));
-        return availableRooms.map(r => {
-            const isOccupied = allSessionsOnDate.some(sess => sess.slot === slot && sess.classroom_id === r.id);
-            const actuallyOccupied = isOccupied && r.id !== session.classroom_id;
-            return { ...r, isOccupied: actuallyOccupied };
-        });
+        
+        return availableRooms
+            .filter(r => {
+                const isOccupied = allSessionsOnDate.some(sess => sess.slot === slot && sess.classroom_id === r.id);
+                return !(isOccupied && r.id !== session.classroom_id);
+            })
+            .map(r => ({ ...r, isOccupied: false }));
     }, [slot, availableRooms, allSessionsOnDate, session.classroom_id]);
 
     if (tutorOptions !== prevTutorOptions) {
@@ -180,6 +189,12 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
         const handleClickOutside = (event: MouseEvent) => {
             if (editSlotDropdownRef.current && !editSlotDropdownRef.current.contains(event.target as Node)) {
                 setIsEditSlotDropdownOpen(false);
+            }
+            if (editTutorDropdownRef.current && !editTutorDropdownRef.current.contains(event.target as Node)) {
+                setIsEditTutorDropdownOpen(false);
+            }
+            if (editRoomDropdownRef.current && !editRoomDropdownRef.current.contains(event.target as Node)) {
+                setIsEditRoomDropdownOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -284,60 +299,121 @@ export const EditSessionModal = ({ session, availableRooms, availableTutors, onC
                     </div>
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-2 relative" ref={editTutorDropdownRef}>
                         <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
                             <Users className="w-4 h-4 text-gray-500"/> Assign Substitute Tutor
                         </label>
-                        <select 
-                            className={`w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 ${isPast ? 'opacity-70 cursor-not-allowed' : ''}`}
-                            value={selectedTutor}
-                            onChange={(e) => setSelectedTutor(e.target.value)}
+                        <button 
+                            type="button"
+                            onClick={() => !isPast && setIsEditTutorDropdownOpen(!isEditTutorDropdownOpen)}
+                            className={`w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl flex items-center justify-between hover:bg-gray-100 transition-colors ${isPast ? 'opacity-70 cursor-not-allowed' : ''}`}
                             disabled={isPast}
                         >
-                            <option value="">No Tutor Assigned</option>
-                            {tutorOptions.map(t => (
-                                <option key={t.id} value={t.id} disabled={t.isOccupied}>
-                                    {t.full_name} {t.isOccupied ? '(Occupied)' : ''}
-                                </option>
-                            ))}
-                        </select>
+                            <span className="truncate">{selectedTutor ? tutorOptions.find(t => t.id === selectedTutor)?.full_name || 'Unknown Tutor' : 'No Tutor Assigned'}</span>
+                            <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform shrink-0 ml-1 ${isEditTutorDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        
+                        {isEditTutorDropdownOpen && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#c4c6cf] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto py-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSelectedTutor('');
+                                        setIsEditTutorDropdownOpen(false);
+                                    }}
+                                    className={`w-full px-4 py-3 text-left transition-colors hover:bg-gray-50 ${!selectedTutor ? 'bg-blue-50 text-[#0061a5] font-medium' : 'text-gray-700'}`}
+                                >
+                                    No Tutor Assigned
+                                </button>
+                                {tutorOptions.map(t => (
+                                    <button
+                                        key={t.id}
+                                        type="button"
+                                        disabled={t.isOccupied}
+                                        onClick={() => {
+                                            if (!t.isOccupied) {
+                                                setSelectedTutor(t.id);
+                                                setIsEditTutorDropdownOpen(false);
+                                            }
+                                        }}
+                                        className={`w-full px-4 py-3 text-left transition-colors flex items-center justify-between 
+                                            ${t.isOccupied ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-50'} 
+                                            ${selectedTutor === t.id && !t.isOccupied ? 'bg-blue-50 text-[#0061a5] font-medium' : 'text-gray-700'}`}
+                                    >
+                                        <span className="truncate pr-2">{t.full_name} {t.isOccupied ? '(Occupied)' : ''}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="space-y-2 relative">
+                    <div className="space-y-2 relative" ref={editRoomDropdownRef}>
                         <label className="text-sm font-semibold text-[#181c1e] flex items-center gap-1">
                             <MapPin className="w-4 h-4 text-gray-500"/> Change Room
                         </label>
-                        <select
-                            className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl focus:outline-none focus:border-[#0061a5] focus:ring-2 focus:ring-[#0061a5]/20 disabled:opacity-70 disabled:cursor-not-allowed"
-                            value={selectedEditRoom ? selectedEditRoom.id : (session.classroom_id || '')}
-                            onChange={(e) => {
-                                const selectedId = e.target.value;
-                                if (selectedId === session.classroom_id) {
-                                    setSelectedEditRoom(null);
-                                } else {
-                                    const room = roomOptions.find(r => r.id === selectedId);
-                                    if (room) setSelectedEditRoom(room);
-                                }
-                            }}
+                        <button
+                            type="button"
+                            onClick={() => !isPast && setIsEditRoomDropdownOpen(!isEditRoomDropdownOpen)}
+                            className={`w-full px-4 py-3 bg-[#f8f9fa] border border-[#c4c6cf] rounded-xl flex items-center justify-between hover:bg-gray-100 transition-colors ${isPast ? 'opacity-70 cursor-not-allowed' : ''}`}
                             disabled={isPast}
                         >
-                            {!session.classroom_id && <option value="">No Room Assigned</option>}
-                            {session.classroom_id && !selectedEditRoom && (
-                                <option value={session.classroom_id}>{session.classroom?.room_name ? `${session.classroom.room_name} (Current)` : 'Current Room'}</option>
-                            )}
-                            {roomOptions.map((room) => {
-                                if (room.id === session.classroom_id && !selectedEditRoom) return null; // already handled
-                                return (
-                                    <option 
-                                        key={room.id}
-                                        value={room.id}
-                                        disabled={room.isOccupied}
+                            <span className="truncate">
+                                {!selectedEditRoom && !session.classroom_id ? 'No Room Assigned' : 
+                                    (selectedEditRoom ? selectedEditRoom.room_name : 
+                                    (session.classroom?.room_name ? `${session.classroom.room_name} (Current)` : 'Current Room'))}
+                            </span>
+                            <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform shrink-0 ml-1 ${isEditRoomDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {isEditRoomDropdownOpen && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#c4c6cf] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto py-2">
+                                {!session.classroom_id && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedEditRoom(null);
+                                            setIsEditRoomDropdownOpen(false);
+                                        }}
+                                        className={`w-full px-4 py-3 text-left transition-colors hover:bg-gray-50 ${!selectedEditRoom ? 'bg-blue-50 text-[#0061a5] font-medium' : 'text-gray-700'}`}
                                     >
-                                        {room.room_name} (Cap: {room.capacity}) {room.isOccupied ? '(Occupied)' : ''}
-                                    </option>
-                                );
-                            })}
-                        </select>
+                                        No Room Assigned
+                                    </button>
+                                )}
+                                {session.classroom_id && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedEditRoom(null);
+                                            setIsEditRoomDropdownOpen(false);
+                                        }}
+                                        className={`w-full px-4 py-3 text-left transition-colors hover:bg-gray-50 ${!selectedEditRoom ? 'bg-blue-50 text-[#0061a5] font-medium' : 'text-gray-700'}`}
+                                    >
+                                        {session.classroom?.room_name ? `${session.classroom.room_name} (Current)` : 'Current Room'}
+                                    </button>
+                                )}
+                                {roomOptions.map((room) => {
+                                    if (room.id === session.classroom_id) return null;
+                                    return (
+                                        <button 
+                                            key={room.id}
+                                            type="button"
+                                            disabled={room.isOccupied}
+                                            onClick={() => {
+                                                if (!room.isOccupied) {
+                                                    setSelectedEditRoom(room);
+                                                    setIsEditRoomDropdownOpen(false);
+                                                }
+                                            }}
+                                            className={`w-full px-4 py-3 text-left transition-colors flex items-center justify-between 
+                                                ${room.isOccupied ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-50'} 
+                                                ${selectedEditRoom?.id === room.id && !room.isOccupied ? 'bg-blue-50 text-[#0061a5] font-medium' : 'text-gray-700'}`}
+                                        >
+                                            <span className="truncate pr-2">{room.room_name} (Cap: {room.capacity}) {room.isOccupied ? '(Occupied)' : ''}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 </div>
 

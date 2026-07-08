@@ -3,6 +3,8 @@ export interface StaffDashboardStats {
     activeClasses: number;
     pendingInvoices: number;
     openTickets: number;
+    pendingChangeRequests: number;
+    pendingConsultations: number;
 }
 
 export interface StaffPendingTask {

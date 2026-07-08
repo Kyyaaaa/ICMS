@@ -166,12 +166,16 @@ export const DashboardService = {
     const { count: activeClasses } = await DashboardRepository.getActiveClassesCount();
     const { count: pendingInvoices } = await DashboardRepository.getPendingInvoicesCount();
     const { count: openTickets } = await DashboardRepository.getOpenTicketsCount();
+    const { count: pendingChangeRequests } = await DashboardRepository.getPendingChangeRequestsCount();
+    const { count: pendingConsultations } = await DashboardRepository.getPendingConsultationsCount();
 
     return {
       totalLearners,
       activeClasses: activeClasses || 0,
       pendingInvoices: pendingInvoices || 0,
-      openTickets: openTickets || 0
+      openTickets: openTickets || 0,
+      pendingChangeRequests: pendingChangeRequests || 0,
+      pendingConsultations: pendingConsultations || 0
     };
   },
 
@@ -193,18 +197,75 @@ export const DashboardService = {
   },
 
   getStaffPendingTasks: async (): Promise<StaffPendingTask[]> => {
-    const { data: tickets } = await DashboardRepository.getOpenTickets();
-    if (!tickets || tickets.length === 0) return [];
+    const [
+      { data: tickets },
+      { data: changeRequests },
+      { data: invoices },
+      { data: consultations }
+    ] = await Promise.all([
+      DashboardRepository.getOpenTickets(),
+      DashboardRepository.getPendingChangeRequests(),
+      DashboardRepository.getPendingInvoicesList(),
+      DashboardRepository.getPendingConsultations()
+    ]);
 
-    return tickets.map((ticket: any) => ({
-      title: ticket.title,
-      type: 'Support Ticket',
-      time: new Date(ticket.created_at).toLocaleDateString('vi-VN'),
-      iconType: 'MessageSquare',
-      bg: 'bg-rose-50',
-      color: 'text-rose-600',
-      link: '/staff/support'
-    }));
+    const tasks: any[] = [];
+
+    if (tickets) {
+      tasks.push(...tickets.map((ticket: any) => ({
+        title: ticket.title,
+        type: 'Support Ticket',
+        time: new Date(ticket.created_at).toLocaleDateString('vi-VN'),
+        iconType: 'MessageSquare',
+        bg: 'bg-rose-50',
+        color: 'text-rose-600',
+        link: '/staff/support-tickets',
+        _date: new Date(ticket.created_at)
+      })));
+    }
+
+    if (changeRequests) {
+      tasks.push(...changeRequests.map((cr: any) => ({
+        title: `Request: ${cr.type}`,
+        type: 'Change Request',
+        time: new Date(cr.created_at).toLocaleDateString('vi-VN'),
+        iconType: 'FileText',
+        bg: 'bg-purple-50',
+        color: 'text-purple-600',
+        link: '/staff/change-requests',
+        _date: new Date(cr.created_at)
+      })));
+    }
+
+    if (invoices) {
+      tasks.push(...invoices.map((inv: any) => ({
+        title: `Invoice ${inv.invoice_code}`,
+        type: 'Pending Invoice',
+        time: new Date(inv.created_at).toLocaleDateString('vi-VN'),
+        iconType: 'DollarSign',
+        bg: 'bg-amber-50',
+        color: 'text-amber-600',
+        link: '/staff/invoices',
+        _date: new Date(inv.created_at)
+      })));
+    }
+
+    if (consultations) {
+      tasks.push(...consultations.map((cons: any) => ({
+        title: `Consultation: ${cons.guest_name}`,
+        type: 'Consultation Request',
+        time: new Date(cons.created_at).toLocaleDateString('vi-VN'),
+        iconType: 'MessageSquare',
+        bg: 'bg-blue-50',
+        color: 'text-blue-600',
+        link: '/staff/consultations',
+        _date: new Date(cons.created_at)
+      })));
+    }
+
+    tasks.sort((a: any, b: any) => b._date.getTime() - a._date.getTime());
+
+    return tasks.slice(0, 5).map(({ _date, ...rest }) => rest);
   },
 
   getAdminStats: async (): Promise<AdminDashboardStats> => {

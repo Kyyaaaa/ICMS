@@ -59,6 +59,17 @@ export class AvailableTimeSlotService {
     // Use status from DTO or default to submitted
     const newStatus = status === 'draft' ? 'draft' : 'submitted';
 
+    // Verify occupied slots are not being removed
+    const occupiedSlots = await AvailableTimeSlotRepository.getOccupiedSlotsForCycle(tutorId, cycle_id);
+    const submittedSet = new Set(slots);
+    
+    for (const occupied of occupiedSlots) {
+      if (!submittedSet.has(occupied.slot_key)) {
+        const formattedKey = occupied.slot_key.replace(/-slot(\d+)/i, ' - Slot $1');
+        throw new Error(`Cannot remove ${formattedKey} because you are teaching ${occupied.class_name}`);
+      }
+    }
+
     await AvailableTimeSlotRepository.submitAvailability(tutorId, cycle_id, slots, newStatus);
   }
 
@@ -95,6 +106,17 @@ export class AvailableTimeSlotService {
       }
     }
 
+    // Verify occupied slots are not being removed
+    const occupiedSlots = await AvailableTimeSlotRepository.getOccupiedSlotsForCycle(tutorId, cycle_id);
+    const submittedSet = new Set(slots);
+    
+    for (const occupied of occupiedSlots) {
+      if (!submittedSet.has(occupied.slot_key)) {
+        const formattedKey = occupied.slot_key.replace(/-slot(\d+)/i, ' - Slot $1');
+        throw new Error(`Cannot remove ${formattedKey} because the tutor is teaching ${occupied.class_name}`);
+      }
+    }
+
     await AvailableTimeSlotRepository.submitAvailability(tutorId, cycle_id, slots, status);
   }
 
@@ -114,5 +136,9 @@ export class AvailableTimeSlotService {
 
   static async checkTutorAvailabilityForSlots(tutorId: string, cycleName: string, requiredSlotKeys: string[]) {
     return await AvailableTimeSlotRepository.checkTutorAvailabilityForSlots(tutorId, cycleName, requiredSlotKeys);
+  }
+
+  static async syncTutorAvailabilityWithSessions(tutorId: string, sessions: any[]) {
+    return await AvailableTimeSlotRepository.syncTutorAvailabilityWithSessions(tutorId, sessions);
   }
 }

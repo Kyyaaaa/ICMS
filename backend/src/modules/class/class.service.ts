@@ -170,6 +170,9 @@ export class ClassService {
 
     const createdSessions = await ClassRepository.insertClassSessions(sessionsToInsert);
 
+    // Sync availability for all tutors involved in this class
+    await ClassService.syncAllTutorsAvailability(createdSessions);
+
     return {
       class: newClass,
       sessions: createdSessions
@@ -234,6 +237,39 @@ export class ClassService {
           }
         }
       }
+    } else if (classUpdates.tutor_id || classUpdates.classroom_id) {
+      // If we are updating tutor_id or classroom_id for the whole class, without passing new sessions
+      const existingSessions = await ClassRepository.getClassSessionsByClassId(id);
+      
+      for (const sess of existingSessions) {
+        if (sess.date && sess.slot) {
+          const checkTutorId = classUpdates.tutor_id || updatedClass?.tutor_id;
+          if (checkTutorId && classUpdates.tutor_id !== undefined) {
+            const hasTutorConflict = await ClassRepository.checkScheduleConflict('tutor_id', checkTutorId, sess.date, sess.slot, sess.id, id);
+            if (hasTutorConflict) {
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Tutor schedule conflict at date ${sess.date} and ${formattedSlot}` };
+            }
+          }
+          const checkClassroomId = classUpdates.classroom_id || updatedClass?.classroom_id;
+          if (checkClassroomId && classUpdates.classroom_id !== undefined) {
+            const hasRoomConflict = await ClassRepository.checkScheduleConflict('classroom_id', checkClassroomId, sess.date, sess.slot, sess.id, id);
+            if (hasRoomConflict) {
+              const formattedSlot = sess.slot.replace(/^slot/i, 'Slot ');
+              throw { status: 409, message: `Classroom schedule conflict at date ${sess.date} and ${formattedSlot}` };
+            }
+          }
+        }
+      }
+
+      // If no conflicts, update the class_sessions table to sync tutor_id/classroom_id
+      const sessionUpdates: any = {};
+      if (classUpdates.tutor_id !== undefined) sessionUpdates.tutor_id = classUpdates.tutor_id;
+      if (classUpdates.classroom_id !== undefined) sessionUpdates.classroom_id = classUpdates.classroom_id;
+      
+      if (Object.keys(sessionUpdates).length > 0) {
+        await ClassRepository.updateAllClassSessions(id, sessionUpdates);
+      }
     }
 
     // If sessions are provided, overwrite existing sessions
@@ -265,6 +301,10 @@ export class ClassService {
       await ClassRepository.insertClassSessions(sessionsToInsert);
     }
 
+    // Sync availability for all tutors involved after any update
+    const finalSessions = await ClassRepository.getClassSessionsByClassId(id);
+    await ClassService.syncAllTutorsAvailability(finalSessions);
+
     return updatedClass;
   }
 
@@ -287,16 +327,26 @@ export class ClassService {
       throw { status: 400, message: `Invalid slot: ${updates.slot}` };
     }
 
-    // If date and slot are provided, we must check for conflicts
-    if (updates.date && updates.slot) {
-      if (updates.tutor_id) {
-        const hasTutorConflict = await ClassRepository.checkScheduleConflict('tutor_id', updates.tutor_id, updates.date, updates.slot, undefined, sessionId);
+    const originalSession = await ClassRepository.getSessionById(sessionId);
+    if (!originalSession) {
+      throw { status: 404, message: 'Class session not found' };
+    }
+
+    const targetDate = updates.date || originalSession.date;
+    const targetSlot = updates.slot || originalSession.slot;
+    const targetTutorId = updates.tutor_id !== undefined ? updates.tutor_id : originalSession.tutor_id;
+    const targetClassroomId = updates.classroom_id !== undefined ? updates.classroom_id : originalSession.classroom_id;
+
+    // Check for conflicts if any scheduling-related field is updated
+    if ((updates.date || updates.slot || updates.tutor_id !== undefined || updates.classroom_id !== undefined) && targetDate && targetSlot) {
+      if (targetTutorId) {
+        const hasTutorConflict = await ClassRepository.checkScheduleConflict('tutor_id', targetTutorId, targetDate, targetSlot, sessionId);
         if (hasTutorConflict) {
           throw { status: 409, message: 'Conflict Schedule: Tutor is already busy at this time' };
         }
       }
-      if (updates.classroom_id) {
-        const hasRoomConflict = await ClassRepository.checkScheduleConflict('classroom_id', updates.classroom_id, updates.date, updates.slot, undefined, sessionId);
+      if (targetClassroomId) {
+        const hasRoomConflict = await ClassRepository.checkScheduleConflict('classroom_id', targetClassroomId, targetDate, targetSlot, sessionId);
         if (hasRoomConflict) {
           throw { status: 409, message: 'Conflict Schedule: Classroom is already booked at this time' };
         }
@@ -304,30 +354,57 @@ export class ClassService {
     }
 
     // Validate tutor availability for this specific session
-    if (updates.tutor_id && updates.date && updates.slot) {
+    if (targetTutorId && targetDate && targetSlot) {
       // Get class to find start_date
       const targetClass = await ClassRepository.getClassById(classId);
-      const originalSession = await ClassRepository.getSessionById(sessionId);
 
       // Only check availability if we are changing to a DIFFERENT tutor.
       // If we are rescheduling for the SAME tutor, we bypass availability check.
-      const isSameTutor = originalSession && originalSession.tutor_id === updates.tutor_id;
+      const isSameTutor = originalSession.tutor_id === targetTutorId;
 
       if (targetClass && targetClass.start_date && !isSameTutor) {
         const cycleName = getCycleNameFromDate(targetClass.start_date);
-        const slotKey = getAvailabilitySlotKey(updates.date, updates.slot);
+        const slotKey = getAvailabilitySlotKey(targetDate, targetSlot);
         try {
-          await AvailableTimeSlotService.checkTutorAvailabilityForSlots(updates.tutor_id, cycleName, [slotKey]);
+          await AvailableTimeSlotService.checkTutorAvailabilityForSlots(targetTutorId, cycleName, [slotKey]);
         } catch (err: any) {
           throw { status: 409, message: err.message || 'Tutor availability verification failed.' };
         }
       }
     }
 
-    return ClassRepository.updateClassSession(classId, sessionId, updates);
+    const result = await ClassRepository.updateClassSession(classId, sessionId, updates);
+    
+    // Sync availability for the newly assigned tutor if updated
+    if (targetTutorId) {
+      await ClassService.syncAllTutorsAvailability([{
+        tutor_id: targetTutorId,
+        date: targetDate,
+        slot: targetSlot
+      }]);
+    }
+
+    return result;
   }
 
   static async getOccupiedSessions(filters: { tutor_id?: string, classroom_id?: string, date?: string, slot?: string, start_date?: string, exclude_class_id?: string }) {
     return ClassRepository.getOccupiedSessions(filters);
+  }
+
+  static async syncAllTutorsAvailability(sessions: any[]) {
+    // Group sessions by tutor
+    const tutorSessions: Record<string, any[]> = {};
+    for (const sess of sessions) {
+      if (sess.tutor_id) {
+        if (!tutorSessions[sess.tutor_id]) {
+          tutorSessions[sess.tutor_id] = [];
+        }
+        tutorSessions[sess.tutor_id].push(sess);
+      }
+    }
+    // Sync each tutor
+    for (const [tutorId, assignedSessions] of Object.entries(tutorSessions)) {
+      await AvailableTimeSlotService.syncTutorAvailabilityWithSessions(tutorId, assignedSessions);
+    }
   }
 }

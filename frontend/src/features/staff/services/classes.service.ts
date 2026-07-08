@@ -45,6 +45,14 @@ export const ClassesService = {
                     endDate: cls.end_date,
                     classes: []
                 });
+            } else {
+                const group = groupsMap.get(courseId)!;
+                if (cls.start_date && (!group.startDate || new Date(cls.start_date) < new Date(group.startDate))) {
+                    group.startDate = cls.start_date;
+                }
+                if (cls.end_date && (!group.endDate || new Date(cls.end_date) > new Date(group.endDate))) {
+                    group.endDate = cls.end_date;
+                }
             }
             groupsMap.get(courseId)?.classes.push(cls);
         });

@@ -72,8 +72,6 @@ export class InvoiceRepository {
     if (error) throw new Error(error.message);
   }
 
-  // checkRegistrationConflicts has been moved to EnrollmentService
-
   static async createInvoice(learnerId: string, classId: string, amount: number, discount: number = 0, discountCodeId: string | null = null, _paymentPlan: string = 'full') {
     const { data: invoice, error } = await supabaseAdmin
       .from('invoices')
@@ -109,7 +107,10 @@ export class InvoiceRepository {
     const { data: invoiceData } = await supabaseAdmin
       .from('invoices')
       .select(`
+        class_id,
         classes (
+          start_date,
+          end_date,
           courses (
             number_of_installments,
             allow_installments
@@ -119,8 +120,8 @@ export class InvoiceRepository {
       .eq('id', invoiceId)
       .single();
 
-    // The typings for deep select in supabase-js can be tricky, so we use any
-    const course = (invoiceData?.classes as any)?.courses;
+    const classData = invoiceData?.classes as any;
+    const course = classData?.courses;
     const numberOfInstallments = course?.number_of_installments || 3;
     const allowInstallments = course?.allow_installments;
 
@@ -132,13 +133,49 @@ export class InvoiceRepository {
     const firstTermAmount = amount - termAmount * (numberOfInstallments - 1);
     const now = new Date();
 
+    // Fetch class sessions
+    const { data: sessions } = await supabaseAdmin
+        .from('class_sessions')
+        .select('date')
+        .eq('class_id', invoiceData?.class_id)
+        .order('date', { ascending: true });
+
+    let intervalMs = 30 * 24 * 60 * 60 * 1000; // Default 30 days
+    if (classData?.start_date && classData?.end_date) {
+        const start = new Date(classData.start_date).getTime();
+        const end = new Date(classData.end_date).getTime();
+        const durationMs = end - start;
+        if (durationMs > 0 && numberOfInstallments > 1) {
+            intervalMs = Math.floor(durationMs / numberOfInstallments);
+        }
+    }
+
     const installmentsData = [];
     for (let i = 1; i <= numberOfInstallments; i++) {
+      let dueDate = new Date(now.getTime() + (i - 1) * intervalMs).toISOString();
+
+      if (sessions && sessions.length > 0 && numberOfInstallments > 1) {
+          if (i === 1) {
+              dueDate = now.toISOString();
+          } else {
+              // Calculate which session index corresponds to this installment
+              // e.g. for 3 installments, i=2 is around 1/3 of the way through the sessions
+              const targetSessionIndex = Math.floor((i - 1) * sessions.length / numberOfInstallments);
+              if (targetSessionIndex < sessions.length) {
+                  const targetSessionDate = new Date(sessions[targetSessionIndex].date);
+                  // Use the session's date but keep the current time, or just end of day
+                  dueDate = targetSessionDate.toISOString();
+              }
+          }
+      } else if (i === 1) {
+          dueDate = now.toISOString();
+      }
+
       installmentsData.push({
         invoice_id: invoiceId,
         installment_number: i,
         amount: i === 1 ? firstTermAmount : termAmount,
-        due_date: i === 1 ? now.toISOString() : new Date(now.getTime() + (i - 1) * 30 * 24 * 60 * 60 * 1000).toISOString(),
+        due_date: dueDate,
         status: 'PENDING'
       });
     }

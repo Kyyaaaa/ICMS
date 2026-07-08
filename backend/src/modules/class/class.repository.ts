@@ -62,6 +62,25 @@ export class ClassRepository {
     if (error) throw new Error(error.message);
   }
 
+  static async getClassSessionsByClassId(classId: string) {
+    const { data, error } = await supabase
+      .from('class_sessions')
+      .select('*')
+      .eq('class_id', classId);
+
+    if (error) throw new Error(error.message);
+    return data || [];
+  }
+
+  static async updateAllClassSessions(classId: string, updates: any) {
+    const { error } = await supabase
+      .from('class_sessions')
+      .update(updates)
+      .eq('class_id', classId);
+
+    if (error) throw new Error(error.message);
+  }
+
   static async getCourseById(courseId: string) {
     const { data, error } = await supabase
       .from('courses')

@@ -120,7 +120,7 @@ export const DashboardRepository = {
     return supabaseAdmin
       .from('classes')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'ONGOING');
+      .in('status', ['ONGOING', 'UPCOMING']);
   },
   getPendingInvoicesCount: async () => {
     return supabaseAdmin
@@ -133,6 +133,18 @@ export const DashboardRepository = {
       .from('support_tickets')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'Open');
+  },
+  getPendingChangeRequestsCount: async () => {
+    return supabaseAdmin
+      .from('change_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'Pending');
+  },
+  getPendingConsultationsCount: async () => {
+    return supabaseAdmin
+      .from('consultation_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'Pending');
   },
   getGlobalUpcomingSessions: async () => {
     const now = new Date().toISOString().split('T')[0];
@@ -149,6 +161,30 @@ export const DashboardRepository = {
       .from('support_tickets')
       .select('id, title, created_at')
       .eq('status', 'Open')
+      .limit(3);
+  },
+  getPendingChangeRequests: async () => {
+    return supabaseAdmin
+      .from('change_requests')
+      .select('id, type, created_at')
+      .eq('status', 'Pending')
+      .order('created_at', { ascending: false })
+      .limit(3);
+  },
+  getPendingInvoicesList: async () => {
+    return supabaseAdmin
+      .from('invoices')
+      .select('id, invoice_code, created_at')
+      .eq('status', 'PENDING')
+      .order('created_at', { ascending: false })
+      .limit(3);
+  },
+  getPendingConsultations: async () => {
+    return supabaseAdmin
+      .from('consultation_requests')
+      .select('id, guest_name, created_at')
+      .eq('status', 'Pending')
+      .order('created_at', { ascending: false })
       .limit(3);
   },
 

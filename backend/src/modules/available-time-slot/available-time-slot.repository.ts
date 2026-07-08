@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '../../configs/supabase';
 import { AvailabilityResponse, TutorAvailabilityProfile } from './available-time-slot.model';
 import { CacheService } from '../../utils/cache';
+import { getAvailabilitySlotKey, getCycleNameFromDate } from '../../utils/slot-mapper';
 
 export class AvailableTimeSlotRepository {
   /**
@@ -234,5 +235,125 @@ export class AvailableTimeSlotRepository {
     
     if (error) return true; // Default to true to prevent bypassing checks on error
     return count !== null && count > 0;
+  }
+
+  /**
+   * Get all slots the tutor is actively scheduled to teach within a specific cycle
+   * Returns an array of objects containing the slot_key and the class name
+   */
+  static async getOccupiedSlotsForCycle(tutorId: string, cycleId: string): Promise<{ slot_key: string, class_name: string }[]> {
+    // 1. Get the cycle details to know start and end dates
+    const { data: cycle, error: cycleError } = await supabaseAdmin
+      .from('availability_cycles')
+      .select('*')
+      .eq('id', cycleId)
+      .single();
+
+    if (cycleError || !cycle) throw new Error('Cycle not found');
+
+    // 2. Find all class sessions for this tutor within the cycle dates
+    const { data: sessions, error: sessionsError } = await supabaseAdmin
+      .from('class_sessions')
+      .select(`
+        date,
+        slot,
+        classes ( name )
+      `)
+      .eq('tutor_id', tutorId)
+      .gte('date', cycle.start_date.split('T')[0])
+      .lte('date', cycle.end_date.split('T')[0]);
+
+    if (sessionsError) throw new Error(`Error fetching occupied sessions: ${sessionsError.message}`);
+
+    const occupiedSlots: { slot_key: string, class_name: string }[] = [];
+    const seen = new Set<string>();
+
+    for (const sess of (sessions || [])) {
+      if (sess.date && sess.slot) {
+        const key = getAvailabilitySlotKey(sess.date, sess.slot);
+        if (!seen.has(key)) {
+          seen.add(key);
+          const className = sess.classes && typeof sess.classes === 'object' && !Array.isArray(sess.classes) ? (sess.classes as any).name : 'Unknown Class';
+          occupiedSlots.push({ slot_key: key, class_name: className });
+        }
+      }
+    }
+
+    return occupiedSlots;
+  }
+
+  /**
+   * Synchronize tutor availability with a list of assigned sessions
+   * Automatically adds required slots into the availability profile for respective cycles.
+   * Creates 'draft' status if no status exists.
+   */
+  static async syncTutorAvailabilityWithSessions(tutorId: string, sessions: any[]): Promise<void> {
+    if (!sessions || sessions.length === 0) return;
+
+    // Group required slots by cycle (Month/Year)
+    const requiredSlotsByCycle: Record<string, Set<string>> = {};
+
+    for (const sess of sessions) {
+      if (sess.date && sess.slot) {
+        const cycleName = getCycleNameFromDate(sess.date);
+        const slotKey = getAvailabilitySlotKey(sess.date, sess.slot);
+        
+        if (!requiredSlotsByCycle[cycleName]) {
+          requiredSlotsByCycle[cycleName] = new Set<string>();
+        }
+        requiredSlotsByCycle[cycleName].add(slotKey);
+      }
+    }
+
+    for (const [cycleName, slotKeysSet] of Object.entries(requiredSlotsByCycle)) {
+      // 1. Ensure cycle exists
+      const [month, year] = cycleName.split('/').map(Number);
+      const cycle = await this.getOrCreateCycleByMonth(month, year);
+      
+      // 2. Ensure status exists (default to draft if not submitted)
+      const { data: currentStatus } = await supabaseAdmin
+        .from('tutor_availability_status')
+        .select('status')
+        .eq('tutor_id', tutorId)
+        .eq('cycle_id', cycle.id)
+        .maybeSingle();
+
+      if (!currentStatus) {
+        await supabaseAdmin
+          .from('tutor_availability_status')
+          .insert({
+            tutor_id: tutorId,
+            cycle_id: cycle.id,
+            status: 'draft'
+          });
+      }
+
+      // 3. Fetch existing slots
+      const { data: existingSlots } = await supabaseAdmin
+        .from('tutor_available_time_slots')
+        .select('slot_key')
+        .eq('tutor_id', tutorId)
+        .eq('cycle_id', cycle.id);
+
+      const existingSlotKeys = new Set(existingSlots?.map(s => s.slot_key as string) || []);
+
+      // 4. Insert missing slots
+      const slotsToInsert = [];
+      for (const reqKey of Array.from(slotKeysSet)) {
+        if (!existingSlotKeys.has(reqKey)) {
+          slotsToInsert.push({
+            tutor_id: tutorId,
+            cycle_id: cycle.id,
+            slot_key: reqKey
+          });
+        }
+      }
+
+      if (slotsToInsert.length > 0) {
+        await supabaseAdmin
+          .from('tutor_available_time_slots')
+          .insert(slotsToInsert);
+      }
+    }
   }
 }
