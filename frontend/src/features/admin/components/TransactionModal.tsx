@@ -170,7 +170,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                     <span className="text-xs text-[#ba1a1a] mt-1">Returned to original payment method</span>
                                 </div>
                                 <span className="text-3xl md:text-4xl font-extrabold text-[#ba1a1a] tracking-tight">
-                                    {transaction.amount.toLocaleString('en-US')}đ
+                                    {transaction.amount.toLocaleString('en-US')} VND
                                 </span>
                             </div>
                         </div>
@@ -212,7 +212,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-[#43474e] mb-1">Bonus / Allowances (đ)</label>
+                                            <label className="block text-xs font-bold text-[#43474e] mb-1">Bonus / Allowances (VND)</label>
                                             <div className="w-full px-3 py-2 text-sm bg-[#f1f4f6] border border-[#c4c6cf] rounded-lg text-[#181c1e] font-bold">0</div>
                                         </div>
                                     </div>
@@ -245,7 +245,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                     <span className="text-xs text-[#0061a5] mt-1">Amount to be transferred</span>
                                 </div>
                                 <span className="text-3xl md:text-4xl font-extrabold text-[#0061a5] tracking-tight">
-                                    {transaction.amount.toLocaleString('en-US')}đ
+                                    {transaction.amount.toLocaleString('en-US')} VND
                                 </span>
                             </div>
                         </div>

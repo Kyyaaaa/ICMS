@@ -7,7 +7,7 @@ export const StaffDashboardService = {
             const response = await axiosClient.get('/dashboard/staff/stats');
             return response as any;
         } catch {
-            return { totalLearners: 0, activeClasses: 0, pendingInvoices: 0, openTickets: 0 };
+            return { totalLearners: 0, activeClasses: 0, pendingInvoices: 0, openTickets: 0, pendingChangeRequests: 0, pendingConsultations: 0 };
         }
     },
     getPendingTasks: async (): Promise<StaffPendingTask[]> => {

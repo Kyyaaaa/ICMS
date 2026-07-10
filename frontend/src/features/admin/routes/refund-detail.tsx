@@ -4,6 +4,8 @@ import { ArrowLeft, CheckCircle2, XCircle, RefreshCcw, Banknote, CreditCard, Use
 import { AdminRefundsService } from '../services/refunds.service';
 import type { RefundRequest } from '../types/refund';
 import { showAlertModal } from '@/utils/modal';
+import { formatDate } from '../../../shared/utils/date';
+
 const AdminRefundDetail = () => {
     const { id } = useParams();
     const [refund, setRefund] = useState<RefundRequest | null>(null);
@@ -59,7 +61,7 @@ const AdminRefundDetail = () => {
                 <div className="flex items-center gap-3 mb-6 border-b border-[#e0e3e5] pb-6">
                     <RefreshCcw className="text-[#c9a82c]" size={28} />
                     <div>
-                        <h2 className="text-xl font-bold text-[#181c1e]">Amount Requested: {refund.refundAmount?.toLocaleString()} VND</h2>
+                        <h2 className="text-xl font-bold text-[#181c1e]">Amount Requested: {refund.refundAmount?.toLocaleString('en-US')} VND</h2>
                         <span className={`inline-block px-2 py-1 mt-2 text-xs font-bold rounded uppercase ${
                             refund.status === 'Completed' ? 'bg-[#e6f4ea] text-[#137333]' :
                             refund.status === 'Approved' ? 'bg-[#e6f0fa] text-[#0061a5]' :
@@ -84,7 +86,7 @@ const AdminRefundDetail = () => {
                         </div>
                         <div>
                             <h4 className="text-xs font-bold text-[#74777f] uppercase mb-1">Requested Date</h4>
-                            <p className="text-base text-[#181c1e] font-medium">{new Date(refund.requestedDate).toLocaleString()}</p>
+                            <p className="text-base text-[#181c1e] font-medium">{formatDate(refund.requestedDate)}</p>
                         </div>
                     </div>
                     

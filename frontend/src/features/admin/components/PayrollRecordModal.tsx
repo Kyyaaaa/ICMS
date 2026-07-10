@@ -112,7 +112,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                 )}
 
                                 <div>
-                                    <label className="block text-xs font-bold text-[#43474e] mb-1">Bonus / Allowances (đ)</label>
+                                    <label className="block text-xs font-bold text-[#43474e] mb-1">Bonus / Allowances (VND)</label>
                                     <input
                                         type="number"
                                         value={formData.bonus || ''}
@@ -156,7 +156,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                                             />
                                             <input
                                                 type="number"
-                                                placeholder="Amount (đ)"
+                                                placeholder="Amount (VND)"
                                                 value={item.amount || ''}
                                                 onChange={(e) => {
                                                     const newItems = [...(formData.deductionItems || [])];
@@ -198,7 +198,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                             <div className="mt-4 p-3 bg-[#fff0f0] rounded-lg border border-[#ffccd2] flex justify-between items-center">
                                 <span className="text-[#ba1a1a] font-bold text-sm">Total Deductions</span>
                                 <span className="font-bold text-[#ba1a1a] text-base">
-                                    {(formData.deductionItems?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0).toLocaleString('en-US')}đ
+                                    {(formData.deductionItems?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0).toLocaleString('en-US')} VND
                                 </span>
                             </div>
                         </div>
@@ -210,7 +210,7 @@ export const PayrollRecordModal = ({ record, formData, setFormData, onClose, onS
                             <span className="text-xs text-[#0061a5] mt-1">Amount to be transferred</span>
                         </div>
                         <span className="text-3xl md:text-4xl font-extrabold text-[#0061a5] tracking-tight">
-                            {calculateNetPay(formData).toLocaleString('en-US')}đ
+                            {calculateNetPay(formData).toLocaleString('en-US')} VND
                         </span>
                     </div>
 
