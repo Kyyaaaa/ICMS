@@ -40,7 +40,7 @@ export const CoursesTable = ({ courses, handleDelete }: CoursesTableProps) => {
                                     </div>
                                 </td>
                                 <td className="py-4 px-6 text-sm text-[#43474e]">{course.category}</td>
-                                <td className="py-4 px-6 text-sm font-bold text-[#181c1e]">{new Intl.NumberFormat('vi-VN').format(Number(course.price))} đ</td>
+                                <td className="py-4 px-6 text-sm font-bold text-[#181c1e]">{new Intl.NumberFormat('vi-VN').format(Number(course.price))} VND</td>
                                 <td className="py-4 px-6">
                                     <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${course.status === 'Active' ? 'bg-[#e6f4ea] text-[#137333]' : course.status === 'Hidden' ? 'bg-[#ffebed] text-[#ba1a1a]' : 'bg-[#f1f4f6] text-[#74777f]'}`}>
                                         {course.status}

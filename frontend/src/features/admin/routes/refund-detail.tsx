@@ -59,7 +59,7 @@ const AdminRefundDetail = () => {
                 <div className="flex items-center gap-3 mb-6 border-b border-[#e0e3e5] pb-6">
                     <RefreshCcw className="text-[#c9a82c]" size={28} />
                     <div>
-                        <h2 className="text-xl font-bold text-[#181c1e]">Amount Requested: {refund.refundAmount?.toLocaleString()} đ</h2>
+                        <h2 className="text-xl font-bold text-[#181c1e]">Amount Requested: {refund.refundAmount?.toLocaleString()} VND</h2>
                         <span className={`inline-block px-2 py-1 mt-2 text-xs font-bold rounded uppercase ${
                             refund.status === 'Completed' ? 'bg-[#e6f4ea] text-[#137333]' :
                             refund.status === 'Approved' ? 'bg-[#e6f0fa] text-[#0061a5]' :

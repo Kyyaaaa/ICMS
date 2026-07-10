@@ -45,13 +45,14 @@ export class AnnouncementService {
             id: backendData.id,
             title: backendData.title,
             content: backendData.content,
-            date: backendData.created_at ? new Date(backendData.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown',
+            date: backendData.created_at || 'Unknown',
             status: backendData.status,
             audience: {
                 scope: backendData.scope,
                 roles: backendData.roles || [],
                 classes: backendData.announcement_classes ? backendData.announcement_classes.map((c: any) => c.class_id) : [],
-                users: backendData.announcement_users ? backendData.announcement_users.map((u: any) => u.user_id) : []
+                users: backendData.announcement_users ? backendData.announcement_users.map((u: any) => u.user_id) : [],
+                userNames: backendData.announcement_users ? backendData.announcement_users.map((u: any) => u.account?.full_name || 'Unknown User') : []
             },
             scheduledFor: backendData.scheduled_for || undefined,
             created_at: backendData.created_at,

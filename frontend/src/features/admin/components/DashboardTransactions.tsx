@@ -55,7 +55,7 @@ export const DashboardTransactions = ({ transactions }: DashboardTransactionsPro
                                 <td className="py-4 px-6 text-sm text-[#43474e]">{formatDateTime(txn.date)}</td>
                                 <td className="py-4 px-6 text-right">
                                     <div className={`text-sm font-bold ${txn.status === 'Failed' && !txn.paidAmount ? 'text-[#74777f] line-through opacity-70' : txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
-                                        {txn.type === 'income' ? '+' : '-'} {txn.amount.toLocaleString('vi-VN')} đ
+                                        {txn.type === 'income' ? '+' : '-'} {txn.amount.toLocaleString('en-US')} VND
                                     </div>
                                 </td>
                                 <td className="py-4 px-6">

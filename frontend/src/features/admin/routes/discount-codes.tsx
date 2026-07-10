@@ -171,7 +171,7 @@ const AdminDiscountCodes = () => {
                                         </div>
                                     </td>
                                     <td className="py-4 px-6 text-sm font-bold text-[#0061a5]">
-                                        {code.value.toLocaleString()} đ
+                                        {code.value.toLocaleString()} VND
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
                                         {code.validFrom ? formatDateTime(code.validFrom) : 'N/A'}

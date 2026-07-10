@@ -41,7 +41,7 @@ export const PayrollRecordsTable = ({ records, onView }: PayrollRecordsTableProp
                             <td className="py-3 px-4 text-sm text-[#43474e]">
                                 {p.role !== 'TUTOR' ? `${(p.baseSalary || 0).toLocaleString()}đ` : `${p.teachingSessions || 0} sessions`}
                             </td>
-                            <td className="py-3 px-4 text-sm font-bold text-[#0061a5]">{calculateNetPay(p).toLocaleString()}đ</td>
+                            <td className="py-3 px-4 text-sm font-bold text-[#0061a5]">{calculateNetPay(p).toLocaleString()}VND</td>
                             <td className="py-3 px-4">
                                 <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${getStatusBadge(p.status)}`}>
                                     {p.status}

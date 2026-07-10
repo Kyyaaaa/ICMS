@@ -105,8 +105,8 @@ const RefundRequest = () => {
                         <span>Amount Paid:</span>
                         <span className="font-semibold text-[#181c1e]">
                             {(() => {
-                                return invoice.amount.toLocaleString('vi-VN');
-                            })()} đ
+                                return invoice.amount.toLocaleString('en-US');
+                            })()} VND
                         </span>
                         <span>Course:</span>
                         <span className="font-semibold text-[#181c1e]">{invoice.course}</span>

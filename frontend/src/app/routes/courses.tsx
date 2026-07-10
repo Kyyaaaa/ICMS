@@ -181,7 +181,7 @@ const Courses = () => {
 
                                         <div className="flex justify-between items-center mt-auto">
                                             <span className="text-xl font-extrabold text-[#0061a5]">
-                                                {course.price ? new Intl.NumberFormat('vi-VN').format(Number(course.price)) : '0'} đ
+                                                {course.price ? new Intl.NumberFormat('vi-VN').format(Number(course.price)) : '0'} VND
                                             </span>
                                             <span className="text-sm font-bold text-[#002045] flex items-center gap-1 group-hover:text-[#0061a5] transition-colors">
                                                 View Details <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

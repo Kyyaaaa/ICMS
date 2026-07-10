@@ -78,7 +78,7 @@ const InvoiceDetail = () => {
                     
                     <div className="text-left md:text-right">
                         <div className="text-xs font-bold text-[#74777f] uppercase tracking-wider mb-1">Total Amount</div>
-                        <div className="text-4xl font-extrabold text-[#0061a5] leading-none">{invoice.payment.totalAmount.toLocaleString('vi-VN')} đ</div>
+                        <div className="text-4xl font-extrabold text-[#0061a5] leading-none">{invoice.payment.totalAmount.toLocaleString('en-US')} VND</div>
                     </div>
                 </div>
 
@@ -156,7 +156,7 @@ const InvoiceDetail = () => {
                                             )}
                                         </td>
                                         <td className="p-4 text-right font-bold text-[#181c1e]">
-                                            {inst.amount.toLocaleString('vi-VN')} đ
+                                            {inst.amount.toLocaleString('en-US')} VND
                                         </td>
                                     </tr>
                                 ))}
@@ -164,11 +164,11 @@ const InvoiceDetail = () => {
                             <tfoot className="bg-[#f8f9fa] border-t border-[#e0e3e5]">
                                 <tr>
                                     <td colSpan={4} className="p-4 text-right font-bold text-[#43474e]">Total Paid</td>
-                                    <td className="p-4 text-right font-bold text-green-600">{invoice.payment.paidAmount.toLocaleString('vi-VN')} đ</td>
+                                    <td className="p-4 text-right font-bold text-green-600">{invoice.payment.paidAmount.toLocaleString('en-US')} VND</td>
                                 </tr>
                                 <tr>
                                     <td colSpan={4} className="p-4 text-right font-extrabold text-[#002045] text-base">Remaining Balance</td>
-                                    <td className="p-4 text-right font-extrabold text-[#0061a5] text-lg">{invoice.payment.remainingAmount.toLocaleString('vi-VN')} đ</td>
+                                    <td className="p-4 text-right font-extrabold text-[#0061a5] text-lg">{invoice.payment.remainingAmount.toLocaleString('en-US')} VND</td>
                                 </tr>
                             </tfoot>
                         </table>

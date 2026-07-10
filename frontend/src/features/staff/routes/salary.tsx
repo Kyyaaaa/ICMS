@@ -40,7 +40,7 @@ const SalaryHistory = () => {
                         <div className="flex items-center gap-2 text-[#adc7f7] font-bold text-sm uppercase tracking-wider mb-2">
                             <TrendingUp className="w-4 h-4" /> Total Earnings (YTD)
                         </div>
-                        <div className="text-4xl font-extrabold leading-none">{totalYTD.toLocaleString('vi-VN')} đ</div>
+                        <div className="text-4xl font-extrabold leading-none">{totalYTD.toLocaleString('en-US')} VND</div>
                     </div>
                     <Wallet className="absolute -right-4 -bottom-4 w-32 h-32 text-white opacity-5 group-hover:scale-110 transition-transform duration-500" />
                 </div>
@@ -57,7 +57,7 @@ const SalaryHistory = () => {
                     <div className="flex items-center gap-2 text-[#0061a5] font-bold text-sm uppercase tracking-wider mb-2">
                         <Wallet className="w-4 h-4" /> Last Net Pay
                     </div>
-                    <div className="text-3xl font-extrabold text-[#0061a5]">{lastPayout.netPay.toLocaleString('vi-VN')} đ</div>
+                    <div className="text-3xl font-extrabold text-[#0061a5]">{lastPayout.netPay.toLocaleString('en-US')} VND</div>
                 </div>
             </div>
 
@@ -115,10 +115,10 @@ const SalaryHistory = () => {
                                         <div className="font-bold text-[#002045]">{record.period}</div>
                                         <div className="text-xs text-[#74777f]">{record.id}</div>
                                     </td>
-                                    <td className="p-4 text-[#43474e]">{record.baseSalary.toLocaleString('vi-VN')} đ</td>
-                                    <td className="p-4 text-green-600 font-semibold">+{record.bonuses.toLocaleString('vi-VN')} đ</td>
-                                    <td className="p-4 text-red-600 font-semibold">-{record.deductions.toLocaleString('vi-VN')} đ</td>
-                                    <td className="p-4 font-extrabold text-[#0061a5]">{record.netPay.toLocaleString('vi-VN')} đ</td>
+                                    <td className="p-4 text-[#43474e]">{record.baseSalary.toLocaleString('en-US')} VND</td>
+                                    <td className="p-4 text-green-600 font-semibold">+{record.bonuses.toLocaleString('en-US')} VND</td>
+                                    <td className="p-4 text-red-600 font-semibold">-{record.deductions.toLocaleString('en-US')} VND</td>
+                                    <td className="p-4 font-extrabold text-[#0061a5]">{record.netPay.toLocaleString('en-US')} VND</td>
                                     <td className="p-4 text-[#43474e]">{record.payDate}</td>
                                     <td className="p-4 text-right">
                                         <button 

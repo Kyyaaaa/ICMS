@@ -53,7 +53,7 @@ const PaymentResult = () => {
                             </div>
                             <h2 className="text-3xl font-extrabold text-[#002045] mb-4">Payment Successful!</h2>
                             <p className="text-lg text-[#43474e] mb-8 max-w-lg mx-auto">
-                                Your payment of <strong>{amount ? amount.toLocaleString('vi-VN') : '0'} đ</strong> has been processed successfully. 
+                                Your payment of <strong>{amount ? amount.toLocaleString('en-US') : '0'} VND</strong> has been processed successfully. 
                                 You are now enrolled in the class!
                             </p>
                             <div className="bg-[#f7fafc] border border-[#e0e3e5] rounded-2xl p-6 mb-10 text-left max-w-md mx-auto">

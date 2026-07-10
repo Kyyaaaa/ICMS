@@ -17,7 +17,7 @@ export const FinanceOverview = ({ totalIncome, totalExpense, netRevenue }: Finan
                     <span className="font-bold text-[#43474e]">Total Income</span>
                 </div>
                 <div className="text-2xl font-extrabold text-[#181c1e] ml-13">
-                    {totalIncome.toLocaleString('vi-VN')} đ
+                    {totalIncome.toLocaleString('en-US')} VND
                 </div>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-[#e0e3e5]">
@@ -28,7 +28,7 @@ export const FinanceOverview = ({ totalIncome, totalExpense, netRevenue }: Finan
                     <span className="font-bold text-[#43474e]">Total Expense</span>
                 </div>
                 <div className="text-2xl font-extrabold text-[#181c1e] ml-13">
-                    {totalExpense.toLocaleString('vi-VN')} đ
+                    {totalExpense.toLocaleString('en-US')} VND
                 </div>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-[#e0e3e5] relative overflow-hidden">
@@ -40,7 +40,7 @@ export const FinanceOverview = ({ totalIncome, totalExpense, netRevenue }: Finan
                     <span className="font-bold text-[#43474e]">Net Balance</span>
                 </div>
                 <div className="text-2xl font-extrabold text-[#002045] ml-13">
-                    {netRevenue.toLocaleString('vi-VN')} đ
+                    {netRevenue.toLocaleString('en-US')} VND
                 </div>
             </div>
         </div>

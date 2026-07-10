@@ -189,7 +189,7 @@ const Homepage = () => {
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-[20px] font-bold text-[#002045]">
-                                                {course.price ? `${new Intl.NumberFormat('vi-VN').format(Number(course.price))} đ` : 'Free'}
+                                                {course.price ? `${new Intl.NumberFormat('vi-VN').format(Number(course.price))} VND` : 'Free'}
                                             </span>
                                             <Link to={`/courses/${course.id}`} className="text-[#0061a5] font-bold hover:underline flex items-center gap-1">Details <ArrowRight className="w-4 h-4"/></Link>
                                         </div>

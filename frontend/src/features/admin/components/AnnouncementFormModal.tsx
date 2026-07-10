@@ -24,11 +24,19 @@ export const AnnouncementFormModal = ({ mode, initialData, availableCourses, ava
 
     useEffect(() => {
         if (mode === 'edit' && initialData) {
+            let formattedScheduledFor = '';
+            if (initialData.scheduledFor) {
+                const date = new Date(initialData.scheduledFor);
+                if (!isNaN(date.getTime())) {
+                    formattedScheduledFor = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                }
+            }
+
             setFormData({
                 title: initialData.title,
                 content: initialData.content,
                 audience: { ...initialData.audience },
-                scheduledFor: initialData.scheduledFor || ''
+                scheduledFor: formattedScheduledFor
             });
             setPublishMode(initialData.status === 'Scheduled' ? 'schedule' : 'now');
         }

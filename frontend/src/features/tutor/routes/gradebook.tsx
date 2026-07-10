@@ -87,7 +87,7 @@ const TutorGradebook = () => {
         if (field === 'score' && value !== '') {
             const num = Number(value);
             if (isNaN(num) || num < 0 || num > 9) {
-                showAlertModal('Cảnh báo', 'Điểm số phải là số thập phân nằm trong khoảng từ 0 đến 9.', 'warning');
+                showAlertModal('Warning', 'Score must be a decimal number between 0 and 9.', 'warning');
                 return;
             }
         }
@@ -118,7 +118,7 @@ const TutorGradebook = () => {
                 if (score !== null && score !== undefined && (score as any) !== '') {
                     const numScore = Number(score);
                     if (isNaN(numScore) || numScore < 0 || numScore > 9) {
-                        showAlertModal('Lỗi xác thực', `Điểm số của học viên ${student.name} phải là số thập phân nằm trong khoảng từ 0 đến 9.`, 'error');
+                        showAlertModal('Validation Error', `Score for student ${student.name} must be a decimal number between 0 and 9.`, 'error');
                         return;
                     }
                 }

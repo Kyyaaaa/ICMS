@@ -1,4 +1,11 @@
 import { DashboardRepository } from './dashboard.repository';
+
+const formatDate = (date: string | Date | null | undefined) => {
+    if (!date) return 'N/A';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return 'N/A';
+    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+};
 import { FinanceService } from '../finance/finance.service';
 import {
   LearnerDashboardStats, LearnerUpcomingClass, LearnerPendingTask,
@@ -100,7 +107,7 @@ export const DashboardService = {
             id: inv.id,
             title,
             courseName: inv.classes?.name || 'Course Payment',
-            dueDate: isOverdue ? 'Overdue' : (targetDueDate ? `Due on ${new Date(targetDueDate).toLocaleDateString('vi-VN')}` : 'Pending Payment'),
+            dueDate: isOverdue ? 'Overdue' : (targetDueDate ? `Due on ${formatDate(targetDueDate)}` : 'Pending Payment'),
             iconType: 'CreditCard',
             bg: isOverdue ? 'bg-red-50' : 'bg-amber-50',
             color: isOverdue ? 'text-red-600' : 'text-amber-600',
@@ -147,7 +154,7 @@ export const DashboardService = {
     return requests.map((req: any) => ({
       title: `Pending Request: ${req.type}`,
       type: 'Request',
-      time: new Date(req.created_at).toLocaleDateString('vi-VN'),
+      time: formatDate(req.created_at),
       iconType: 'FileText',
       bg: 'bg-purple-50',
       color: 'text-purple-600',
@@ -215,7 +222,7 @@ export const DashboardService = {
       tasks.push(...tickets.map((ticket: any) => ({
         title: ticket.title,
         type: 'Support Ticket',
-        time: new Date(ticket.created_at).toLocaleDateString('vi-VN'),
+        time: formatDate(ticket.created_at),
         iconType: 'MessageSquare',
         bg: 'bg-rose-50',
         color: 'text-rose-600',
@@ -228,7 +235,7 @@ export const DashboardService = {
       tasks.push(...changeRequests.map((cr: any) => ({
         title: `Request: ${cr.type}`,
         type: 'Change Request',
-        time: new Date(cr.created_at).toLocaleDateString('vi-VN'),
+        time: formatDate(cr.created_at),
         iconType: 'FileText',
         bg: 'bg-purple-50',
         color: 'text-purple-600',
@@ -241,7 +248,7 @@ export const DashboardService = {
       tasks.push(...invoices.map((inv: any) => ({
         title: `Invoice ${inv.invoice_code}`,
         type: 'Pending Invoice',
-        time: new Date(inv.created_at).toLocaleDateString('vi-VN'),
+        time: formatDate(inv.created_at),
         iconType: 'DollarSign',
         bg: 'bg-amber-50',
         color: 'text-amber-600',
@@ -254,7 +261,7 @@ export const DashboardService = {
       tasks.push(...consultations.map((cons: any) => ({
         title: `Consultation: ${cons.guest_name}`,
         type: 'Consultation Request',
-        time: new Date(cons.created_at).toLocaleDateString('vi-VN'),
+        time: formatDate(cons.created_at),
         iconType: 'MessageSquare',
         bg: 'bg-blue-50',
         color: 'text-blue-600',

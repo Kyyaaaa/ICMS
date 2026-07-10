@@ -68,10 +68,10 @@ export const SalaryTable = ({ records, selectedYear, setSelectedYear, onViewReco
                                     <div className="font-bold text-[#002045]">{record.period}</div>
                                     <div className="text-xs text-[#74777f]">{record.id}</div>
                                 </td>
-                                <td className="p-4 text-[#43474e]">{record.baseSalary.toLocaleString('vi-VN')} đ</td>
-                                <td className="p-4 text-green-600 font-semibold">+{record.bonuses.toLocaleString('vi-VN')} đ</td>
-                                <td className="p-4 text-red-600 font-semibold">-{record.deductions.toLocaleString('vi-VN')} đ</td>
-                                <td className="p-4 font-extrabold text-[#0061a5]">{record.netPay.toLocaleString('vi-VN')} đ</td>
+                                <td className="p-4 text-[#43474e]">{record.baseSalary.toLocaleString('en-US')} VND</td>
+                                <td className="p-4 text-green-600 font-semibold">+{record.bonuses.toLocaleString('en-US')} VND</td>
+                                <td className="p-4 text-red-600 font-semibold">-{record.deductions.toLocaleString('en-US')} VND</td>
+                                <td className="p-4 font-extrabold text-[#0061a5]">{record.netPay.toLocaleString('en-US')} VND</td>
                                 <td className="p-4 text-[#43474e]">{record.payDate}</td>
                                 <td className="p-4 text-right">
                                     <button 

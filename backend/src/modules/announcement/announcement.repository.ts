@@ -9,6 +9,12 @@ export class AnnouncementRepository {
                 *,
                 announcement_classes (
                     class_id
+                ),
+                announcement_users (
+                    user_id,
+                    account (
+                        full_name
+                    )
                 )
             `)
             .order('created_at', { ascending: false });

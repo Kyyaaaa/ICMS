@@ -8,6 +8,7 @@ import { validatePassword, validatePhoneNumber, validateFullName, formatAccountI
 import { ProfileService } from '@/shared/services/profile.service';
 import type { ProfileData } from '@/shared/services/profile.service';
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
+import { getInitials } from '@/shared/lib/utils';
 
 interface ProfileViewProps {
     title?: string;
@@ -257,15 +258,6 @@ export const ProfileView = ({
             </div>
         );
     }
-
-    const getInitials = (name: string) => {
-        if (!name) return 'UN';
-        const parts = name.trim().split(' ');
-        if (parts.length >= 2) {
-            return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-        }
-        return name.substring(0, 2).toUpperCase();
-    };
 
     const initials = getInitials(account.full_name);
     const isPasswordMatch = passwords.confirmPassword.length > 0 && passwords.newPassword === passwords.confirmPassword;

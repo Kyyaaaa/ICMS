@@ -88,10 +88,11 @@ export const ClassCard = ({ cls }: ClassCardProps) => {
                                     const match = schedule.match(/^(.*?) \((.*)\)$/);
                                     if (match) {
                                         const slotMatch = match[2].match(/(Slot \d+) \((.*)\)/);
+                                        const isLong = match[1].includes(',');
                                         if (slotMatch) {
                                             return (
-                                                <div key={idx} className="flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2 py-1.5 w-full min-w-0">
-                                                    <span className="text-xs font-bold text-[#0061a5] truncate">{match[1]} • {slotMatch[1]}</span>
+                                                <div key={idx} className={`flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2 py-1.5 w-full min-w-0 ${isLong ? 'col-span-2' : 'col-span-1'}`}>
+                                                    <span className="text-xs font-bold text-[#0061a5]">{match[1]} • {slotMatch[1]}</span>
                                                     <span className="text-[11px] font-medium tracking-tight text-[#0061a5]/80 mt-0.5 whitespace-nowrap">
                                                         {slotMatch[2]}
                                                     </span>
@@ -99,16 +100,17 @@ export const ClassCard = ({ cls }: ClassCardProps) => {
                                             );
                                         }
                                         return (
-                                            <div key={idx} className="flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2 py-1.5 w-full min-w-0">
-                                                <span className="text-[13px] font-bold text-[#0061a5] truncate">{match[1]}</span>
-                                                <span className="text-[11.5px] font-medium tracking-tight text-[#0061a5]/80 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis" title={match[2]}>
+                                            <div key={idx} className={`flex flex-col bg-blue-50/50 border border-blue-100 rounded-md px-2 py-1.5 w-full min-w-0 ${isLong ? 'col-span-2' : 'col-span-1'}`}>
+                                                <span className="text-[13px] font-bold text-[#0061a5]">{match[1]}</span>
+                                                <span className="text-[11.5px] font-medium tracking-tight text-[#0061a5]/80 mt-0.5">
                                                     {match[2]}
                                                 </span>
                                             </div>
                                         );
                                     }
+                                    const isLong = schedule.length > 15;
                                     return (
-                                        <div key={idx} className="bg-blue-50/50 border border-blue-100 rounded-md px-2.5 py-1.5 text-xs text-[#0061a5] w-full sm:w-auto">
+                                        <div key={idx} className={`bg-blue-50/50 border border-blue-100 rounded-md px-2.5 py-1.5 text-xs text-[#0061a5] w-full min-w-0 ${isLong ? 'col-span-2' : 'col-span-1'}`}>
                                             {schedule}
                                         </div>
                                     );

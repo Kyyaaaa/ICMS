@@ -3,6 +3,7 @@ import { Eye, Ban, CheckCircle2, Lock, Edit, UserX, UserCheck } from 'lucide-rea
 import { Link } from 'react-router-dom';
 import { Pagination } from '@/shared/components/common/Pagination';
 import type { Account } from '../types/account';
+import { getInitials } from '@/shared/lib/utils';
 
 interface AccountsTableProps {
     accounts: Account[];
@@ -38,11 +39,6 @@ export const AccountsTable = ({
             case 'LEARNER': return 'bg-[#e6f4ea] text-[#137333]';
             default: return 'bg-gray-100 text-gray-700';
         }
-    };
-
-    const getInitials = (name: string) => {
-        if (!name) return 'UN';
-        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
     return (

@@ -91,12 +91,17 @@ export class AvailableTimeSlotRepository {
       const tutorStatus = statuses.find(s => s.tutor_id === acc.id);
       const tutorSlots = slots.filter(s => s.tutor_id === acc.id).map(s => s.slot_key as string);
 
+      let finalStatus = (tutorStatus?.status || 'unregistered') as 'unregistered' | 'draft' | 'submitted';
+      if (finalStatus === 'draft' && tutorSlots.length === 0) {
+        finalStatus = 'unregistered';
+      }
+
       return {
         id: acc.id,
         account_code: acc.account_code || acc.id,
         name: acc.full_name || 'Unknown Tutor',
         avatar_url: acc.avatar_url,
-        status: (tutorStatus?.status || 'draft') as 'draft' | 'submitted',
+        status: finalStatus,
         slots: tutorSlots,
       };
     });
@@ -159,6 +164,7 @@ export class AvailableTimeSlotRepository {
       .single();
 
     if (insertError) throw insertError;
+    CacheService.invalidate('availability_cycles');
     return newCycle;
   }
 
@@ -171,6 +177,7 @@ export class AvailableTimeSlotRepository {
       .single();
 
     if (error) throw error;
+    CacheService.invalidate('availability_cycles');
     return data;
   }
 

@@ -19,12 +19,31 @@ export class AvailableTimeSlotService {
       throw new Error('Cycle not found');
     }
     if (targetCycle.status !== 'OPEN') {
-      const { count } = await supabaseAdmin
-        .from('tutor_available_time_slots')
-        .select('*', { count: 'exact', head: true })
-        .eq('tutor_id', tutorId);
-      
-      const isNewTutor = count === 0;
+      const { data: tutorInfo } = await supabaseAdmin
+        .from('account')
+        .select('created_at')
+        .eq('id', tutorId)
+        .single();
+
+      let isNewTutor = false;
+      if (tutorInfo) {
+        const createdDate = new Date(tutorInfo.created_at);
+        const cycleStartDate = new Date(targetCycle.start_date);
+        const cycleEndDate = new Date(targetCycle.end_date);
+        const cycleEndDateInclusive = new Date(cycleEndDate.getTime() + 24 * 60 * 60 * 1000);
+        
+        if (createdDate >= cycleStartDate && createdDate < cycleEndDateInclusive) {
+          isNewTutor = true;
+        } else {
+          const { count } = await supabaseAdmin
+            .from('tutor_availability_status')
+            .select('*', { count: 'exact', head: true })
+            .eq('tutor_id', tutorId)
+            .neq('cycle_id', targetCycle.id);
+          
+          isNewTutor = count === 0;
+        }
+      }
       if (!isNewTutor) {
         throw new Error(`Cannot submit availability because the cycle is currently ${targetCycle.status}. Registration is closed.`);
       }

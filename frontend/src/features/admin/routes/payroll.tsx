@@ -283,7 +283,7 @@ const AdminPayroll = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <p className="text-sm text-[#74777f] uppercase font-bold mb-1">Total Net Payroll</p>
-                                <p className="text-3xl font-extrabold text-[#0061a5]">{stats.totalNetPay.toLocaleString()} đ</p>
+                                <p className="text-3xl font-extrabold text-[#0061a5]">{stats.totalNetPay.toLocaleString()} VND</p>
                             </div>
                             <div>
                                 <p className="text-sm text-[#74777f] uppercase font-bold mb-1">Processed/Paid</p>

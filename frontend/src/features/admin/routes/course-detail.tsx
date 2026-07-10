@@ -809,7 +809,7 @@ const AdminCourseDetail = () => {
                         className={`w-full text-base font-bold px-2 py-1.5 border border-[#c4c6cf] rounded-lg focus:outline-none focus:border-[#0061a5] ${isCohortLocked ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
                       />
                       <span className="text-xl font-bold text-[#0061a5]">
-                        đ
+                        VND
                       </span>
                     </div>
                   </div>
@@ -836,7 +836,7 @@ const AdminCourseDetail = () => {
                         className={`w-full text-base font-bold px-2 py-1.5 border ${courseData.price && courseData.originalPrice && Number(courseData.originalPrice) < Number(courseData.price) ? "border-[#ba1a1a] focus:border-[#ba1a1a]" : "border-[#c4c6cf] focus:border-[#0061a5]"} rounded-lg focus:outline-none ${isCohortLocked ? "bg-[#e0e3e5] cursor-not-allowed" : ""}`}
                       />
                       <span className="text-xl font-bold text-[#74777f]">
-                        đ
+                        VND
                       </span>
                     </div>
                     {courseData.price &&
@@ -1036,7 +1036,7 @@ const AdminCourseDetail = () => {
                     {new Intl.NumberFormat("vi-VN").format(
                       Number(courseData.originalPrice),
                     )}{" "}
-                    đ
+                    VND
                   </span>
                 )}
                 <span className="text-4xl font-extrabold text-[#002045] leading-none tracking-tight whitespace-nowrap">
@@ -1045,7 +1045,7 @@ const AdminCourseDetail = () => {
                         Number(courseData.price),
                       )
                     : "0"}{" "}
-                  đ
+                  VND
                 </span>
               </div>
               <div className="flex items-center gap-3 bg-[#f7fafc] rounded-xl p-4 mb-6 border border-[#e0e3e5]">

@@ -153,7 +153,7 @@ axiosClient.interceptors.response.use(
 
         // --- Bắt đầu: Global Error Handling ---
         const errorData = error.response?.data || error;
-        const errorMessage = errorData?.message || error.message || 'Lỗi hệ thống không xác định';
+        const errorMessage = errorData?.message || error.message || 'Unknown system error';
         
         // Tự động hiển thị Modal nếu là lỗi Server (500) hoặc rớt mạng (Network Error)
         if (!error.response || error.response?.status >= 500) {

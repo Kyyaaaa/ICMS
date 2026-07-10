@@ -124,10 +124,10 @@ const AdminRefunds = () => {
                                         <div className="text-xs text-[#74777f] truncate max-w-50" title={r.courseName}>{r.courseName}</div>
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
-                                        {r.totalPaid.toLocaleString()} đ
+                                        {r.totalPaid.toLocaleString()} VND
                                     </td>
                                     <td className="py-4 px-6 text-sm font-bold text-[#ba1a1a]">
-                                        {r.refundAmount.toLocaleString()} đ
+                                        {r.refundAmount.toLocaleString()} VND
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
                                         {formatDateTime(r.requestedDate)}
@@ -213,11 +213,11 @@ const AdminRefunds = () => {
                                 <div className="flex gap-4">
                                     <div className="flex-1 bg-white border border-[#e0e3e5] p-4 rounded-xl">
                                         <span className="block text-xs text-[#74777f] uppercase font-bold">Total Paid</span>
-                                        <span className="text-xl font-extrabold text-[#43474e]">{selectedRefund.totalPaid.toLocaleString()}đ</span>
+                                        <span className="text-xl font-extrabold text-[#43474e]">{selectedRefund.totalPaid.toLocaleString()}VND</span>
                                     </div>
                                     <div className="flex-1 bg-[#fff8f8] border border-[#ffebed] p-4 rounded-xl">
                                         <span className="block text-xs text-[#ba1a1a] uppercase font-bold">Refund Amount</span>
-                                        <span className="text-xl font-extrabold text-[#ba1a1a]">{selectedRefund.refundAmount.toLocaleString()}đ</span>
+                                        <span className="text-xl font-extrabold text-[#ba1a1a]">{selectedRefund.refundAmount.toLocaleString()}VND</span>
                                     </div>
                                 </div>
 

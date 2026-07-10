@@ -1,7 +1,9 @@
 import { CheckCircle2, Ban, Lock, Eye, Edit } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Pagination } from '@/shared/components/common/Pagination';
+import { formatDate } from '@/shared/utils/date';
 import type { Account } from '../types/account';
+import { getInitials } from '@/shared/lib/utils';
 
 interface AccountsTableProps {
     accounts: Account[];
@@ -37,11 +39,6 @@ export const AccountsTable = ({
             case 'LEARNER': return 'bg-[#e6f4ea] text-[#137333]';
             default: return 'bg-gray-100 text-gray-700';
         }
-    };
-
-    const getInitials = (name: string) => {
-        if (!name) return 'UN';
-        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
     return (
@@ -98,7 +95,7 @@ export const AccountsTable = ({
                                         </span>
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e] font-medium">
-                                        {new Date(acc.created_at).toLocaleDateString('en-GB')}
+                                        {formatDate(acc.created_at)}
                                     </td>
                                     <td className="py-4 px-6">
                                         {acc.status === 'ACTIVE' ? (

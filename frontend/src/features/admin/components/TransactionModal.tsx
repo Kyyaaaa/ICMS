@@ -88,7 +88,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                                     </div>
                                                 </td>
                                                 <td className="py-4 px-4 text-sm text-center border-b border-[#e0e3e5]">1</td>
-                                                <td className="py-4 px-4 text-sm font-bold text-right border-b border-[#e0e3e5]">{inst.amount.toLocaleString('vi-VN')} đ</td>
+                                                <td className="py-4 px-4 text-sm font-bold text-right border-b border-[#e0e3e5]">{inst.amount.toLocaleString('en-US')} VND</td>
                                             </tr>
                                         ))
                                     ) : (
@@ -98,7 +98,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                                 <div className="text-xs font-normal text-[#74777f] mt-1">Course Tuition Fee</div>
                                             </td>
                                             <td className="py-4 px-4 text-sm text-center border-b border-[#e0e3e5]">1</td>
-                                            <td className="py-4 px-4 text-sm font-bold text-right border-b border-[#e0e3e5]">{transaction.amount.toLocaleString('vi-VN')} đ</td>
+                                            <td className="py-4 px-4 text-sm font-bold text-right border-b border-[#e0e3e5]">{transaction.amount.toLocaleString('en-US')} VND</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -108,20 +108,20 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                 <div className="w-1/2">
                                     <div className="flex justify-between py-2 text-sm">
                                         <span className="text-[#43474e]">Subtotal</span>
-                                        <span className="font-bold">{transaction.amount.toLocaleString('vi-VN')} đ</span>
+                                        <span className="font-bold">{transaction.amount.toLocaleString('en-US')} VND</span>
                                     </div>
                                     <div className="flex justify-between py-2 text-sm border-b border-[#e0e3e5]">
                                         <span className="text-[#43474e]">Tax (0%)</span>
-                                        <span className="font-bold">0 đ</span>
+                                        <span className="font-bold">0 VND</span>
                                     </div>
                                     <div className="flex justify-between py-3">
                                         <span className="text-base font-bold text-[#002045]">Total Invoice</span>
-                                        <span className="text-xl font-extrabold text-[#002045]">{transaction.amount.toLocaleString('vi-VN')} đ</span>
+                                        <span className="text-xl font-extrabold text-[#002045]">{transaction.amount.toLocaleString('en-US')} VND</span>
                                     </div>
                                     {transaction.isInstallment && (
                                     <div className="flex justify-between py-2 border-t border-[#e0e3e5] mt-1 pt-3">
                                         <span className="text-base font-bold text-[#137333]">Total Paid</span>
-                                        <span className="text-xl font-extrabold text-[#137333]">{transaction.paidAmount?.toLocaleString('vi-VN') || 0} đ</span>
+                                        <span className="text-xl font-extrabold text-[#137333]">{transaction.paidAmount?.toLocaleString('en-US') || 0} VND</span>
                                     </div>
                                     )}
                                 </div>
@@ -170,7 +170,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                     <span className="text-xs text-[#ba1a1a] mt-1">Returned to original payment method</span>
                                 </div>
                                 <span className="text-3xl md:text-4xl font-extrabold text-[#ba1a1a] tracking-tight">
-                                    {transaction.amount.toLocaleString('vi-VN')}đ
+                                    {transaction.amount.toLocaleString('en-US')}đ
                                 </span>
                             </div>
                         </div>
@@ -198,8 +198,8 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                     <h3 className="text-base font-bold text-[#181c1e] mb-4 flex items-center gap-2"><DollarSign size={18}/> Earnings</h3>
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-[#43474e] mb-1">Base Salary (Monthly - đ)</label>
-                                            <div className="w-full px-3 py-2 text-sm bg-[#f1f4f6] border border-[#c4c6cf] rounded-lg text-[#181c1e] font-bold">{transaction.amount.toLocaleString('vi-VN')}</div>
+                                            <label className="block text-xs font-bold text-[#43474e] mb-1">Base Salary (Monthly - VND)</label>
+                                            <div className="w-full px-3 py-2 text-sm bg-[#f1f4f6] border border-[#c4c6cf] rounded-lg text-[#181c1e] font-bold">{transaction.amount.toLocaleString('en-US')}</div>
                                         </div>
                                         <div className="flex gap-4">
                                             <div className="flex-1">
@@ -218,7 +218,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                     </div>
                                     <div className="mt-4 p-3 bg-[#f8f9fa] rounded-lg border border-[#e6f0fa] flex justify-between items-center">
                                         <span className="text-[#0061a5] font-bold text-sm">Total Earnings</span>
-                                        <span className="font-bold text-[#0061a5] text-base">{transaction.amount.toLocaleString('vi-VN')} đ</span>
+                                        <span className="font-bold text-[#0061a5] text-base">{transaction.amount.toLocaleString('en-US')} VND</span>
                                     </div>
                                 </div>
                                 
@@ -234,7 +234,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                     </div>
                                     <div className="mt-4 p-3 bg-[#fff0f0] rounded-lg border border-[#ffccd2] flex justify-between items-center">
                                         <span className="text-[#ba1a1a] font-bold text-sm">Total Deductions</span>
-                                        <span className="font-bold text-[#ba1a1a] text-base">0 đ</span>
+                                        <span className="font-bold text-[#ba1a1a] text-base">0 VND</span>
                                     </div>
                                 </div>
                             </div>
@@ -245,7 +245,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                     <span className="text-xs text-[#0061a5] mt-1">Amount to be transferred</span>
                                 </div>
                                 <span className="text-3xl md:text-4xl font-extrabold text-[#0061a5] tracking-tight">
-                                    {transaction.amount.toLocaleString('vi-VN')}đ
+                                    {transaction.amount.toLocaleString('en-US')}đ
                                 </span>
                             </div>
                         </div>
@@ -257,7 +257,7 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                             <div className="text-center">
                                 <span className="text-sm text-[#74777f] uppercase font-bold block mb-2">Amount</span>
                                 <span className={`text-4xl font-extrabold ${transaction.status === 'Failed' ? 'text-[#74777f] line-through opacity-70' : transaction.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
-                                    {transaction.status !== 'Failed' ? (transaction.type === 'income' ? '+ ' : '- ') : ''}{transaction.amount.toLocaleString('vi-VN')} đ
+                                    {transaction.status !== 'Failed' ? (transaction.type === 'income' ? '+ ' : '- ') : ''}{transaction.amount.toLocaleString('en-US')} VND
                                 </span>
                             </div>
 

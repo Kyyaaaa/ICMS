@@ -7,7 +7,7 @@ interface DashboardStatsProps {
 
 export const DashboardStats = ({ stats }: DashboardStatsProps) => {
     const statsList = [
-        { title: 'Total Revenue', value: `${stats.totalRevenue.toLocaleString()} đ`, icon: DollarSign, colorClass: 'bg-[#d2e4ff] text-[#0061a5]' },
+        { title: 'Total Revenue', value: `${stats.totalRevenue.toLocaleString()} VND`, icon: DollarSign, colorClass: 'bg-[#d2e4ff] text-[#0061a5]' },
         { title: 'Total Learners', value: stats.totalLearners.toLocaleString(), icon: Users, colorClass: 'bg-[#e8def8] text-[#6750a4]' },
         { title: 'Total Courses', value: stats.totalCourses.toString(), icon: BookOpen, colorClass: 'bg-[#fceeee] text-[#ba1a1a]' },
         { title: 'Total Classes', value: stats.totalClasses.toString(), icon: BookMarked, colorClass: 'bg-[#e6f0fa] text-[#0061a5]' },

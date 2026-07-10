@@ -79,6 +79,23 @@ export class ClassService {
       throw { status: 404, message: 'Course not found' };
     }
 
+    if (course.next_cohort) {
+      let startDate: Date;
+      if (course.next_cohort.includes('/')) {
+          const [day, month, year] = course.next_cohort.split('/');
+          startDate = new Date(Number(year), Number(month) - 1, Number(day));
+      } else {
+          startDate = new Date(course.next_cohort);
+      }
+
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      
+      if (!isNaN(startDate.getTime()) && startDate <= now) {
+          throw { status: 400, message: 'Cannot create class for a course that has already started' };
+      }
+    }
+
     // Number of sessions from course template
     const numSessions = course.sessions || 0;
     if (numSessions <= 0) {
