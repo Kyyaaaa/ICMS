@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../../../app';
 import { ConsultationRequestService } from '../consultation-request.service';
 import { supabase } from '../../../configs/supabase';
-import { AuthError } from '@supabase/supabase-js';
+import { } from '@supabase/supabase-js';
 
 // Mock dependencies
 jest.mock('../consultation-request.service');
@@ -27,7 +27,7 @@ describe('ConsultationRequestController API Tests', () => {
 
   describe('QA-17: POST /api/consultations', () => {
     it('should return 400 if missing mandatory fields', async () => {
-      const err: any = new Error('Missing required fields: guest_name, guest_phone, inquiry_details');
+      const err: any = new Error('Missing required fields: guest_name, guest_phone, guest_email, course_of_interest, inquiry_details');
       err.status = 400;
       (ConsultationRequestService.createRequest as jest.Mock).mockRejectedValueOnce(err);
 
@@ -35,7 +35,7 @@ describe('ConsultationRequestController API Tests', () => {
         .post('/api/consultations')
         .send({
           guest_name: 'Nguyễn Văn B',
-          // missing guest_phone
+          // missing guest_phone, guest_email, course_of_interest
           inquiry_details: 'Tư vấn NodeJS'
         });
 
@@ -44,12 +44,33 @@ describe('ConsultationRequestController API Tests', () => {
       expect(response.body.message).toContain('Missing required fields');
     });
 
+    it('should return 400 if email format is invalid', async () => {
+      const err: any = new Error('Invalid email format');
+      err.status = 400;
+      (ConsultationRequestService.createRequest as jest.Mock).mockRejectedValueOnce(err);
+
+      const response = await request(app)
+        .post('/api/consultations')
+        .send({
+          guest_name: 'Nguyễn Văn B',
+          guest_phone: '0987654321',
+          guest_email: 'invalid-email',
+          course_of_interest: 'IELTS Masterclass',
+          inquiry_details: 'Tư vấn NodeJS'
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toContain('Invalid email format');
+    });
+
     it('should return 201 when all required fields are provided', async () => {
       (ConsultationRequestService.createRequest as jest.Mock).mockResolvedValue({
         id: '123',
         guest_name: 'Nguyễn Văn A',
         guest_phone: '0987654321',
-        inquiry_details: 'Tư vấn ReactJS',
+        guest_email: 'nguyenvana@example.com',
+        inquiry_details: 'Course Interest: IELTS Masterclass\nMessage: Tư vấn ReactJS',
         status: 'Pending'
       });
 
@@ -58,6 +79,8 @@ describe('ConsultationRequestController API Tests', () => {
         .send({
           guest_name: 'Nguyễn Văn A',
           guest_phone: '0987654321',
+          guest_email: 'nguyenvana@example.com',
+          course_of_interest: 'IELTS Masterclass',
           inquiry_details: 'Tư vấn ReactJS'
         });
 

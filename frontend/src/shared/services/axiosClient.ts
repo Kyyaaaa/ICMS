@@ -1,9 +1,10 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { showAlertModal } from '@/utils/modal';
+import { API_BASE_URL, apiUrl } from '@/config/api';
 
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -104,7 +105,7 @@ axiosClient.interceptors.response.use(
             try {
                 // Gọi API refresh token (dùng axios thường, không qua interceptor)
                 const response = await axios.post(
-                    'http://localhost:5000/api/auth/refresh',
+                    apiUrl('/auth/refresh'),
                     { refresh_token: refreshToken },
                     { headers: { 'Content-Type': 'application/json' } }
                 );
@@ -150,18 +151,14 @@ axiosClient.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        // Các lỗi khác (400, 403, 500, ...) → trả về để nơi gọi tự xử lý
-        
         // --- Bắt đầu: Global Error Handling ---
-        // Tại đây bạn có thể tích hợp thư viện như react-toastify hoặc Sentry 
-        // để hiển thị lỗi/log lỗi tập trung mà không cần console.error() thủ công ở mọi file.
         const errorData = error.response?.data || error;
-        const errorMessage = errorData?.message || error.message || 'Lỗi hệ thống không xác định';
+        const errorMessage = errorData?.message || error.message || 'Unknown system error';
         
-        // Ví dụ: Tự động hiển thị Modal nếu là lỗi Server (500) hoặc lỗi chung
-        if (error.response?.status >= 500) {
-            console.warn(`[Global Interceptor] Server Error: ${errorMessage}`);
-            // showAlertModal('Lỗi máy chủ', 'Đã xảy ra lỗi hệ thống, vui lòng thử lại sau.', 'error');
+        // Tự động hiển thị Modal nếu là lỗi Server (500) hoặc rớt mạng (Network Error)
+        if (!error.response || error.response?.status >= 500) {
+            console.warn(`[Global Interceptor] Server/Network Error: ${errorMessage}`);
+            showAlertModal('System Error', 'An unexpected error occurred: ' + errorMessage, 'error');
         }
         // --- Kết thúc ---
 

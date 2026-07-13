@@ -37,18 +37,19 @@ export const SupportTickets = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [replyText, setReplyText] = useState('');
     const [isCreating, setIsCreating] = useState(false);
-    const statusFilter: string = 'All';
-    const roleFilter: string = 'All';
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [roleFilter, setRoleFilter] = useState('All');
     // Form state for creating
     const [createCategory, setCreateCategory] = useState('Technical Issue');
     const [createSubject, setCreateSubject] = useState('');
     const [createDescription, setCreateDescription] = useState('');
+    const [showResolveConfirm, setShowResolveConfirm] = useState(false);
 
     const userInfoCookie = Cookies.get('user_info');
     const userInfo = userInfoCookie ? JSON.parse(userInfoCookie) : null;
     const userId = userInfo?.id || 'anonymous';
     const userRole = userInfo?.role ? String(userInfo.role).toUpperCase() : 'LEARNER';
-    
+    const isStaff = userRole === 'STAFF';
 
     const selectedTicketRef = useRef<SupportTicket | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -133,7 +134,10 @@ export const SupportTickets = () => {
                 }
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_messages' }, (payload) => {
-                handleNewMessageEvent(payload.new as TicketMessage);
+                const newMsg = payload.new as TicketMessage;
+                // Avoid applying if we sent it ourselves (optimistic update handles it to prevent duplicates)
+                if (newMsg.sender_id === userId) return;
+                handleNewMessageEvent(newMsg);
             })
             .on('broadcast', { event: 'new_message' }, (payload) => {
                 const newMsg = payload.payload as TicketMessage;
@@ -204,7 +208,7 @@ export const SupportTickets = () => {
 
     const handleReplySubmit = async () => {
         if (!replyText.trim() || !selectedTicket) return;
-        const originalTickets = [...tickets];
+        const ticketSnapshot = tickets.find(t => t.id === selectedTicket.id);
         try {
             // Optimistic update
             const tempId = `temp-${Date.now()}`;
@@ -221,16 +225,22 @@ export const SupportTickets = () => {
             setReplyText('');
 
             const nowIso = new Date().toISOString();
+            const nextStatus = (selectedTicket.status === 'Open' && (userRole === 'STAFF' || userRole === 'ADMIN')) ? 'In Progress' : selectedTicket.status;
             
             // Optimistic update for selected ticket
-            setSelectedTicket(prev => prev ? { ...prev, updated_at: nowIso } : null);
+            setSelectedTicket(prev => prev ? { 
+                ...prev, 
+                updated_at: nowIso,
+                status: nextStatus
+            } : null);
 
             // Optimistic update for tickets list
             setTickets(prev => prev.map(t => t.id === selectedTicket.id ? { 
                 ...t, 
                 last_message: currentText, 
                 last_message_sender_id: userId, 
-                updated_at: nowIso 
+                updated_at: nowIso,
+                status: nextStatus
             } : t));
 
             const newMsg = await SupportTicketService.replyToTicket(selectedTicket.id, currentText, userId, userRole);
@@ -248,8 +258,11 @@ export const SupportTickets = () => {
             }
         } catch (error) {
             console.error('Failed to reply', error);
-            // Revert optimistic updates
-            setTickets(originalTickets);
+            // Revert optimistic updates carefully to avoid race conditions
+            if (ticketSnapshot) {
+                setTickets(prev => prev.map(t => t.id === selectedTicket.id ? ticketSnapshot : t));
+                setSelectedTicket(prev => prev?.id === selectedTicket.id ? ticketSnapshot : prev);
+            }
             setMessages(prev => prev.filter(m => !m.id.toString().startsWith('temp-')));
         }
     };
@@ -275,6 +288,7 @@ export const SupportTickets = () => {
 
     const handleExtendTicket = async () => {
         if (!selectedTicket) return;
+        const originalUpdatedAt = selectedTicket.updated_at;
         try {
             const nowIso = new Date().toISOString();
             // Optimistic update
@@ -292,11 +306,15 @@ export const SupportTickets = () => {
             }
         } catch (error) {
             console.error('Failed to extend ticket', error);
+            // Revert on failure
+            setSelectedTicket(prev => prev ? { ...prev, updated_at: originalUpdatedAt } : null);
+            setTickets(prev => prev.map(t => t.id === selectedTicket.id ? { ...t, updated_at: originalUpdatedAt } : t));
         }
     };
 
     const handleMarkResolved = useCallback(async () => {
-        if (!selectedTicket) return;
+        if (!selectedTicket || selectedTicket.status === 'Resolved') return;
+
         try {
             const nowIso = new Date().toISOString();
             // Optimistic update
@@ -355,34 +373,91 @@ export const SupportTickets = () => {
         }
     };
 
+    // Exact height calculations based on MainLayout: 
+    // Header (72px) + Padding (md: 48px, lg: 64px) + Staff/Tutor SubNav (~51px) = Learner (120/136) / Staff/Tutor (171/187)
+    // Adding 1-2px buffer to prevent rounding issues
+    const isStaffOrTutor = isStaff || userRole === 'TUTOR';
+    const containerHeightClass = isStaffOrTutor 
+        ? "h-[calc(100vh-172px)] lg:h-[calc(100vh-188px)]" 
+        : "h-[calc(100vh-122px)] lg:h-[calc(100vh-138px)]";
+
     return (
-        <div className="flex h-[calc(100vh-128px)] md:h-[calc(100vh-144px)] bg-white overflow-hidden font-sans text-[#181c1e] rounded-2xl border border-[#e0e3e5] shadow-sm -mt-2">
+        <div className={`flex bg-white overflow-hidden font-sans text-[#181c1e] rounded-2xl border border-[#e0e3e5] shadow-sm ${containerHeightClass}`}>
             {/* Left Sidebar - Ticket List */}
-            <div className={`w-full md:w-87.5 lg:w-100 border-r border-[#e0e3e5] bg-white flex flex-col h-full shrink-0 absolute md:relative z-10 transition-transform ${(!selectedTicket && !isCreating) ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+            <div className={`w-full md:w-107.5 lg:w-110 xl:w-112.5 border-r border-[#e0e3e5] bg-white flex flex-col h-full shrink-0 absolute md:relative z-10 transition-transform ${(!selectedTicket && !isCreating) ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 <div className="p-6 border-b border-[#e0e3e5]">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-extrabold text-[#002045] flex items-center gap-2">
                             <Ticket className="w-6 h-6 text-[#0061a5]" />
-                            Support
+                            {isStaff ? 'User Tickets' : 'Support'}
                         </h1>
-                        <button 
-                            onClick={() => { setIsCreating(true); setSelectedTicket(null); }}
-                            className="w-10 h-10 bg-[#0061a5] text-white rounded-full flex items-center justify-center hover:bg-[#004a80] transition-colors shadow-sm"
-                            title="Create Ticket"
-                        >
-                            <Plus className="w-5 h-5" />
-                        </button>
+                        {!isStaff && (
+                            <button 
+                                onClick={() => { setIsCreating(true); setSelectedTicket(null); }}
+                                className="w-10 h-10 bg-[#0061a5] text-white rounded-full flex items-center justify-center hover:bg-[#004a80] transition-colors shadow-sm"
+                                title="Create Ticket"
+                            >
+                                <Plus className="w-5 h-5" />
+                            </button>
+                        )}
                     </div>
                     
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-4 h-4" />
-                        <input 
-                            type="text" 
-                            placeholder="Search tickets..." 
-                            className="w-full pl-9 pr-4 py-2 bg-[#f1f4f6] border border-[#e0e3e5] rounded-xl text-sm focus:outline-none focus:border-[#0061a5] transition-colors"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                    {isStaff && (
+                        <div className="flex justify-center items-center gap-1.5 xl:gap-2 mb-6 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
+                            <div className="flex items-center gap-1.5 px-2 py-1 xl:px-2.5 xl:py-1.5 bg-[#f1f4f6] rounded-lg shrink-0">
+                                <span className="text-[11px] xl:text-xs font-medium text-[#43474e]">Total</span>
+                                <span className="text-[11px] xl:text-xs font-bold text-[#43474e] bg-white px-1.5 xl:px-2 py-0.5 rounded-md">{tickets.length}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2 py-1 xl:px-2.5 xl:py-1.5 bg-[#fff8e1] rounded-lg shrink-0">
+                                <span className="text-[11px] xl:text-xs font-medium text-[#f57f17]">Open</span>
+                                <span className="text-[11px] xl:text-xs font-bold text-[#f57f17] bg-white px-1.5 xl:px-2 py-0.5 rounded-md">{tickets.filter(t => t.status === 'Open').length}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2 py-1 xl:px-2.5 xl:py-1.5 bg-[#e6f0fa] rounded-lg shrink-0">
+                                <span className="text-[11px] xl:text-xs font-medium text-[#0061a5]">In Progress</span>
+                                <span className="text-[11px] xl:text-xs font-bold text-[#0061a5] bg-white px-1.5 xl:px-2 py-0.5 rounded-md">{tickets.filter(t => t.status === 'In Progress').length}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2 py-1 xl:px-2.5 xl:py-1.5 bg-[#e8f5e9] rounded-lg shrink-0">
+                                <span className="text-[11px] xl:text-xs font-medium text-[#2e7d32]">Resolved</span>
+                                <span className="text-[11px] xl:text-xs font-bold text-[#2e7d32] bg-white px-1.5 xl:px-2 py-0.5 rounded-md">{tickets.filter(t => t.status === 'Resolved').length}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="space-y-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#74777f] w-4 h-4" />
+                            <input 
+                                type="text" 
+                                placeholder="Search tickets..." 
+                                className="w-full pl-9 pr-4 py-2 bg-white border border-[#e0e3e5] rounded-lg text-sm focus:outline-none focus:border-[#0061a5] transition-colors"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+
+                        {isStaff && (
+                            <div className="flex gap-3">
+                                <select 
+                                    className="flex-1 px-3 py-2 text-sm text-[#43474e] bg-white border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0061a5]"
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                >
+                                    <option value="All">All Statuses</option>
+                                    <option value="Open">Open</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Resolved">Resolved</option>
+                                </select>
+                                <select 
+                                    className="flex-1 px-3 py-2 text-sm text-[#43474e] bg-white border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0061a5]"
+                                    value={roleFilter}
+                                    onChange={(e) => setRoleFilter(e.target.value)}
+                                >
+                                    <option value="All">All Roles</option>
+                                    <option value="LEARNER">Learner</option>
+                                    <option value="TUTOR">Tutor</option>
+                                </select>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -473,7 +548,7 @@ export const SupportTickets = () => {
                     <>
                         {/* Detail Header */}
                         <div className="p-4 md:p-6 border-b border-[#e0e3e5] bg-white flex flex-col md:flex-row justify-between items-start md:items-center shrink-0 gap-4">
-                            <div>
+                            <div className="flex-1">
                                 <button onClick={() => setSelectedTicket(null)} className="md:hidden flex items-center gap-1 text-[#0061a5] font-bold text-sm mb-2">
                                     <ChevronRight className="w-4 h-4 rotate-180" /> Back to list
                                 </button>
@@ -486,8 +561,26 @@ export const SupportTickets = () => {
                                 <div className="flex items-center gap-4 text-xs text-[#74777f]">
                                     <span>ID: <strong>{selectedTicket.ticket_number}</strong></span>
                                     <span>Category: <strong>{selectedTicket.category}</strong></span>
+                                    {isStaff && selectedTicket.sender_name && (
+                                        <span className="flex items-center">
+                                            From: <strong className="text-[#0061a5] ml-1">{selectedTicket.sender_name}</strong>
+                                            {selectedTicket.sender_role && (
+                                                <span className="text-[9px] font-bold bg-[#e0e3e5] text-[#43474e] px-1.5 py-0.5 rounded-md ml-2 tracking-wider">
+                                                    {selectedTicket.sender_role.toUpperCase()}
+                                                </span>
+                                            )}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
+                            {isStaff && selectedTicket.status !== 'Resolved' && (
+                                <button 
+                                    onClick={() => setShowResolveConfirm(true)} 
+                                    className="shrink-0 flex items-center justify-center w-full md:w-auto px-4 py-2 bg-[#e8f5e9] text-[#2e7d32] border border-[#c8e6c9] rounded-xl text-sm font-bold hover:bg-[#c8e6c9] transition-colors shadow-sm"
+                                >
+                                    Mark as Resolved
+                                </button>
+                            )}
                         </div>
 
                         {/* Chat History */}
@@ -496,7 +589,7 @@ export const SupportTickets = () => {
                                 {messages.map(msg => (
                                     <div key={msg.id} className={`flex flex-col ${msg.sender_id === userId ? 'items-end' : 'items-start'}`}>
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-xs font-bold text-[#43474e]">{msg.sender_id === userId ? 'You' : (msg.sender_role === 'STAFF' ? 'Support Team' : msg.sender_role)}</span>
+                                            <span className="text-xs font-bold text-[#43474e]">{msg.sender_id === userId ? 'You' : (msg.sender_name || (msg.sender_role === 'STAFF' ? 'Support Team' : msg.sender_role))}</span>
                                             <span className="text-xs text-[#74777f]">{formatTimestamp(msg.created_at)}</span>
                                         </div>
                                         <div className={`p-4 rounded-2xl max-w-[90%] md:max-w-[80%] text-sm leading-relaxed shadow-sm ${msg.sender_id === userId ? 'bg-[#0061a5] text-white rounded-tr-sm' : 'bg-white border border-[#e0e3e5] text-[#181c1e] rounded-tl-sm'}`}>
@@ -515,7 +608,7 @@ export const SupportTickets = () => {
                                 </span>
                                 <div className="flex gap-2 shrink-0">
                                     <button onClick={handleExtendTicket} className="bg-white border border-[#ffe082] text-[#f57f17] px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#ffe082] transition-colors">Continue</button>
-                                    <button onClick={handleMarkResolved} className="bg-[#f57f17] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#e65100] transition-colors shadow-sm">Resolve now</button>
+                                    <button onClick={() => setShowResolveConfirm(true)} className="bg-[#f57f17] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#e65100] transition-colors shadow-sm">Resolve now</button>
                                 </div>
                             </div>
                         )}
@@ -563,6 +656,33 @@ export const SupportTickets = () => {
                     </div>
                 )}
             </div>
+
+            {/* Resolve Confirmation Modal */}
+            {showResolveConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+                    <div className="bg-white rounded-2xl p-6 shadow-xl max-w-sm w-full border border-[#e0e3e5] animate-in fade-in zoom-in-95 duration-200">
+                        <h3 className="text-xl font-extrabold text-[#002045] mb-2">Resolve Ticket</h3>
+                        <p className="text-[#43474e] text-sm mb-6">Are you sure you want to mark this ticket as resolved? The user will not be able to reply anymore.</p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                onClick={() => setShowResolveConfirm(false)}
+                                className="px-4 py-2 rounded-xl font-bold text-[#43474e] hover:bg-[#f1f4f6] transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setShowResolveConfirm(false);
+                                    handleMarkResolved();
+                                }}
+                                className="px-4 py-2 rounded-xl font-bold text-white bg-[#0061a5] hover:bg-[#004a80] transition-colors shadow-sm"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

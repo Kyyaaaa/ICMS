@@ -62,7 +62,6 @@ const MasterSchedule = () => {
                     AccountsService.getAccounts({ page: 1, limit: 100, role: 'TUTOR' })
                 ]);
                 setAvailableRooms(rooms);
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 setAvailableTutors((tutors as any).data?.data || []);
             } catch (err) {
                 console.error("Failed to load tutors or rooms", err);

@@ -3,10 +3,11 @@ import axiosClient from '../../../shared/services/axiosClient';
 import type { TutorScheduleSession } from '../types/schedule';
 
 // Helper to extract time from slot
-const getSlotTimes = (slot: string | null | undefined) => {
+const getSlotTimes = (slot: string | number | null | undefined) => {
     if (!slot) return { startTime: '00:00', endTime: '00:00' };
-    const match = slot.toLowerCase().match(/slot\s*([1-6])/);
-    const normalizedSlot = match ? `slot${match[1]}` : slot.toLowerCase();
+    const strSlot = String(slot).toLowerCase();
+    const match = strSlot.match(/(?:slot\s*)?([1-6])/);
+    const normalizedSlot = match ? `slot${match[1]}` : strSlot;
 
     switch(normalizedSlot) {
         case 'slot1': return { startTime: '07:30', endTime: '09:30' };
@@ -30,10 +31,8 @@ export const ScheduleService = {
         
         try {
             const res = await axiosClient.get(url);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const data = Array.isArray((res as any)?.data?.data) ? (res as any).data.data : (Array.isArray((res as any)?.data) ? (res as any).data : (Array.isArray(res) ? res : []));
             
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return data.map((s: any) => {
                 const times = getSlotTimes(s.slot);
                 const d = new Date(s.date);

@@ -8,9 +8,9 @@ export interface TutorAvailabilityProfile {
     id: string;
     account_code: string;
     name: string;
-    status: 'submitted' | 'draft' | string;
+    status: 'unregistered' | 'draft' | 'submitted';
     slots: string[];
-    avatar_url: string;
+    avatar_url: string | null;
 }
 
 export const SHIFTS: Shift[] = [

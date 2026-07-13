@@ -40,7 +40,7 @@ export const ConsultationsService = {
         }
     },
 
-    createPublicConsultation: async (data: { guest_name: string; guest_phone: string; guest_email?: string; inquiry_details: string }): Promise<void> => {
+    createPublicConsultation: async (data: { guest_name: string; guest_phone: string; guest_email: string; course_of_interest?: string; course?: string; inquiry_details: string }): Promise<void> => {
         try {
             await axiosClient.post('/consultations', data);
         } catch (error) {

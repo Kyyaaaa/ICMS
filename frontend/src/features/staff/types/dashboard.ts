@@ -3,6 +3,8 @@ export interface StaffDashboardStats {
     activeClasses: number;
     pendingInvoices: number;
     openTickets: number;
+    pendingChangeRequests: number;
+    pendingConsultations: number;
 }
 
 export interface StaffPendingTask {
@@ -21,4 +23,6 @@ export interface StaffUpcomingClass {
     room: string;
     tutor: string;
     status: 'In Progress' | 'Upcoming';
+    courseName: string;
+    sessionNumber: number;
 }

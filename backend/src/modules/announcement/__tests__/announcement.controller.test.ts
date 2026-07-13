@@ -4,11 +4,12 @@ import { AnnouncementService } from '../announcement.service';
 
 // Mock Auth Middleware to bypass authentication for tests
 jest.mock('../../../middlewares/auth.middleware', () => ({
-    verifyToken: (req: any, res: any, next: any) => {
+    verifyToken: (req: any, _res: any, next: any) => {
         req.user = { id: 'test_user', role: 'admin' };
         next();
     },
-    requireRole: (roles: any) => (req: any, res: any, next: any) => next(),
+    optionalVerifyToken: (_req: any, _res: any, next: any) => next(),
+    requireRole: (_roles: any) => (_req: any, _res: any, next: any) => next(),
 }));
 
 describe('Announcement Controller', () => {

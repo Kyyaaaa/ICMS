@@ -1,6 +1,18 @@
 import { supabaseAdmin } from '../../configs/supabase';
+import { EnrollmentService } from '../enrollment/enrollment.service';
 
 export class InvoiceRepository {
+  static async expireInvoiceInDb(inv: any) {
+    try {
+      await supabaseAdmin.from('invoices').update({ status: 'CANCELLED' }).eq('id', inv.id);
+      await supabaseAdmin.from('invoice_installments').update({ status: 'CANCELLED' }).eq('invoice_id', inv.id).in('status', ['PENDING', 'OVERDUE']);
+      if (inv.learner_id && inv.class_id) {
+        await EnrollmentService.cancelEnrollmentByLearnerAndClass(inv.learner_id, inv.class_id);
+      }
+    } catch (e) {
+      console.error('[expireInvoiceInDb] Error:', e);
+    }
+  }
   static async getClassAndCourse(classId: string) {
     const { data, error } = await supabaseAdmin
       .from('classes')
@@ -43,14 +55,24 @@ export class InvoiceRepository {
     return data;
   }
 
+  static async getInvoiceById(invoiceId: string) {
+    const { data, error } = await supabaseAdmin
+      .from('invoices')
+      .select('*')
+      .eq('id', invoiceId)
+      .single();
+    if (error && error.code !== 'PGRST116') {
+      throw new Error(error.message);
+    }
+    return data;
+  }
+
   static async deleteInvoice(invoiceId: string) {
     const { error } = await supabaseAdmin.from('invoices').delete().eq('id', invoiceId);
     if (error) throw new Error(error.message);
   }
 
-  // checkRegistrationConflicts has been moved to EnrollmentService
-
-  static async createInvoice(learnerId: string, classId: string, amount: number, discount: number = 0, discountCodeId: string | null = null, paymentPlan: string = 'full') {
+  static async createInvoice(learnerId: string, classId: string, amount: number, discount: number = 0, discountCodeId: string | null = null, _paymentPlan: string = 'full') {
     const { data: invoice, error } = await supabaseAdmin
       .from('invoices')
       .insert({
@@ -68,11 +90,27 @@ export class InvoiceRepository {
     return invoice;
   }
 
+  static async checkDiscountCodeUsed(learnerId: string, discountCodeId: string): Promise<boolean> {
+    const { data, error } = await supabaseAdmin
+      .from('invoices')
+      .select('id')
+      .eq('learner_id', learnerId)
+      .eq('discount_code_id', discountCodeId)
+      .neq('status', 'CANCELLED')
+      .limit(1);
+
+    if (error) throw new Error(error.message);
+    return data && data.length > 0;
+  }
+
   static async generateInstallments(invoiceId: string, amount: number) {
     const { data: invoiceData } = await supabaseAdmin
       .from('invoices')
       .select(`
+        class_id,
         classes (
+          start_date,
+          end_date,
           courses (
             number_of_installments,
             allow_installments
@@ -82,8 +120,8 @@ export class InvoiceRepository {
       .eq('id', invoiceId)
       .single();
 
-    // The typings for deep select in supabase-js can be tricky, so we use any
-    const course = (invoiceData?.classes as any)?.courses;
+    const classData = invoiceData?.classes as any;
+    const course = classData?.courses;
     const numberOfInstallments = course?.number_of_installments || 3;
     const allowInstallments = course?.allow_installments;
 
@@ -95,13 +133,49 @@ export class InvoiceRepository {
     const firstTermAmount = amount - termAmount * (numberOfInstallments - 1);
     const now = new Date();
 
+    // Fetch class sessions
+    const { data: sessions } = await supabaseAdmin
+        .from('class_sessions')
+        .select('date')
+        .eq('class_id', invoiceData?.class_id)
+        .order('date', { ascending: true });
+
+    let intervalMs = 30 * 24 * 60 * 60 * 1000; // Default 30 days
+    if (classData?.start_date && classData?.end_date) {
+        const start = new Date(classData.start_date).getTime();
+        const end = new Date(classData.end_date).getTime();
+        const durationMs = end - start;
+        if (durationMs > 0 && numberOfInstallments > 1) {
+            intervalMs = Math.floor(durationMs / numberOfInstallments);
+        }
+    }
+
     const installmentsData = [];
     for (let i = 1; i <= numberOfInstallments; i++) {
+      let dueDate = new Date(now.getTime() + (i - 1) * intervalMs).toISOString();
+
+      if (sessions && sessions.length > 0 && numberOfInstallments > 1) {
+          if (i === 1) {
+              dueDate = now.toISOString();
+          } else {
+              // Calculate which session index corresponds to this installment
+              // e.g. for 3 installments, i=2 is around 1/3 of the way through the sessions
+              const targetSessionIndex = Math.floor((i - 1) * sessions.length / numberOfInstallments);
+              if (targetSessionIndex < sessions.length) {
+                  const targetSessionDate = new Date(sessions[targetSessionIndex].date);
+                  // Use the session's date but keep the current time, or just end of day
+                  dueDate = targetSessionDate.toISOString();
+              }
+          }
+      } else if (i === 1) {
+          dueDate = now.toISOString();
+      }
+
       installmentsData.push({
         invoice_id: invoiceId,
         installment_number: i,
         amount: i === 1 ? firstTermAmount : termAmount,
-        due_date: i === 1 ? now.toISOString() : new Date(now.getTime() + (i - 1) * 30 * 24 * 60 * 60 * 1000).toISOString(),
+        due_date: dueDate,
         status: 'PENDING'
       });
     }
@@ -140,6 +214,21 @@ export class InvoiceRepository {
         }
     }
     
+    if (data.data.status === 'PENDING' && data.data.created_at) {
+        const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
+        if (new Date(data.data.created_at) < fifteenMinsAgo) {
+            data.data.status = 'CANCELLED';
+            if (data.data.invoice_installments) {
+                data.data.invoice_installments.forEach((inst: any) => {
+                    if (inst.status === 'PENDING' || inst.status === 'OVERDUE') {
+                        inst.status = 'CANCELLED';
+                    }
+                });
+            }
+            await InvoiceRepository.expireInvoiceInDb(data.data);
+        }
+    }
+
     return data.data;
   }
 
@@ -167,9 +256,17 @@ export class InvoiceRepository {
     const expiredInvoices = data?.filter((inv: any) => inv.status === 'PENDING' && new Date(inv.created_at) < fifteenMinsAgo) || [];
     
     if (expiredInvoices.length > 0) {
-      const expiredIds = expiredInvoices.map((inv: any) => inv.id);
-      await supabaseAdmin.from('invoices').update({ status: 'CANCELLED' }).in('id', expiredIds);
-      expiredInvoices.forEach((inv: any) => inv.status = 'CANCELLED');
+      await Promise.all(expiredInvoices.map(async (inv: any) => {
+        inv.status = 'CANCELLED';
+        if (inv.invoice_installments) {
+          inv.invoice_installments.forEach((inst: any) => {
+            if (inst.status === 'PENDING' || inst.status === 'OVERDUE') {
+              inst.status = 'CANCELLED';
+            }
+          });
+        }
+        await InvoiceRepository.expireInvoiceInDb(inv);
+      }));
     }
 
     return data;
@@ -226,7 +323,7 @@ export class InvoiceRepository {
     if (fetchError) throw new Error(fetchError.message);
     if (!invoice) throw new Error('Invoice not found');
     if (invoice.learner_id !== learnerId) throw new Error('Unauthorized to cancel this invoice');
-    if (invoice.status !== 'PENDING' && invoice.status !== 'PARTIAL') throw new Error('Only pending or partially paid invoices can be cancelled');
+    if (invoice.status !== 'PENDING') throw new Error('Only unpaid pending invoices can be cancelled');
 
     const { error: updateError } = await supabaseAdmin
       .from('invoices')

@@ -12,22 +12,28 @@ import { initClassStatusCron } from './modules/class/cron/class-status.cron';
 import { initSupportTicketCron } from './modules/support-ticket/cron/support-ticket.cron';
 import { initDiscountStatusCron } from './modules/discount-code/cron/discount-status.cron';
 import { initClassroomStatusCron } from './modules/classroom/cron/classroom-status.cron';
+import { initInvoiceExpiryCron } from './modules/invoice/cron/invoice-expiry.cron';
 import { initPayrollCron } from './modules/payroll/cron/payroll.cron';
-
-// Khởi tạo kết nối tới database
-connectDB();
-
-// Khởi tạo cron jobs
-initCycleLockingCron();
-initClassStatusCron();
-initSupportTicketCron();
-initDiscountStatusCron();
-initClassroomStatusCron();
-initPayrollCron();
 
 const PORT = process.env.PORT || 5000;
 
-// Bật Server lắng nghe các request
-app.listen(PORT, () => {
-  console.log(`[Server]: Running at http://localhost:${PORT}`);
+const startServer = async () => {
+  await connectDB();
+
+  initCycleLockingCron();
+  initClassStatusCron();
+  initSupportTicketCron();
+  initDiscountStatusCron();
+  initClassroomStatusCron();
+  initInvoiceExpiryCron();
+  initPayrollCron();
+
+  app.listen(PORT, () => {
+    console.log(`[Server]: Running at http://localhost:${PORT}`);
+  });
+};
+
+startServer().catch((error) => {
+  console.error('[Server]: Startup failed', error);
+  process.exit(1);
 });

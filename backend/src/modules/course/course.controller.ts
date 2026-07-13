@@ -19,9 +19,10 @@ export class CourseController {
         }
     }
 
-    static async getAllCourses(req: Request, res: Response) {
+    static async getAllCourses(req: any, res: Response) {
         try {
-            const courses = await CourseService.getAllCourses();
+            const isAdmin = req.user && String(req.user.role || '').toUpperCase() === 'ADMIN';
+            const courses = await CourseService.getAllCourses({ onlyActive: !isAdmin });
             res.status(200).json({
                 success: true,
                 data: courses
@@ -35,10 +36,11 @@ export class CourseController {
         }
     }
 
-    static async getCourseById(req: Request, res: Response) {
+    static async getCourseById(req: any, res: Response) {
         try {
             const id = req.params.id as string;
-            const course = await CourseService.getCourseById(id);
+            const isAdmin = req.user && String(req.user.role || '').toUpperCase() === 'ADMIN';
+            const course = await CourseService.getCourseById(id, { onlyActive: !isAdmin });
             res.status(200).json({
                 success: true,
                 data: course

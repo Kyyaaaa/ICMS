@@ -1,7 +1,8 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { API_BASE_URL } from '@/config/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = API_BASE_URL;
 
 const getHeaders = () => {
     const token = Cookies.get('access_token');

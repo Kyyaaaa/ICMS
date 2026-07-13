@@ -1,4 +1,4 @@
-import { Edit, Trash2, Globe, Users, BookOpen, CalendarClock } from 'lucide-react';
+import { Edit, Trash2, Globe, Users, BookOpen, CalendarClock, User } from 'lucide-react';
 import type { Announcement, TargetAudience, AudienceScope } from '../types/announcement';
 
 interface AnnouncementCardProps {
@@ -8,7 +8,7 @@ interface AnnouncementCardProps {
     onDelete: (id: string) => void;
 }
 
-import { formatDate, formatDateTime } from '../../../shared/utils/date';
+import { formatDateTime } from '../../../shared/utils/date';
 
 export const AnnouncementCard = ({ announcement, availableClasses, onEdit, onDelete }: AnnouncementCardProps) => {
     const formatAudienceText = (audience: TargetAudience) => {
@@ -19,13 +19,20 @@ export const AnnouncementCard = ({ announcement, availableClasses, onEdit, onDel
             const classNames = audience.classes.map(cid => availableClasses.find(c => c.id === cid)?.name).filter(Boolean);
             return `Classes: ${classNames.join(', ')}`;
         }
+        if (audience.scope === 'Specific Users') {
+            if (audience.userNames && audience.userNames.length > 0) {
+                return audience.userNames.join(', ');
+            }
+            return `Specific Users (${audience.users?.length || 0})`;
+        }
         return "Unknown";
     };
 
     const getAudienceIcon = (scope: AudienceScope) => {
         if (scope === 'System Wide') return <Globe className="w-5 h-5 text-green-600" />;
         if (scope === 'Specific Roles') return <Users className="w-5 h-5 text-blue-600" />;
-        return <BookOpen className="w-5 h-5 text-purple-600" />;
+        if (scope === 'Specific Classes') return <BookOpen className="w-5 h-5 text-purple-600" />;
+        return <User className="w-5 h-5 text-purple-600" />;
     };
 
     return (
@@ -34,7 +41,8 @@ export const AnnouncementCard = ({ announcement, availableClasses, onEdit, onDel
                 <div className="flex gap-4 flex-1">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
                         announcement.audience.scope === 'System Wide' ? 'bg-green-100' :
-                        announcement.audience.scope === 'Specific Roles' ? 'bg-blue-100' : 'bg-purple-100'
+                        announcement.audience.scope === 'Specific Roles' ? 'bg-blue-100' : 
+                        announcement.audience.scope === 'Specific Classes' ? 'bg-purple-100' : 'bg-purple-50'
                     }`}>
                         {getAudienceIcon(announcement.audience.scope)}
                     </div>
@@ -49,12 +57,13 @@ export const AnnouncementCard = ({ announcement, availableClasses, onEdit, onDel
                                     <CalendarClock size={14} /> Scheduled for: {formatDateTime(announcement.scheduledFor)}
                                 </span>
                             ) : (
-                                <span className="text-[#74777f] bg-[#f1f4f6] px-3 py-1.5 rounded-lg">Posted: {formatDate(announcement.date)}</span>
+                                <span className="text-[#74777f] bg-[#f1f4f6] px-3 py-1.5 rounded-lg">Posted: {formatDateTime(announcement.date)}</span>
                             )}
                             <span className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 ${
                                 announcement.audience.scope === 'System Wide' ? 'text-green-700 bg-green-50 border border-green-200' :
                                 announcement.audience.scope === 'Specific Roles' ? 'text-blue-700 bg-blue-50 border border-blue-200' : 
-                                'text-purple-700 bg-purple-50 border border-purple-200'
+                                announcement.audience.scope === 'Specific Classes' ? 'text-purple-700 bg-purple-50 border border-purple-200' :
+                                'text-[#5a3b7c] bg-[#f5ecff] border border-[#dcb8ff]'
                             }`}>
                                 Target: {formatAudienceText(announcement.audience)}
                             </span>

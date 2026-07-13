@@ -1,4 +1,6 @@
 import { Eye, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Pagination } from '@/shared/components/common/Pagination';
 import type { Transaction } from '../types/finance';
 
 interface FinanceTableProps {
@@ -15,6 +17,8 @@ export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTa
             return dateString;
         }
     };
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
     return (
         <div className="bg-white rounded-b-[12px] shadow-sm border border-[#e0e3e5] overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-225">
@@ -30,10 +34,17 @@ export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTa
                     </tr>
                 </thead>
                 <tbody>
-                    {transactions.map(txn => (
+                    {transactions.slice((currentPage - 1) * limit, currentPage * limit).map(txn => (
                         <tr key={txn.id} className="border-b border-[#e0e3e5] last:border-0 hover:bg-[#f7fafc]">
                             <td className="py-4 px-6">
-                                <span className="text-xs font-bold text-[#0061a5] bg-[#e6f0fa] px-2 py-1 rounded-md">{txn.id}</span>
+                                <span className={`text-xs font-bold px-2 py-1 rounded-md ${
+                                    txn.id.startsWith('INV') ? 'text-[#0061a5] bg-[#e6f0fa]' :
+                                    txn.id.startsWith('REF') ? 'text-[#ba1a1a] bg-[#fceeee]' :
+                                    txn.id.startsWith('PAY') ? 'text-[#c2410c] bg-[#fff7ed]' :
+                                    'text-[#43474e] bg-[#f1f4f6]'
+                                }`}>
+                                    {txn.id}
+                                </span>
                             </td>
                             <td className="py-4 px-6">
                                     <div className="text-sm font-bold text-[#002045]">
@@ -51,7 +62,7 @@ export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTa
                             </td>
                             <td className="py-4 px-6 text-right">
                                 <div className={`text-sm font-bold ${txn.status === 'Failed' && !txn.paidAmount ? 'text-[#74777f] line-through opacity-70' : txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
-                                    {txn.type === 'income' ? '+' : '-'} {(txn.paidAmount ?? txn.amount).toLocaleString()} đ
+                                    {txn.type === 'income' ? '+' : '-'} {txn.amount.toLocaleString('en-US')} VND
                                 </div>
                             </td>
                             <td className="py-4 px-6">
@@ -98,6 +109,13 @@ export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTa
                     )}
                 </tbody>
             </table>
+            <Pagination
+                currentPage={currentPage}
+                totalItems={transactions.length}
+                itemsPerPage={limit}
+                onPageChange={setCurrentPage}
+                itemName="transactions"
+            />
         </div>
     );
 };

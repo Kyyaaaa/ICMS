@@ -1,5 +1,5 @@
 import { CertificateRepository } from './certificate.repository';
-import type { Certificate, CreateCertificateInput, UpdateCertificateInput } from './certificate.model';
+import type { Certificate,UpdateCertificateInput } from './certificate.model';
 
 export class CertificateService {
   static async listCertificates(callerRole: string, callerId: string, tutorId: string) {

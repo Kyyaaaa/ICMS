@@ -4,9 +4,7 @@ import axiosClient from '../../../shared/services/axiosClient';
 export const AdminRefundsService = {
     getRefunds: async (): Promise<RefundRequest[]> => {
         try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const res = await axiosClient.get('/refunds/admin') as { data: any[] };
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const res = await axiosClient.get('/refunds/admin') as { data: unknown[] };
             return res.data.map((r: any) => {
                 let installment = 'Refund';
                 let reason = r.reason;

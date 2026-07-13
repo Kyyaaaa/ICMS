@@ -9,6 +9,12 @@ export class AnnouncementRepository {
                 *,
                 announcement_classes (
                     class_id
+                ),
+                announcement_users (
+                    user_id,
+                    account (
+                        full_name
+                    )
                 )
             `)
             .order('created_at', { ascending: false });
@@ -60,6 +66,18 @@ export class AnnouncementRepository {
             }
         }
 
+        if (userId) {
+            const { data: annUsers } = await supabaseAdmin
+                .from('announcement_users')
+                .select('announcement_id')
+                .eq('user_id', userId);
+                
+            if (annUsers && annUsers.length > 0) {
+                const annIds = annUsers.map(a => a.announcement_id);
+                orQuery += `,and(scope.eq.Specific Users,id.in.(${annIds.join(',')}))`;
+            }
+        }
+
         const now = new Date().toISOString();
 
         const { data, error } = await supabaseAdmin
@@ -68,6 +86,9 @@ export class AnnouncementRepository {
                 *,
                 announcement_classes (
                     class_id
+                ),
+                announcement_users (
+                    user_id
                 )
             `)
             .or(orQuery)
@@ -114,7 +135,22 @@ export class AnnouncementRepository {
             insertedClasses = cData || [];
         }
 
-        return { ...insertedData, announcement_classes: insertedClasses };
+        let insertedUsers: any[] = [];
+        if (dto.audience.scope === 'Specific Users' && dto.audience.users && dto.audience.users.length > 0) {
+            const userInserts = dto.audience.users.map(uid => ({
+                announcement_id: insertedData.id,
+                user_id: uid
+            }));
+            const { data: uData, error: uError } = await supabaseAdmin
+                .from('announcement_users')
+                .insert(userInserts)
+                .select();
+                
+            if (uError) throw uError;
+            insertedUsers = uData || [];
+        }
+
+        return { ...insertedData, announcement_classes: insertedClasses, announcement_users: insertedUsers };
     }
 
     static async updateAnnouncement(dto: UpdateAnnouncementDTO) {

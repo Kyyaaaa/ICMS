@@ -14,23 +14,19 @@ export interface ProfileData {
 }
 
 export const ProfileService = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getProfile: async (id: string): Promise<any> => {
+    getProfile: async (id: string): Promise<unknown> => {
         return axiosClient.get(`/accounts/${id}`);
     },
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    updateProfile: async (id: string, data: Partial<ProfileData>): Promise<any> => {
+    updateProfile: async (id: string, data: Partial<ProfileData>): Promise<unknown> => {
         return axiosClient.patch(`/accounts/${id}`, data);
     },
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    updatePassword: async (id: string, data: Record<string, string>): Promise<any> => {
+    updatePassword: async (id: string, data: Record<string, string>): Promise<unknown> => {
         return axiosClient.patch(`/accounts/${id}`, data);
     },
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    uploadAvatar: async (file: File): Promise<any> => {
+    uploadAvatar: async (file: File): Promise<unknown> => {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('folder', 'avatar');

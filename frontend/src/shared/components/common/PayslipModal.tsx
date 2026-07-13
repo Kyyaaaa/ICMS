@@ -90,25 +90,25 @@ export const PayslipModal = ({ record, onClose }: PayslipModalProps) => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-[#43474e] font-medium">Base Salary</span>
-                                        <span className="font-bold text-[#181c1e]">{record.baseSalary.toLocaleString()} đ</span>
+                                        <span className="font-bold text-[#181c1e]">{record.baseSalary.toLocaleString('en-US')} VND</span>
                                     </div>
                                     
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-green-600 font-medium">Bonus & Allowances</span>
-                                        <span className="font-bold text-green-600">+{record.bonuses.toLocaleString()} đ</span>
+                                        <span className="font-bold text-green-600">+{record.bonuses.toLocaleString('en-US')} VND</span>
                                     </div>
 
                                     <div className="pt-3 border-t border-dashed border-[#e0e3e5]">
                                         <div className="flex justify-between items-center text-sm">
                                             <span className="text-red-600 font-medium">Tax Deduction (5%)</span>
-                                            <span className="font-bold text-red-600">-{record.deductions.toLocaleString()} đ</span>
+                                            <span className="font-bold text-red-600">-{record.deductions.toLocaleString('en-US')} VND</span>
                                         </div>
                                     </div>
                                     
                                     <div className="pt-4 mt-2 border-t border-[#c4c6cf]">
                                         <div className="flex justify-between items-center bg-[#e6f0fa] p-4 rounded-xl border border-[#bbdefb]">
                                             <span className="font-extrabold text-[#002045] text-base">Total Net Pay</span>
-                                            <span className="font-extrabold text-[#0061a5] text-3xl">{record.netPay.toLocaleString()} đ</span>
+                                            <span className="font-extrabold text-[#0061a5] text-3xl">{record.netPay.toLocaleString('en-US')} VND</span>
                                         </div>
                                     </div>
                                 </div>

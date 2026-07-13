@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, XCircle, RefreshCcw, Banknote, CreditCard, User, Landmark } from 'lucide-react';
 import { AdminRefundsService } from '../services/refunds.service';
 import type { RefundRequest } from '../types/refund';
+import { showAlertModal } from '@/utils/modal';
+import { formatDate } from '../../../shared/utils/date';
 
 const AdminRefundDetail = () => {
     const { id } = useParams();
@@ -13,12 +15,17 @@ const AdminRefundDetail = () => {
 
     useEffect(() => {
         const fetchRefund = async () => {
-            if (id) {
-                const data = await AdminRefundsService.getRefundById(id);
-                setRefund(data);
-                if (data?.notes) setNotes(data.notes);
+            try {
+                if (id) {
+                    const data = await AdminRefundsService.getRefundById(id);
+                    setRefund(data);
+                    if (data?.notes) setNotes(data.notes);
+                }
+            } catch (error: unknown) {
+                showAlertModal("Error", "Failed to fetch refund details: " + ((error as Error)?.message || "Unknown error"), "error");
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
         fetchRefund();
     }, [id]);
@@ -26,11 +33,16 @@ const AdminRefundDetail = () => {
     const handleUpdateStatus = async (status: 'APPROVED' | 'REJECTED' | 'COMPLETED') => {
         if (!refund?.dbId) return;
         setIsProcessing(true);
-        const success = await AdminRefundsService.updateStatus(refund.dbId, status, notes);
-        if (success) {
-            setRefund(prev => prev ? { ...prev, status: status === 'APPROVED' ? 'Approved' : status === 'COMPLETED' ? 'Completed' : 'Rejected' } : null);
+        try {
+            const success = await AdminRefundsService.updateStatus(refund.dbId, status, notes);
+            if (success) {
+                setRefund(prev => prev ? { ...prev, status: status === 'APPROVED' ? 'Approved' : status === 'COMPLETED' ? 'Completed' : 'Rejected' } : null);
+            }
+        } catch (error: unknown) {
+            showAlertModal("Error", "Failed to update status: " + ((error as Error)?.message || "Unknown error"), "error");
+        } finally {
+            setIsProcessing(false);
         }
-        setIsProcessing(false);
     };
 
     if (loading) return <div className="p-8 text-center">Loading...</div>;
@@ -49,14 +61,14 @@ const AdminRefundDetail = () => {
                 <div className="flex items-center gap-3 mb-6 border-b border-[#e0e3e5] pb-6">
                     <RefreshCcw className="text-[#c9a82c]" size={28} />
                     <div>
-                        <h2 className="text-xl font-bold text-[#181c1e]">Amount Requested: {refund.refundAmount?.toLocaleString()} đ</h2>
+                        <h2 className="text-xl font-bold text-[#181c1e]">Amount Requested: {refund.refundAmount?.toLocaleString('en-US')} VND</h2>
                         <span className={`inline-block px-2 py-1 mt-2 text-xs font-bold rounded uppercase ${
                             refund.status === 'Completed' ? 'bg-[#e6f4ea] text-[#137333]' :
                             refund.status === 'Approved' ? 'bg-[#e6f0fa] text-[#0061a5]' :
                             refund.status === 'Rejected' ? 'bg-[#fceeee] text-[#ba1a1a]' :
                             'bg-[#fff8e1] text-[#c9a82c]'
                         }`}>
-                            {refund.status}
+                            {refund.status === 'Pending' ? 'Pending Approval' : refund.status === 'Approved' ? 'Pending Refund' : refund.status}
                         </span>
                     </div>
                 </div>
@@ -74,7 +86,7 @@ const AdminRefundDetail = () => {
                         </div>
                         <div>
                             <h4 className="text-xs font-bold text-[#74777f] uppercase mb-1">Requested Date</h4>
-                            <p className="text-base text-[#181c1e] font-medium">{new Date(refund.requestedDate).toLocaleString()}</p>
+                            <p className="text-base text-[#181c1e] font-medium">{formatDate(refund.requestedDate)}</p>
                         </div>
                     </div>
                     

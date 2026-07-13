@@ -18,4 +18,5 @@ export interface VNPayReturnQuery {
   vnp_TransactionStatus: string;
   vnp_TxnRef: string;
   vnp_SecureHash: string;
+  vnp_SecureHashType?: string;
 }

@@ -45,6 +45,14 @@ export const ClassesService = {
                     endDate: cls.end_date,
                     classes: []
                 });
+            } else {
+                const group = groupsMap.get(courseId)!;
+                if (cls.start_date && (!group.startDate || new Date(cls.start_date) < new Date(group.startDate))) {
+                    group.startDate = cls.start_date;
+                }
+                if (cls.end_date && (!group.endDate || new Date(cls.end_date) > new Date(group.endDate))) {
+                    group.endDate = cls.end_date;
+                }
             }
             groupsMap.get(courseId)?.classes.push(cls);
         });
@@ -87,15 +95,14 @@ export const ClassesService = {
             const res = await axiosClient.get<{success: boolean, data: unknown[]}>(`/staff/classes/${classId}/students`);
             const data = (res as unknown as { data: unknown[] }).data || [];
             return data.map((item: unknown) => {
-                const typedItem = item as { id: string, account?: { id?: string, full_name?: string, email?: string, account_code?: string }, enrollment_date?: string, learner_id?: string };
-                // Using 100% attendance dynamically based on total sessions later
+                const typedItem = item as { id: string, account?: { id?: string, full_name?: string, email?: string, account_code?: string }, enrollment_date?: string, learner_id?: string, attendance_rate?: number };
                 return {
-                    id: typedItem.account?.id || typedItem.id,
+                    id: typedItem.id || typedItem.account?.id,
                     code: formatAccountID(typedItem.account?.account_code || typedItem.account?.id || typedItem.learner_id || typedItem.id, 'LEARNER'),
                     name: typedItem.account?.full_name || 'Unknown',
                     email: typedItem.account?.email || 'N/A',
                     joinedDate: typedItem.enrollment_date ? formatDate(typedItem.enrollment_date) : 'TBA',
-                    attendanceRate: 100 // Mock attendance rate for now
+                    attendanceRate: typedItem.attendance_rate !== undefined ? typedItem.attendance_rate : 100
                 };
             });
         } catch (error) {

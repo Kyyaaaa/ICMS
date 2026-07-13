@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { apiUrl } from '@/config/api';
 
 interface ProtectedRouteProps {
     allowedRoles: string[];
@@ -10,8 +11,9 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     const location = useLocation();
-    const [authState, setAuthState] = useState<'loading' | 'authenticated' | 'expired' | 'unauthorized'>('loading');
+    const [authState, setAuthState] = useState<'loading' | 'authenticated' | 'expired' | 'unauthorized' | 'unavailable'>('loading');
     const [userRole, setUserRole] = useState('');
+    const [hasAvailability, setHasAvailability] = useState(true);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -41,9 +43,16 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
             // Xác thực token với backend (gọi nhẹ 1 API bất kỳ cần auth)
             try {
-                await axios.get('http://localhost:5000/api/auth/verify', {
+                const verifyRes = await axios.get(apiUrl('/auth/verify'), {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                
+                if (verifyRes.data?.has_updated_availability === false) {
+                    setHasAvailability(false);
+                } else {
+                    setHasAvailability(true);
+                }
+
                 // Token còn hợp lệ
                 if (!allowedRoles.map(r => r.toUpperCase()).includes(role)) {
                     setAuthState('unauthorized');
@@ -58,7 +67,7 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
                     if (refreshToken) {
                         try {
                             const refreshRes = await axios.post(
-                                'http://localhost:5000/api/auth/refresh',
+                                apiUrl('/auth/refresh'),
                                 { refresh_token: refreshToken },
                                 { headers: { 'Content-Type': 'application/json' } }
                             );
@@ -86,12 +95,7 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
                     Cookies.remove('user_info', { path: '/' });
                     setAuthState('expired');
                 } else {
-                    // Lỗi khác (network, 500) → cho qua dựa trên cookie
-                    if (!allowedRoles.map(r => r.toUpperCase()).includes(role)) {
-                        setAuthState('unauthorized');
-                    } else {
-                        setAuthState('authenticated');
-                    }
+                    setAuthState('unavailable');
                 }
             }
         };
@@ -106,6 +110,20 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="w-10 h-10 text-[#0061a5] animate-spin" />
                     <p className="text-[#43474e] text-sm font-medium">Verifying session...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (authState === 'unavailable') {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-[#f7fafc] px-6">
+                <div className="max-w-md rounded-2xl border border-[#e0e3e5] bg-white p-8 text-center shadow-sm">
+                    <h1 className="text-xl font-bold text-[#002045]">Unable to verify your session</h1>
+                    <p className="mt-3 text-sm text-[#43474e]">The server is temporarily unavailable. Protected content remains locked until verification succeeds.</p>
+                    <button onClick={() => window.location.reload()} className="mt-6 rounded-xl bg-[#0061a5] px-5 py-3 text-sm font-bold text-white hover:bg-[#004f87]">
+                        Try Again
+                    </button>
                 </div>
             </div>
         );
@@ -144,6 +162,14 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
         const profilePath = `/${userRole.toLowerCase()}/profile`;
         if (location.pathname !== profilePath) {
             return <Navigate to={profilePath} replace state={{ requireProfileUpdate: true }} />;
+        }
+    }
+
+    // Force redirect to availability page for Tutors if profile is complete but availability is not
+    if (authState === 'authenticated' && isProfileComplete && userRole === 'TUTOR' && !hasAvailability) {
+        const availabilityPath = '/tutor/availability';
+        if (location.pathname !== availabilityPath) {
+            return <Navigate to={availabilityPath} replace state={{ requireAvailabilityUpdate: true, isNewTutor: true }} />;
         }
     }
 

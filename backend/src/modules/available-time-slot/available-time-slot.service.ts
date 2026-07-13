@@ -1,5 +1,6 @@
 import { AvailableTimeSlotRepository } from './available-time-slot.repository';
 import { AvailabilityResponse, SubmitAvailabilityDTO, TutorAvailabilityProfile, StaffUpdateTutorAvailabilityDTO } from './available-time-slot.model';
+import { supabaseAdmin } from '../../configs/supabase';
 
 export class AvailableTimeSlotService {
   static async getMyAvailability(tutorId: string, cycleId: string): Promise<AvailabilityResponse> {
@@ -10,6 +11,43 @@ export class AvailableTimeSlotService {
     const { cycle_id, slots, status } = data;
     
     if (!cycle_id) throw new Error('cycle_id is required');
+
+    // Check cycle status first
+    const cycles = await AvailableTimeSlotRepository.getCycles();
+    const targetCycle = cycles.find(c => c.id === cycle_id);
+    if (!targetCycle) {
+      throw new Error('Cycle not found');
+    }
+    if (targetCycle.status !== 'OPEN') {
+      const { data: tutorInfo } = await supabaseAdmin
+        .from('account')
+        .select('created_at')
+        .eq('id', tutorId)
+        .single();
+
+      let isNewTutor = false;
+      if (tutorInfo) {
+        const createdDate = new Date(tutorInfo.created_at);
+        const cycleStartDate = new Date(targetCycle.start_date);
+        const cycleEndDate = new Date(targetCycle.end_date);
+        const cycleEndDateInclusive = new Date(cycleEndDate.getTime() + 24 * 60 * 60 * 1000);
+        
+        if (createdDate >= cycleStartDate && createdDate < cycleEndDateInclusive) {
+          isNewTutor = true;
+        } else {
+          const { count } = await supabaseAdmin
+            .from('tutor_availability_status')
+            .select('*', { count: 'exact', head: true })
+            .eq('tutor_id', tutorId)
+            .neq('cycle_id', targetCycle.id);
+          
+          isNewTutor = count === 0;
+        }
+      }
+      if (!isNewTutor) {
+        throw new Error(`Cannot submit availability because the cycle is currently ${targetCycle.status}. Registration is closed.`);
+      }
+    }
 
     // Validate slots
     if (!Array.isArray(slots)) {
@@ -39,6 +77,17 @@ export class AvailableTimeSlotService {
 
     // Use status from DTO or default to submitted
     const newStatus = status === 'draft' ? 'draft' : 'submitted';
+
+    // Verify occupied slots are not being removed
+    const occupiedSlots = await AvailableTimeSlotRepository.getOccupiedSlotsForCycle(tutorId, cycle_id);
+    const submittedSet = new Set(slots);
+    
+    for (const occupied of occupiedSlots) {
+      if (!submittedSet.has(occupied.slot_key)) {
+        const formattedKey = occupied.slot_key.replace(/-slot(\d+)/i, ' - Slot $1');
+        throw new Error(`Cannot remove ${formattedKey} because you are teaching ${occupied.class_name}`);
+      }
+    }
 
     await AvailableTimeSlotRepository.submitAvailability(tutorId, cycle_id, slots, newStatus);
   }
@@ -76,6 +125,17 @@ export class AvailableTimeSlotService {
       }
     }
 
+    // Verify occupied slots are not being removed
+    const occupiedSlots = await AvailableTimeSlotRepository.getOccupiedSlotsForCycle(tutorId, cycle_id);
+    const submittedSet = new Set(slots);
+    
+    for (const occupied of occupiedSlots) {
+      if (!submittedSet.has(occupied.slot_key)) {
+        const formattedKey = occupied.slot_key.replace(/-slot(\d+)/i, ' - Slot $1');
+        throw new Error(`Cannot remove ${formattedKey} because the tutor is teaching ${occupied.class_name}`);
+      }
+    }
+
     await AvailableTimeSlotRepository.submitAvailability(tutorId, cycle_id, slots, status);
   }
 
@@ -95,5 +155,9 @@ export class AvailableTimeSlotService {
 
   static async checkTutorAvailabilityForSlots(tutorId: string, cycleName: string, requiredSlotKeys: string[]) {
     return await AvailableTimeSlotRepository.checkTutorAvailabilityForSlots(tutorId, cycleName, requiredSlotKeys);
+  }
+
+  static async syncTutorAvailabilityWithSessions(tutorId: string, sessions: any[]) {
+    return await AvailableTimeSlotRepository.syncTutorAvailabilityWithSessions(tutorId, sessions);
   }
 }

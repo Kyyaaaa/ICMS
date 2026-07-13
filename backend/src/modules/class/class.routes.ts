@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { ClassController } from './class.controller';
+import { verifyToken, requireRole } from '../../middlewares/auth.middleware';
 
 const router = Router();
+
+router.use(verifyToken);
 
 /**
  * @swagger
@@ -29,7 +32,7 @@ const router = Router();
  *       200:
  *         description: OK
  */
-router.get('/', ClassController.getClasses);
+router.get('/', ClassController.getClasses); // Allow all authenticated users (Learner, Tutor, Staff) to view classes if needed, or we can restrict it. Let's keep it generally accessible if authenticated.
 
 /**
  * @swagger
@@ -41,7 +44,7 @@ router.get('/', ClassController.getClasses);
  *       200:
  *         description: OK
  */
-router.get('/sessions/occupied', ClassController.getOccupiedSessions);
+router.get('/sessions/occupied', requireRole(['STAFF', 'ADMIN']), ClassController.getOccupiedSessions);
 
 /**
  * @swagger
@@ -110,7 +113,7 @@ router.get('/:id', ClassController.getClassById);
  *       409:
  *         description: Conflict
  */
-router.post('/', ClassController.createClass);
+router.post('/', requireRole(['STAFF', 'ADMIN']), ClassController.createClass);
 
 /**
  * @swagger
@@ -141,7 +144,7 @@ router.post('/', ClassController.createClass);
  *       200:
  *         description: OK
  */
-router.patch('/:id', ClassController.updateClass);
+router.patch('/:id', requireRole(['STAFF', 'ADMIN']), ClassController.updateClass);
 
 /**
  * @swagger
@@ -182,7 +185,7 @@ router.patch('/:id', ClassController.updateClass);
  *       409:
  *         description: Conflict Schedule
  */
-router.patch('/:class_id/sessions/:session_id', ClassController.updateClassSession);
+router.patch('/:class_id/sessions/:session_id', requireRole(['STAFF', 'ADMIN']), ClassController.updateClassSession);
 
 /**
  * @swagger
@@ -200,7 +203,7 @@ router.patch('/:class_id/sessions/:session_id', ClassController.updateClassSessi
  *       200:
  *         description: OK
  */
-router.get('/:id/students', ClassController.getClassStudents);
+router.get('/:id/students', requireRole(['STAFF', 'ADMIN', 'TUTOR']), ClassController.getClassStudents);
 
 /**
  * @swagger
@@ -218,6 +221,6 @@ router.get('/:id/students', ClassController.getClassStudents);
  *       200:
  *         description: OK
  */
-router.delete('/:id', ClassController.deleteClass);
+router.delete('/:id', requireRole(['STAFF', 'ADMIN']), ClassController.deleteClass);
 
 export default router;

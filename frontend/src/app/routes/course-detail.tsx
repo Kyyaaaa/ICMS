@@ -19,7 +19,7 @@ import type { ErrorInfo, ReactNode } from "react";
 import { Component } from "react";
 import { CoursesService } from "@/shared/services/courses.service";
 import { formatDate } from "@/shared/utils/date";
-
+import { LearnerRegistrationService } from "@/features/learner/services/registration.service";
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { hasError: boolean; error: Error | null }
@@ -96,7 +96,6 @@ const CourseDetailInner = () => {
     setIsApplyingPromo(true);
     setPromoError(null);
     try {
-      const { LearnerRegistrationService } = await import('@/features/learner/services/registration.service');
       const res = await LearnerRegistrationService.validateDiscountCode(promoCodeInput.trim());
       if (res && res.data) {
         setAppliedDiscount({ code: promoCodeInput.trim(), value: res.data.value });
@@ -104,7 +103,6 @@ const CourseDetailInner = () => {
       }
     } catch (e: unknown) {
       setAppliedDiscount(null);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setPromoError((e as any).message || 'Invalid discount code');
     } finally {
       setIsApplyingPromo(false);
@@ -293,14 +291,14 @@ const CourseDetailInner = () => {
                   {new Intl.NumberFormat("vi-VN").format(
                     Number(course.original_price || course.originalPrice),
                   )}{" "}
-                  đ
+                  VND
                 </span>
               )}
               
               {/* Show base price crossed out if a discount code is applied */}
               {appliedDiscount && (
                 <span className="text-lg text-[#0061a5] line-through font-bold mb-1 whitespace-nowrap">
-                  {new Intl.NumberFormat("vi-VN").format(Number(course.price || 0))} đ
+                  {new Intl.NumberFormat("vi-VN").format(Number(course.price || 0))} VND
                 </span>
               )}
 
@@ -309,7 +307,7 @@ const CourseDetailInner = () => {
                 {new Intl.NumberFormat("vi-VN").format(
                   Math.max(0, Number(course.price || 0) - (appliedDiscount ? appliedDiscount.value : 0))
                 )}{" "}
-                đ
+                VND
               </span>
             </div>
             <div className="flex items-center gap-3 bg-[#f7fafc] rounded-xl p-4 mb-6 border border-[#e0e3e5]">
@@ -518,7 +516,7 @@ const CourseDetailInner = () => {
                 {promoError && <div className="text-red-400 text-sm mt-1">{promoError}</div>}
                 {appliedDiscount && (
                   <div className="text-[#adc7f7] text-sm mt-1 font-medium">
-                    Code applied! You will get a discount of {new Intl.NumberFormat("vi-VN").format(appliedDiscount.value)} đ.
+                    Code applied! You will get a discount of {new Intl.NumberFormat("vi-VN").format(appliedDiscount.value)} VND.
                   </div>
                 )}
               </div>

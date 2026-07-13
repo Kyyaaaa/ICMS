@@ -5,46 +5,60 @@
 ### MODULE: COURSE
 ### ------------------------------------------------------------------------
 
-### 1. Lấy danh sách tất cả khóa học (Public)
+### 1. Lấy danh sách khóa học (Public - Chỉ trả về các khóa học Active)
 GET {{baseUrl}}/courses
 Content-Type: application/json
 
 ###
 
-### 2. Lấy thông tin chi tiết một khóa học (Public)
+### 2. Lấy danh sách toàn bộ khóa học (Admin - Trả về cả Draft, Hidden, Active)
+GET {{baseUrl}}/courses
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 3. Lấy thông tin chi tiết một khóa học (Public - Nếu khóa học Draft/Hidden sẽ trả về 404)
 @courseId = ID_KHOA_HOC_O_DAY
 GET {{baseUrl}}/courses/{{courseId}}
 Content-Type: application/json
 
 ###
 
-### 3. Tạo khóa học mới (Yêu cầu quyền Admin)
+### 4. Lấy thông tin chi tiết một khóa học bất kỳ (Admin - Có thể xem Draft/Hidden)
+GET {{baseUrl}}/courses/{{courseId}}
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 5. Tạo khóa học mới (Yêu cầu quyền Admin)
 POST {{baseUrl}}/courses
 Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-  "name": "Basic ReactJS Course",
-  "description": "Master ReactJS from scratch",
-  "price": 500000,
-  "duration_weeks": 8,
-  "status": "ACTIVE"
+  "title": "IELTS Intensive 7.0+",
+  "band": "7.0 - 8.0",
+  "price": 5000000,
+  "sessions": 24,
+  "status": "Draft"
 }
 
 ###
 
-### 4. Cập nhật thông tin khóa học (Yêu cầu quyền Admin)
+### 6. Cập nhật thông tin khóa học (Yêu cầu quyền Admin)
 PUT {{baseUrl}}/courses/{{courseId}}
 Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-  "price": 600000,
-  "description": "Master ReactJS from scratch (Updated)"
+  "price": 6000000,
+  "status": "Active"
 }
 
 ###
 
-### 5. Xóa khóa học (Yêu cầu quyền Admin)
+### 7. Xóa khóa học (Yêu cầu quyền Admin)
 DELETE {{baseUrl}}/courses/{{courseId}}
 Authorization: Bearer {{adminToken}}

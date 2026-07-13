@@ -1,8 +1,9 @@
 import type { Course } from '../types/course';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { apiUrl } from '@/config/api';
 
-const API_URL = 'http://localhost:5000/api/courses';
+const API_URL = apiUrl('/courses');
 
 const getAuthHeaders = () => {
     const token = Cookies.get('access_token');
@@ -16,7 +17,7 @@ const getAuthHeaders = () => {
 export const CoursesService = {
     getCourses: async (): Promise<Course[]> => {
         try {
-            const response = await axios.get(API_URL);
+            const response = await axios.get(API_URL, getAuthHeaders());
             return response.data.data || [];
         } catch (error) {
             console.error('Error fetching courses:', error);
@@ -26,7 +27,7 @@ export const CoursesService = {
 
     getCourseById: async (id: string): Promise<Course | null> => {
         try {
-            const response = await axios.get(`${API_URL}/${id}`);
+            const response = await axios.get(`${API_URL}/${id}`, getAuthHeaders());
             return response.data.data;
         } catch (error) {
             console.error('Error fetching course:', error);
@@ -72,7 +73,7 @@ export const CoursesService = {
             formData.append('folder', 'courses');
 
             const token = Cookies.get('access_token');
-            const response = await axios.post('http://localhost:5000/api/upload/image', formData, {
+            const response = await axios.post(apiUrl('/upload/image'), formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`

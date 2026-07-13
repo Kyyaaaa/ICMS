@@ -1,10 +1,11 @@
-export type AudienceScope = 'System Wide' | 'Specific Roles' | 'Specific Classes';
+export type AudienceScope = 'System Wide' | 'Specific Roles' | 'Specific Classes' | 'Specific Users';
 export type Role = 'Admin' | 'Staff' | 'Tutor' | 'Learner';
 
 export interface AnnouncementAudience {
     scope: AudienceScope;
     roles?: Role[];
     classes?: string[];
+    users?: string[];
 }
 
 export interface Announcement {

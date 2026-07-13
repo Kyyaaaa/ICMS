@@ -5,6 +5,9 @@ export interface CreateChangeRequestDTO {
     type: string;
     original_time: string;
     proposed_time?: string | null;
+    proposed_date?: string | null;
+    proposed_slot?: string | null;
+    proposed_room_id?: string | null;
     reason: string;
     status: string;
 }
@@ -27,6 +30,9 @@ export interface ChangeRequest {
     type: string;
     original_time: string;
     proposed_time: string | null;
+    proposed_date: string | null;
+    proposed_slot: string | null;
+    proposed_room_id: string | null;
     reason: string;
     status: string;
     staff_note: string | null;

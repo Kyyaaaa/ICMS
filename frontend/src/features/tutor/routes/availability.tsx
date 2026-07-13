@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 
+import { useLocation } from "react-router-dom";
 import { CalendarClock, Info, Lock, Send, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   TutorAvailabilityService,
@@ -21,7 +22,10 @@ const AvailabilityRegistration = () => {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const isLocked = status === "submitted" || (currentCycle && currentCycle.status !== "OPEN");
+  const location = useLocation();
+  const isNewTutor = location.state?.isNewTutor || false;
+
+  const isLocked = status === "submitted" || (!isNewTutor && currentCycle && currentCycle.status !== "OPEN");
 
   const [initialSlots, setInitialSlots] = useState<Set<string>>(new Set());
 
@@ -123,6 +127,8 @@ const AvailabilityRegistration = () => {
       );
       setStatus("submitted");
       setInitialSlots(new Set(selectedSlots));
+    } catch (error: unknown) {
+      showAlertModal("Error", "Failed to submit availability: " + ((error as Error)?.message || "Unknown error"), "error");
     } finally {
       setIsSubmitting(false);
     }

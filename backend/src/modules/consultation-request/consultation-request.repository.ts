@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../../configs/supabase';
-import { CreateConsultationDTO, UpdateConsultationDTO } from './consultation-request.model';
+import { CreateConsultationDTO, } from './consultation-request.model';
 
 export class ConsultationRequestRepository {
   static async createRequest(data: CreateConsultationDTO) {

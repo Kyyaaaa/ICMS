@@ -6,5 +6,6 @@ const router = Router();
 
 router.post('/vnpay/create-url', verifyToken, requireRole(['LEARNER', 'learner', 'Learner']), PaymentController.createUrl);
 router.get('/vnpay/vnpay-return', PaymentController.vnpayReturn); // Open for VNPay to call
+router.get('/vnpay/vnpay-ipn', PaymentController.vnpayIpn);
 
 export default router;

@@ -1,7 +1,7 @@
 export interface LearnerDashboardStats {
     activeClasses: number;
     attendanceRate: number;
-    averageScore: number;
+    completedLessons: number;
 }
 
 export interface LearnerUpcomingClass {
@@ -12,6 +12,8 @@ export interface LearnerUpcomingClass {
     time: string;
     room: string;
     tutor: string;
+    courseName: string;
+    sessionNumber: number;
 }
 
 export interface LearnerAnnouncement {

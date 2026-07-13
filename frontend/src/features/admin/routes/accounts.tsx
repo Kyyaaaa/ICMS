@@ -102,7 +102,6 @@ const AdminAccounts = () => {
             fetchAccounts();
         }, 250); // Debounce search
         return () => clearTimeout(timer);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery, filterRole, currentPage]);
 
     const handleToggleBan = async (id: string, currentStatus: boolean) => {
@@ -223,9 +222,9 @@ const AdminAccounts = () => {
 
             <AccountsFilters 
                 searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
+                setSearchQuery={(q) => { setSearchQuery(q); setCurrentPage(1); }}
                 filterRole={filterRole}
-                setFilterRole={setFilterRole}
+                setFilterRole={(r) => { setFilterRole(r); setCurrentPage(1); }}
             />
 
             <AccountsTable 

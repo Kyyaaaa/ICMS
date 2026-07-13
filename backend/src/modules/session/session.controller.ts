@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { SessionService } from './session.service';
-import { SessionRepository } from './session.repository';
+import { } from './session.repository';
 
 export class SessionController {
 
@@ -28,7 +28,8 @@ export class SessionController {
   static async getAttendance(req: Request, res: Response) {
     try {
       const sessionId = req.params.session_id as string;
-      const data = await SessionService.getAttendance(sessionId);
+      const user = (req as any).user;
+      const data = await SessionService.getAttendance(sessionId, user.id, user.role);
 
       return res.status(200).json({
         success: true,
@@ -45,8 +46,9 @@ export class SessionController {
     try {
       const sessionId = req.params.session_id as string;
       const updates = req.body;
+      const user = (req as any).user;
 
-      const data = await SessionService.updateAttendance(sessionId, updates);
+      const data = await SessionService.updateAttendance(sessionId, updates, user.id, user.role);
 
       return res.status(200).json({
         success: true,

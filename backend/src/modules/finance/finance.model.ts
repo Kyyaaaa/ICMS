@@ -5,7 +5,6 @@ export interface Installment {
   due_date: string;
   paid_date: string | null;
 }
-
 export interface Transaction {
   id: string;
   type: 'income' | 'expense';

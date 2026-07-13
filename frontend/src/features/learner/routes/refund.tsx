@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
 import { FileWarning, Send, CheckCircle2 } from 'lucide-react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import type { PaymentInvoice } from '../types/payment';
 import { LearnerPaymentsService } from '../services/payments.service';
 
 const RefundRequest = () => {
     const { id } = useParams();
-    const [searchParams] = useSearchParams();
-    const installmentId = searchParams.get('installment');
-
     const [invoice, setInvoice] = useState<PaymentInvoice | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -36,13 +33,6 @@ const RefundRequest = () => {
         if (!id || !invoice) return;
 
         setIsSubmitting(true);
-        let refundAmount = invoice.amount;
-        if (installmentId && invoice.installments) {
-            refundAmount = invoice.installments.find(i => i.id === installmentId)?.amount || invoice.amount;
-        } else if (invoice.status === 'partial' && invoice.installments) {
-            refundAmount = invoice.installments.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.amount, 0);
-        }
-
         const reasonOptions: Record<string, string> = {
             schedule: 'Schedule conflict',
             changed_mind: 'Changed my mind',
@@ -51,17 +41,11 @@ const RefundRequest = () => {
         };
         const reasonText = reasonOptions[reason] || reason;
         
-        let termPrefix = '';
-        if (installmentId && invoice.installments) {
-            const inst = invoice.installments.find(i => i.id === installmentId);
-            if (inst) termPrefix = `Term ${inst.installmentNumber} | `;
-        }
-
-        const finalReason = `${termPrefix}${reasonText}${details ? ` - ${details}` : ''}`;
+        const finalReason = `${reasonText}${details ? ` - ${details}` : ''}`;
 
         const success = await LearnerPaymentsService.requestRefund({
             invoice_id: invoice.dbId || id,
-            amount: refundAmount,
+            amount: invoice.amount,
             reason: finalReason,
             bank_name: bankName,
             bank_account_name: accountName,
@@ -116,20 +100,13 @@ const RefundRequest = () => {
                     <div className="grid grid-cols-2 gap-2 text-sm text-[#43474e]">
                         <span>Invoice ID:</span>
                         <span className="font-semibold text-[#181c1e]">
-                            {invoice.id}{installmentId && invoice.installments?.find(i => i.id === installmentId) ? `-${invoice.installments.find(i => i.id === installmentId)?.installmentNumber}` : ''}
+                            {invoice.id}
                         </span>
                         <span>Amount Paid:</span>
                         <span className="font-semibold text-[#181c1e]">
                             {(() => {
-                                if (installmentId && invoice.installments) {
-                                    return (invoice.installments.find(i => i.id === installmentId)?.amount || invoice.amount).toLocaleString('vi-VN');
-                                }
-                                if (invoice.status === 'partial' && invoice.installments) {
-                                    const paidAmount = invoice.installments.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.amount, 0);
-                                    return paidAmount.toLocaleString('vi-VN');
-                                }
-                                return invoice.amount.toLocaleString('vi-VN');
-                            })()} đ
+                                return invoice.amount.toLocaleString('en-US');
+                            })()} VND
                         </span>
                         <span>Course:</span>
                         <span className="font-semibold text-[#181c1e]">{invoice.course}</span>

@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Wallet, CalendarDays, TrendingUp, Eye, ChevronDown, Search, Filter } from 'lucide-react';
+import { Wallet, CalendarDays, TrendingUp, Eye, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { SalaryRecord } from '@/shared/types/salary';
 import { SalaryService } from '@/shared/services/salary.service';
 import { PayslipModal } from '../../../shared/components/common/PayslipModal';
+import { Pagination } from '@/shared/components/common/Pagination';
 
 const SalaryHistory = () => {
-    const [selectedYear] = useState('2026');
+    const [selectedYear, setSelectedYear] = useState('2026');
     const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>([]);
     const [selectedRecord, setSelectedRecord] = useState<SalaryRecord | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
 
     useEffect(() => {
         const loadSalary = async () => {
@@ -37,7 +40,7 @@ const SalaryHistory = () => {
                         <div className="flex items-center gap-2 text-[#adc7f7] font-bold text-sm uppercase tracking-wider mb-2">
                             <TrendingUp className="w-4 h-4" /> Total Earnings (YTD)
                         </div>
-                        <div className="text-4xl font-extrabold leading-none">{totalYTD.toLocaleString()} đ</div>
+                        <div className="text-4xl font-extrabold leading-none">{totalYTD.toLocaleString('en-US')} VND</div>
                     </div>
                     <Wallet className="absolute -right-4 -bottom-4 w-32 h-32 text-white opacity-5 group-hover:scale-110 transition-transform duration-500" />
                 </div>
@@ -54,7 +57,7 @@ const SalaryHistory = () => {
                     <div className="flex items-center gap-2 text-[#0061a5] font-bold text-sm uppercase tracking-wider mb-2">
                         <Wallet className="w-4 h-4" /> Last Net Pay
                     </div>
-                    <div className="text-3xl font-extrabold text-[#0061a5]">{lastPayout.netPay.toLocaleString()} đ</div>
+                    <div className="text-3xl font-extrabold text-[#0061a5]">{lastPayout.netPay.toLocaleString('en-US')} VND</div>
                 </div>
             </div>
 
@@ -72,11 +75,23 @@ const SalaryHistory = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-3 py-2 border border-[#c4c6cf] bg-white rounded-lg text-[#43474e] text-sm font-bold hover:bg-[#f1f4f6] transition-colors">
-                            <Filter className="w-4 h-4" />
-                            Year: {selectedYear}
-                            <ChevronDown className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center bg-white border border-[#c4c6cf] rounded-lg overflow-hidden">
+                            <button 
+                                onClick={() => setSelectedYear((prev) => (parseInt(prev) - 1).toString())}
+                                className="p-2 text-[#43474e] hover:bg-[#f1f4f6] transition-colors"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <span className="px-3 py-1.5 text-[#43474e] text-sm font-bold min-w-16 text-center border-l border-r border-[#c4c6cf]">
+                                {selectedYear}
+                            </span>
+                            <button 
+                                onClick={() => setSelectedYear((prev) => (parseInt(prev) + 1).toString())}
+                                className="p-2 text-[#43474e] hover:bg-[#f1f4f6] transition-colors"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -94,16 +109,16 @@ const SalaryHistory = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#e0e3e5]">
-                            {salaryRecords.map((record) => (
+                            {salaryRecords.slice((currentPage - 1) * limit, currentPage * limit).map((record) => (
                                 <tr key={record.id} className="hover:bg-[#f8f9fa] transition-colors group">
                                     <td className="p-4">
                                         <div className="font-bold text-[#002045]">{record.period}</div>
                                         <div className="text-xs text-[#74777f]">{record.id}</div>
                                     </td>
-                                    <td className="p-4 text-[#43474e]">{record.baseSalary.toLocaleString()} đ</td>
-                                    <td className="p-4 text-green-600 font-semibold">+{record.bonuses.toLocaleString()} đ</td>
-                                    <td className="p-4 text-red-600 font-semibold">-{record.deductions.toLocaleString()} đ</td>
-                                    <td className="p-4 font-extrabold text-[#0061a5]">{record.netPay.toLocaleString()} đ</td>
+                                    <td className="p-4 text-[#43474e]">{record.baseSalary.toLocaleString('en-US')} VND</td>
+                                    <td className="p-4 text-green-600 font-semibold">+{record.bonuses.toLocaleString('en-US')} VND</td>
+                                    <td className="p-4 text-red-600 font-semibold">-{record.deductions.toLocaleString('en-US')} VND</td>
+                                    <td className="p-4 font-extrabold text-[#0061a5]">{record.netPay.toLocaleString('en-US')} VND</td>
                                     <td className="p-4 text-[#43474e]">{record.payDate}</td>
                                     <td className="p-4 text-right">
                                         <button 
@@ -118,6 +133,14 @@ const SalaryHistory = () => {
                         </tbody>
                     </table>
                 </div>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={salaryRecords.length}
+                    itemsPerPage={limit}
+                    onPageChange={setCurrentPage}
+                    itemName="records"
+                />
 
                 <div className="p-4 bg-[#f8f9fa] border-t border-[#e0e3e5] text-center text-[#74777f] text-xs">
                     <p>Salary is processed and confirmed by the Admin team. If you have any inquiries regarding your payslip, please contact HR.</p>

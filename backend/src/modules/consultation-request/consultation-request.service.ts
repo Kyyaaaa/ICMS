@@ -4,16 +4,33 @@ import { validateUUID } from '../../utils/validators';
 
 export class ConsultationRequestService {
   static async createRequest(data: CreateConsultationDTO) {
-    if (!data.guest_name || !data.guest_phone || !data.inquiry_details) {
-      const err: any = new Error('Missing required fields: guest_name, guest_phone, inquiry_details');
+    const courseVal = data.course_of_interest || data.course || (data.inquiry_details && data.inquiry_details.startsWith('Course Interest: ') ? data.inquiry_details.split('\n')[0].replace('Course Interest: ', '').trim() : null);
+
+    if (!data.guest_name || !data.guest_phone || !data.guest_email || !courseVal || !data.inquiry_details) {
+      const err: any = new Error('Missing required fields: guest_name, guest_phone, guest_email, course_of_interest, inquiry_details');
       err.status = 400;
       throw err;
     }
 
-    const payload: any = { ...data, status: 'Pending' };
-    if (!payload.guest_email || payload.guest_email.trim() === '') {
-      payload.guest_email = null;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.guest_email.trim())) {
+      const err: any = new Error('Invalid email format');
+      err.status = 400;
+      throw err;
     }
+
+    let details = data.inquiry_details;
+    if (!details.startsWith('Course Interest: ') && courseVal) {
+      details = `Course Interest: ${courseVal}\nMessage: ${details}`;
+    }
+
+    const payload: any = {
+      guest_name: data.guest_name.trim(),
+      guest_phone: data.guest_phone.trim(),
+      guest_email: data.guest_email.trim(),
+      inquiry_details: details.trim(),
+      status: 'Pending'
+    };
     return await ConsultationRequestRepository.createRequest(payload);
   }
 

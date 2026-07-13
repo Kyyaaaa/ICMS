@@ -6,7 +6,7 @@ export class LearnerController {
   /**
    * GET /api/learners
    */
-  static async getAll(req: Request, res: Response) {
+  static async getAll(_req: Request, res: Response) {
     try {
       const learners = await LearnerService.getAll();
       return res.status(200).json({ 

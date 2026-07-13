@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { EyeOff, Eye, Circle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Loader2, BookOpen } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { apiUrl } from '@/config/api';
 
 const ResetPassword = () => {
     const [newPassword, setNewPassword] = useState('');
@@ -44,7 +45,7 @@ const ResetPassword = () => {
         setErrorMsg('');
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+            const response = await fetch(apiUrl('/auth/reset-password'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ reset_token, new_password: newPassword }),

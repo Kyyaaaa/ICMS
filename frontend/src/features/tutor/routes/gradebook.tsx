@@ -84,6 +84,13 @@ const TutorGradebook = () => {
     };
 
     const handleGradeChange = (studentId: string, assessmentId: string, field: 'score' | 'feedback', value: string) => {
+        if (field === 'score' && value !== '') {
+            const num = Number(value);
+            if (isNaN(num) || num < 0 || num > 9) {
+                showAlertModal('Warning', 'Score must be a decimal number between 0 and 9.', 'warning');
+                return;
+            }
+        }
         setGradesData(prev => prev.map(student => {
             if (student.id === studentId) {
                 return {
@@ -104,13 +111,16 @@ const TutorGradebook = () => {
     const handleSaveGrades = async () => {
         if (!classId) return;
 
-        // Validation for max score
+        // Validation for scores (0 -> 9, decimal)
         for (const student of gradesData) {
             for (const assId of Object.keys(student.grades)) {
                 const score = student.grades[assId].score;
-                if (score !== null && score > 9) {
-                    showAlertModal('Validation Error', `Scores cannot exceed 9. Please check grades for ${student.name}.`, 'error');
-                    return;
+                if (score !== null && score !== undefined && (score as any) !== '') {
+                    const numScore = Number(score);
+                    if (isNaN(numScore) || numScore < 0 || numScore > 9) {
+                        showAlertModal('Validation Error', `Score for student ${student.name} must be a decimal number between 0 and 9.`, 'error');
+                        return;
+                    }
                 }
             }
         }
@@ -297,19 +307,17 @@ const TutorGradebook = () => {
                                     </>
                                 )}
                                 
-                                {gradingStatus !== 'PUBLISHED' && (
-                                    <button 
-                                        onClick={handlePublishGrades}
-                                        disabled={isPublishing || isSaving}
-                                        className={`px-4 py-2 font-semibold bg-white border shadow-sm rounded-xl transition-colors flex items-center gap-2 text-sm ${
-                                            isPublishing || isSaving
-                                                ? 'border-[#e2e2e9] text-[#74777f] cursor-not-allowed'
-                                                : 'border-[#059669] text-[#059669] hover:bg-[#ecfdf5]'
-                                        }`}
-                                    >
-                                        {isPublishing ? 'Publishing...' : 'Publish Grades'}
-                                    </button>
-                                )}
+                                <button 
+                                    onClick={handlePublishGrades}
+                                    disabled={isPublishing || isSaving}
+                                    className={`px-4 py-2 font-semibold bg-white border shadow-sm rounded-xl transition-colors flex items-center gap-2 text-sm ${
+                                        isPublishing || isSaving
+                                            ? 'border-[#e2e2e9] text-[#74777f] cursor-not-allowed'
+                                            : 'border-[#059669] text-[#059669] hover:bg-[#ecfdf5]'
+                                    }`}
+                                >
+                                    {isPublishing ? 'Publishing...' : (gradingStatus === 'PUBLISHED' ? 'Update Published' : 'Publish Grades')}
+                                </button>
                                 
                                 {isEditing ? (
                                     <button 
@@ -392,7 +400,7 @@ const TutorGradebook = () => {
                                                                 {isEditing ? (
                                                                     <input 
                                                                         type="number" 
-                                                                        min="0" max={ass.maxScore} step="0.5"
+                                                                        min="0" max="9" step="0.5"
                                                                         placeholder="-"
                                                                         value={grade.score ?? ''}
                                                                         onChange={(e) => handleGradeChange(student.id, ass.id, 'score', e.target.value)}

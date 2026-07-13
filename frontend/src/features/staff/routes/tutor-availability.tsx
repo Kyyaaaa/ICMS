@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Lock, Unlock, Users, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Lock, Unlock, Users, Loader2, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { SHIFTS, DAYS, type TutorAvailabilityProfile } from '@/shared/types/tutor-availability';
 import { TutorAvailabilityService, type AvailabilityCycle } from '@/shared/services/tutor-availability.service';
 import { TutorSelector } from '../components/TutorSelector';
 import { AvailabilityGrid } from '../components/AvailabilityGrid';
 import { formatMonthYear } from '../../../shared/utils/date';
+import { showAlertModal } from '@/utils/modal';
 
 const StaffTutorAvailability = () => {
     const [tutors, setTutors] = useState<TutorAvailabilityProfile[]>([]);
@@ -97,14 +98,35 @@ const StaffTutorAvailability = () => {
         setHasUnsavedChanges(true);
     };
 
+    const handleSelectAll = () => {
+        if (!selectedTutor) return;
+        const allSlots = new Set<string>();
+        DAYS.forEach((day: string) => {
+            SHIFTS.forEach((shift: any) => {
+                allSlots.add(`${day}-${shift.id}`);
+            });
+        });
+        setDraftSlots(allSlots);
+        setHasUnsavedChanges(true);
+    };
+
+    const handleClearAll = () => {
+        if (!selectedTutor) return;
+        setDraftSlots(new Set());
+        setHasUnsavedChanges(true);
+    };
+
     const handleToggleLock = async () => {
         if (!selectedTutor || !currentCycle) return;
         setIsLocking(true);
         try {
-            const newStatus = selectedTutor.status === 'submitted' ? 'draft' : 'submitted';
-            const updatedTutor = { ...selectedTutor, status: newStatus };
-            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots);
+            const newStatus: 'draft' | 'submitted' = selectedTutor.status === 'submitted' ? 'draft' : 'submitted';
+            const updatedTutor: TutorAvailabilityProfile = { ...selectedTutor, status: newStatus };
+            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots, updatedTutor.status as 'draft' | 'submitted');
             setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
+        } catch (error: any) {
+            console.error('Failed to lock/unlock:', error);
+            showAlertModal('Error', `Error: ${error.response?.data?.message || error.message}`, 'error');
         } finally {
             setIsLocking(false);
         }
@@ -114,10 +136,19 @@ const StaffTutorAvailability = () => {
         if (!selectedTutor || !currentCycle) return;
         setIsSaving(true);
         try {
-            const updatedTutor = { ...selectedTutor, slots: Array.from(draftSlots) };
-            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots);
+            let newStatus: 'unregistered' | 'draft' | 'submitted' = selectedTutor.status === 'unregistered' ? 'draft' : selectedTutor.status;
+            if (newStatus === 'draft' && draftSlots.size === 0) {
+                newStatus = 'unregistered';
+            }
+            const updatedTutor: TutorAvailabilityProfile = { ...selectedTutor, slots: Array.from(draftSlots), status: newStatus as 'unregistered' | 'draft' | 'submitted' };
+            
+            const apiStatus = newStatus === 'unregistered' ? 'draft' : newStatus;
+            await TutorAvailabilityService.updateTutor(currentCycle.id, updatedTutor.id, updatedTutor.slots, apiStatus as 'draft' | 'submitted');
             setTutors(tutors.map(t => t.id === selectedTutor.id ? updatedTutor : t));
             setHasUnsavedChanges(false);
+        } catch (error: any) {
+            console.error('Failed to save changes:', error);
+            showAlertModal('Error', `Error: ${error.response?.data?.message || error.message}`, 'error');
         } finally {
             setIsSaving(false);
         }
@@ -148,7 +179,7 @@ const StaffTutorAvailability = () => {
             setCurrentCycle(updatedCycle);
         } catch (error) {
             console.error('Failed to update cycle status', error);
-            alert('Lỗi: Không thể thay đổi trạng thái.');
+            showAlertModal('Error', 'Error: Unable to change status.', 'error');
         } finally {
             setIsLocking(false);
         }
@@ -278,19 +309,38 @@ const StaffTutorAvailability = () => {
                     <div className="hidden md:block w-px h-12 bg-[#e0e3e5]"></div>
 
                     {/* Progress Stats */}
-                    <div className="w-full md:w-48 shrink-0">
-                        <div className="flex items-center justify-between text-xs mb-2">
-                            <span className="text-[#43474e] font-medium flex items-center gap-2">
-                                <Users className="w-4 h-4 text-[#74777f]" />
-                                Progress
-                            </span>
-                            <span className="font-bold text-[#0061a5]">{tutors.filter(t => t.status === 'submitted').length} / {tutors.length}</span>
+                    <div className="w-full md:w-56 shrink-0 flex flex-col gap-2">
+                        {/* Locked Progress */}
+                        <div>
+                            <div className="flex items-center justify-between text-[11px] mb-1">
+                                <span className="text-[#43474e] font-medium flex items-center gap-1.5">
+                                    <Lock className="w-3 h-3 text-amber-600" />
+                                    Submitted
+                                </span>
+                                <span className="font-bold text-amber-700">{tutors.filter(t => t.status === 'submitted').length} / {tutors.length}</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-[#e0e3e5] rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-amber-500 transition-all duration-500" 
+                                    style={{ width: `${tutors.length > 0 ? (tutors.filter(t => t.status === 'submitted').length / tutors.length) * 100 : 0}%` }}
+                                />
+                            </div>
                         </div>
-                        <div className="h-2 w-full bg-[#e0e3e5] rounded-full overflow-hidden">
-                            <div 
-                                className="h-full bg-[#0061a5] transition-all duration-500" 
-                                style={{ width: `${tutors.length > 0 ? (tutors.filter(t => t.status === 'submitted').length / tutors.length) * 100 : 0}%` }}
-                            />
+                        {/* Draft Progress */}
+                        <div>
+                            <div className="flex items-center justify-between text-[11px] mb-1">
+                                <span className="text-[#43474e] font-medium flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-[#0061a5]"></span>
+                                    Draft
+                                </span>
+                                <span className="font-bold text-[#0061a5]">{tutors.filter(t => t.status === 'draft').length} / {tutors.length}</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-[#e0e3e5] rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-[#0061a5] transition-all duration-500" 
+                                    style={{ width: `${tutors.length > 0 ? (tutors.filter(t => t.status === 'draft').length / tutors.length) * 100 : 0}%` }}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -310,6 +360,27 @@ const StaffTutorAvailability = () => {
                                 </div>
                             </div>
                         )}
+                        
+                        <div className="flex items-center justify-between mb-3 px-1 mt-6">
+                            <h3 className="text-[#002045] font-bold text-sm flex items-center gap-2">
+                                <CalendarDays className="w-4 h-4 text-[#0061a5]" />
+                                Schedule Grid
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <button 
+                                    onClick={handleSelectAll} 
+                                    className="px-3 py-1.5 bg-[#e3f2fd] text-[#0061a5] text-xs font-bold rounded hover:bg-[#cce4f6] transition-colors"
+                                >
+                                    Select Fulltime
+                                </button>
+                                <button 
+                                    onClick={handleClearAll} 
+                                    className="px-3 py-1.5 bg-[#ffdad6] text-[#ba1a1a] text-xs font-bold rounded hover:bg-[#ffb4ab] transition-colors"
+                                >
+                                    Clear All
+                                </button>
+                            </div>
+                        </div>
 
                         <AvailabilityGrid 
                             selectedTutor={selectedTutor} 

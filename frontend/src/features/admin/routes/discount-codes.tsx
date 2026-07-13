@@ -1,6 +1,7 @@
 import { formatDateTime } from "../../../shared/utils/date";
 import { useState, useEffect } from 'react';
 import { Tags, Search, Plus, Trash2, Edit, X } from 'lucide-react';
+import { Pagination } from '@/shared/components/common/Pagination';
 import type { DiscountCode } from '../types/discount-code';
 import { AdminDiscountCodesService } from '../services/discount-codes.service';
 import { showConfirmModal } from '@/utils/modal';
@@ -8,6 +9,7 @@ const AdminDiscountCodes = () => {
     const [codes, setCodes] = useState<DiscountCode[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
     
     // CRUD Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,20 +93,27 @@ const AdminDiscountCodes = () => {
         const validFrom = startDateTime.toISOString();
         const validUntil = endDateTime.toISOString();
 
-        if (editingId) {
-            const updated = await AdminDiscountCodesService.updateDiscountCode(editingId, { ...formData, validFrom, validUntil });
-            setCodes(codes.map(c => c.id === editingId ? updated : c));
-        } else {
-            const newCode = await AdminDiscountCodesService.createDiscountCode({
-                code: formData.code?.toUpperCase() || 'NEWCODE',
-                value: formData.value || 0,
-                validFrom,
-                validUntil,
-                status: formData.status as 'Active' | 'Expired' | 'Disabled' || 'Active'
-            });
-            setCodes([...codes, newCode]);
+        try {
+            if (editingId) {
+                const updated = await AdminDiscountCodesService.updateDiscountCode(editingId, { ...formData, validFrom, validUntil });
+                setCodes(codes.map(c => c.id === editingId ? updated : c));
+            } else {
+                const newCode = await AdminDiscountCodesService.createDiscountCode({
+                    code: formData.code?.toUpperCase() || 'NEWCODE',
+                    value: formData.value || 0,
+                    validFrom,
+                    validUntil,
+                    status: formData.status as 'Active' | 'Expired' | 'Disabled' || 'Active'
+                });
+                setCodes([...codes, newCode]);
+            }
+            setIsModalOpen(false);
+        } catch (error: unknown) {
+            const msg = (error as Error).message || 'Failed to save discount code.';
+            setError(msg);
+            const data = await AdminDiscountCodesService.getDiscountCodes();
+            setCodes(data);
         }
-        setIsModalOpen(false);
     };
 
     const handleDelete = async (id: string) => {
@@ -134,7 +143,7 @@ const AdminDiscountCodes = () => {
                             placeholder="SEARCH CODES..." 
                             type="text" 
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                         />
                     </div>
                 </div>
@@ -151,7 +160,7 @@ const AdminDiscountCodes = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredCodes.map(code => (
+                            {filteredCodes.slice((currentPage - 1) * 10, currentPage * 10).map(code => (
                                 <tr key={code.id} className="border-b border-[#e0e3e5] hover:bg-[#f7fafc]">
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-3">
@@ -162,7 +171,7 @@ const AdminDiscountCodes = () => {
                                         </div>
                                     </td>
                                     <td className="py-4 px-6 text-sm font-bold text-[#0061a5]">
-                                        {code.value.toLocaleString()} đ
+                                        {code.value.toLocaleString('en-US')} VND
                                     </td>
                                     <td className="py-4 px-6 text-sm text-[#43474e]">
                                         {code.validFrom ? formatDateTime(code.validFrom) : 'N/A'}
@@ -195,6 +204,13 @@ const AdminDiscountCodes = () => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredCodes.length}
+                    itemsPerPage={10}
+                    onPageChange={setCurrentPage}
+                    itemName="discount codes"
+                />
             </div>
 
             {/* Modal */}
@@ -219,7 +235,7 @@ const AdminDiscountCodes = () => {
                             
                             <div className="flex flex-col sm:flex-row gap-4">
                                         <div className="flex-2">
-                                            <label className="block text-xs font-bold text-[#43474e] mb-1">Discount Amount (đ)</label>
+                                            <label className="block text-xs font-bold text-[#43474e] mb-1">Discount Amount (VND)</label>
                                             <input 
                                                 type="number" 
                                                 value={formData.value} 

@@ -1,4 +1,6 @@
 import { Calendar, Users, Eye, MapPin } from 'lucide-react';
+import { useState } from 'react';
+import { Pagination } from '@/shared/components/common/Pagination';
 import type { TutorChangeRequest } from '../types/change-request';
 
 interface ChangeRequestListProps {
@@ -7,6 +9,9 @@ interface ChangeRequestListProps {
 }
 
 export const ChangeRequestList = ({ requests, onSelectRequest }: ChangeRequestListProps) => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
+    
     const getTypeStyle = (type?: string) => {
         const t = type?.toLowerCase();
         if (t === 'reschedule') return 'text-[#0061a5]';
@@ -41,7 +46,7 @@ export const ChangeRequestList = ({ requests, onSelectRequest }: ChangeRequestLi
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-[#e0e3e5]">
-                    {requests.map(item => (
+                    {requests.slice((currentPage - 1) * limit, currentPage * limit).map(item => (
                         <tr key={item.id} className="hover:bg-[#f8f9fa] transition-colors">
                             <td className="p-4">
                                 <div className="font-bold text-[#002045]">{item.className}</div>
@@ -82,6 +87,14 @@ export const ChangeRequestList = ({ requests, onSelectRequest }: ChangeRequestLi
                     )}
                 </tbody>
             </table>
+            
+            <Pagination
+                currentPage={currentPage}
+                totalItems={requests.length}
+                itemsPerPage={limit}
+                onPageChange={setCurrentPage}
+                itemName="requests"
+            />
         </div>
     );
 };

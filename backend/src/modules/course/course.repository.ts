@@ -1,7 +1,8 @@
 import pool from "../../configs/database";
+import { Course, CreateCourseDTO, UpdateCourseDTO, CourseSession } from './course.model';
 
 export class CourseRepository {
-  static async createCourse(courseData: any, sessionsList: any[] = []) {
+  static async createCourse(courseData: CreateCourseDTO, sessionsList: Partial<CourseSession>[] = []): Promise<Course> {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
@@ -86,16 +87,28 @@ export class CourseRepository {
     }
   }
 
-  static async getAllCourses() {
-    const query = `
-            SELECT * FROM courses 
-            ORDER BY created_at DESC;
-        `;
+  static async checkCourseCodeOrTitleExists(code: string, title: string, excludeId?: string) {
+    let query = `SELECT id, code, title FROM courses WHERE (code ILIKE $1 OR title ILIKE $2)`;
+    const values: any[] = [code, title];
+    if (excludeId) {
+      query += ` AND id != $3`;
+      values.push(excludeId);
+    }
+    const res = await pool.query(query, values);
+    return res.rows.length > 0 ? res.rows[0] : null;
+  }
+
+  static async getAllCourses(options: { onlyActive?: boolean } = {}): Promise<Course[]> {
+    let query = `SELECT * FROM courses`;
+    if (options.onlyActive) {
+      query += ` WHERE status ILIKE 'active'`;
+    }
+    query += ` ORDER BY created_at DESC;`;
     const res = await pool.query(query);
     return res.rows;
   }
 
-  static async getCourseById(id: string) {
+  static async getCourseById(id: string): Promise<Course | null> {
     const courseQuery = `SELECT * FROM courses WHERE id = $1;`;
     const courseRes = await pool.query(courseQuery, [id]);
     if (courseRes.rows.length === 0) return null;
@@ -161,9 +174,9 @@ export class CourseRepository {
 
   static async updateCourse(
     id: string,
-    courseData: any,
-    sessionsList: any[] = [],
-  ) {
+    courseData: UpdateCourseDTO,
+    sessionsList: Partial<CourseSession>[] = [],
+  ): Promise<Course> {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");

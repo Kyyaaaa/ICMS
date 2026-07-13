@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { PaymentInvoice } from '../types/payment';
 import { LearnerPaymentsService } from '../services/payments.service';
+import { Pagination } from '@/shared/components/common/Pagination';
 
 const PaymentHistory = () => {
     const [invoices, setInvoices] = useState<PaymentInvoice[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
 
     useEffect(() => {
         const fetchInvoices = async () => {
@@ -61,12 +64,12 @@ const PaymentHistory = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {invoices.map((inv) => (
+                            {invoices.slice((currentPage - 1) * limit, currentPage * limit).map((inv) => (
                                 <tr key={inv.id} className="border-b border-[#eef0f4] last:border-0 hover:bg-[#fcfdfd] transition-colors group">
                                     <td className="py-5 px-6 font-bold text-[#002045]">{inv.id}</td>
                                     <td className="py-5 px-6 font-semibold text-slate-700">{inv.course}</td>
                                     <td className="py-5 px-6 text-slate-500 font-medium">{inv.date}</td>
-                                    <td className="py-5 px-6 font-black text-slate-900">{inv.amount.toLocaleString('vi-VN')} đ</td>
+                                    <td className="py-5 px-6 font-black text-slate-900">{inv.amount.toLocaleString('en-US')} VND</td>
                                     <td className="py-5 px-6">
                                         <div className="flex items-center gap-2">
                                             {getStatusBadge(inv)}
@@ -84,6 +87,14 @@ const PaymentHistory = () => {
                         </tbody>
                     </table>
                 </div>
+                
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={invoices.length}
+                    itemsPerPage={limit}
+                    onPageChange={setCurrentPage}
+                    itemName="payments"
+                />
             </div>
         </div>
     );

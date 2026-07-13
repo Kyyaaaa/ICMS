@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Bell, CheckCircle2, Circle, Clock, MailOpen } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { AnnouncementsService } from '@/features/admin/services/announcements.service';
+import { formatDateTime, formatDistanceToNow } from '@/shared/utils/date';
 
 type NotificationItem = {
     id: string;
@@ -38,8 +39,8 @@ export const NotificationsPage = () => {
                     type: ann.audience.scope === 'System Wide' ? 'system' : 'role',
                     title: ann.title,
                     message: ann.content,
-                    time: 'Recent', 
-                    date: ann.date,
+                    time: formatDistanceToNow(ann.date) + ' ago', 
+                    date: formatDateTime(ann.date),
                     unread: !readSet.has(ann.id)
                 }));
                 
@@ -53,7 +54,6 @@ export const NotificationsPage = () => {
         };
         
         fetchNotifications();
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFilter('all');
     }, [currentRole, isGuest]);
 
@@ -63,6 +63,17 @@ export const NotificationsPage = () => {
         if (filter === 'role') return n.type === 'role';
         return true;
     });
+
+    const getTagColor = (type: string) => {
+        switch(type.toLowerCase()) {
+            case 'staff': return 'bg-[#fff4ce] text-[#855e00]';
+            case 'system': return 'bg-[#d2e4ff] text-[#001d37]';
+            case 'tutor': return 'bg-[#c2f0ce] text-[#00210a]';
+            case 'learner': return 'bg-[#ffdad6] text-[#410002]';
+            case 'admin': return 'bg-[#e0e3e5] text-[#002045]';
+            default: return 'bg-[#e0e3e5] text-[#43474e]';
+        }
+    };
 
     const markAllAsRead = () => {
         const readList = JSON.parse(localStorage.getItem('readNotifications') || '[]');
@@ -122,7 +133,7 @@ export const NotificationsPage = () => {
                                 onClick={() => setFilter('role')}
                                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${filter === 'role' ? 'bg-[#0061a5] text-white' : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'}`}
                             >
-                                Admin Announcements
+                                {currentRole} Announcements
                             </button>
                         </>
                     )}
@@ -149,8 +160,8 @@ export const NotificationsPage = () => {
                                         {notif.type === 'system' ? (
                                             <span className="px-2 py-0.5 rounded text-xs font-bold bg-[#e6f0fa] text-[#0061a5] uppercase tracking-wide">System</span>
                                         ) : (
-                                            <span className="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-[#e0e3e5] text-[#002045]">
-                                                Admin
+                                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${getTagColor(currentRole)}`}>
+                                                {currentRole}
                                             </span>
                                         )}
                                     </div>

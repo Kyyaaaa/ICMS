@@ -9,8 +9,12 @@ import { showConfirmModal } from '@/utils/modal';
 const AdminCourses = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [categoryFilter, setCategoryFilter] = useState('All');
     const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const categories = Array.from(new Set(courses.map(c => c.category).filter(Boolean)));
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -44,7 +48,10 @@ const AdminCourses = () => {
     const filteredCourses = courses.filter(c => {
         const titleMatch = c.title ? c.title.toLowerCase().includes(searchTerm.toLowerCase()) : false;
         const codeMatch = c.code ? c.code.toLowerCase().includes(searchTerm.toLowerCase()) : false;
-        return titleMatch || codeMatch;
+        const searchMatch = titleMatch || codeMatch;
+        const statusMatch = statusFilter === 'All' || c.status === statusFilter;
+        const categoryMatch = categoryFilter === 'All' || c.category === categoryFilter;
+        return searchMatch && statusMatch && categoryMatch;
     });
 
     return (
@@ -57,7 +64,15 @@ const AdminCourses = () => {
                 </button>
             </div>
 
-            <CoursesFilters searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            <CoursesFilters 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm} 
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+                categories={categories}
+            />
 
             {loading ? (
                 <div className="flex items-center justify-center h-64">

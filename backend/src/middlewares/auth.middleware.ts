@@ -90,3 +90,41 @@ export const requireRole = (allowedRoles: string[]) => {
     next();
   };
 };
+
+/**
+ * Middleware kiểm tra JWT Token tùy chọn
+ * Nếu có token hợp lệ thì gắn thông tin user vào req.user; nếu không có hoặc token lỗi/hết hạn thì bỏ qua (req.user = undefined), không block request.
+ */
+export const optionalVerifyToken = async (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next();
+    }
+
+    const token = authHeader.split(' ')[1];
+    const { data: { user: authUser }, error } = await supabase.auth.getUser(token);
+
+    if (error || !authUser) {
+      return next();
+    }
+
+    const { data: user, error: userError } = await supabaseAdmin
+      .from('account')
+      .select('*, roles(name)')
+      .eq('id', authUser.id)
+      .single();
+
+    if (!userError && user && user.status === 'ACTIVE') {
+      if (user.roles && (user.roles as any).name) {
+        user.role = (user.roles as any).name;
+      }
+      req.user = user;
+    }
+    next();
+  } catch (error) {
+    console.error('Error in optionalVerifyToken:', error);
+    next();
+  }
+};
+

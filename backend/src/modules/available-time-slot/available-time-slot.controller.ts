@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AvailableTimeSlotService } from './available-time-slot.service';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
 
 export class AvailableTimeSlotController {
-  static async getCycles(req: AuthenticatedRequest, res: Response) {
+  static async getCycles(_req: AuthenticatedRequest, res: Response) {
     try {
       const cycles = await AvailableTimeSlotService.getCycles();
       return res.status(200).json({ success: true, data: cycles });

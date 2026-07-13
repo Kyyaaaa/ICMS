@@ -82,6 +82,7 @@ export class LearnerRepository {
           id,
           name,
           grading_status,
+          published_gradebook,
           courses (
             id,
             title,
@@ -96,26 +97,9 @@ export class LearnerRepository {
     if (error) throw new Error(error.message);
 
     if (!enrollments || enrollments.length === 0) {
-      return { enrollments: [], assessments: [], grades: [] };
+      return { enrollments: [] };
     }
 
-    const classIds = enrollments.map(e => e.class_id);
-
-    const { data: assessments, error: asError } = await supabaseAdmin
-      .from('assessments')
-      .select('*')
-      .in('class_id', classIds)
-      .order('order_index', { ascending: true });
-    
-    if (asError) throw new Error(asError.message);
-
-    const { data: grades, error: grError } = await supabaseAdmin
-      .from('student_grades')
-      .select('*')
-      .eq('learner_id', learnerId);
-
-    if (grError) throw new Error(grError.message);
-
-    return { enrollments, assessments: assessments || [], grades: grades || [] };
+    return { enrollments };
   }
 }

@@ -86,7 +86,7 @@ const ManageClasses = () => {
                         <select 
                             value={courseFilter}
                             onChange={(e) => setCourseFilter(e.target.value)}
-                            className="appearance-none pl-3 pr-8 py-2 bg-[#f8f9fa] border border-[#c4c6cf] rounded-lg text-sm text-[#43474e] focus:outline-none focus:border-[#0061a5] font-medium cursor-pointer w-[150px] truncate"
+                            className="appearance-none pl-3 pr-8 py-2 bg-[#f8f9fa] border border-[#c4c6cf] rounded-lg text-sm text-[#43474e] focus:outline-none focus:border-[#0061a5] font-medium cursor-pointer w-37.5 truncate"
                         >
                             <option value="">All Courses</option>
                             {allCourses.map(c => (
@@ -99,7 +99,7 @@ const ManageClasses = () => {
                         <select 
                             value={tutorFilter}
                             onChange={(e) => setTutorFilter(e.target.value)}
-                            className="appearance-none pl-3 pr-8 py-2 bg-[#f8f9fa] border border-[#c4c6cf] rounded-lg text-sm text-[#43474e] focus:outline-none focus:border-[#0061a5] font-medium cursor-pointer w-[150px] truncate"
+                            className="appearance-none pl-3 pr-8 py-2 bg-[#f8f9fa] border border-[#c4c6cf] rounded-lg text-sm text-[#43474e] focus:outline-none focus:border-[#0061a5] font-medium cursor-pointer w-37.5 truncate"
                         >
                             <option value="">All Tutors</option>
                             {allTutors.map(t => (
@@ -112,7 +112,7 @@ const ManageClasses = () => {
                         <select 
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="appearance-none pl-3 pr-8 py-2 bg-[#f8f9fa] border border-[#c4c6cf] rounded-lg text-sm text-[#43474e] focus:outline-none focus:border-[#0061a5] font-medium cursor-pointer w-[140px]"
+                            className="appearance-none pl-3 pr-8 py-2 bg-[#f8f9fa] border border-[#c4c6cf] rounded-lg text-sm text-[#43474e] focus:outline-none focus:border-[#0061a5] font-medium cursor-pointer w-35"
                         >
                             <option value="">All Statuses</option>
                             <option value="UPCOMING">Upcoming</option>

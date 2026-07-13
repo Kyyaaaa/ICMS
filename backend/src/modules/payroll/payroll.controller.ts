@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { payrollService } from './payroll.service';
 
-export const getConfigs = async (req: Request, res: Response) => {
+export const getConfigs = async (_req: Request, res: Response) => {
     try {
         const configs = await payrollService.getSalaryConfigs();
         res.json(configs);
@@ -20,7 +20,7 @@ export const updateConfig = async (req: Request, res: Response) => {
     }
 };
 
-export const getPayrolls = async (req: Request, res: Response) => {
+export const getPayrolls = async (_req: Request, res: Response) => {
     try {
         const payrolls = await payrollService.getPayrolls();
         res.json(payrolls);

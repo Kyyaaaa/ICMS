@@ -16,7 +16,7 @@ export const SalaryCards = ({ records }: SalaryCardsProps) => {
                     <div className="flex items-center gap-2 text-[#adc7f7] font-bold text-sm uppercase tracking-wider mb-2">
                         <TrendingUp className="w-4 h-4" /> Total Earnings (YTD)
                     </div>
-                    <div className="text-4xl font-extrabold leading-none">{totalYTD.toLocaleString()} đ</div>
+                    <div className="text-4xl font-extrabold leading-none">{totalYTD.toLocaleString('en-US')} VND</div>
                 </div>
                 <Wallet className="absolute -right-4 -bottom-4 w-32 h-32 text-white opacity-5 group-hover:scale-110 transition-transform duration-500" />
             </div>
@@ -33,7 +33,7 @@ export const SalaryCards = ({ records }: SalaryCardsProps) => {
                 <div className="flex items-center gap-2 text-[#0061a5] font-bold text-sm uppercase tracking-wider mb-2">
                     <Wallet className="w-4 h-4" /> Last Net Pay
                 </div>
-                <div className="text-3xl font-extrabold text-[#0061a5]">{lastPayout.netPay.toLocaleString()} đ</div>
+                <div className="text-3xl font-extrabold text-[#0061a5]">{lastPayout.netPay.toLocaleString('en-US')} VND</div>
             </div>
         </div>
     );

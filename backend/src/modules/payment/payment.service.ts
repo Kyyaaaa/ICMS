@@ -3,13 +3,20 @@ import qs from 'qs';
 import moment from 'moment';
 import { InvoiceRepository } from '../invoice/invoice.repository';
 import { PaymentRepository } from './payment.repository';
+import { VNPayReturnQuery } from './payment.model';
 
 export class PaymentService {
-  static async generateVnpayUrl(invoiceId: string, installmentId: string | undefined, paymentPlan: string, ipAddr: string): Promise<string> {
+  static async generateVnpayUrl(invoiceId: string, installmentId: string | undefined, paymentPlan: string, ipAddr: string, learnerId: string): Promise<string> {
     const invoice = await InvoiceRepository.getInvoiceDetails(invoiceId);
     
     if (!invoice) {
       throw new Error('Invoice not found');
+    }
+    if (invoice.learner_id !== learnerId) {
+      throw new Error('Forbidden: You can only pay your own invoices');
+    }
+    if (!['PENDING', 'PARTIAL'].includes(invoice.status)) {
+      throw new Error('Invoice is not payable');
     }
 
     let amount = invoice.amount * 100; // VNPay amount is in VND * 100
@@ -42,6 +49,9 @@ export class PaymentService {
     const secretKey = process.env.VNP_HASHSECRET || '';
     let vnpUrl = process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
     const returnUrl = process.env.VNP_RETURNURL || 'http://localhost:5173/payment/result';
+    if (!tmnCode || !secretKey) {
+      throw new Error('VNPay is not configured');
+    }
 
     const date = new Date();
     const createDate = moment(date).format('YYYYMMDDHHmmss');
@@ -59,6 +69,7 @@ export class PaymentService {
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
+    vnp_Params['vnp_ExpireDate'] = moment(date).add(15, 'minutes').format('YYYYMMDDHHmmss');
 
     vnp_Params = sortObject(vnp_Params);
 
@@ -72,7 +83,7 @@ export class PaymentService {
     return vnpUrl;
   }
 
-  static async verifyVnpayReturn(vnp_Params: any): Promise<{ success: boolean; message: string; code: string; debug?: any }> {
+  static async verifyVnpayReturn(vnp_Params: VNPayReturnQuery | Record<string, any>): Promise<{ success: boolean; message: string; code: string; debug?: any }> {
     const secureHash = vnp_Params['vnp_SecureHash'];
 
     delete vnp_Params['vnp_SecureHash'];
@@ -85,13 +96,18 @@ export class PaymentService {
     const hmac = crypto.createHmac('sha512', secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');     
 
-    if (secureHash === signed) {
+    const validSignature = typeof secureHash === 'string'
+      && secureHash.length === signed.length
+      && crypto.timingSafeEqual(Buffer.from(secureHash), Buffer.from(signed));
+
+    if (validSignature) {
       const responseCode = vnp_Params['vnp_ResponseCode'];
+      const transactionStatus = vnp_Params['vnp_TransactionStatus'];
       const invoiceCode = vnp_Params['vnp_TxnRef'] as string;
       const amount = Number(vnp_Params['vnp_Amount']) / 100;
       const transactionNo = vnp_Params['vnp_TransactionNo'] as string;
 
-      if (responseCode === '00') {
+      if (responseCode === '00' && transactionStatus === '00') {
         // Success
         await PaymentRepository.recordPaymentAndEnroll(invoiceCode, amount, transactionNo);
         return { success: true, message: 'Payment successful', code: '00' };
@@ -99,7 +115,7 @@ export class PaymentService {
         return { success: false, message: 'Payment failed on VNPay', code: responseCode };
       }
     } else {
-      return { success: false, message: 'Invalid signature', code: '97', debug: { secureHash, signed, vnp_Params } };
+      return { success: false, message: 'Invalid signature', code: '97' };
     }
   }
 }

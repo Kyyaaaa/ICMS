@@ -14,7 +14,6 @@ export const ConsultationModal = ({ consultation, onClose, onSave }: Consultatio
     const [tempNote, setTempNote] = useState(consultation.call_notes || '');
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setTempStatus(consultation.status);
         setTempNote(consultation.call_notes || '');
     }, [consultation]);

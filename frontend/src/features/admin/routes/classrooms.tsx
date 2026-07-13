@@ -60,6 +60,8 @@ const AdminClassrooms = () => {
         } catch (error: unknown) {
             const msg = (error as Error).message || 'Failed to save classroom.';
             await showAlertModal('Error', msg, 'error');
+            const data = await ClassroomsService.getClassrooms();
+            setRooms(data);
         }
     };
 

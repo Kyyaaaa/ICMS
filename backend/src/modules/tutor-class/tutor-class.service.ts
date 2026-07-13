@@ -1,15 +1,14 @@
 import { TutorClassRepository } from './tutor-class.repository';
+import { GradebookData, SaveGradebookPayload } from './tutor-class.model';
 import * as crypto from 'crypto';
-import { supabaseAdmin } from '../../configs/supabase';
 
 export class TutorClassService {
-  static async getGradebook(classId: string) {
+  static async getGradebook(classId: string): Promise<GradebookData> {
     const assessments = await TutorClassRepository.getAssessments(classId);
     const { enrollments, grades } = await TutorClassRepository.getStudentsWithGrades(classId);
     
     // Fetch grading_status
-    const { data: classData } = await supabaseAdmin.from('classes').select('grading_status').eq('id', classId).single();
-    const grading_status = classData?.grading_status || 'PENDING';
+    const grading_status = await TutorClassRepository.getGradingStatus(classId);
 
     // Map the enrollments to StudentWithGrades format
     const students = enrollments.map((enrollment: any) => {
@@ -38,7 +37,7 @@ export class TutorClassService {
     };
   }
 
-  static async saveGradebook(classId: string, payload: any) {
+  static async saveGradebook(classId: string, payload: SaveGradebookPayload): Promise<boolean> {
     const { deletedAssessmentIds = [], upsertAssessments = [], upsertGrades = [] } = payload;
 
     // 1. Delete assessments
@@ -60,11 +59,12 @@ export class TutorClassService {
     }
 
     // 3. Upsert grades
-    // Validate scores
+    // Validate scores strictly
     const preparedGrades = upsertGrades.map((g: any) => {
-      let score = parseFloat(g.score);
-      if (isNaN(score) || score < 0) score = 0;
-      if (score > 9) score = 9;
+      const score = parseFloat(g.score);
+      if (isNaN(score) || typeof score !== 'number' || score < 0 || score > 9) {
+        throw new Error('Điểm số phải là số thập phân nằm trong khoảng từ 0 đến 9');
+      }
 
       return {
         assessment_id: g.assessment_id,
@@ -81,8 +81,9 @@ export class TutorClassService {
     return true;
   }
 
-  static async publishGrades(classId: string) {
-    await TutorClassRepository.updateClassGradingStatus(classId, 'PUBLISHED');
+  static async publishGrades(classId: string): Promise<boolean> {
+    const gradebook = await TutorClassService.getGradebook(classId);
+    await TutorClassRepository.updateClassGradingStatus(classId, 'PUBLISHED', gradebook);
     return true;
   }
 }

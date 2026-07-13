@@ -3,6 +3,7 @@ import { Mail, Lock, Eye, EyeOff, AlertCircle, Clock } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { AuthService } from '../services/auth.service';
+import { apiUrl } from '@/config/api';
 
 export const LoginForm = () => {
     const location = useLocation();
@@ -24,7 +25,7 @@ export const LoginForm = () => {
         setLoading(true);
         setShowError(false);
         try {
-            const data = await AuthService.login({ email, password });
+            const data: any = await AuthService.login({ email, password });
             
             // axiosClient interceptor returns data directly if success
             if (data?.success || data?.data) {
@@ -66,7 +67,7 @@ export const LoginForm = () => {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = 'http://localhost:5000/api/auth/google';
+        window.location.href = apiUrl('/auth/google');
     };
 
     return (

@@ -4,6 +4,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, CheckCircle2, Clock, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { LearnerPaymentsService } from '../services/payments.service';
 import type { PaymentInvoice } from '../types/payment';
+import { showAlertModal, showConfirmModal } from '@/utils/modal';
 
 const PaymentDetail = () => {
     const { id } = useParams();
@@ -28,7 +29,8 @@ const PaymentDetail = () => {
 
     const handleCancel = async () => {
         if (!invoice) return;
-        if (!window.confirm('Are you sure you want to cancel this registration?')) return;
+        const confirmed = await showConfirmModal('Confirm Cancel', 'Are you sure you want to cancel this registration?');
+        if (!confirmed) return;
         
         setIsCancelling(true);
         try {
@@ -42,7 +44,7 @@ const PaymentDetail = () => {
             }
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
-            alert(err.response?.data?.message || 'Failed to cancel invoice');
+            showAlertModal('Error', err.response?.data?.message || 'Failed to cancel invoice', 'error');
         } finally {
             setIsCancelling(false);
         }
@@ -211,27 +213,27 @@ const PaymentDetail = () => {
                                     <p className="font-bold text-[#181c1e] text-sm">{invoice.course}</p>
                                     <p className="text-xs text-[#74777f] mt-1">Tuition Fee</p>
                                 </div>
-                                <p className="font-semibold text-[#181c1e] whitespace-nowrap">{invoice.amount.toLocaleString('vi-VN')} đ</p>
+                                <p className="font-semibold text-[#181c1e] whitespace-nowrap">{invoice.amount.toLocaleString('en-US')} VND</p>
                             </div>
                             
                             <div className="flex justify-between items-center text-sm text-[#74777f]">
                                 <span>Subtotal</span>
-                                <span>{(invoice.amount + (invoice.discount || 0)).toLocaleString('vi-VN')} đ</span>
+                                <span>{(invoice.amount + (invoice.discount || 0)).toLocaleString('en-US')} VND</span>
                             </div>
                             {(invoice.discount || 0) > 0 && (
                                 <div className="flex justify-between items-center text-sm text-[#137333]">
                                     <span>Discount applied</span>
-                                    <span>-{(invoice.discount || 0).toLocaleString('vi-VN')} đ</span>
+                                    <span>-{(invoice.discount || 0).toLocaleString('en-US')} VND</span>
                                 </div>
                             )}
                             <div className="flex justify-between items-center text-sm text-[#74777f]">
                                 <span>Tax (0%)</span>
-                                <span>0 đ</span>
+                                <span>0 VND</span>
                             </div>
                             
                             <div className="pt-4 border-t border-[#eef0f4] flex justify-between items-center">
                                 <span className="font-bold text-[#002045] text-base">Total</span>
-                                <span className="font-black text-[#0061a5] text-2xl">{invoice.amount.toLocaleString('vi-VN')} đ</span>
+                                <span className="font-black text-[#0061a5] text-2xl">{invoice.amount.toLocaleString('en-US')} VND</span>
                             </div>
                         </div>
                     </div>
@@ -263,7 +265,7 @@ const PaymentDetail = () => {
                                                 {inst.dueDate}
                                                 {inst.paidDate && <span className="block text-xs text-[#137333] mt-0.5">Paid on {inst.paidDate}</span>}
                                             </td>
-                                            <td className="py-3 px-4 font-bold text-[#181c1e]">{inst.amount.toLocaleString('vi-VN')} đ</td>
+                                            <td className="py-3 px-4 font-bold text-[#181c1e]">{inst.amount.toLocaleString('en-US')} VND</td>
                                             <td className="py-3 px-4">
                                                 {inst.status === 'paid' ? (
                                                     <span className="px-2 py-1 bg-[#e6f4ea] text-[#137333] text-xs font-black rounded uppercase">Paid</span>
@@ -278,14 +280,9 @@ const PaymentDetail = () => {
                                                 )}
                                             </td>
                                             <td className="py-3 px-4 text-right">
-                                                {(inst.status === 'pending' || inst.status === 'overdue') && !invoice.hasPendingRefund && (
+                                                {invoice.status !== 'cancelled' && invoice.status !== 'expired' && (inst.status === 'pending' || inst.status === 'overdue') && !invoice.hasPendingRefund && (
                                                     <Link to={`/learner/payments/${invoice.id}/checkout?installment=${inst.id}`} className="px-4 py-1.5 bg-[#ef4444] text-white text-xs font-bold rounded-lg hover:bg-[#dc2626] transition-colors">
                                                         Pay
-                                                    </Link>
-                                                )}
-                                                {inst.status === 'paid' && !invoice.hasPendingRefund && (
-                                                    <Link to={`/learner/payments/${invoice.id}/refund?installment=${inst.id}`} className="px-4 py-1.5 bg-white border border-[#002045]/20 text-[#002045] text-xs font-bold rounded-lg hover:bg-[#f8f9fc] transition-colors inline-block ml-2">
-                                                        Refund
                                                     </Link>
                                                 )}
                                                 {inst.status === 'paid' && invoice.hasPendingRefund && (
@@ -317,15 +314,6 @@ const PaymentDetail = () => {
                                 Pay Now
                             </Link>
                         </>
-                    )}
-                    {invoice.status === 'partial' && !invoice.hasPendingRefund && (
-                        <button 
-                            onClick={handleCancel}
-                            disabled={isCancelling}
-                            className={`w-full sm:w-auto px-6 py-3 bg-white border border-[#ef4444] text-[#ef4444] text-sm font-bold rounded-xl hover:bg-[#fce8e8] transition-all ${isCancelling ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            {isCancelling ? 'Cancelling...' : 'Cancel Remaining Installments'}
-                        </button>
                     )}
                     {invoice.status === 'paid' && !invoice.hasPendingRefund && (
                         <Link to={`/learner/payments/${invoice.id}/refund`} className="w-full sm:w-auto px-6 py-3 bg-white border border-[#002045]/20 text-[#002045] text-sm font-bold rounded-xl hover:bg-[#f8f9fc] transition-all text-center">

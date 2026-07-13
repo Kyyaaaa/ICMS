@@ -100,7 +100,7 @@ router.get('/notifications', verifyToken, AnnouncementController.getNotification
  *       201:
  *         description: Tạo thành công
  */
-router.post('/', verifyToken, requireRole(['admin', 'ADMIN']), AnnouncementController.createAnnouncement);
+router.post('/', verifyToken, requireRole(['ADMIN']), AnnouncementController.createAnnouncement);
 
 /**
  * @swagger
@@ -136,7 +136,7 @@ router.post('/', verifyToken, requireRole(['admin', 'ADMIN']), AnnouncementContr
  *       200:
  *         description: Cập nhật thành công
  */
-router.put('/:id', verifyToken, requireRole(['admin', 'ADMIN']), AnnouncementController.updateAnnouncement);
+router.put('/:id', verifyToken, requireRole(['ADMIN']), AnnouncementController.updateAnnouncement);
 
 /**
  * @swagger
@@ -157,6 +157,6 @@ router.put('/:id', verifyToken, requireRole(['admin', 'ADMIN']), AnnouncementCon
  *       200:
  *         description: Xóa thành công
  */
-router.delete('/:id', verifyToken, requireRole(['admin', 'ADMIN']), AnnouncementController.deleteAnnouncement);
+router.delete('/:id', verifyToken, requireRole(['ADMIN']), AnnouncementController.deleteAnnouncement);
 
 export default router;

@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { getSlotLabel } from '@/shared/lib/utils';
 import type { AttendanceSession } from '../types/attendance';
 import { LearnerAttendanceService } from '../services/attendance.service';
+import { formatDate } from '@/shared/utils/date';
 
 const AttendanceProgress = () => {
     const { id } = useParams();
@@ -97,7 +98,7 @@ const AttendanceProgress = () => {
                                     </div>
                                 </td>
                                 <td className="py-4 px-6">
-                                    <span className="text-sm font-medium text-[#181c1e]">{session.date}</span>
+                                    <span className="text-sm font-medium text-[#181c1e]">{formatDate(session.date)}</span>
                                 </td>
                                 <td className="py-4 px-6">
                                     <span className="text-sm text-[#43474e]">{getSlotLabel(session.time)}</span>

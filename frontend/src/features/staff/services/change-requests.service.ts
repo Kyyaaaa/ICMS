@@ -6,9 +6,7 @@ export const ChangeRequestsService = {
     getRequests: async (): Promise<ChangeRequest[]> => {
         try {
             const response = await axiosClient.get('/change-requests');
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const data = Array.isArray((response as any)?.data) ? (response as any).data : (Array.isArray(response) ? response : []);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return data.map((req: any) => ({
                 id: req.id,
                 tutor: req.tutor?.full_name || 'Unknown Tutor',

@@ -32,7 +32,7 @@ const mapCertificate = (data: unknown): Certificate => {
 
 export const CertificatesService = {
     getMyCertificates: async (): Promise<Certificate[]> => {
-        const response = await axiosClient.get('/Certificates') as { data: unknown[] };
+        const response = await axiosClient.get('/certificates') as { data: unknown[] };
         return response.data.map(mapCertificate);
     },
     
@@ -53,7 +53,7 @@ export const CertificatesService = {
             expiration_date: data.expDate || null,
             file_url: data.fileUrl
         };
-        const response = await axiosClient.post('/Certificates', payload) as { data: unknown };
+        const response = await axiosClient.post('/certificates', payload) as { data: unknown };
         return mapCertificate(response.data);
     },
 
@@ -65,11 +65,11 @@ export const CertificatesService = {
         if (data.expDate !== undefined) payload.expiration_date = data.expDate;
         if (data.fileUrl) payload.file_url = data.fileUrl;
 
-        const response = await axiosClient.put(`/Certificates/${id}`, payload) as { data: unknown };
+        const response = await axiosClient.put(`/certificates/${id}`, payload) as { data: unknown };
         return mapCertificate(response.data);
     },
 
     deleteCertificate: async (id: string): Promise<void> => {
-        await axiosClient.delete(`/Certificates/${id}`);
+        await axiosClient.delete(`/certificates/${id}`);
     }
 };

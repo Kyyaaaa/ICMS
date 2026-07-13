@@ -1,5 +1,5 @@
 import { InvoiceRepository } from './invoice.repository';
-import { Invoice } from './invoice.model';
+import { } from './invoice.model';
 import { EnrollmentService } from '../enrollment/enrollment.service';
 
 import { DiscountCodeRepository } from '../discount-code/discount-code.repository';
@@ -18,8 +18,7 @@ export class InvoiceService {
     // 2. Check if there is an existing PENDING invoice
     const pendingInvoice = await InvoiceRepository.getPendingInvoice(learnerId, classId);
     if (pendingInvoice) {
-      // If the user attempts to enroll again, we delete the old pending invoice to reset the 15-minute window and apply any new discounts
-      await InvoiceRepository.deleteInvoice(pendingInvoice.id);
+      return { invoice: pendingInvoice, isExisting: true };
     }
 
     // 3. Process discount code if provided
@@ -43,11 +42,13 @@ export class InvoiceService {
         throw new Error('This discount code has expired');
       }
 
+      const isUsed = await InvoiceRepository.checkDiscountCodeUsed(learnerId, codeData.id);
+      if (isUsed) {
+        throw new Error('You have already used this discount code');
+      }
+
       discountAmount = codeData.value;
       discountCodeId = codeData.id;
-
-      // Increment usage count
-      await discountRepo.incrementUsage(codeData.id);
     }
 
     // 4. Create new invoice

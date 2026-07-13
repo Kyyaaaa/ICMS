@@ -1,5 +1,6 @@
 import { supabaseAdmin as supabase } from '../../configs/supabase';
 import { CreateClassDTO, UpdateClassDTO, UpdateClassSessionDTO } from './class.model';
+import { AnnouncementRepository } from '../announcement/announcement.repository';
 
 export class ClassRepository {
   static async createClass(data: CreateClassDTO) {
@@ -21,6 +22,24 @@ export class ClassRepository {
       .single();
 
     if (error) throw new Error(error.message);
+    
+    if (data.tutor_id) {
+        const { data: courseData } = await supabase.from('courses').select('title').eq('id', data.course_id).single();
+        const courseTitle = courseData?.title || 'Unknown Course';
+        try {
+            await AnnouncementRepository.createAnnouncement({
+                title: `New Class Assignment: ${courseTitle} - ${data.name}`,
+                content: `You have been assigned to teach the new class ${data.name} for the course ${courseTitle}.`,
+                audience: {
+                    scope: 'Specific Users',
+                    users: [data.tutor_id]
+                }
+            });
+        } catch (annError) {
+            console.error('Failed to send announcement for new class:', annError);
+        }
+    }
+
     return result;
   }
 
@@ -40,6 +59,25 @@ export class ClassRepository {
       .delete()
       .eq('class_id', classId);
       
+    if (error) throw new Error(error.message);
+  }
+
+  static async getClassSessionsByClassId(classId: string) {
+    const { data, error } = await supabase
+      .from('class_sessions')
+      .select('*')
+      .eq('class_id', classId);
+
+    if (error) throw new Error(error.message);
+    return data || [];
+  }
+
+  static async updateAllClassSessions(classId: string, updates: any) {
+    const { error } = await supabase
+      .from('class_sessions')
+      .update(updates)
+      .eq('class_id', classId);
+
     if (error) throw new Error(error.message);
   }
 
@@ -87,6 +125,22 @@ export class ClassRepository {
         return { data, total: count || 0 };
     }
 
+    static async getClassByName(name: string, excludeId?: string) {
+        let query = supabase
+            .from('classes')
+            .select('id')
+            .ilike('name', name);
+            
+        if (excludeId) {
+            query = query.neq('id', excludeId);
+        }
+
+        const { data, error } = await query.limit(1);
+        if (error) throw new Error(error.message);
+
+        return data && data.length > 0 ? data[0] : null;
+    }
+
     static async getClassById(id: string) {
         const { data: classData, error: classError } = await supabase
             .from('classes')
@@ -107,7 +161,7 @@ export class ClassRepository {
                 *,
                 tutor:account!tutor_id(id, full_name, email),
                 classroom:classroom!classroom_id(id, room_name),
-                attendances(id, status)
+                attendances(id, status, learner_id)
             `)
             .eq('class_id', id)
             .order('date', { ascending: true })
@@ -121,6 +175,7 @@ export class ClassRepository {
             .select(`
                 id,
                 enrollment_date,
+                learner_id,
                 account:account!learner_id(id, full_name, email, account_code)
             `)
             .eq('class_id', id)

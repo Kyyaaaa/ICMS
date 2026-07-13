@@ -3,6 +3,8 @@ import { Eye, Search, Calendar, Users, MapPin } from 'lucide-react';
 import type { ChangeRequest } from '../types/change-request';
 import { ChangeRequestsService } from '../services/change-requests.service';
 import { ChangeRequestModal } from '../components/ChangeRequestModal';
+import { Pagination } from '@/shared/components/common/Pagination';
+import { showAlertModal } from '@/utils/modal';
 
 const ChangeRequests = () => {
     const [requests, setRequests] = useState<ChangeRequest[]>([]);
@@ -11,6 +13,8 @@ const ChangeRequests = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [typeFilter, setTypeFilter] = useState('All');
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10;
 
     useEffect(() => {
         const loadRequests = async () => {
@@ -36,9 +40,10 @@ const ChangeRequests = () => {
                 const updatedRequest = { ...request, status: newStatus, finalTime: finalTime || request.finalTime, staffNote: staffNote };
                 await ChangeRequestsService.updateRequest(updatedRequest, substituteTutorId, newDate, newSlot, newRoomId);
                 setRequests(requests.map(r => r.id === id ? updatedRequest : r));
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error updating status:", error);
-                alert("Failed to update status. Please try again.");
+                const backendMsg = error?.response?.data?.error || error?.response?.data?.message;
+                showAlertModal('Error', backendMsg || "Failed to update status. Please try again.", 'error');
             }
         }
         setSelectedRequest(null);
@@ -63,7 +68,7 @@ const ChangeRequests = () => {
                             placeholder="Search tutor or class..." 
                             className="pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg w-62.5 focus:ring-2 focus:ring-[#0061a5] focus:outline-none" 
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                         />
                     </div>
                     <select 
@@ -101,7 +106,7 @@ const ChangeRequests = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredRequests.map(item => (
+                        {filteredRequests.slice((currentPage - 1) * limit, currentPage * limit).map(item => (
                             <tr key={item.id} className="border-b border-[#e0e3e5] hover:bg-gray-50">
                                 <td className="p-4 font-bold text-[#002045]">{item.tutor}</td>
                                 <td className="p-4">
@@ -146,6 +151,14 @@ const ChangeRequests = () => {
                     </tbody>
                 </table>
             </div>
+            
+            <Pagination
+                currentPage={currentPage}
+                totalItems={filteredRequests.length}
+                itemsPerPage={limit}
+                onPageChange={setCurrentPage}
+                itemName="requests"
+            />
 
             {/* View Detail Modal */}
             {selectedRequest && (

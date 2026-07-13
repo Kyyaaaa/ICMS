@@ -1,5 +1,5 @@
 import { DiscountCodeRepository } from './discount-code.repository';
-import { DiscountCode, CreateDiscountCodeDTO, UpdateDiscountCodeDTO } from './discount-code.model';
+import { CreateDiscountCodeDTO, UpdateDiscountCodeDTO } from './discount-code.model';
 
 export class DiscountCodeService {
   private repository: DiscountCodeRepository;
@@ -53,11 +53,23 @@ export class DiscountCodeService {
   }
 
   async createDiscountCode(data: CreateDiscountCodeDTO) {
+    if (data.code) {
+      const existing = await this.repository.findByCode(data.code);
+      if (existing) {
+        throw { status: 409, message: 'Discount code already exists' };
+      }
+    }
     const row = await this.repository.create(data);
     return this.mapToDTO(row);
   }
 
   async updateDiscountCode(id: string, data: UpdateDiscountCodeDTO) {
+    if (data.code) {
+      const existing = await this.repository.findByCode(data.code);
+      if (existing && String(existing.id) !== String(id)) {
+        throw { status: 409, message: 'Discount code already exists' };
+      }
+    }
     const row = await this.repository.update(id, data);
     if (!row) {
       throw new Error('Discount code not found');

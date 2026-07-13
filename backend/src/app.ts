@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './configs/swagger';
 import authRoutes from './modules/auth/auth.routes';
@@ -27,15 +29,34 @@ import refundRoutes from './modules/refund/refund.routes';
 import payrollRoutes from './modules/payroll/payroll.routes';
 import tutorClassRoutes from './modules/tutor-class/tutor-class.routes';
 import changeRequestRoutes from './modules/change-request/change-request.routes';
+import dashboardRoutes from './modules/dashboard/dashboard.routes';
 
 const app = express();
 
-// Middlewares toàn cục
-app.use(cors()); // Cho phép Client gọi API không bị lỗi Block CORS
+// Security Middlewares
+app.use(helmet()); // Set security HTTP headers
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Origin is not allowed by CORS'));
+  }
+}));
 app.use(express.json()); // Cho phép Server đọc dữ liệu JSON gửi lên từ Client
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test'
+});
+
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/learners', learnerRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/upload', uploadRoutes);
@@ -60,15 +81,16 @@ app.use('/api/refunds', refundRoutes);
 app.use('/api/payrolls', payrollRoutes);
 app.use('/api/tutor/classes', tutorClassRoutes);
 app.use('/api/change-requests', changeRequestRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Route kiểm tra trạng thái Server (Health Check)
-app.get('/api/health', (req: Request, res: Response) => {
-  res.json({ 
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({
     status: 'OK',
-    message: 'NodeJS + TypeScript Server is running smoothly!' 
+    message: 'NodeJS + TypeScript Server is running smoothly!'
   });
 });
 

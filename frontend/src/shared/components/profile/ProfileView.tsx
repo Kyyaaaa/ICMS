@@ -8,6 +8,7 @@ import { validatePassword, validatePhoneNumber, validateFullName, formatAccountI
 import { ProfileService } from '@/shared/services/profile.service';
 import type { ProfileData } from '@/shared/services/profile.service';
 import { showAlertModal, showConfirmModal } from '@/utils/modal';
+import { getInitials } from '@/shared/lib/utils';
 
 interface ProfileViewProps {
     title?: string;
@@ -58,7 +59,7 @@ export const ProfileView = ({
                 if (!userInfoStr) return;
                 const userInfo = JSON.parse(userInfoStr);
                 
-                const data = await ProfileService.getProfile(userInfo.id);
+                const data = await ProfileService.getProfile(userInfo.id) as any;
                 if (data.success) {
                     if (data && typeof data === 'object' && 'data' in data && data.data) {
                         const responseData = data.data as ProfileData;
@@ -136,7 +137,7 @@ export const ProfileView = ({
                 phone_number: account.phone_number,
                 date_of_birth: account.date_of_birth,
                 gender: account.gender
-            });
+            }) as any;
             
             if (data.success) {
                 const userInfoStr = Cookies.get('user_info');
@@ -179,11 +180,11 @@ export const ProfileView = ({
 
         setIsUploadingAvatar(true);
         try {
-            const uploadData = await ProfileService.uploadAvatar(file);
+            const uploadData = await ProfileService.uploadAvatar(file) as any;
             
             if (uploadData.success) {
                 const newAvatarUrl = (uploadData as { url: string }).url;
-                const saveData = await ProfileService.updateProfile(account.id, { avatar_url: newAvatarUrl });
+                const saveData = await ProfileService.updateProfile(account.id, { avatar_url: newAvatarUrl }) as any;
                 
                 if (saveData.success) {
                     setAccount({ ...account, avatar_url: newAvatarUrl });
@@ -229,7 +230,7 @@ export const ProfileView = ({
             const data = await ProfileService.updatePassword(account.id, {
                 old_password: passwords.oldPassword,
                 password: passwords.newPassword
-            });
+            }) as any;
             
             if (data.success) {
                 setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });
@@ -257,15 +258,6 @@ export const ProfileView = ({
             </div>
         );
     }
-
-    const getInitials = (name: string) => {
-        if (!name) return 'UN';
-        const parts = name.trim().split(' ');
-        if (parts.length >= 2) {
-            return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-        }
-        return name.substring(0, 2).toUpperCase();
-    };
 
     const initials = getInitials(account.full_name);
     const isPasswordMatch = passwords.confirmPassword.length > 0 && passwords.newPassword === passwords.confirmPassword;

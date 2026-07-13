@@ -27,8 +27,10 @@ describe('EnrollmentService QA Tests', () => {
       (EnrollmentRepository.checkEnrollmentExists as jest.Mock).mockResolvedValue(false);
       (EnrollmentRepository.checkEnrollmentInCourse as jest.Mock).mockResolvedValue(false);
 
-      // Mock current enrollments count = 1 (meaning it is FULL)
-      (EnrollmentRepository.countClassEnrollments as jest.Mock).mockResolvedValue(1);
+      // Mock createEnrollmentAtomic to throw 'Class is full' error
+      const error: any = new Error('Class is full');
+      error.status = 400;
+      (EnrollmentRepository.createEnrollmentAtomic as jest.Mock).mockRejectedValue(error);
 
       await expect(EnrollmentService.enrollLearner(learnerId, { class_id: classId }))
         .rejects
@@ -55,7 +57,7 @@ describe('EnrollmentService QA Tests', () => {
       (EnrollmentRepository.countClassEnrollments as jest.Mock).mockResolvedValue(1);
 
       // Mock successful enrollment
-      (EnrollmentRepository.createEnrollment as jest.Mock).mockResolvedValue({
+      (EnrollmentRepository.createEnrollmentAtomic as jest.Mock).mockResolvedValue({
         id: 'enrollment-1',
         learner_id: learnerId,
         class_id: classId,
@@ -64,7 +66,7 @@ describe('EnrollmentService QA Tests', () => {
 
       const result = await EnrollmentService.enrollLearner(learnerId, { class_id: classId });
       expect(result).toHaveProperty('id', 'enrollment-1');
-      expect(EnrollmentRepository.createEnrollment).toHaveBeenCalledWith(learnerId, classId);
+      expect(EnrollmentRepository.createEnrollmentAtomic).toHaveBeenCalledWith(learnerId, classId, 2);
     });
 
     it('should throw 400 error if learner is already enrolled in another class of the same course', async () => {

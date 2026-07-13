@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, BookOpen, CheckCircle2, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { validateFullName, validatePhoneNumber } from '@/shared/lib/utils';
+import { apiUrl } from '@/config/api';
 const Register = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -18,7 +19,7 @@ const Register = () => {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = 'http://localhost:5000/api/auth/google';
+        window.location.href = apiUrl('/auth/google');
     };
 
     const handleRegister = async (e: React.FormEvent) => {
@@ -38,7 +39,7 @@ const Register = () => {
         setLoading(true);
         setError('');
         try {
-            const res = await fetch('http://localhost:5000/api/auth/register', {
+            const res = await fetch(apiUrl('/auth/register'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, full_name: fullName, phone_number: phone })

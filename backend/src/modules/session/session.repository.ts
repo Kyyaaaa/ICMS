@@ -22,7 +22,7 @@ export class SessionRepository {
     const upperRole = role ? role.toUpperCase() : '';
     if (upperRole === 'TUTOR') {
       query = query.eq('tutor_id', userId);
-    } else if (role === 'LEARNER') {
+    } else if (upperRole === 'LEARNER') {
       // Fetch enrolled class ids first
       const { data: enrollments } = await supabaseAdmin
         .from('enrollments')
@@ -42,7 +42,7 @@ export class SessionRepository {
     if (error) throw error;
     
     // For learners, we also want to return their attendance status if available
-    if (role === 'LEARNER' && data && data.length > 0) {
+    if (upperRole === 'LEARNER' && data && data.length > 0) {
       const sessionIds = data.map(s => s.id);
       const { data: attendances } = await supabaseAdmin
         .from('attendances')

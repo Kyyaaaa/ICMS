@@ -39,15 +39,15 @@ const AdminPayrollDetail = () => {
                         <div className="space-y-3">
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg">
                                 <span className="text-[#43474e]">Base Salary</span>
-                                <span className="font-bold text-[#181c1e]">2.800 đ</span>
+                                <span className="font-bold text-[#181c1e]">2.800 VND</span>
                             </div>
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg">
                                 <span className="text-[#43474e]">Overtime (10 hrs)</span>
-                                <span className="font-bold text-[#181c1e]">350,000 đ</span>
+                                <span className="font-bold text-[#181c1e]">350,000 VND</span>
                             </div>
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg border border-[#e6f0fa]">
                                 <span className="text-[#0061a5] font-bold">Total Earnings</span>
-                                <span className="font-bold text-[#0061a5]">3.150 đ</span>
+                                <span className="font-bold text-[#0061a5]">3.150 VND</span>
                             </div>
                         </div>
                     </div>
@@ -57,11 +57,11 @@ const AdminPayrollDetail = () => {
                         <div className="space-y-3">
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg">
                                 <span className="text-[#43474e]">Tax (10%)</span>
-                                <span className="font-bold text-[#ba1a1a]">-315 đ</span>
+                                <span className="font-bold text-[#ba1a1a]">-315 VND</span>
                             </div>
                             <div className="flex justify-between p-3 bg-[#f8f9fa] rounded-lg border border-[#ffebed]">
                                 <span className="text-[#ba1a1a] font-bold">Total Deductions</span>
-                                <span className="font-bold text-[#ba1a1a]">-315 đ</span>
+                                <span className="font-bold text-[#ba1a1a]">-315 VND</span>
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@ const AdminPayrollDetail = () => {
 
                 <div className="bg-[#e6f0fa] rounded-xl p-6 flex justify-between items-center border border-[#0061a5]">
                     <span className="text-xl font-bold text-[#002045]">Net Pay</span>
-                    <span className="text-3xl font-extrabold text-[#0061a5]">2.835 đ</span>
+                    <span className="text-3xl font-extrabold text-[#0061a5]">2.835 VND</span>
                 </div>
             </div>
         </div>

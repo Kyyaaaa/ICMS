@@ -30,10 +30,10 @@ export const PayrollConfigTable = ({ configs, onEdit }: PayrollConfigTableProps)
                                 <span className={`px-2 py-1 rounded text-xs font-bold ${c.role !== 'TUTOR' ? 'bg-[#e6f0fa] text-[#0061a5]' : 'bg-[#e6f4ea] text-[#137333]'}`}>{c.role}</span>
                             </td>
                             <td className="py-3 px-4 text-sm font-bold text-[#0061a5]">
-                                {c.role !== 'TUTOR' ? `${c.baseSalary.toLocaleString()}đ (Monthly)` : `${c.ratePerSession.toLocaleString()}đ (Session)`}
+                                {c.role !== 'TUTOR' ? `${c.baseSalary.toLocaleString('en-US')} VND (Monthly)` : `${c.ratePerSession.toLocaleString('en-US')} VND (Session)`}
                             </td>
                             <td className="py-3 px-4 text-sm text-[#43474e]">
-                                {c.role !== 'TUTOR' ? `${c.overtimeRate.toLocaleString()}đ` : '-'}
+                                {c.role !== 'TUTOR' ? `${c.overtimeRate.toLocaleString('en-US')} VND` : '-'}
                             </td>
                             <td className="py-3 px-4 text-right">
                                 <button 

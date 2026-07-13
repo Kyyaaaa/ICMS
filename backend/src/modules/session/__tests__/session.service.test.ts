@@ -1,12 +1,46 @@
 import { SessionService } from '../session.service';
 import { SessionRepository } from '../session.repository';
 import { UpdateAttendanceDTO } from '../session.model';
+import { ClassRepository } from '../../class/class.repository';
 
 jest.mock('../session.repository');
+jest.mock('../../class/class.repository');
 
 describe('SessionService QA Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('rejects a tutor accessing another tutor session', async () => {
+    (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({
+      id: 'session-1',
+      class_id: 'class-1',
+      tutor_id: 'tutor-owner'
+    });
+
+    await expect(
+      SessionService.getAttendance('session-1', 'tutor-other', 'TUTOR')
+    ).rejects.toMatchObject({ status: 403 });
+  });
+
+  it('rejects attendance for a learner outside the session class', async () => {
+    (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({
+      id: 'session-1',
+      class_id: 'class-1',
+      tutor_id: 'tutor-1',
+      date: '2023-01-01'
+    });
+    (ClassRepository.getClassById as jest.Mock).mockResolvedValue({ id: 'class-1', status: 'ONGOING' });
+    (SessionRepository.getClassEnrollments as jest.Mock).mockResolvedValue([{ learner_id: 'learner-1' }]);
+
+    await expect(
+      SessionService.updateAttendance(
+        'session-1',
+        [{ learner_id: 'learner-2', status: 'PRESENT' }],
+        'tutor-1',
+        'TUTOR'
+      )
+    ).rejects.toMatchObject({ status: 400 });
   });
 
   describe('QA-26 & QA-27: Kiểm thử luồng Điểm danh End-to-End & Trạng thái NOT_YET', () => {
@@ -31,7 +65,7 @@ describe('SessionService QA Tests', () => {
         { session_id: sessionId, learner_id: 'learner-2', status: 'NOT_YET' }
       ]);
 
-      const result = await SessionService.getAttendance(sessionId);
+      const result = await SessionService.getAttendance(sessionId, 'admin-1', 'admin');
 
       expect(SessionRepository.bulkUpsertAttendance).toHaveBeenCalledWith([
         { session_id: sessionId, learner_id: 'learner-1', status: 'NOT_YET' },
@@ -45,7 +79,10 @@ describe('SessionService QA Tests', () => {
       const sessionId = 'session-1';
       
       // Mock session exists
-      (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({ id: sessionId, class_id: 'class-1' });
+      (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({ id: sessionId, class_id: 'class-1', date: '2023-01-01' });
+
+      // Mock Class exists and is not CANCELED
+      (ClassRepository.getClassById as jest.Mock).mockResolvedValue({ id: 'class-1', status: 'ONGOING' });
 
       const updateData: UpdateAttendanceDTO[] = [
         { learner_id: 'learner-1', status: 'PRESENT', notes: 'Present today' }
@@ -55,7 +92,7 @@ describe('SessionService QA Tests', () => {
         { session_id: sessionId, learner_id: 'learner-1', status: 'PRESENT', notes: 'Present today' }
       ]);
 
-      const result = await SessionService.updateAttendance(sessionId, updateData);
+      const result = await SessionService.updateAttendance(sessionId, updateData, 'admin-1', 'admin');
 
       expect(SessionRepository.bulkUpsertAttendance).toHaveBeenCalledWith([
         { session_id: sessionId, learner_id: 'learner-1', status: 'PRESENT', notes: 'Present today' }
@@ -67,7 +104,10 @@ describe('SessionService QA Tests', () => {
       const sessionId = 'session-1';
       
       // Mock session exists
-      (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({ id: sessionId, class_id: 'class-1' });
+      (SessionRepository.getSessionById as jest.Mock).mockResolvedValue({ id: sessionId, class_id: 'class-1', date: '2023-01-01' });
+
+      // Mock Class exists and is not CANCELED
+      (ClassRepository.getClassById as jest.Mock).mockResolvedValue({ id: 'class-1', status: 'ONGOING' });
 
       const updateData: UpdateAttendanceDTO[] = [
         { learner_id: 'learner-1', status: 'ABSENT', notes: 'No show' }
@@ -77,7 +117,7 @@ describe('SessionService QA Tests', () => {
         { session_id: sessionId, learner_id: 'learner-1', status: 'ABSENT', notes: 'No show' }
       ]);
 
-      const result = await SessionService.updateAttendance(sessionId, updateData);
+      const result = await SessionService.updateAttendance(sessionId, updateData, 'admin-1', 'admin');
 
       expect(SessionRepository.bulkUpsertAttendance).toHaveBeenCalledWith([
         { session_id: sessionId, learner_id: 'learner-1', status: 'ABSENT', notes: 'No show' }

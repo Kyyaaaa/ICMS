@@ -30,7 +30,7 @@ export const PayrollConfigModal = ({ config, formData, setFormData, onClose, onS
                         {formData.role !== 'TUTOR' ? (
                             <>
                                 <div>
-                                    <label className="block text-xs font-bold text-[#43474e] mb-1">Monthly Base Salary (đ)</label>
+                                    <label className="block text-xs font-bold text-[#43474e] mb-1">Monthly Base Salary (VND)</label>
                                     <input 
                                         type="number" 
                                         value={formData.baseSalary || ''} 
@@ -39,7 +39,7 @@ export const PayrollConfigModal = ({ config, formData, setFormData, onClose, onS
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-[#43474e] mb-1">Overtime Rate per Hour (đ)</label>
+                                    <label className="block text-xs font-bold text-[#43474e] mb-1">Overtime Rate per Hour (VND)</label>
                                     <input 
                                         type="number" 
                                         value={formData.overtimeRate || ''} 
@@ -51,7 +51,7 @@ export const PayrollConfigModal = ({ config, formData, setFormData, onClose, onS
                         ) : (
                             <>
                                 <div>
-                                    <label className="block text-xs font-bold text-[#43474e] mb-1">Default Rate per Session (đ)</label>
+                                    <label className="block text-xs font-bold text-[#43474e] mb-1">Default Rate per Session (VND)</label>
                                     <input 
                                         type="number" 
                                         value={formData.ratePerSession || ''} 

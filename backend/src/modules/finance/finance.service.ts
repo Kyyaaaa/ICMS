@@ -76,11 +76,12 @@ export class FinanceService {
 
   private static mapPayrollToTransaction(p: any): Transaction {
     const roleName = p.account?.roles?.name || p.account?.roles?.[0]?.name || 'Staff';
+    const formattedMonth = p.payroll_month ? p.payroll_month.split('-').reverse().join('/') : 'Unknown';
     return {
       id: p.payroll_code,
       type: 'expense',
       category: 'Salary Payment',
-      description: `Salary for ${p.payroll_month}`,
+      description: `Salary for ${formattedMonth}`,
       user: { 
         name: p.account?.full_name || 'Unknown', 
         role: roleName.charAt(0).toUpperCase() + roleName.slice(1).toLowerCase(),

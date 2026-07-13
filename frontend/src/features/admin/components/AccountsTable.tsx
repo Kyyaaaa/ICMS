@@ -1,7 +1,9 @@
 import { formatDate } from "../../../shared/utils/date";
-import { Eye, Ban, CheckCircle2, Lock, Edit, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from 'lucide-react';
+import { Eye, Ban, CheckCircle2, Lock, Edit, UserX, UserCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Pagination } from '@/shared/components/common/Pagination';
 import type { Account } from '../types/account';
+import { getInitials } from '@/shared/lib/utils';
 
 interface AccountsTableProps {
     accounts: Account[];
@@ -37,29 +39,6 @@ export const AccountsTable = ({
             case 'LEARNER': return 'bg-[#e6f4ea] text-[#137333]';
             default: return 'bg-gray-100 text-gray-700';
         }
-    };
-
-    const getInitials = (name: string) => {
-        if (!name) return 'UN';
-        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    };
-
-    const totalPages = Math.ceil(totalAccounts / limit);
-
-    const getPageNumbers = () => {
-        const pages = [];
-        if (totalPages <= 7) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            if (currentPage <= 4) {
-                pages.push(1, 2, 3, 4, 5, '...', totalPages);
-            } else if (currentPage >= totalPages - 3) {
-                pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-            } else {
-                pages.push(1, '...', currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2, '...', totalPages);
-            }
-        }
-        return pages;
     };
 
     return (
@@ -166,7 +145,7 @@ export const AccountsTable = ({
                                                             title={banTitle}
                                                             disabled={!canBan}
                                                         >
-                                                            {acc.status === 'ACTIVE' ? <Ban size={18} /> : <Lock size={18} />}
+                                                            {acc.status === 'ACTIVE' ? <UserX size={18} /> : <UserCheck size={18} />}
                                                         </button>
                                                     </>
                                                 );
@@ -179,70 +158,14 @@ export const AccountsTable = ({
                     </tbody>
                 </table>
             </div>
-            {/* Pagination UI */}
             {totalAccounts > limit && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-[#e0e3e5] bg-[#f8f9fa]">
-                    <span className="text-xs text-[#43474e]">
-                        Showing <span className="font-bold">{(currentPage - 1) * limit + 1}</span> to <span className="font-bold">{Math.min(currentPage * limit, totalAccounts)}</span> of <span className="font-bold">{totalAccounts}</span> accounts
-                    </span>
-                    <div className="flex gap-1.5 items-center">
-                        {/* First Page */}
-                        <button 
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(1)}
-                            className="p-1.5 border border-[#c4c6cf] rounded-lg text-[#43474e] bg-white hover:bg-[#f1f4f6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            title="First Page"
-                        >
-                            <ChevronsLeft size={18} />
-                        </button>
-                        {/* Previous Page */}
-                        <button 
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            className="p-1.5 border border-[#c4c6cf] rounded-lg text-[#43474e] bg-white hover:bg-[#f1f4f6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            title="Previous Page"
-                        >
-                            <ChevronLeft size={18} />
-                        </button>
-                        
-                        {getPageNumbers().map((pageNum, idx) => (
-                            pageNum === '...' ? (
-                                <span key={`ellipsis-${idx}`} className="px-2 text-[#74777f] font-bold">...</span>
-                            ) : (
-                                <button
-                                    key={`page-${pageNum}`}
-                                    onClick={() => setCurrentPage(pageNum as number)}
-                                    className={`min-w-8 h-8 px-2 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${
-                                        currentPage === pageNum 
-                                            ? 'bg-[#0061a5] text-white border border-[#0061a5]' 
-                                            : 'border border-[#c4c6cf] text-[#43474e] bg-white hover:bg-[#f1f4f6]'
-                                    }`}
-                                >
-                                    {pageNum}
-                                </button>
-                            )
-                        ))}
-
-                        {/* Next Page */}
-                        <button 
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            className="p-1.5 border border-[#c4c6cf] rounded-lg text-[#43474e] bg-white hover:bg-[#f1f4f6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            title="Next Page"
-                        >
-                            <ChevronRight size={18} />
-                        </button>
-                        {/* Last Page */}
-                        <button 
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(totalPages)}
-                            className="p-1.5 border border-[#c4c6cf] rounded-lg text-[#43474e] bg-white hover:bg-[#f1f4f6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            title="Last Page"
-                        >
-                            <ChevronsRight size={18} />
-                        </button>
-                    </div>
-                </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalAccounts}
+                    itemsPerPage={limit}
+                    onPageChange={setCurrentPage}
+                    itemName="accounts"
+                />
             )}
         </div>
     );

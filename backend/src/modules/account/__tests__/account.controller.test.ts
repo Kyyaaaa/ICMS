@@ -1,17 +1,18 @@
 import request from 'supertest';
 import app from '../../../app';
 import { AccountService } from '../account.service';
-import { AuthService } from '../../auth/auth.service';
+import { } from '../../auth/auth.service';
 
 // Mock các middlewares
 jest.mock('../../../middlewares/auth.middleware', () => ({
-  verifyToken: (req: any, res: any, next: any) => {
+  verifyToken: (req: any, _res: any, next: any) => {
     // Giả lập user đã đăng nhập
     req.user = { id: '123e4567-e89b-12d3-a456-426614174000', role: 'ADMIN' };
     next();
   },
-  requireRole: (roles: string[]) => {
-    return (req: any, res: any, next: any) => {
+  optionalVerifyToken: (_req: any, _res: any, next: any) => next(),
+  requireRole: (_roles: string[]) => {
+    return (_req: any, _res: any, next: any) => {
       next();
     };
   }

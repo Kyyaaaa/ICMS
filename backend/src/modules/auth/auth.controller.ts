@@ -247,12 +247,11 @@ export class AuthController {
     }
   }
 
-  static async googleLogin(req: Request, res: Response) {
+  static async googleLogin(_req: Request, res: Response) {
     try {
       const url = await AuthService.getGoogleLoginUrl('http://localhost:5173/auth/callback');
       return res.redirect(url);
     } catch (error) {
-      const err = error as Error;
       console.error('Error generating Google OAuth URL:', error);
       return res.status(500).json({ success: false, message: 'Server error' });
     }

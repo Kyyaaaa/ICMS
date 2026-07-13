@@ -16,7 +16,7 @@ const pool = new Pool({
 });
 
 // Catch any errors on idle clients
-pool.on('error', (err, client) => {
+pool.on('error', (err: Error, _client: any) => {
   console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });
@@ -28,6 +28,7 @@ export const connectDB = async () => {
     client.release(); // release the client back to the pool
   } catch (err) {
     console.error('Error connecting to Supabase database:', err);
+    throw err;
   }
 };
 

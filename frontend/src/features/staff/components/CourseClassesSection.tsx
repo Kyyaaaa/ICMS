@@ -18,7 +18,7 @@ export const CourseClassesSection = ({ course }: CourseClassesSectionProps) => {
                     <div>
                         <h2 className="text-lg font-bold text-[#002045]">{course.name}</h2>
                         <p className="text-xs text-[#74777f] mt-1 flex items-center gap-1 font-medium">
-                            <CalendarDays className="w-3 h-3" /> Duration: {course.startDate ? formatDate(course.startDate) : 'TBA'} - {course.endDate ? formatDate(course.endDate) : 'TBA'}
+                            <CalendarDays className="w-3 h-3" /> {course.startDate ? formatDate(course.startDate) : 'TBA'} - {course.endDate ? formatDate(course.endDate) : 'TBA'}
                         </p>
                     </div>
                 </div>

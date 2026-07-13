@@ -3,6 +3,7 @@ import { BookOpen, ArrowLeft, Clock, Calendar, ShieldCheck, CheckCircle2, MapPin
 import { Link, useParams } from 'react-router-dom';
 
 import { LearnerPaymentsService } from '../services/payments.service';
+import { showAlertModal } from '@/utils/modal';
 
 const PaymentCheckout = () => {
     const { id } = useParams(); // Using invoice id or course id based on route
@@ -60,7 +61,7 @@ const PaymentCheckout = () => {
                 throw new Error("Failed to generate payment link");
             }
         } catch (error: unknown) {
-            alert(error instanceof Error ? error.message : 'Error processing payment');
+            showAlertModal('Error', error instanceof Error ? error.message : 'Error processing payment', 'error');
             setIsProcessing(false);
         }
     };
@@ -122,7 +123,7 @@ const PaymentCheckout = () => {
                                     </div>
                                     <span className="text-lg font-bold text-[#002045]">Pay in Full</span>
                                 </div>
-                                <p className="text-sm text-[#43474e] ml-13">One-time payment of {priceValue.toLocaleString('vi-VN')} đ.</p>
+                                <p className="text-sm text-[#43474e] ml-13">One-time payment of {priceValue.toLocaleString('en-US')} VND.</p>
                             </label>
 
                             {allowInstallments && (
@@ -135,7 +136,7 @@ const PaymentCheckout = () => {
                                         <span className="text-lg font-bold text-[#002045]">{numInstallments} Installments</span>
                                     </div>
                                     <p className="text-sm text-[#43474e] ml-13">
-                                        Pay {firstPayment.toLocaleString('vi-VN')} đ today, and {recurringPayment.toLocaleString('vi-VN')} đ periodically for {numInstallments - 1} terms.
+                                        Pay {firstPayment.toLocaleString('en-US')} VND today, and {recurringPayment.toLocaleString('en-US')} VND periodically for {numInstallments - 1} terms.
                                     </p>
                                 </label>
                             )}
@@ -153,7 +154,7 @@ const PaymentCheckout = () => {
                         <div className="flex flex-col gap-4 mb-6 text-sm">
                             <div className="flex justify-between items-center">
                                 <span className="text-[#adc7f7]">Course Tuition</span>
-                                <span className="font-bold">{(priceValue + (invoiceData.discount || 0)).toLocaleString('vi-VN')} đ</span>
+                                <span className="font-bold">{(priceValue + (invoiceData.discount || 0)).toLocaleString('en-US')} VND</span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-[#adc7f7]">Registration Fee</span>
@@ -162,7 +163,7 @@ const PaymentCheckout = () => {
                             {invoiceData.discount ? (
                                 <div className="flex justify-between items-center text-[#ffb4ab]">
                                     <span className="text-[#adc7f7]">Discount</span>
-                                    <span className="font-bold">-{(invoiceData.discount).toLocaleString('vi-VN')} đ</span>
+                                    <span className="font-bold">-{(invoiceData.discount).toLocaleString('en-US')} VND</span>
                                 </div>
                             ) : null}
                             {paymentPlan === 'installment' && (
@@ -176,7 +177,7 @@ const PaymentCheckout = () => {
                         <div className="border-t border-white/20 pt-6 mb-8">
                             <div className="flex justify-between items-end">
                                 <span className="text-base font-bold text-[#adc7f7]">Amount Due Today</span>
-                                <span className="text-4xl font-extrabold leading-none">{initialPayment.toLocaleString('vi-VN')} đ</span>
+                                <span className="text-4xl font-extrabold leading-none">{initialPayment.toLocaleString('en-US')} VND</span>
                             </div>
                             <div className="text-right text-xs text-[#adc7f7] mt-2">Includes all taxes and fees</div>
                         </div>
@@ -187,7 +188,7 @@ const PaymentCheckout = () => {
                             disabled={isProcessing}
                             className="w-full bg-[#0061a5] text-white font-bold py-4 rounded-xl shadow-md hover:bg-[#004a80] hover:shadow-lg disabled:opacity-50 transition-all flex justify-center items-center gap-2"
                         >
-                            {isProcessing ? 'Redirecting to Payment Gateway...' : `Proceed to Pay ${initialPayment.toLocaleString('vi-VN')} đ`}
+                            {isProcessing ? 'Redirecting to Payment Gateway...' : `Proceed to Pay ${initialPayment.toLocaleString('en-US')} VND`}
                         </button>
 
                         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-[#adc7f7]">

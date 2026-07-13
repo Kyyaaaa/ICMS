@@ -3,7 +3,7 @@ import { DiscountCodeService } from './discount-code.service';
 
 const service = new DiscountCodeService();
 
-export const getDiscountCodes = async (req: Request, res: Response) => {
+export const getDiscountCodes = async (_req: Request, res: Response) => {
     try {
         const codes = await service.getAllDiscountCodes();
         res.status(200).json({

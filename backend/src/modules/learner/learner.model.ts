@@ -1,9 +1,3 @@
-export interface Learner {
-  account_id: string;
-  created_at: string;
-  updated_at: string;
-  account?: any; // Contains the joined account data
-}
 
 export interface CreateLearnerInput {
   email: string;

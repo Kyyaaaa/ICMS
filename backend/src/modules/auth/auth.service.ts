@@ -25,7 +25,7 @@ export class AuthService {
     };
 
     try {
-      const userAccount = await AuthRepository.getAccountByEmail(email);
+      const _userAccount = await AuthRepository.getAccountByEmail(email);
     } catch (error) {
       throw new Error("Error checking existing email: " + error);
     }
@@ -105,20 +105,21 @@ export class AuthService {
 
     if (checkError) throw checkError;
     if (!userAccount) {
-      throw new Error("Email not found in our system");
+      return { message: "If the email exists, an OTP has been sent" };
     }
 
     // 1.5. Vô hiệu hóa tất cả OTP cũ chưa sử dụng
     await AuthRepository.invalidateOldOtps(email);
 
     // 2. Tạo mã OTP 6 số ngẫu nhiên
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 phút
 
     // 3. Ra lệnh Repository lưu OTP
     const { error: insertError } = await AuthRepository.insertOtp(
       email,
-      otp,
+      otpHash,
       expiresAt,
     );
 
@@ -138,9 +139,10 @@ export class AuthService {
   static async verifyOtp(email: string, otp: string) {
     // 1. Tìm OTP hợp lệ
     const currentTime = new Date().toISOString();
+    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
     const { data, error } = await AuthRepository.getValidOtp(
       email,
-      otp,
+      otpHash,
       currentTime,
     );
 
@@ -173,7 +175,7 @@ export class AuthService {
 
     if (otpError) throw otpError;
     if (!otpData) {
-      throw new Error("Invalid reset token");
+      throw new Error("Invalid or expired reset token");
     }
 
     // 1.5. Kiểm tra mật khẩu mới có trùng với mật khẩu hiện tại không
@@ -194,17 +196,24 @@ export class AuthService {
       throw new Error("User not found");
     }
 
+    const { data: consumedToken, error: consumeError } =
+      await AuthRepository.consumeResetToken(resetToken, new Date().toISOString());
+    if (consumeError || !consumedToken) {
+      throw new Error("Invalid or expired reset token");
+    }
+
     // 3. Cập nhật mật khẩu
     const { data, error } = await AuthRepository.updateUserPassword(
       userAccount.id,
       newPassword,
     );
 
-    if (error) throw error;
+    if (error) {
+      await AuthRepository.restoreResetToken(consumedToken.id, resetToken);
+      throw error;
+    }
 
     // 4. Xóa reset_token
-    await AuthRepository.clearResetToken(otpData.id);
-
     return data;
   }
 

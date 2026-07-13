@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { TutorClassService } from './tutor-class.service';
-import { supabaseAdmin } from '../../configs/supabase';
+import { TutorClassRepository } from './tutor-class.repository';
 
 export class TutorClassController {
   static async getGradebook(req: Request, res: Response): Promise<void> {
@@ -9,20 +9,16 @@ export class TutorClassController {
       const tutorId = (req as any).user?.id;
 
       // Verify tutor owns the class
-      const { data: classData, error } = await supabaseAdmin
-        .from('classes')
-        .select('tutor_id')
-        .eq('id', classId)
-        .single();
+      const classTutorId = await TutorClassRepository.checkTutorOwnership(classId);
         
-      if (error || !classData) {
+      if (!classTutorId) {
         res.status(404).json({ success: false, message: 'Class not found' });
         return;
       }
       
       // Allow ADMIN and STAFF to view as well, but for TUTOR verify ownership
       const role = (req as any).user?.role?.toUpperCase();
-      if (role === 'TUTOR' && classData.tutor_id !== tutorId) {
+      if (role === 'TUTOR' && classTutorId !== tutorId) {
         res.status(403).json({ success: false, message: 'You do not have permission to view this class' });
         return;
       }
@@ -40,19 +36,15 @@ export class TutorClassController {
       const tutorId = (req as any).user?.id;
 
       // Verify tutor owns the class
-      const { data: classData, error } = await supabaseAdmin
-        .from('classes')
-        .select('tutor_id')
-        .eq('id', classId)
-        .single();
+      const classTutorId = await TutorClassRepository.checkTutorOwnership(classId);
         
-      if (error || !classData) {
+      if (!classTutorId) {
         res.status(404).json({ success: false, message: 'Class not found' });
         return;
       }
 
       const role = (req as any).user?.role?.toUpperCase();
-      if (role === 'TUTOR' && classData.tutor_id !== tutorId) {
+      if (role === 'TUTOR' && classTutorId !== tutorId) {
         res.status(403).json({ success: false, message: 'You do not have permission to edit this class' });
         return;
       }
@@ -60,6 +52,10 @@ export class TutorClassController {
       await TutorClassService.saveGradebook(classId, req.body);
       res.status(200).json({ success: true, message: 'Gradebook saved successfully' });
     } catch (error: any) {
+      if (error.message && error.message.includes('Điểm số')) {
+        res.status(400).json({ success: false, message: error.message });
+        return;
+      }
       res.status(500).json({ success: false, message: error.message });
     }
   }
@@ -70,19 +66,15 @@ export class TutorClassController {
       const tutorId = (req as any).user?.id;
 
       // Verify tutor owns the class
-      const { data: classData, error } = await supabaseAdmin
-        .from('classes')
-        .select('tutor_id')
-        .eq('id', classId)
-        .single();
+      const classTutorId = await TutorClassRepository.checkTutorOwnership(classId);
         
-      if (error || !classData) {
+      if (!classTutorId) {
         res.status(404).json({ success: false, message: 'Class not found' });
         return;
       }
 
       const role = (req as any).user?.role?.toUpperCase();
-      if (role === 'TUTOR' && classData.tutor_id !== tutorId) {
+      if (role === 'TUTOR' && classTutorId !== tutorId) {
         res.status(403).json({ success: false, message: 'You do not have permission to edit this class' });
         return;
       }

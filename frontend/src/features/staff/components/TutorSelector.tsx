@@ -77,13 +77,15 @@ export const TutorSelector = ({
               <div className="flex items-center gap-1.5">
                 {selectedTutor.status === "submitted" ? (
                   <Lock className="w-3 h-3 text-amber-600" />
+                ) : selectedTutor.status === "draft" ? (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0061a5]"></span>
                 ) : (
                   <span className="w-1.5 h-1.5 rounded-full bg-[#c4c6cf]"></span>
                 )}
                 <span
-                  className={`text-xs font-bold ${selectedTutor.status === "submitted" ? "text-amber-700" : "text-[#74777f]"}`}
+                  className={`text-xs font-bold ${selectedTutor.status === "submitted" ? "text-amber-700" : selectedTutor.status === "draft" ? "text-[#0061a5]" : "text-[#74777f]"}`}
                 >
-                  {selectedTutor.status === "submitted" ? "Locked" : "Draft"}
+                  {selectedTutor.status === "submitted" ? "Locked" : selectedTutor.status === "draft" ? "Draft" : "Unregistered"}
                 </span>
               </div>
             </div>
@@ -119,7 +121,13 @@ export const TutorSelector = ({
             <div className="max-h-80 overflow-y-auto p-2 space-y-1">
               {filteredTutors.length > 0 ? (
                 filteredTutors
-                  .sort((a) => (a.status === "submitted" ? -1 : 1))
+                  .sort((a, b) => {
+                    const statusOrder = { unregistered: 0, draft: 1, submitted: 2 };
+                    const orderA = statusOrder[a.status as keyof typeof statusOrder] ?? 3;
+                    const orderB = statusOrder[b.status as keyof typeof statusOrder] ?? 3;
+                    if (orderA !== orderB) return orderA - orderB;
+                    return a.name.localeCompare(b.name);
+                  })
                   .map((tutor) => {
                     const initials = tutor.name
                       .split(" ")
@@ -163,9 +171,13 @@ export const TutorSelector = ({
                             <span className="text-xs uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1">
                               <Lock className="w-2.5 h-2.5" /> Locked
                             </span>
+                          ) : tutor.status === "draft" ? (
+                            <span className="text-xs uppercase font-bold text-[#0061a5] bg-[#e3f2fd] px-2 py-0.5 rounded-full">
+                              Draft
+                            </span>
                           ) : (
                             <span className="text-xs uppercase font-bold text-[#74777f] bg-[#e0e3e5] px-2 py-0.5 rounded-full">
-                              Draft
+                              Unregistered
                             </span>
                           )}
                         </div>

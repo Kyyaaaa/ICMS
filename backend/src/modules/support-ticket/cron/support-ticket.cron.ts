@@ -19,14 +19,19 @@ export const initSupportTicketCron = () => {
         .select('id');
 
       if (error) {
-        console.error('[Cron Job] Error auto-resolving support tickets:', error.message);
+        // Suppress generic network fetch errors so they don't look like server crashes
+        if (error.message && error.message.includes('fetch failed')) {
+          // Silent network fail
+        } else {
+          console.error('[Cron Job] Error auto-resolving support tickets:', error.message);
+        }
       } else if (data && data.length > 0) {
-        console.log(`[Cron Job] Successfully auto-resolved ${data.length} inactive support tickets.`);
+        
       }
     } catch (error) {
       console.error('[Cron Job] Unknown error in support ticket cron:', error);
     }
   }, { timezone: 'Asia/Ho_Chi_Minh' });
 
-  console.log('[Cron Job] Support Ticket Auto-Resolver has been initialized.');
+  
 };

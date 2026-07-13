@@ -22,7 +22,7 @@ export interface TutorAvailabilityProfile {
   account_code: string;
   name: string;
   avatar_url: string | null;
-  status: 'draft' | 'submitted';
+  status: 'unregistered' | 'draft' | 'submitted';
   slots: string[];
 }
 

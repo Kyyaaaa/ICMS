@@ -43,7 +43,7 @@ export const initClassroomStatusCron = () => {
         return;
       }
 
-      console.log(`[Cron Job] Tìm thấy ${finishedMaintenances.length} phòng học đã hết thời gian bảo trì. Đang tiến hành cập nhật...`);
+      
 
       // 2. Cập nhật lại status và xóa maintenance record
       for (const maint of finishedMaintenances) {
@@ -69,7 +69,7 @@ export const initClassroomStatusCron = () => {
         if (updateError) {
            console.error(`[Cron Job] Lỗi khi cập nhật AVAILABLE cho classroom ${classroomId}:`, updateError.message);
         } else {
-           console.log(`[Cron Job] Đã tự động cập nhật classroom ${classroomId} sang AVAILABLE.`);
+           
         }
       }
 
@@ -78,5 +78,5 @@ export const initClassroomStatusCron = () => {
     }
   }, { timezone: 'Asia/Ho_Chi_Minh' });
 
-  console.log('[Cron Job] Classroom Maintenance Status Cron has been initialized.');
+  
 };

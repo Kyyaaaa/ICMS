@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { AlertCircle, ChevronRight, CheckSquare, FileText, Calendar } from 'lucide-react';
+import { AlertCircle, ChevronRight, CheckSquare, FileText, Calendar, CheckCircle } from 'lucide-react';
 import type { TutorPendingTask } from '../types/dashboard';
 
 interface DashboardPendingTasksProps {
@@ -26,6 +26,15 @@ export const DashboardPendingTasks = ({ tasks }: DashboardPendingTasksProps) => 
             </div>
             
             <div className="space-y-4">
+                {tasks.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-8 text-center text-[#74777f]">
+                        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4">
+                            <CheckCircle className="w-8 h-8 text-green-500" />
+                        </div>
+                        <p className="font-bold text-sm text-[#181c1e]">No pending requests</p>
+                        <p className="text-xs mt-1">You have no tasks waiting for action.</p>
+                    </div>
+                )}
                 {tasks.map((task, i) => {
                     const Icon = getIcon(task.iconType);
                     return (

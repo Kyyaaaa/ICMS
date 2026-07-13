@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { Eye, Search, CheckCircle, XCircle, X, ShieldAlert, ShieldCheck, ShieldX, Download } from "lucide-react";
 import { StaffCertificatesService } from "../services/certificates.service";
 import type { StaffCertificate } from "../services/certificates.service";
+import { Pagination } from '@/shared/components/common/Pagination';
+import { showAlertModal } from '@/utils/modal';
 const StaffCertificates = () => {
   const [Certificates, setCertificates] = useState<StaffCertificate[]>([]);
   const [selectedQual, setSelectedQual] = useState<StaffCertificate | null>(
@@ -18,6 +20,9 @@ const StaffCertificates = () => {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectError, setRejectError] = useState<string | null>(null);
   const [shakeKey, setShakeKey] = useState(0);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
 
   // We no longer need to fetch PDFs as blobs because Supabase Storage allows direct embedding.
   // The iframe can directly load the Supabase public URL.
@@ -61,7 +66,6 @@ const StaffCertificates = () => {
       try {
         const data = await StaffCertificatesService.getAllCertificates();
         setCertificates(data);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("Failed to fetch Certificates", error);
         setFetchError(error.message || JSON.stringify(error));
@@ -80,8 +84,9 @@ const StaffCertificates = () => {
         )
       );
       setSelectedQual(null);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to verify", error);
+      showAlertModal("Error", "Failed to verify certificate: " + ((error as Error)?.message || "Unknown error"), "error");
     }
   };
 
@@ -103,8 +108,9 @@ const StaffCertificates = () => {
       setRejectReason("");
       setRejectError(null);
       setFetchError(null);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to reject", error);
+      showAlertModal("Error", "Failed to reject certificate: " + ((error as Error)?.message || "Unknown error"), "error");
     }
   };
 
@@ -136,7 +142,7 @@ const StaffCertificates = () => {
               placeholder="Search tutor or cert..."
               className="pl-10 pr-4 py-2 border border-[#c4c6cf] rounded-lg w-75 focus:ring-2 focus:ring-[#0061a5] focus:outline-none"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             />
           </div>
           <select
@@ -226,7 +232,7 @@ const StaffCertificates = () => {
                 </td>
               </tr>
             ) : (
-              filteredQuals.map((item) => (
+              filteredQuals.slice((currentPage - 1) * limit, currentPage * limit).map((item) => (
                 <tr
                   key={item.id}
                   className="border-b border-[#e0e3e5] hover:bg-gray-50"
@@ -273,6 +279,14 @@ const StaffCertificates = () => {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+          currentPage={currentPage}
+          totalItems={filteredQuals.length}
+          itemsPerPage={limit}
+          onPageChange={setCurrentPage}
+          itemName="certificates"
+      />
 
       {selectedQual && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
