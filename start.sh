@@ -2,7 +2,7 @@
 set -e
 
 echo "=========================================="
-echo "▶️  Khởi chạy hệ thống ICMS (Start App)..."
+echo "▶️  Khởi chạy toàn bộ hệ thống ICMS (Start App)..."
 echo "=========================================="
 
 echo "1. Khởi chạy Backend Node.js với PM2..."
@@ -16,10 +16,11 @@ else
 fi
 cd ..
 
-echo "2. Kiểm tra và tải lại Nginx cho Frontend..."
+echo "2. Kích hoạt phục vụ Frontend qua Nginx..."
+sudo ln -sf /etc/nginx/sites-available/icms /etc/nginx/sites-enabled/icms
 sudo nginx -t && sudo systemctl reload nginx
 
 echo "=========================================="
-echo "✅ Hệ thống ICMS đã được khởi chạy thành công!"
+echo "✅ Hệ thống ICMS (Frontend + Backend) đã được khởi chạy thành công!"
 echo "=========================================="
 pm2 status
