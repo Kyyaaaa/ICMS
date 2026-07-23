@@ -1,0 +1,40 @@
+# Mẫu cấu hình Nginx cho dự án ICMS
+# Có thể sao chép vào /etc/nginx/sites-available/icms
+
+server {
+    listen 80;
+    server_name _;  # Thay bằng IP VPS hoặc tên miền của bạn (ví dụ: icms.example.com)
+
+    # Thư mục chứa file tĩnh của Frontend React sau khi build (npm run build)
+    root /var/www/icms/frontend/dist;
+    index index.html;
+
+    # Nén Gzip
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # 1. Định tuyến cho ứng dụng React SPA
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 2. Proxy request API sang Backend Node.js chạy trên cổng 5000
+    location /api/ {
+        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # 3. Cache tài nguyên tĩnh (Hình ảnh, CSS, JS)
+    location ~* \.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg|webp)$ {
+        expires 6M;
+        access_log off;
+        add_header Cache-Control "public, max-age=15552000, immutable";
+    }
+}

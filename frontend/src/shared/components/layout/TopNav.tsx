@@ -43,7 +43,7 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
                     desc: ann.content,
                     time: formatDateTime(ann.date),
                     read: readSet.has(ann.id),
-                    type: ann.audience.scope === 'System Wide' ? 'system' : 'admin'
+                    type: ann.audience.scope === 'System Wide' ? 'system' : (isLoggedIn && userRole ? userRole.toLowerCase() : 'guest')
                 }));
                 
                 setAllNotifs(mapped);
@@ -119,34 +119,72 @@ export const TopNav: React.FC<TopNavProps> = ({ isLoggedIn = false, setIsLoggedI
 
                         {/* Notification Dropdown */}
                         {showNotifications && (
-                            <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-[#e0e3e5] overflow-hidden flex flex-col z-100 animate-fade-in">
-                                <div className="px-4 py-3 border-b border-[#e0e3e5] bg-[#f7fafc] flex justify-between items-center">
-                                    <h4 className="font-bold text-[#002045]">Notifications</h4>
-                                    <span className="text-xs text-[#0061a5] font-semibold cursor-pointer hover:underline" onClick={markAllAsRead}>Mark all as read</span>
-                                </div>
-                                <div className="max-h-75 overflow-y-auto">
-                                    {notifications.length > 0 ? notifications.map(notif => (
-                                        <div key={notif.id} className={`px-4 py-3 border-b border-[#f1f4f6] hover:bg-[#f8f9fa] cursor-pointer transition-colors ${!notif.read ? 'bg-[#f0f7ff]' : ''}`}>
-                                            <div className="flex justify-between items-start mb-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`px-2 py-0.5 rounded text-xs font-extrabold tracking-wider uppercase ${getTagColor(notif.type)}`}>
-                                                        {notif.type}
+                            <>
+                                <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setShowNotifications(false)}
+                                ></div>
+                                <div className="absolute right-0 mt-3 w-90 bg-white rounded-2xl shadow-xl border border-[#e0e3e5] overflow-hidden z-50 animate-scale-in origin-top-right">
+                                    <div className="p-4 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f8f9fa]">
+                                        <h3 className="font-bold text-[#002045]">
+                                            Notifications
+                                        </h3>
+                                        <button
+                                            onClick={markAllAsRead}
+                                            className="text-xs font-bold text-[#0061a5] hover:underline"
+                                        >
+                                            Mark all as read
+                                        </button>
+                                    </div>
+                                    <div className="max-h-100 overflow-y-auto scrollbar-thin">
+                                        {notifications.length > 0 ? (
+                                            notifications.map((notif) => (
+                                                <div
+                                                    key={notif.id}
+                                                    className={`p-4 border-b border-[#e0e3e5] last:border-b-0 hover:bg-[#f8f9fa] transition-colors cursor-pointer ${!notif.read ? "bg-blue-50/30" : ""}`}
+                                                >
+                                                    <div className="flex justify-between items-start mb-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span
+                                                                className={`px-2 py-0.5 rounded text-xs font-extrabold tracking-wider uppercase ${getTagColor(notif.type)}`}
+                                                            >
+                                                                {notif.type}
+                                                            </span>
+                                                            <h4
+                                                                className={`text-sm leading-tight text-[#002045] ${!notif.read ? "font-bold" : "font-semibold"}`}
+                                                            >
+                                                                {notif.title}
+                                                            </h4>
+                                                        </div>
+                                                        {!notif.read && (
+                                                            <span className="w-2 h-2 rounded-full bg-[#0061a5] shrink-0 mt-1"></span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-xs text-[#43474e] mb-1.5 line-clamp-2">
+                                                        {notif.desc}
+                                                    </p>
+                                                    <span className="text-xs font-semibold text-[#74777f]">
+                                                        {notif.time}
                                                     </span>
-                                                    <h5 className={`text-sm ${!notif.read ? 'font-bold text-[#002045]' : 'font-semibold text-[#43474e]'}`}>{notif.title}</h5>
                                                 </div>
-                                                {!notif.read && <span className="w-2 h-2 bg-[#0061a5] rounded-full mt-1.5 shrink-0"></span>}
+                                            ))
+                                        ) : (
+                                            <div className="p-6 text-center text-[#74777f] text-sm">
+                                                No notifications yet.
                                             </div>
-                                            <p className="text-xs text-[#74777f] line-clamp-2 leading-tight mb-1">{notif.desc}</p>
-                                            <span className="text-xs text-[#a1a4ad]">{notif.time}</span>
-                                        </div>
-                                    )) : (
-                                        <div className="p-6 text-center text-[#74777f] text-sm">No notifications yet.</div>
-                                    )}
+                                        )}
+                                    </div>
+                                    <div className="p-3 text-center border-t border-[#e0e3e5] bg-[#f8f9fa]">
+                                        <Link
+                                            to={isLoggedIn ? (userRole === 'admin' ? "/admin/announcements" : `/${userRole?.toLowerCase() || 'learner'}/notifications`) : "/notifications"}
+                                            onClick={() => setShowNotifications(false)}
+                                            className="text-xs font-bold text-[#0061a5] hover:underline block w-full"
+                                        >
+                                            View All Notifications
+                                        </Link>
+                                    </div>
                                 </div>
-                                <div className="p-2 bg-[#f7fafc] border-t border-[#e0e3e5] text-center">
-                                    <Link to={isLoggedIn ? (userRole === 'admin' ? "/admin/announcements" : `/${userRole.toLowerCase()}/notifications`) : "/notifications"} onClick={() => setShowNotifications(false)} className="text-xs text-[#0061a5] font-bold cursor-pointer hover:underline block w-full">View all</Link>
-                                </div>
-                            </div>
+                            </>
                         )}
                     </div>
 
