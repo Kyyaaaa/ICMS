@@ -31,7 +31,7 @@ export class FinanceRepository {
         account:learner_id(full_name, account_code),
         invoices(classes(courses(title)))
       `)
-      .in('status', ['APPROVED', 'COMPLETED'])
+      .in('status', ['PENDING', 'APPROVED', 'COMPLETED'])
       .order('processed_at', { ascending: false });
 
     if (error) {

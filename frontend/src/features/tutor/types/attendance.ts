@@ -2,6 +2,7 @@ export interface AttendanceClass {
     id: string;
     name: string;
     students: number;
+    status?: string;
 }
 
 export interface AttendanceSession {

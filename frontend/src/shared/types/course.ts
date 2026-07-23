@@ -18,4 +18,6 @@ export interface Course {
     next_cohort?: string;
     image_url?: string;
     modules?: Record<string, unknown>[];
+    is_completed?: boolean;
+    display_status?: string;
 }

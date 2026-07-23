@@ -9,7 +9,7 @@ import { showConfirmModal } from '@/utils/modal';
 const AdminCourses = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('All');
+    const [tabFilter, setTabFilter] = useState<'Active' | 'Completed'>('Active');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
@@ -45,13 +45,16 @@ const AdminCourses = () => {
         navigate(`/admin/courses/new`);
     };
 
+    const activeCount = courses.filter(c => !c.is_completed).length;
+    const completedCount = courses.filter(c => c.is_completed).length;
+
     const filteredCourses = courses.filter(c => {
+        const tabMatch = tabFilter === 'Active' ? !c.is_completed : !!c.is_completed;
         const titleMatch = c.title ? c.title.toLowerCase().includes(searchTerm.toLowerCase()) : false;
         const codeMatch = c.code ? c.code.toLowerCase().includes(searchTerm.toLowerCase()) : false;
         const searchMatch = titleMatch || codeMatch;
-        const statusMatch = statusFilter === 'All' || c.status === statusFilter;
         const categoryMatch = categoryFilter === 'All' || c.category === categoryFilter;
-        return searchMatch && statusMatch && categoryMatch;
+        return tabMatch && searchMatch && categoryMatch;
     });
 
     return (
@@ -67,12 +70,33 @@ const AdminCourses = () => {
             <CoursesFilters 
                 searchTerm={searchTerm} 
                 setSearchTerm={setSearchTerm} 
-                statusFilter={statusFilter}
-                setStatusFilter={setStatusFilter}
                 categoryFilter={categoryFilter}
                 setCategoryFilter={setCategoryFilter}
                 categories={categories}
             />
+
+            <div className="flex gap-4">
+                <button 
+                    onClick={() => setTabFilter('Active')}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                        tabFilter === 'Active' 
+                            ? 'bg-[#002045] text-white' 
+                            : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'
+                    }`}
+                >
+                    Active ({activeCount})
+                </button>
+                <button 
+                    onClick={() => setTabFilter('Completed')}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                        tabFilter === 'Completed' 
+                            ? 'bg-[#002045] text-white' 
+                            : 'bg-white border border-[#e0e3e5] text-[#43474e] hover:bg-[#f1f4f6]'
+                    }`}
+                >
+                    Completed ({completedCount})
+                </button>
+            </div>
 
             {loading ? (
                 <div className="flex items-center justify-center h-64">

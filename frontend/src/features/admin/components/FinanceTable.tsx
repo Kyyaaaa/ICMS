@@ -61,7 +61,7 @@ export const FinanceTable = ({ transactions, setSelectedTransaction }: FinanceTa
                                 {formatDate(txn.date)}
                             </td>
                             <td className="py-4 px-6 text-right">
-                                <div className={`text-sm font-bold ${txn.status === 'Failed' && !txn.paidAmount ? 'text-[#74777f] line-through opacity-70' : txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
+                                <div className={`text-sm font-bold ${txn.status === 'Failed' && !txn.paidAmount ? 'text-[#74777f] line-through opacity-70' : txn.status === 'Processing' && txn.type === 'expense' ? 'text-[#b45309]' : txn.type === 'income' ? 'text-[#137333]' : 'text-[#ba1a1a]'}`}>
                                     {txn.type === 'income' ? '+' : '-'} {txn.amount.toLocaleString('en-US')} VND
                                 </div>
                             </td>

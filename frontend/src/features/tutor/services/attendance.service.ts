@@ -9,11 +9,12 @@ export const AttendanceService = {
             if (!userInfoStr) return [];
             const user = JSON.parse(userInfoStr);
             const res = await axiosClient.get(`/staff/classes`, { params: { tutor_id: user.id } });
-            const data = (res as unknown as { data?: { id: string, name?: string, class_code?: string, capacity?: number, students?: { status: string }[] }[] }).data || [];
+            const data = (res as unknown as { data?: { id: string, name?: string, class_code?: string, capacity?: number, status?: string, students?: { status: string }[] }[] }).data || [];
             return data.map(cls => ({
                 id: cls.id,
                 name: cls.name || `Class ${cls.class_code || ''}`,
-                students: cls.students?.filter(s => s.status === 'ACTIVE').length || 0
+                students: cls.students?.filter(s => s.status === 'ACTIVE').length || 0,
+                status: cls.status
             }));
         } catch (error) {
             console.error('Failed to get tutor classes:', error);

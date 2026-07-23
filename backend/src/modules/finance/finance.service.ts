@@ -66,9 +66,9 @@ export class FinanceService {
         role: 'Learner',
         accountCode: r.account?.account_code || 'Unknown'
       },
-      date: r.processed_at || r.created_at,
+      date: (r.status === 'COMPLETED' && r.processed_at) ? r.processed_at : r.created_at,
       amount: r.amount,
-      paidAmount: r.amount,
+      paidAmount: r.status === 'COMPLETED' ? r.amount : 0,
       status: r.status === 'COMPLETED' ? 'Completed' : 'Processing',
       reason: reason
     };

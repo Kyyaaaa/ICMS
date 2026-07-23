@@ -3,8 +3,6 @@ import { Search } from 'lucide-react';
 interface CoursesFiltersProps {
     searchTerm: string;
     setSearchTerm: (term: string) => void;
-    statusFilter: string;
-    setStatusFilter: (status: string) => void;
     categoryFilter: string;
     setCategoryFilter: (category: string) => void;
     categories: string[];
@@ -12,7 +10,6 @@ interface CoursesFiltersProps {
 
 export const CoursesFilters = ({ 
     searchTerm, setSearchTerm, 
-    statusFilter, setStatusFilter, 
     categoryFilter, setCategoryFilter,
     categories
 }: CoursesFiltersProps) => {
@@ -30,20 +27,6 @@ export const CoursesFilters = ({
             </div>
             
             <div className="flex gap-4 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-                <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-sm font-bold text-[#43474e]">Status:</span>
-                    <select 
-                        className="p-2 border border-[#c4c6cf] bg-[#f1f4f6] rounded-xl text-sm w-32 outline-none focus:border-[#0061a5]"
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                        <option value="All">All</option>
-                        <option value="Active">Active</option>
-                        <option value="Hidden">Hidden</option>
-                        <option value="Draft">Draft</option>
-                    </select>
-                </div>
-
                 <div className="flex items-center gap-2 shrink-0">
                     <span className="text-sm font-bold text-[#43474e]">Category:</span>
                     <select 

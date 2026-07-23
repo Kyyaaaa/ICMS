@@ -106,6 +106,7 @@ const SharedAttendanceRoute = () => {
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     
     let isLocked = selectedSession?.date !== todayStr;
+    const isStaff = window.location.pathname.startsWith('/staff');
     
     if (selectedSession) {
         if (!isLocked && selectedSession.time) {
@@ -119,6 +120,11 @@ const SharedAttendanceRoute = () => {
                     isLocked = true;
                 }
             }
+        }
+        
+        // Staff has full privileges to edit past, present, and future attendance
+        if (isStaff) {
+            isLocked = false;
         }
     }
     

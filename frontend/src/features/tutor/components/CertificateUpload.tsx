@@ -90,9 +90,12 @@ export const CertificateUpload = ({
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#e0e3e5] p-6 animate-scale-in origin-top">
-      <h2 className="text-lg font-bold text-[#002045] mb-6 border-b border-[#e0e3e5] pb-4">
+      <h2 className="text-lg font-bold text-[#002045] mb-4">
         Upload New Certificate
       </h2>
+      <div className="mb-6 p-4 bg-[#e6f0fa] border border-[#c4c6cf] rounded-xl text-sm text-[#004d80]">
+        <strong>Important Note:</strong> Please only upload valid English proficiency certificates (e.g., IELTS, TOEFL) or relevant teaching degrees/diplomas (e.g., TESOL, TEFL, CELTA). Do not upload unrelated personal documents. Inaccurate submissions will be rejected during verification.
+      </div>
       {error && (
         <p className="text-rose-600 text-sm mb-4 bg-rose-50 p-3 rounded-lg border border-rose-200">
           {error}
@@ -108,7 +111,7 @@ export const CertificateUpload = ({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. IELTS Academic 8.0"
+              placeholder="e.g. IELTS Academic 8.0 / TESOL Certificate"
               className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm"
             />
           </div>
@@ -120,7 +123,7 @@ export const CertificateUpload = ({
               type="text"
               value={issuer}
               onChange={(e) => setIssuer(e.target.value)}
-              placeholder="e.g. British Council"
+              placeholder="e.g. British Council / Cambridge Assessment"
               className="w-full h-11 px-4 rounded-lg border border-[#c4c6cf] focus:border-[#0061a5] focus:ring-1 focus:ring-[#0061a5] outline-none text-sm"
             />
           </div>
