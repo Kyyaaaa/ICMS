@@ -116,6 +116,21 @@ export const DashboardRepository = {
   getAccountCountByRole: async (roleId: string) => {
     return supabaseAdmin.from('account').select('*', { count: 'exact', head: true }).eq('role_id', roleId);
   },
+  getGlobalTotalStudents: async () => {
+    const { data: classes } = await supabaseAdmin
+      .from('classes')
+      .select('id')
+      .in('status', ['ONGOING', 'UPCOMING']);
+      
+    if (!classes || classes.length === 0) return { count: 0 };
+    const classIds = classes.map(c => c.id);
+    
+    return supabaseAdmin
+      .from('enrollments')
+      .select('learner_id', { count: 'exact', head: true })
+      .in('class_id', classIds)
+      .eq('status', 'ACTIVE');
+  },
   getActiveClassesCount: async () => {
     return supabaseAdmin
       .from('classes')
