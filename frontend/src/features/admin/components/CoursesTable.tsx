@@ -42,8 +42,15 @@ export const CoursesTable = ({ courses, handleDelete }: CoursesTableProps) => {
                                 <td className="py-4 px-6 text-sm text-[#43474e]">{course.category}</td>
                                 <td className="py-4 px-6 text-sm font-bold text-[#181c1e]">{new Intl.NumberFormat('vi-VN').format(Number(course.price))} VND</td>
                                 <td className="py-4 px-6">
-                                    <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${course.status === 'Active' ? 'bg-[#e6f4ea] text-[#137333]' : course.status === 'Hidden' ? 'bg-[#ffebed] text-[#ba1a1a]' : 'bg-[#f1f4f6] text-[#74777f]'}`}>
-                                        {course.status}
+                                    <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${
+                                        (course.display_status || course.status) === 'Ongoing' ? 'bg-[#e6f4ea] text-[#137333]' :
+                                        (course.display_status || course.status) === 'Active' ? 'bg-[#e6f4ea] text-[#137333]' :
+                                        (course.display_status || course.status) === 'Upcoming' ? 'bg-[#e6f0fa] text-[#0061a5]' :
+                                        (course.display_status || course.status) === 'Completed' ? 'bg-[#f3e8ff] text-[#7e22ce]' :
+                                        (course.display_status || course.status) === 'Hidden' ? 'bg-[#ffebed] text-[#ba1a1a]' : 
+                                        'bg-[#f1f4f6] text-[#74777f]' // Draft
+                                    }`}>
+                                        {course.display_status || course.status}
                                     </span>
                                 </td>
                                 <td className="py-4 px-6 text-right">

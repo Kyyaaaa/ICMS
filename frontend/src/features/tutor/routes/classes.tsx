@@ -8,6 +8,7 @@ const TutorClasses = () => {
     const navigate = useNavigate();
     const [classes, setClasses] = useState<AttendanceClass[]>([]);
     const [loading, setLoading] = useState(true);
+    const [tabFilter, setTabFilter] = useState<'Active' | 'Completed'>('Active');
 
     useEffect(() => {
         const loadClasses = async () => {
@@ -36,8 +37,38 @@ const TutorClasses = () => {
                 </div>
             </div>
 
+            <div className="flex bg-[#f0f2f4] p-1 rounded-xl w-fit">
+                <button
+                    onClick={() => setTabFilter('Active')}
+                    className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                        tabFilter === 'Active' 
+                            ? 'bg-white text-[#0061a5] shadow-sm' 
+                            : 'text-[#43474e] hover:bg-[#e0e3e5]'
+                    }`}
+                >
+                    Active / Ongoing
+                </button>
+                <button
+                    onClick={() => setTabFilter('Completed')}
+                    className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                        tabFilter === 'Completed' 
+                            ? 'bg-white text-[#0061a5] shadow-sm' 
+                            : 'text-[#43474e] hover:bg-[#e0e3e5]'
+                    }`}
+                >
+                    Finished Classes
+                </button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {classes.map((cls) => (
+                {classes.filter(c => {
+                    const status = c.status || 'ONGOING';
+                    if (tabFilter === 'Active') {
+                        return status === 'UPCOMING' || status === 'ONGOING';
+                    } else {
+                        return status === 'COMPLETED' || status === 'CANCELED';
+                    }
+                }).map((cls) => (
                     <div 
                         key={cls.id} 
                         onClick={() => navigate(`/tutor/classes/${cls.id}/attendance`)}
@@ -62,6 +93,15 @@ const TutorClasses = () => {
                     </div>
                 ))}
             </div>
+            
+            {classes.filter(c => {
+                const status = c.status || 'ONGOING';
+                return tabFilter === 'Active' ? (status === 'UPCOMING' || status === 'ONGOING') : (status === 'COMPLETED' || status === 'CANCELED');
+            }).length === 0 && (
+                <div className="text-center py-12 bg-white rounded-2xl border border-[#e2e2e9]">
+                    <p className="text-[#74777f]">No {tabFilter.toLowerCase()} classes found.</p>
+                </div>
+            )}
         </div>
     );
 };

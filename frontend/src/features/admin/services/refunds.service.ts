@@ -28,10 +28,12 @@ export const AdminRefundsService = {
                     bankAccountName: r.bank_account_name,
                     bankAccountNumber: r.bank_account_number,
                     requestedDate: r.created_at,
+                    approvedDate: r.approved_at,
                     processedDate: r.processed_at,
                     status: r.status === 'PENDING' ? 'Pending' : r.status === 'APPROVED' ? 'Approved' : r.status === 'REJECTED' ? 'Rejected' : 'Completed',
                     notes: r.admin_notes,
-                    dbId: r.id
+                    dbId: r.id,
+                    proofImageUrl: r.proof_image_url
                 };
             });
         } catch {
@@ -44,9 +46,9 @@ export const AdminRefundsService = {
         return all.find(r => r.id === id) || null;
     },
 
-    updateStatus: async (dbId: string, status: 'APPROVED' | 'REJECTED' | 'COMPLETED', notes: string): Promise<boolean> => {
+    updateStatus: async (dbId: string, status: 'APPROVED' | 'REJECTED' | 'COMPLETED', notes: string, proofImageUrl?: string): Promise<boolean> => {
         try {
-            await axiosClient.patch(`/refunds/admin/${dbId}/status`, { status, admin_notes: notes });
+            await axiosClient.patch(`/refunds/admin/${dbId}/status`, { status, admin_notes: notes, proof_image_url: proofImageUrl });
             return true;
         } catch {
             return false;

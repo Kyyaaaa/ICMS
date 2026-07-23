@@ -11,7 +11,7 @@ export const DashboardRepository = {
   getLearnerAttendances: async (learnerId: string) => {
     return supabaseAdmin
       .from('attendances')
-      .select('status')
+      .select('status, class_sessions(date)')
       .eq('learner_id', learnerId);
   },
   getLearnerCompletedLessons: async (learnerId: string) => {

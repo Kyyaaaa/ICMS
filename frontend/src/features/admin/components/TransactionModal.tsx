@@ -164,15 +164,27 @@ export const TransactionModal = ({ transaction, onClose }: TransactionModalProps
                                 </div>
                             </div>
 
-                            <div className="bg-[#fceeee] rounded-xl p-6 flex justify-between items-center border border-[#ba1a1a] shadow-sm">
-                                <div>
-                                    <span className="block text-sm text-[#900b09] uppercase font-bold tracking-wider">Amount Refunded</span>
-                                    <span className="text-xs text-[#ba1a1a] mt-1">Returned to original payment method</span>
+                            {transaction.status === 'Processing' ? (
+                                <div className="bg-[#fff8e1] rounded-xl p-6 flex flex-col md:flex-row justify-between md:items-center gap-4 border border-[#f59e0b] shadow-sm">
+                                    <div>
+                                        <span className="block text-sm text-[#b45309] uppercase font-bold tracking-wider">Amount to Refund</span>
+                                        <span className="text-xs text-[#b45309] mt-1 font-medium">Processing - Not yet deducted from monthly revenue</span>
+                                    </div>
+                                    <span className="text-3xl md:text-4xl font-extrabold text-[#f59e0b] tracking-tight whitespace-nowrap">
+                                        {transaction.amount.toLocaleString('en-US')} VND
+                                    </span>
                                 </div>
-                                <span className="text-3xl md:text-4xl font-extrabold text-[#ba1a1a] tracking-tight">
-                                    {transaction.amount.toLocaleString('en-US')} VND
-                                </span>
-                            </div>
+                            ) : (
+                                <div className="bg-[#fceeee] rounded-xl p-6 flex flex-col md:flex-row justify-between md:items-center gap-4 border border-[#ba1a1a] shadow-sm">
+                                    <div>
+                                        <span className="block text-sm text-[#900b09] uppercase font-bold tracking-wider">Amount Refunded</span>
+                                        <span className="text-xs text-[#ba1a1a] mt-1">Returned to original payment method</span>
+                                    </div>
+                                    <span className="text-3xl md:text-4xl font-extrabold text-[#ba1a1a] tracking-tight whitespace-nowrap">
+                                        {transaction.amount.toLocaleString('en-US')} VND
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     )}
 

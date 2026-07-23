@@ -94,4 +94,16 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
+// Global Error Handler to ensure all crashes return valid JSON, preventing frontend console errors
+import { NextFunction } from 'express';
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('[Global Error]', err);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err : undefined
+  });
+});
+
 export default app;

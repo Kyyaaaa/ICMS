@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronRight, ArrowLeft, Users, Calendar, MapPin, Edit, BookOpen, Trash2 } from 'lucide-react';
 import type { Class, Session } from '../types/class';
@@ -27,7 +27,7 @@ const StaffClassDetail = () => {
     const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
     const [availableLearners, setAvailableLearners] = useState<{ id: string; full_name: string; email: string; }[]>([]);
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         if (!id) return;
         try {
             const [cls, rooms, tutors, studentsData, learnersRes] = await Promise.all([
@@ -45,21 +45,28 @@ const StaffClassDetail = () => {
         } catch (err) {
             console.error("Failed to load class details", err);
         }
-    };
+    }, [id]);
 
     useEffect(() => {
         const fetchAll = async () => {
             await loadData();
         };
         fetchAll();
-    }, [id]);
+    }, [loadData]);
 
     const enrolledStudents = students.length;
     const courseName = classData?.courses?.title || 'Course Name';
     const classNameStr = classData?.name || `Class-${id}`;
 
     const handleEditSession = (session: Session) => {
-        setSelectedSession(session);
+        setSelectedSession({
+            ...session,
+            class: {
+                id: classData?.id || '',
+                name: classData?.name || '',
+                course: { title: classData?.courses?.title || '' }
+            }
+        });
         setIsEditModalOpen(true);
     };
 

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, XCircle, RefreshCcw, Banknote, CreditCard, User, Landmark } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, XCircle, RefreshCcw, Banknote, CreditCard, User, Landmark, AlertCircle, Upload, Image as ImageIcon } from 'lucide-react';
 import { AdminRefundsService } from '../services/refunds.service';
+import axiosClient from '@/shared/services/axiosClient';
 import type { RefundRequest } from '../types/refund';
 import { showAlertModal } from '@/utils/modal';
 import { formatDate } from '../../../shared/utils/date';
@@ -12,6 +13,8 @@ const AdminRefundDetail = () => {
     const [loading, setLoading] = useState(true);
     const [notes, setNotes] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [proofFile, setProofFile] = useState<File | null>(null);
+    const [proofPreview, setProofPreview] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRefund = async () => {
@@ -32,17 +35,58 @@ const AdminRefundDetail = () => {
 
     const handleUpdateStatus = async (status: 'APPROVED' | 'REJECTED' | 'COMPLETED') => {
         if (!refund?.dbId) return;
-        setIsProcessing(true);
+        
+        let uploadedUrl = undefined;
+        
+        if (status === 'COMPLETED') {
+            if (!proofFile) {
+                showAlertModal("Error", "Please upload a transaction receipt image as proof.", "error");
+                return;
+            }
+            setIsProcessing(true);
+            try {
+                const formData = new FormData();
+                formData.append('file', proofFile);
+                const uploadRes = await axiosClient.post('/upload/image', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                }) as { url: string };
+                uploadedUrl = uploadRes.url;
+            } catch (error) {
+                showAlertModal("Error", "Failed to upload transaction proof image.", "error");
+                setIsProcessing(false);
+                return;
+            }
+        } else {
+            setIsProcessing(true);
+        }
+
         try {
-            const success = await AdminRefundsService.updateStatus(refund.dbId, status, notes);
+            const success = await AdminRefundsService.updateStatus(refund.dbId, status, notes, uploadedUrl);
             if (success) {
-                setRefund(prev => prev ? { ...prev, status: status === 'APPROVED' ? 'Approved' : status === 'COMPLETED' ? 'Completed' : 'Rejected' } : null);
+                setRefund(prev => prev ? { ...prev, status: status === 'APPROVED' ? 'Approved' : status === 'COMPLETED' ? 'Completed' : 'Rejected', proofImageUrl: uploadedUrl || prev.proofImageUrl } : null);
+                if (status === 'COMPLETED') {
+                    setProofFile(null);
+                    setProofPreview(null);
+                }
             }
         } catch (error: unknown) {
             showAlertModal("Error", "Failed to update status: " + ((error as Error)?.message || "Unknown error"), "error");
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const isOverdue = (r: RefundRequest) => {
+        const now = new Date().getTime();
+        if (r.status === 'Pending') {
+            const reqTime = new Date(r.requestedDate).getTime();
+            return now > reqTime + 3 * 24 * 60 * 60 * 1000;
+        }
+        if (r.status === 'Approved' && r.approvedDate) {
+            const appTime = new Date(r.approvedDate).getTime();
+            return now > appTime + 5 * 24 * 60 * 60 * 1000;
+        }
+        return false;
     };
 
     if (loading) return <div className="p-8 text-center">Loading...</div>;
@@ -62,14 +106,32 @@ const AdminRefundDetail = () => {
                     <RefreshCcw className="text-[#c9a82c]" size={28} />
                     <div>
                         <h2 className="text-xl font-bold text-[#181c1e]">Amount Requested: {refund.refundAmount?.toLocaleString('en-US')} VND</h2>
-                        <span className={`inline-block px-2 py-1 mt-2 text-xs font-bold rounded uppercase ${
-                            refund.status === 'Completed' ? 'bg-[#e6f4ea] text-[#137333]' :
-                            refund.status === 'Approved' ? 'bg-[#e6f0fa] text-[#0061a5]' :
-                            refund.status === 'Rejected' ? 'bg-[#fceeee] text-[#ba1a1a]' :
-                            'bg-[#fff8e1] text-[#c9a82c]'
-                        }`}>
-                            {refund.status === 'Pending' ? 'Pending Approval' : refund.status === 'Approved' ? 'Pending Refund' : refund.status}
-                        </span>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            {isOverdue(refund) && (
+                                <span className="text-xs font-bold text-[#ba1a1a] bg-[#ffebed] px-2 py-1 rounded flex items-center gap-1">
+                                    <AlertCircle size={14} /> Overdue SLA
+                                </span>
+                            )}
+                            <span className={`inline-block px-2 py-1 text-xs font-bold rounded uppercase ${
+                                refund.status === 'Completed' ? 'bg-[#e6f4ea] text-[#137333]' :
+                                refund.status === 'Approved' ? 'bg-[#e6f0fa] text-[#0061a5]' :
+                                refund.status === 'Rejected' ? 'bg-[#fceeee] text-[#ba1a1a]' :
+                                'bg-[#fff8e1] text-[#c9a82c]'
+                            }`}>
+                                {refund.status === 'Pending' ? 'Pending Approval' : refund.status === 'Approved' ? 'Pending Refund' : refund.status}
+                            </span>
+                            
+                            {refund.status === 'Pending' && (
+                                <span className="text-xs text-[#74777f] font-medium bg-[#f8f9fa] px-2 py-1 rounded border border-[#e0e3e5]">
+                                    Deadline to Approve: {formatDate(new Date(new Date(refund.requestedDate).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString())}
+                                </span>
+                            )}
+                            {refund.status === 'Approved' && refund.approvedDate && (
+                                <span className="text-xs text-[#74777f] font-medium bg-[#f8f9fa] px-2 py-1 rounded border border-[#e0e3e5]">
+                                    Deadline to Transfer: {formatDate(new Date(new Date(refund.approvedDate).getTime() + 5 * 24 * 60 * 60 * 1000).toISOString())}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -146,7 +208,34 @@ const AdminRefundDetail = () => {
                 )}
 
                 {refund.status === 'Approved' && (
-                    <div className="flex gap-4 pt-4 border-t border-[#e0e3e5]">
+                    <div className="space-y-4 pt-4 border-t border-[#e0e3e5]">
+                        <div>
+                            <label className="font-bold text-[#181c1e] block mb-2">Transaction Proof (Required)</label>
+                            <div className="flex items-start gap-4">
+                                <label className="cursor-pointer bg-[#f8f9fa] border-2 border-dashed border-[#c4c6cf] rounded-xl p-4 flex flex-col items-center justify-center flex-1 hover:bg-[#f0f2f4] transition-colors min-h-40">
+                                    <Upload size={24} className="text-[#43474e] mb-2" />
+                                    <span className="text-sm font-medium text-[#43474e]">Click to upload receipt image</span>
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        className="hidden" 
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setProofFile(file);
+                                                setProofPreview(URL.createObjectURL(file));
+                                            }
+                                        }}
+                                    />
+                                </label>
+                                {proofPreview && (
+                                    <a href={proofPreview} target="_blank" rel="noopener noreferrer" className="flex-1 h-40 rounded-xl border border-[#e0e3e5] overflow-hidden relative hover:opacity-90 transition-opacity block bg-black/5">
+                                        <img src={proofPreview} alt="Preview" className="w-full h-full object-contain" />
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+
                         <button 
                             disabled={isProcessing}
                             onClick={() => handleUpdateStatus('COMPLETED')}
@@ -154,6 +243,15 @@ const AdminRefundDetail = () => {
                         >
                             <CheckCircle2 size={20} /> Mark as Completed (Money Transferred)
                         </button>
+                    </div>
+                )}
+                
+                {refund.status === 'Completed' && refund.proofImageUrl && (
+                    <div className="space-y-4 pt-4 border-t border-[#e0e3e5]">
+                        <h3 className="font-bold text-[#181c1e] flex items-center gap-2"><ImageIcon size={20}/> Transaction Proof</h3>
+                        <a href={refund.proofImageUrl} target="_blank" rel="noopener noreferrer" className="block max-w-50 rounded-xl border border-[#e0e3e5] overflow-hidden hover:opacity-90 transition-opacity">
+                            <img src={refund.proofImageUrl} alt="Transaction Proof" className="w-full h-auto" />
+                        </a>
                     </div>
                 )}
             </div>

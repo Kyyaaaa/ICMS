@@ -37,8 +37,8 @@ export class RefundController {
   static async updateStatus(req: Request, res: Response) {
     try {
       const id = req.params.id as string;
-      const { status, admin_notes } = req.body;
-      const data = await RefundService.updateRefundStatus(id, { status, admin_notes });
+      const { status, admin_notes, proof_image_url } = req.body;
+      const data = await RefundService.updateRefundStatus(id, { status, admin_notes, proof_image_url });
       res.json({ message: 'Refund status updated successfully', data });
     } catch (error: any) {
       const status = error.message === 'Refund request not found' ? 404 : 400;

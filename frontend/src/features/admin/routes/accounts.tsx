@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { validateFullName, validatePassword } from '@/shared/lib/utils';
 import type { Account, Role } from '../types/account';
@@ -69,7 +69,7 @@ const AdminAccounts = () => {
         setIsModalOpen(true);
     };
 
-    const fetchAccounts = async () => {
+    const fetchAccounts = useCallback(async () => {
         setLoading(true);
         setError('');
         try {
@@ -95,14 +95,14 @@ const AdminAccounts = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentPage, limit, filterRole, searchQuery]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchAccounts();
         }, 250); // Debounce search
         return () => clearTimeout(timer);
-    }, [searchQuery, filterRole, currentPage]);
+    }, [fetchAccounts]);
 
     const handleToggleBan = async (id: string, currentStatus: boolean) => {
         const actionText = currentStatus ? 'ban' : 'unban';
