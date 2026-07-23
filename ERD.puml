@@ -1,0 +1,420 @@
+@startuml
+left to right direction
+skinparam roundcorner 5
+skinparam linetype ortho
+skinparam shadowing false
+skinparam handwritten false
+skinparam class {
+    BackgroundColor white
+    ArrowColor #2688d4
+    BorderColor #2688d4
+}
+
+entity "account" {
+  * id : uuid [NOT NULL] <<PK>>
+    email : character varying [NOT NULL]
+    phone_number : character varying
+    status : character varying [NOT NULL]
+    created_at : timestamp with time zone [NOT NULL]
+    updated_at : timestamp with time zone [NOT NULL]
+    full_name : character varying
+    avatar_url : text
+    date_of_birth : date
+    gender : character varying
+  ~ role_id : uuid <<FK>>
+    account_code : character varying
+}
+
+entity "tutor_certificates" {
+  ~ tutor_id : uuid [NOT NULL] <<FK>>
+  * id : uuid [NOT NULL] <<PK>>
+    name : text [NOT NULL]
+    issuer : text [NOT NULL]
+    issue_date : date [NOT NULL]
+    expiration_date : date
+    status : text
+    file_url : text [NOT NULL]
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+    rejection_reason : text
+}
+
+entity "otps" {
+  * id : uuid [NOT NULL] <<PK>>
+    email : text [NOT NULL]
+    otp : text [NOT NULL]
+    expires_at : timestamp with time zone [NOT NULL]
+    is_used : boolean
+    reset_token : uuid
+    created_at : timestamp with time zone
+}
+
+entity "classroom" {
+  * id : uuid [NOT NULL] <<PK>>
+    room_name : character varying [NOT NULL]
+    capacity : integer [NOT NULL]
+    status : enum
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "classroom_maintenance" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ classroom_id : uuid [NOT NULL] <<FK>>
+    maintenance_date : date [NOT NULL]
+    start_time : time without time zone [NOT NULL]
+    end_time : time without time zone [NOT NULL]
+    note : text
+    created_at : timestamp with time zone
+}
+
+entity "roles" {
+  * id : uuid [NOT NULL] <<PK>>
+    name : character varying [NOT NULL]
+    description : text
+}
+
+entity "tutor_availability_status" {
+  * tutor_id : uuid [NOT NULL] <<PK>>
+    status : text [NOT NULL]
+    updated_at : timestamp with time zone
+  * cycle_id : uuid [NOT NULL] <<PK>>
+}
+
+entity "tutor_available_time_slots" {
+    id : uuid [NOT NULL]
+  * tutor_id : uuid [NOT NULL] <<PK>>
+  * slot_key : text [NOT NULL] <<PK>>
+    created_at : timestamp with time zone
+  * cycle_id : uuid [NOT NULL] <<PK>>
+}
+
+entity "consultation_requests" {
+  * id : uuid [NOT NULL] <<PK>>
+    guest_name : character varying [NOT NULL]
+    guest_email : character varying
+    guest_phone : character varying [NOT NULL]
+    inquiry_details : text [NOT NULL]
+    status : enum [NOT NULL]
+    call_notes : text
+  ~ handled_by_staff_id : uuid <<FK>>
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "courses" {
+  * id : uuid [NOT NULL] <<PK>>
+    title : character varying [NOT NULL]
+    code : character varying [NOT NULL]
+    band : character varying [NOT NULL]
+    sessions : integer
+    format : character varying
+    category : character varying
+    type : character varying
+    price : integer
+    original_price : integer
+    description : text
+    next_cohort : character varying
+    image_url : text
+    status : character varying
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+    max_size : integer
+    location : character varying
+    language : character varying
+    allow_installments : boolean
+    number_of_installments : integer
+}
+
+entity "classes" {
+  * id : uuid [NOT NULL] <<PK>>
+    name : character varying [NOT NULL]
+  ~ course_id : uuid [NOT NULL] <<FK>>
+  ~ tutor_id : uuid <<FK>>
+  ~ classroom_id : uuid <<FK>>
+    start_date : date
+    end_date : date
+    capacity : integer
+    status : enum
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+    grading_status : character varying
+    published_gradebook : jsonb
+}
+
+entity "class_sessions" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ class_id : uuid [NOT NULL] <<FK>>
+    session_number : integer [NOT NULL]
+    title : character varying
+    date : date
+    slot : character varying
+  ~ tutor_id : uuid <<FK>>
+  ~ classroom_id : uuid <<FK>>
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "enrollments" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ learner_id : uuid [NOT NULL] <<FK>>
+  ~ class_id : uuid [NOT NULL] <<FK>>
+    enrollment_date : timestamp with time zone [NOT NULL]
+    status : enum [NOT NULL]
+}
+
+entity "attendances" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ session_id : uuid [NOT NULL] <<FK>>
+  ~ learner_id : uuid [NOT NULL] <<FK>>
+    status : enum [NOT NULL]
+    notes : text
+}
+
+entity "announcements" {
+  * id : uuid [NOT NULL] <<PK>>
+    title : text [NOT NULL]
+    content : text [NOT NULL]
+    scope : text [NOT NULL]
+    roles : ARRAY
+    status : text [NOT NULL]
+    scheduled_for : timestamp with time zone
+    created_by : uuid
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "announcement_classes" {
+  * announcement_id : uuid [NOT NULL] <<PK>>
+  * class_id : uuid [NOT NULL] <<PK>>
+}
+
+entity "support_tickets" {
+  * id : uuid [NOT NULL] <<PK>>
+    ticket_number : character varying [NOT NULL]
+    title : character varying [NOT NULL]
+    category : character varying [NOT NULL]
+    description : text
+    status : character varying
+    sender_id : uuid [NOT NULL]
+    sender_role : character varying [NOT NULL]
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "ticket_messages" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ ticket_id : uuid <<FK>>
+    sender_id : uuid [NOT NULL]
+    sender_role : character varying [NOT NULL]
+    text : text [NOT NULL]
+    created_at : timestamp with time zone
+}
+
+entity "course_sessions" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ course_id : uuid <<FK>>
+    session_number : integer [NOT NULL]
+    title : character varying [NOT NULL]
+    description : text
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "invoices" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ learner_id : uuid <<FK>>
+  ~ class_id : uuid <<FK>>
+    amount : numeric [NOT NULL]
+    status : enum
+    created_at : timestamp with time zone
+    due_date : timestamp with time zone
+    invoice_code : character varying
+    discount : numeric
+  ~ discount_code_id : uuid <<FK>>
+}
+
+entity "payments" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ invoice_id : uuid <<FK>>
+    amount : numeric [NOT NULL]
+    payment_method : text
+    transaction_no : text
+    status : enum
+    created_at : timestamp with time zone
+}
+
+entity "invoice_installments" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ invoice_id : uuid <<FK>>
+    installment_number : integer [NOT NULL]
+    amount : numeric [NOT NULL]
+    due_date : timestamp with time zone [NOT NULL]
+    status : character varying
+    paid_date : timestamp with time zone
+    created_at : timestamp with time zone
+}
+
+entity "tutor_reviews" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ learner_id : uuid [NOT NULL] <<FK>>
+  ~ tutor_id : uuid [NOT NULL] <<FK>>
+  ~ class_id : uuid [NOT NULL] <<FK>>
+    rating : integer [NOT NULL]
+    review : text
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "availability_cycles" {
+  * id : uuid [NOT NULL] <<PK>>
+    name : character varying [NOT NULL]
+    start_date : date [NOT NULL]
+    end_date : date [NOT NULL]
+    status : character varying
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "discount_codes" {
+  * id : uuid [NOT NULL] <<PK>>
+    code : character varying [NOT NULL]
+    value : integer [NOT NULL]
+    valid_from : timestamp with time zone [NOT NULL]
+    valid_until : timestamp with time zone [NOT NULL]
+    status : character varying [NOT NULL]
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "refund_requests" {
+  * id : uuid [NOT NULL] <<PK>>
+    refund_code : character varying [NOT NULL]
+  ~ invoice_id : uuid <<FK>>
+  ~ learner_id : uuid <<FK>>
+    amount : numeric [NOT NULL]
+    reason : text
+    bank_name : character varying
+    bank_account_name : character varying
+    bank_account_number : character varying
+    status : character varying
+    admin_notes : text
+    processed_at : timestamp with time zone
+    created_at : timestamp with time zone
+}
+
+entity "salary_configs" {
+  * account_id : uuid [NOT NULL] <<PK>>
+    base_salary : numeric
+    overtime_rate : numeric
+    rate_per_session : numeric
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "payrolls" {
+  * id : uuid [NOT NULL] <<PK>>
+    payroll_code : character varying [NOT NULL]
+  ~ account_id : uuid <<FK>>
+    payroll_month : character varying [NOT NULL]
+    base_salary : numeric
+    overtime_hours : numeric
+    overtime_rate : numeric
+    teaching_sessions : integer
+    rate_per_session : numeric
+    bonus : numeric
+    deductions : jsonb
+    net_pay : numeric
+    status : character varying
+    payment_date : date
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "assessments" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ class_id : uuid [NOT NULL] <<FK>>
+    name : character varying [NOT NULL]
+    order_index : integer
+    created_at : timestamp with time zone
+}
+
+entity "student_grades" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ assessment_id : uuid [NOT NULL] <<FK>>
+  ~ learner_id : uuid [NOT NULL] <<FK>>
+    score : numeric
+    feedback : text
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+}
+
+entity "change_requests" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ tutor_id : uuid <<FK>>
+  ~ class_id : uuid <<FK>>
+  ~ session_id : uuid <<FK>>
+    type : character varying [NOT NULL]
+    original_time : character varying [NOT NULL]
+    proposed_time : character varying
+    reason : text [NOT NULL]
+    status : character varying
+    staff_note : text
+    final_time : character varying
+    created_at : timestamp with time zone
+    updated_at : timestamp with time zone
+    proposed_date : date
+    proposed_slot : character varying
+  ~ proposed_room_id : uuid <<FK>>
+}
+
+entity "announcement_users" {
+  * id : uuid [NOT NULL] <<PK>>
+  ~ announcement_id : uuid <<FK>>
+  ~ user_id : uuid <<FK>>
+    created_at : timestamp with time zone
+}
+
+"tutor_certificates" }o--|| "account" : "tutor_id -> id"
+"class_sessions" }o--|| "account" : "tutor_id -> id"
+"account" }o--|| "roles" : "role_id -> id"
+"tutor_availability_status" }o--|| "account" : "tutor_id -> id"
+"tutor_available_time_slots" }o--|| "account" : "tutor_id -> id"
+"consultation_requests" }o--|| "account" : "handled_by_staff_id -> id"
+"classes" }o--|| "account" : "tutor_id -> id"
+"enrollments" }o--|| "account" : "learner_id -> id"
+"attendances" }o--|| "account" : "learner_id -> id"
+"invoices" }o--|| "account" : "learner_id -> id"
+"refund_requests" }o--|| "account" : "learner_id -> id"
+"salary_configs" }o--|| "account" : "account_id -> id"
+"payrolls" }o--|| "account" : "account_id -> id"
+"announcement_users" }o--|| "account" : "user_id -> id"
+"student_grades" }o--|| "account" : "learner_id -> id"
+"change_requests" }o--|| "account" : "tutor_id -> id"
+"tutor_reviews" }o--|| "account" : "learner_id -> id"
+"tutor_reviews" }o--|| "account" : "tutor_id -> id"
+"classes" }o--|| "classroom" : "classroom_id -> id"
+"classroom_maintenance" }o--|| "classroom" : "classroom_id -> id"
+"change_requests" }o--|| "classroom" : "proposed_room_id -> id"
+"class_sessions" }o--|| "classroom" : "classroom_id -> id"
+"tutor_availability_status" }o--|| "availability_cycles" : "cycle_id -> id"
+"tutor_available_time_slots" }o--|| "availability_cycles" : "cycle_id -> id"
+"classes" }o--|| "courses" : "course_id -> id"
+"course_sessions" }o--|| "courses" : "course_id -> id"
+"change_requests" }o--|| "classes" : "class_id -> id"
+"assessments" }o--|| "classes" : "class_id -> id"
+"invoices" }o--|| "classes" : "class_id -> id"
+"enrollments" }o--|| "classes" : "class_id -> id"
+"class_sessions" }o--|| "classes" : "class_id -> id"
+"tutor_reviews" }o--|| "classes" : "class_id -> id"
+"change_requests" }o--|| "class_sessions" : "session_id -> id"
+"attendances" }o--|| "class_sessions" : "session_id -> id"
+"announcement_users" }o--|| "announcements" : "announcement_id -> id"
+"announcement_classes" }o--|| "announcements" : "announcement_id -> id"
+"ticket_messages" }o--|| "support_tickets" : "ticket_id -> id"
+"refund_requests" }o--|| "invoices" : "invoice_id -> id"
+"payments" }o--|| "invoices" : "invoice_id -> id"
+"invoice_installments" }o--|| "invoices" : "invoice_id -> id"
+"invoices" }o--|| "discount_codes" : "discount_code_id -> id"
+"student_grades" }o--|| "assessments" : "assessment_id -> id"
+@enduml
