@@ -150,14 +150,19 @@ export class RefundRepository {
         throw new Error(`Invalid refund transition from ${current.status} to ${update.status}`);
       }
 
+      const isProcessed = ['COMPLETED', 'REJECTED'].includes(update.status);
+      const isApproved = update.status === 'APPROVED';
+
       const result = await client.query(
         `UPDATE refund_requests
          SET status = $1,
              admin_notes = $2,
-             processed_at = CASE WHEN $1 IN ('COMPLETED', 'REJECTED') THEN NOW() ELSE NULL END
+             processed_at = CASE WHEN $4::boolean THEN NOW() ELSE processed_at END,
+             approved_at = CASE WHEN $5::boolean THEN NOW() ELSE approved_at END,
+             proof_image_url = CASE WHEN $6::text IS NOT NULL THEN $6::text ELSE proof_image_url END
          WHERE id = $3
          RETURNING *`,
-        [update.status, update.admin_notes || null, id]
+        [update.status, update.admin_notes || null, id, isProcessed, isApproved, update.proof_image_url || null]
       );
       const refund = result.rows[0];
       if (!refund) throw new Error('Refund request not found');

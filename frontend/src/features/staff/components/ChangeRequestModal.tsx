@@ -128,7 +128,7 @@ export const ChangeRequestModal = ({ request, onClose, onUpdateStatus }: ChangeR
                 setIsTutorOccupied(occupiedTutorIds.includes(request.tutorId));
             })
             .finally(() => setIsLoadingRooms(false));
-    }, [selectedNewDate, selectedNewTime, allRooms, request.originalRoomId]);
+    }, [selectedNewDate, selectedNewTime, allRooms, request.originalRoomId, request.tutorId]);
 
     const handleApprove = () => {
         let finalArranged = '';

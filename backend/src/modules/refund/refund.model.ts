@@ -10,6 +10,7 @@ export interface RefundRequest {
   bank_account_number: string;
   status?: 'PENDING' | 'APPROVED' | 'COMPLETED' | 'REJECTED';
   admin_notes?: string;
+  approved_at?: string | null;
   processed_at?: string | null;
   created_at?: string;
 }
@@ -17,4 +18,5 @@ export interface RefundRequest {
 export interface RefundStatusUpdate {
   status: 'APPROVED' | 'COMPLETED' | 'REJECTED';
   admin_notes?: string;
+  proof_image_url?: string;
 }

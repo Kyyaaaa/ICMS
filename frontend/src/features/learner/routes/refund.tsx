@@ -69,7 +69,14 @@ const RefundRequest = () => {
                     <CheckCircle2 className="w-8 h-8 text-[#0061a5]" />
                 </div>
                 <h2 className="text-2xl font-bold text-[#181c1e] mb-4">Request Submitted!</h2>
-                <p className="text-base text-[#43474e] mb-8">Your refund request for invoice {id} has been submitted to our administration. You can track the status of your request directly in the system.</p>
+                <p className="text-base text-[#43474e] mb-4">Your refund request for invoice {id} has been submitted to our administration.</p>
+                <div className="bg-[#f7fafc] border border-[#e0e3e5] rounded-xl p-4 mb-8 text-sm text-[#43474e]">
+                    <p className="font-semibold text-[#181c1e] mb-1">Expected Timeline:</p>
+                    <ul className="list-disc text-left inline-block space-y-1">
+                        <li><strong>Approval:</strong> Within 3 days</li>
+                        <li><strong>Transfer:</strong> Within 5 days after approval</li>
+                    </ul>
+                </div>
                 <Link to={`/learner/payments`} className="inline-block px-6 py-2.5 bg-[#002045] text-white rounded-lg font-semibold hover:bg-[#0061a5] transition-colors">
                     Back to Payments
                 </Link>
@@ -90,6 +97,7 @@ const RefundRequest = () => {
                 <div>
                     <p className="text-sm font-bold text-[#ba1a1a]">Refund Policy Alert</p>
                     <p className="text-sm text-[#ba1a1a]">Refunds can only be approved if requested within 24 hours of successful payment, and provided that no class sessions have been attended.</p>
+                    <p className="text-sm font-semibold text-[#ba1a1a] mt-2">SLA Note: Refund requests are reviewed within 3 days. Once approved, the transfer takes up to 5 days.</p>
                 </div>
             </div>
 

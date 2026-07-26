@@ -34,10 +34,21 @@ export const DashboardService = {
     const { count: activeClasses } = await DashboardRepository.getLearnerActiveClasses(learnerId);
     
     const { data: attendances } = await DashboardRepository.getLearnerAttendances(learnerId);
-    let attendanceRate = 100;
+    let attendanceRate = 0;
+    
     if (attendances && attendances.length > 0) {
-        const presentCount = attendances.filter(a => a.status === 'PRESENT').length;
-        attendanceRate = Math.round((presentCount / attendances.length) * 100);
+        const today = new Date().toISOString().split('T')[0];
+        const pastSessions = attendances.filter((a: any) => {
+            const sessionDate = a.class_sessions?.date;
+            return sessionDate && sessionDate <= today;
+        });
+        
+        if (pastSessions.length > 0) {
+            const presentCount = pastSessions.filter(a => a.status === 'PRESENT').length;
+            attendanceRate = Math.round((presentCount / pastSessions.length) * 100);
+        } else {
+            attendanceRate = 100; // Has classes but no past sessions yet
+        }
     }
 
     const { count: completedLessons } = await DashboardRepository.getLearnerCompletedLessons(learnerId);
@@ -163,12 +174,8 @@ export const DashboardService = {
   },
 
   getStaffStats: async (): Promise<StaffDashboardStats> => {
-    const { data: role } = await DashboardRepository.getRoleIdByName('LEARNER');
-    let totalLearners = 0;
-    if (role) {
-      const { count } = await DashboardRepository.getAccountCountByRole(role.id);
-      totalLearners = count || 0;
-    }
+    const { count } = await DashboardRepository.getGlobalTotalStudents();
+    const totalLearners = count || 0;
 
     const { count: activeClasses } = await DashboardRepository.getActiveClassesCount();
     const { count: pendingInvoices } = await DashboardRepository.getPendingInvoicesCount();
@@ -276,12 +283,8 @@ export const DashboardService = {
   },
 
   getAdminStats: async (): Promise<AdminDashboardStats> => {
-    const { data: role } = await DashboardRepository.getRoleIdByName('LEARNER');
-    let totalLearners = 0;
-    if (role) {
-      const { count } = await DashboardRepository.getAccountCountByRole(role.id);
-      totalLearners = count || 0;
-    }
+    const { count } = await DashboardRepository.getGlobalTotalStudents();
+    const totalLearners = count || 0;
 
     const { count: totalCourses } = await DashboardRepository.getCoursesCount();
     const { count: totalClasses } = await DashboardRepository.getClassesCount();

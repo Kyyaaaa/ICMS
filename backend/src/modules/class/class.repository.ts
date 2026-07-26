@@ -146,7 +146,7 @@ export class ClassRepository {
             .from('classes')
             .select(`
                 *,
-                courses(id, title, code),
+                courses(id, title, code, description, sessions_list:course_sessions(session_number, title, description)),
                 tutor:account!tutor_id(id, full_name, email),
                 classroom:classroom!classroom_id(id, room_name)
             `)

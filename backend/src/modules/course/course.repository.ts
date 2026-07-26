@@ -99,11 +99,25 @@ export class CourseRepository {
   }
 
   static async getAllCourses(options: { onlyActive?: boolean } = {}): Promise<Course[]> {
-    let query = `SELECT * FROM courses`;
+    let query = `
+      SELECT c.*,
+        (
+          EXISTS (SELECT 1 FROM classes cl WHERE cl.course_id = c.id)
+          AND
+          NOT EXISTS (SELECT 1 FROM classes cl WHERE cl.course_id = c.id AND cl.status NOT IN ('COMPLETED', 'CANCELED'))
+        ) as is_completed,
+        CASE 
+          WHEN c.status NOT ILIKE 'active' THEN c.status
+          WHEN NOT EXISTS (SELECT 1 FROM classes cl WHERE cl.course_id = c.id AND cl.status != 'UPCOMING') THEN 'Upcoming'
+          WHEN NOT EXISTS (SELECT 1 FROM classes cl WHERE cl.course_id = c.id AND cl.status NOT IN ('COMPLETED', 'CANCELED')) THEN 'Completed'
+          ELSE 'Ongoing'
+        END as display_status
+      FROM courses c
+    `;
     if (options.onlyActive) {
-      query += ` WHERE status ILIKE 'active'`;
+      query += ` WHERE c.status ILIKE 'active'`;
     }
-    query += ` ORDER BY created_at DESC;`;
+    query += ` ORDER BY c.created_at DESC;`;
     const res = await pool.query(query);
     return res.rows;
   }
