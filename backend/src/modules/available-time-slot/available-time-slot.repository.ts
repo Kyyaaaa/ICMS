@@ -35,19 +35,77 @@ export class AvailableTimeSlotRepository {
   }
 
   /**
-   * Updates status and completely replaces the tutor's slots via Postgres RPC
+   * Updates status and completely replaces the tutor's slots using direct database operations
+   * (Avoids RPC permission issues with update_tutor_availability function)
    */
   static async submitAvailability(tutorId: string, cycleId: string, slots: string[], status: 'draft' | 'submitted' = 'submitted'): Promise<void> {
-    const { error } = await supabaseAdmin.rpc('update_tutor_availability', {
-      p_tutor_id: tutorId,
-      p_cycle_id: cycleId,
-      p_slots: slots,
-      p_status: status
-    });
+    // 1. Check existing status record
+    const { data: existingStatus, error: checkError } = await supabaseAdmin
+      .from('tutor_availability_status')
+      .select('tutor_id, cycle_id')
+      .eq('tutor_id', tutorId)
+      .eq('cycle_id', cycleId)
+      .maybeSingle();
 
-    if (error) {
-      console.error("RPC Error updating availability:", error);
-      throw new Error(`Database error updating availability: ${error.message}`);
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error("Error checking availability status:", checkError);
+      throw new Error(`Database error checking availability status: ${checkError.message}`);
+    }
+
+    if (existingStatus) {
+      const { error: updateError } = await supabaseAdmin
+        .from('tutor_availability_status')
+        .update({ status: status })
+        .eq('tutor_id', tutorId)
+        .eq('cycle_id', cycleId);
+
+      if (updateError) {
+        console.error("Error updating availability status:", updateError);
+        throw new Error(`Database error updating availability status: ${updateError.message}`);
+      }
+    } else {
+      const { error: insertError } = await supabaseAdmin
+        .from('tutor_availability_status')
+        .insert({
+          tutor_id: tutorId,
+          cycle_id: cycleId,
+          status: status
+        });
+
+      if (insertError) {
+        console.error("Error inserting availability status:", insertError);
+        throw new Error(`Database error inserting availability status: ${insertError.message}`);
+      }
+    }
+
+    // 2. Clear existing slots for this tutor & cycle
+    const { error: deleteError } = await supabaseAdmin
+      .from('tutor_available_time_slots')
+      .delete()
+      .eq('tutor_id', tutorId)
+      .eq('cycle_id', cycleId);
+
+    if (deleteError) {
+      console.error("Error clearing existing availability slots:", deleteError);
+      throw new Error(`Database error clearing availability slots: ${deleteError.message}`);
+    }
+
+    // 3. Insert new slots if any
+    if (slots && slots.length > 0) {
+      const rowsToInsert = slots.map(slotKey => ({
+        tutor_id: tutorId,
+        cycle_id: cycleId,
+        slot_key: slotKey
+      }));
+
+      const { error: insertSlotsError } = await supabaseAdmin
+        .from('tutor_available_time_slots')
+        .insert(rowsToInsert);
+
+      if (insertSlotsError) {
+        console.error("Error inserting new availability slots:", insertSlotsError);
+        throw new Error(`Database error inserting new availability slots: ${insertSlotsError.message}`);
+      }
     }
   }
 
