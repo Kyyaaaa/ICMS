@@ -89,5 +89,23 @@ describe('EnrollmentService QA Tests', () => {
         .rejects
         .toEqual(expect.objectContaining({ status: 400, message: 'Learner is already enrolled in another class of this course' }));
     });
+
+    it('should throw 400 error if class start_date is today or in the past (Class has already started)', async () => {
+      const learnerId = 'learner-4';
+      const classId = 'class-started-1';
+
+      // Mock Class Data: Status = UPCOMING but start_date is in the past
+      (ClassRepository.getClassById as jest.Mock).mockResolvedValue({
+        id: classId,
+        course_id: 'course-1',
+        capacity: 10,
+        status: 'UPCOMING',
+        start_date: '2020-01-01'
+      });
+
+      await expect(EnrollmentService.enrollLearner(learnerId, { class_id: classId }))
+        .rejects
+        .toEqual(expect.objectContaining({ status: 400, message: 'Class has already started and is closed for registration' }));
+    });
   });
 });

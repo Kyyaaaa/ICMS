@@ -11,6 +11,8 @@ interface StaffClassResponse {
     class_sessions?: { slot: string; date: string }[];
     sessions?: { slot: string; date: string }[];
     classroom?: { room_name: string };
+    status?: string;
+    start_date?: string;
 }
 
 export const LearnerRegistrationService = {
@@ -22,8 +24,15 @@ export const LearnerRegistrationService = {
             });
             const classes = res.data || [];
             
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            const validClasses = classes.filter((cls) => {
+                if (cls.status && String(cls.status).toUpperCase() !== 'UPCOMING') return false;
+                if (cls.start_date && String(cls.start_date).slice(0, 10) <= todayStr) return false;
+                return true;
+            });
+            
             // Map to RegistrationClassOption
-            return classes.map((cls) => {
+            return validClasses.map((cls) => {
                 const sessions = cls.class_sessions || cls.sessions || [];
                 const sessionsCount = sessions.length > 0 ? sessions.length : 24;
                 

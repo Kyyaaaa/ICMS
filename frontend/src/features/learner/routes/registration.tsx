@@ -160,59 +160,70 @@ const ClassRegistration = () => {
           </h2>
 
           <div className="space-y-4 mb-8">
-            {classOptions.map((opt) => {
-              const isLearner = userRole === "learner";
-              const isSelected = selectedClass === opt.id;
-              return (
-                <div
-                  key={opt.id}
-                  className={`block border ${isSelected && isLearner ? "border-[#0061a5] bg-[#f7fafc]" : "border-[#e0e3e5]"} rounded-lg p-3 ${isLearner ? "cursor-pointer hover:border-[#0061a5] transition-colors" : ""}`}
-                  onClick={() => isLearner && setSelectedClass(opt.id)}
-                >
-                  <div className="flex items-center gap-3">
-                    {isLearner && (
-                      <input
-                        type="radio"
-                        name="class"
-                        checked={isSelected}
-                        readOnly
-                        className="w-4 h-4 text-[#0061a5] shrink-0"
-                      />
-                    )}
-                    <div className="flex-1 flex flex-col gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-[#181c1e] text-base">{opt.name}</h3>
-                          <span className="bg-[#e3f2fd] text-[#0061a5] text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
-                            {opt.availableSeats} seats left
-                          </span>
+            {classOptions.length === 0 ? (
+              <div className="text-center py-10 border border-dashed border-[#e0e3e5] rounded-xl bg-[#f8f9fa]">
+                <p className="text-base font-medium text-[#43474e]">
+                  No upcoming classes are currently available for registration.
+                </p>
+                <p className="text-sm text-[#74777f] mt-1">
+                  Classes may have already started or reached maximum capacity.
+                </p>
+              </div>
+            ) : (
+              classOptions.map((opt) => {
+                const isLearner = userRole === "learner";
+                const isSelected = selectedClass === opt.id;
+                return (
+                  <div
+                    key={opt.id}
+                    className={`block border ${isSelected && isLearner ? "border-[#0061a5] bg-[#f7fafc]" : "border-[#e0e3e5]"} rounded-lg p-3 ${isLearner ? "cursor-pointer hover:border-[#0061a5] transition-colors" : ""}`}
+                    onClick={() => isLearner && setSelectedClass(opt.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      {isLearner && (
+                        <input
+                          type="radio"
+                          name="class"
+                          checked={isSelected}
+                          readOnly
+                          className="w-4 h-4 text-[#0061a5] shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 flex flex-col gap-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-[#181c1e] text-base">{opt.name}</h3>
+                            <span className="bg-[#e3f2fd] text-[#0061a5] text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
+                              {opt.availableSeats} seats left
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-xs text-[#43474e] mt-1.5">
+                            <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-[#74777f]" /> {opt.room}</span>
+                            <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-[#74777f]" /> {opt.sessions} Sessions</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-[#43474e] mt-1.5">
-                          <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-[#74777f]" /> {opt.room}</span>
-                          <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-[#74777f]" /> {opt.sessions} Sessions</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-[#74777f]">
-                          <Calendar className="w-3.5 h-3.5" /> Schedule
-                        </div>
-                        <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap">
-                          {opt.schedule.split(" | ").map((s, i) => {
-                            if (s === "TBD") return <span key={i} className="text-xs text-[#43474e]">TBD</span>;
-                            return (
-                              <span key={i} className="bg-blue-50/50 border border-blue-100 rounded text-xs px-2 py-1 text-[#0061a5] font-medium w-fit">
-                                {s}
-                              </span>
-                            );
-                          })}
+                        
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center gap-1.5 text-xs font-medium text-[#74777f]">
+                            <Calendar className="w-3.5 h-3.5" /> Schedule
+                          </div>
+                          <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap">
+                            {opt.schedule.split(" | ").map((s, i) => {
+                              if (s === "TBD") return <span key={i} className="text-xs text-[#43474e]">TBD</span>;
+                              return (
+                                <span key={i} className="bg-blue-50/50 border border-blue-100 rounded text-xs px-2 py-1 text-[#0061a5] font-medium w-fit">
+                                  {s}
+                                </span>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
           {/* Invoice Preview is hidden for Phase 1 & 3 */}

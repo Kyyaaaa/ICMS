@@ -151,7 +151,7 @@ export class CourseRepository {
     // Fetch classes and their sessions
     const classesQuery = `
       SELECT 
-        c.id, c.name, 
+        c.id, c.name, c.status, c.start_date, c.capacity,
         (
           SELECT json_agg(json_build_object('date', cs.date, 'slot', cs.slot) ORDER BY cs.date, cs.slot) 
           FROM class_sessions cs 

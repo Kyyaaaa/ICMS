@@ -159,6 +159,15 @@ const CourseDetailInner = () => {
     );
   }
 
+  const todayStr = new Date().toLocaleDateString('en-CA');
+  const hasOpenClasses = Array.isArray(course.classes_list) && course.classes_list.length > 0
+    ? course.classes_list.some((cls: any) => String(cls.status || 'UPCOMING').toUpperCase() === 'UPCOMING' && (!cls.start_date || String(cls.start_date).slice(0, 10) > todayStr))
+    : false;
+  const isCohortPast = (course.next_cohort || (course as any).nextCohort) && String(course.next_cohort || (course as any).nextCohort).slice(0, 10) <= todayStr;
+  const isRegistrationClosed = (Array.isArray(course.classes_list) && course.classes_list.length > 0)
+    ? !hasOpenClasses
+    : Boolean(isCohortPast);
+
   // Tab state and Modal state moved to top
 
   interface CourseSession {
@@ -320,17 +329,26 @@ const CourseDetailInner = () => {
                 </span>
               </div>
             </div>
-            <button
-              onClick={() => {
-                navigate(`/courses/${id}/register`, {
-                  state: { discountCode: appliedDiscount?.code, discountValue: appliedDiscount?.value }
-                });
-              }}
-              className="w-full bg-[#0061a5] text-white font-bold py-4 rounded-xl shadow-md hover:bg-[#004a80] hover:shadow-lg hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2 mb-4"
-            >
-              Enroll Now
-              <ArrowRight className="w-5 h-5" />
-            </button>
+            {isRegistrationClosed ? (
+              <button
+                disabled
+                className="w-full bg-[#74777f] text-white font-bold py-4 rounded-xl shadow-none cursor-not-allowed flex justify-center items-center gap-2 mb-4 opacity-75"
+              >
+                Registration Closed
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  navigate(`/courses/${id}/register`, {
+                    state: { discountCode: appliedDiscount?.code, discountValue: appliedDiscount?.value }
+                  });
+                }}
+                className="w-full bg-[#0061a5] text-white font-bold py-4 rounded-xl shadow-md hover:bg-[#004a80] hover:shadow-lg hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2 mb-4"
+              >
+                Enroll Now
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            )}
           </div>
         </div>
 
