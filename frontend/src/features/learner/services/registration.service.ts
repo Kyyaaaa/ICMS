@@ -72,10 +72,15 @@ export const LearnerRegistrationService = {
                     timeStr = 'Detailed in schedule';
                 }
 
+                const activeStudentsCount = Array.isArray((cls as any).students)
+                    ? (cls as any).students.filter((s: any) => s.status === 'ACTIVE' || !s.status).length
+                    : ((cls as any).current_enrollments || 0);
+                const availableSeats = Math.max(0, (cls.capacity || 15) - activeStudentsCount);
+
                 return {
                     id: cls.id, // This is a valid UUID
                     name: cls.name || `Class ${cls.class_code || 'Unknown'}`,
-                    availableSeats: Math.max(0, (cls.capacity || 15) - (cls.current_enrollments || 0)),
+                    availableSeats: availableSeats,
                     schedule: scheduleStr,
                     time: timeStr,
                     room: cls.classroom?.room_name || 'TBD',

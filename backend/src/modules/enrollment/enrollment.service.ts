@@ -58,7 +58,16 @@ export class EnrollmentService {
     }
 
     // 4. Thực hiện createEnrollmentAtomic (Sẽ tự động khóa dòng và check capacity chống Race Condition)
-    return await EnrollmentRepository.createEnrollmentAtomic(learnerId, class_id, classData.capacity || 15);
+    try {
+      return await EnrollmentRepository.createEnrollmentAtomic(learnerId, class_id, classData.capacity || 15);
+    } catch (error: any) {
+      if (error.message && error.message.toLowerCase().includes('full')) {
+        const err: any = new Error('Class is full');
+        err.status = 400;
+        throw err;
+      }
+      throw error;
+    }
   }
 
   static async getLearnerEnrollments(learnerId: string) {

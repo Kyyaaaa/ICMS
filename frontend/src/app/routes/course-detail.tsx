@@ -161,7 +161,12 @@ const CourseDetailInner = () => {
 
   const todayStr = new Date().toLocaleDateString('en-CA');
   const hasOpenClasses = Array.isArray(course.classes_list) && course.classes_list.length > 0
-    ? course.classes_list.some((cls: any) => String(cls.status || 'UPCOMING').toUpperCase() === 'UPCOMING' && (!cls.start_date || String(cls.start_date).slice(0, 10) >= todayStr))
+    ? course.classes_list.some((cls: any) => {
+        const isUpcoming = String(cls.status || 'UPCOMING').toUpperCase() === 'UPCOMING';
+        const isNotStarted = !cls.start_date || String(cls.start_date).slice(0, 10) >= todayStr;
+        const hasSeats = ((cls.capacity || 15) - (cls.current_enrollments || 0)) > 0;
+        return isUpcoming && isNotStarted && hasSeats;
+      })
     : false;
   const isCohortPast = (course.next_cohort || (course as any).nextCohort) && String(course.next_cohort || (course as any).nextCohort).slice(0, 10) < todayStr;
   const isRegistrationClosed = (Array.isArray(course.classes_list) && course.classes_list.length > 0)

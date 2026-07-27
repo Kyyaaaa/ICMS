@@ -172,12 +172,19 @@ const ClassRegistration = () => {
             ) : (
               classOptions.map((opt) => {
                 const isLearner = userRole === "learner";
-                const isSelected = selectedClass === opt.id;
+                const isFull = (opt.availableSeats ?? 0) <= 0;
+                const isSelected = selectedClass === opt.id && !isFull;
                 return (
                   <div
                     key={opt.id}
-                    className={`block border ${isSelected && isLearner ? "border-[#0061a5] bg-[#f7fafc]" : "border-[#e0e3e5]"} rounded-lg p-3 ${isLearner ? "cursor-pointer hover:border-[#0061a5] transition-colors" : ""}`}
-                    onClick={() => isLearner && setSelectedClass(opt.id)}
+                    className={`block border ${isSelected && isLearner ? "border-[#0061a5] bg-[#f7fafc]" : "border-[#e0e3e5]"} rounded-lg p-3 ${
+                      isFull
+                        ? "opacity-60 cursor-not-allowed bg-[#f8f9fa]"
+                        : isLearner
+                        ? "cursor-pointer hover:border-[#0061a5] transition-colors"
+                        : ""
+                    }`}
+                    onClick={() => isLearner && !isFull && setSelectedClass(opt.id)}
                   >
                     <div className="flex items-center gap-3">
                       {isLearner && (
@@ -185,17 +192,24 @@ const ClassRegistration = () => {
                           type="radio"
                           name="class"
                           checked={isSelected}
+                          disabled={isFull}
                           readOnly
-                          className="w-4 h-4 text-[#0061a5] shrink-0"
+                          className="w-4 h-4 text-[#0061a5] shrink-0 disabled:opacity-40"
                         />
                       )}
                       <div className="flex-1 flex flex-col gap-3">
                         <div>
                           <div className="flex items-center gap-2">
                             <h3 className="font-bold text-[#181c1e] text-base">{opt.name}</h3>
-                            <span className="bg-[#e3f2fd] text-[#0061a5] text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
-                              {opt.availableSeats} seats left
-                            </span>
+                            {isFull ? (
+                              <span className="bg-[#fde8e8] text-[#9b1c1c] text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
+                                FULL (0 seats left)
+                              </span>
+                            ) : (
+                              <span className="bg-[#e3f2fd] text-[#0061a5] text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
+                                {opt.availableSeats} seats left
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-4 text-xs text-[#43474e] mt-1.5">
                             <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-[#74777f]" /> {opt.room}</span>
@@ -230,13 +244,23 @@ const ClassRegistration = () => {
 
           {userRole === "learner" && (
             <div className="mt-8 flex justify-end">
-              <button
-                onClick={handleConfirm}
-                disabled={!selectedClass || isConfirming}
-                className="bg-[#002045] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0061a5] transition-colors disabled:opacity-50"
-              >
-                {isConfirming ? "Processing..." : "Proceed to Checkout"}
-              </button>
+              {(() => {
+                const selectedOpt = classOptions.find((c) => c.id === selectedClass);
+                const isSelectedFull = (selectedOpt?.availableSeats ?? 0) <= 0;
+                return (
+                  <button
+                    onClick={handleConfirm}
+                    disabled={!selectedClass || isConfirming || isSelectedFull}
+                    className="bg-[#002045] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0061a5] transition-colors disabled:opacity-50"
+                  >
+                    {isConfirming
+                      ? "Processing..."
+                      : isSelectedFull
+                      ? "Class is Full"
+                      : "Proceed to Checkout"}
+                  </button>
+                );
+              })()}
             </div>
           )}
         </div>
