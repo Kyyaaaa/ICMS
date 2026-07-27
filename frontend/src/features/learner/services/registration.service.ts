@@ -27,7 +27,7 @@ export const LearnerRegistrationService = {
             const todayStr = new Date().toLocaleDateString('en-CA');
             const validClasses = classes.filter((cls) => {
                 if (cls.status && String(cls.status).toUpperCase() !== 'UPCOMING') return false;
-                if (cls.start_date && String(cls.start_date).slice(0, 10) <= todayStr) return false;
+                if (cls.start_date && String(cls.start_date).slice(0, 10) < todayStr) return false;
                 return true;
             });
             

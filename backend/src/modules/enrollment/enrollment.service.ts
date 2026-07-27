@@ -27,12 +27,12 @@ export class EnrollmentService {
       throw err;
     }
 
-    // 2.5 Kiểm tra ngày khai giảng của lớp học (không cho phép đăng ký khi lớp học đã bắt đầu hoặc quá ngày khai giảng)
+    // 2.5 Kiểm tra ngày khai giảng của lớp học (không cho phép đăng ký khi lớp học đã quá ngày khai giảng)
     if (classData.start_date) {
       const now = new Date();
       const todayStr = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
       const startDateStr = String(classData.start_date).slice(0, 10);
-      if (startDateStr <= todayStr) {
+      if (startDateStr < todayStr) {
         const err: any = new Error('Class has already started and is closed for registration');
         err.status = 400;
         throw err;
